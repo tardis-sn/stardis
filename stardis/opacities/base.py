@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from astropy import units as u, constants as const
-import numba
 
 
 THERMAL_DE_BROGLIE_CONST = const.h ** 2 / (2 * np.pi * const.m_e * const.k_B)
@@ -10,7 +9,7 @@ H_MINUS_CHI = (
 )  # see https://en.wikipedia.org/wiki/Hydrogen_anion
 SAHA_CONST = const.h ** 2 / (2 * np.pi * const.m_e * const.k_B)
 
-
+# H minus opacity
 def read_wbr_cross_section(wbr_fpath):
     wbr_cross_section = pd.read_csv(
         wbr_fpath, names=["wavelength", "cross_section"], comment="#",
@@ -58,21 +57,30 @@ def calc_tau_h_minus(
     return tau_h_minus
 
 
-@numba.njit
-def calc_weights(delta_tau):
-    if delta_tau < 5e-4:
-        w0 = delta_tau * (1 - delta_tau / 2)
-        w1 = delta_tau ** 2 * (0.5 - delta_tau / 3)
-    elif delta_tau > 50:
-        w0 = 1.0
-        w1 = 1.0
-    else:
-        exp_delta_tau = np.exp(-delta_tau)
-        w0 = 1 - exp_delta_tau
-        w1 = w0 - delta_tau * exp_delta_tau
-    return w0, w1
+# electron opacity
+def calc_tau_e(
+    splasma,
+    marcs_model_fv,
+    tracing_nus,
+):
+    
+    h_minus_density = calc_hminus_density(
+        h_neutral_density=splasma.ion_number_density.loc[(1, 0)].values,
+        temperature=marcs_model_fv.t.values * u.K,
+        electron_density=splasma.electron_densities.values,
+    )
+    
+    new_electron_density = splasma.electron_densities.values - h_minus_density
+    
+    tau_e = const.sigma_T.cgs.value * splasma.electron_densities.values * marcs_model_fv.cell_length.values
+    
+    tau_e_final = np.zeros([len(marcs_model_fv),len(tracing_nus)])
+    for j in range(len(marcs_model_fv)):
+        tau_e_final[j]=tau_e[j]
+    return tau_e_final
 
 
+# line opacity
 def calc_tau_nus(delta_tau, delta_nu):
     gauss_prefactor = 1 / (0.35e10 * np.sqrt(2 * np.pi))
 
