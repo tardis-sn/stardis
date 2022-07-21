@@ -31,19 +31,22 @@ def calc_hminus_density(h_neutral_density, temperature, electron_density):
 
 
 def calc_tau_h_minus(
-    h_neutral_density,
-    temperature,
-    electron_density,
+    splasma,
+    marcs_model_fv,
+    tracing_nus,
     wbr_fpath,
     tracing_wavelength,
-    cell_length,
 ):
     # n or number density
     h_minus_density = calc_hminus_density(
-        h_neutral_density, temperature, electron_density
+        h_neutral_density=splasma.ion_number_density.loc[(1, 0)].values,
+        temperature=marcs_model_fv.t.values * u.K,
+        electron_density=splasma.electron_densities.values,
     )
 
     wbr_cross_section = read_wbr_cross_section(wbr_fpath)
+    
+    #tracing_wavelength = tracing_nus.to(u.AA, u.spectral())
 
     # sigma
     h_minus_sigma_nu = np.interp(
@@ -53,7 +56,7 @@ def calc_tau_h_minus(
     )
 
     # tau = sigma * n * l; shape: (num cells, num tracing nus) - tau for each frequency in each cell
-    tau_h_minus = h_minus_sigma_nu * (h_minus_density * cell_length)[None].T
+    tau_h_minus = h_minus_sigma_nu * (h_minus_density * marcs_model_fv.cell_length.values)[None].T
     return tau_h_minus
 
 
@@ -78,6 +81,32 @@ def calc_tau_e(
     for j in range(len(marcs_model_fv)):
         tau_e_final[j]=tau_e[j]
     return tau_e_final
+
+
+# photoionization opacity
+def calc_tau_photo(
+    splasma,
+    marcs_model_fv,
+    tracing_nus,
+    level,
+    strength,
+    cutoff_frequency,
+):
+    """
+    level is ordered pair (atomic_number,ion_number,level_number)
+    """
+    
+    nl = splasma.level_number_density.loc[level] * marcs_model_fv.cell_length.values
+    
+    tau_photo = np.zeros([len(marcs_model_fv),len(tracing_nus)])
+    
+    for i in range(len(tracing_nus)):
+        nu = tracing_nus[i]
+        if nu.value >= cutoff_frequency:
+            for j in range(len(marcs_model_fv)):
+                tau_photo[j,i] = strength * nl[j] * (cutoff_frequency/nu.value)**3
+                
+    return tau_photo
 
 
 # line opacity

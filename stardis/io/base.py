@@ -34,6 +34,8 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     marcs_model_fv['r_inner'] = marcs_model['depth'].iloc[:-1].values
     marcs_model_fv['r_outer'] = marcs_model['depth'].iloc[1:].values
     marcs_model_fv['cell_length'] = -(marcs_model_fv['r_outer'].values - marcs_model_fv['r_inner'].values)
+    marcs_model_fv['t_inner'] = marcs_model.t[:-1].values
+    marcs_model_fv['t_outer'] = marcs_model.t[1:].values
     
     marcs_abundances_all = pd.DataFrame(columns=marcs_model_fv.index.values, 
                     index=marcs_abundances.index)
