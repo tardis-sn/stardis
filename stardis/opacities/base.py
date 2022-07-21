@@ -45,11 +45,11 @@ def calc_tau_h_minus(
 
     wbr_cross_section = read_wbr_cross_section(wbr_fpath)
     
-    tracing_wavelength = tracing_nus.to(u.AA, u.spectral()).value
+    tracing_lambda = tracing_nus.to(u.AA, u.spectral()).value
 
     # sigma
     h_minus_sigma_nu = np.interp(
-        tracing_wavelength,
+        tracing_lambda,
         wbr_cross_section.wavelength,
         wbr_cross_section.cross_section,
     )
@@ -117,6 +117,8 @@ def calc_tau_nus(
     
     tau_nus = np.zeros([len(marcs_model_fv),len(tracing_nus)])
     
+    gauss_prefactor = 1 / (0.35e10 * np.sqrt(2 * np.pi))
+    
     alpha_line = splasma.alpha_line.reset_index(drop=True).values[::-1]
     delta_tau_lines = alpha_line * marcs_model_fv.cell_length.values
     
@@ -138,10 +140,9 @@ def calc_tau_nus(
         if line_id_start != line_id_end:
             delta_tau = delta_tau_lines[line_id_start:line_id_end]
             delta_nu = nu.value - lines_nu[line_id_start:line_id_end]
-    
-    
-    gauss_prefactor = 1 / (0.35e10 * np.sqrt(2 * np.pi))
-
-    phi = gauss_prefactor * np.exp(-0.5 * (delta_nu / 0.35e10) ** 2)
-    returns (delta_tau * phi[None].T).sum(axis=0)
+            phi = gauss_prefactor * np.exp(-0.5 * (delta_nu / 0.35e10) ** 2)
+            tau_nus[:,i] = (delta_tau * phi[None].T).sum(axis=0)
+        else:
+            tau_nus[:,i] = np.zeros(len(marcs_model_fv))
+ 
     return tau_nus
