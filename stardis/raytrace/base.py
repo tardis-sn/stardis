@@ -15,12 +15,14 @@ def bb_nu(tracing_nus, boundary_temps):
 
 
 def bb_lambda(tracing_lambdas, boundary_temps):
-    bbw_prefactor = (2 * const.h.cgs * const.c.cgs**2) / (tracing_lambda) ** 5
+    AA_to_cm = 1e-8
+    
+    bbw_prefactor = (2 * const.h.cgs * const.c.cgs**2) / ( tracing_lambdas**5 * AA_to_cm**4 )
     bbw = bbw_prefactor / (
         np.exp(
             (
                 (const.h.cgs * const.c.cgs)
-                / (const.k_B.cgs * tracing_lambda * boundary_temps * u.K)
+                / (const.k_B.cgs * tracing_lambdas * boundary_temps * u.K)
             )
         )
         - 1

@@ -43,11 +43,11 @@ def calc_tau_h_minus(
 
     wbr_cross_section = read_wbr_cross_section(wbr_fpath)
 
-    tracing_lambda = tracing_nus.to(u.AA, u.spectral()).value
+    tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
 
     # sigma
     h_minus_sigma_nu = np.interp(
-        tracing_lambda,
+        tracing_lambdas,
         wbr_cross_section.wavelength,
         wbr_cross_section.cross_section,
     )
