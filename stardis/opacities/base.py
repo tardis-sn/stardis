@@ -20,27 +20,13 @@ def read_wbr_cross_section(wbr_fpath):
     return wbr_cross_section
 
 
-def calc_hminus_density(h_neutral_density, temperature, electron_density):
-    thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / temperature) ** (3 / 2)).to(
-        u.cm**3
-    )
-    phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * temperature))
-    return h_neutral_density * electron_density * phi.value
-
-
 def calc_tau_h_minus(
     splasma,
     marcs_model_fv,
     tracing_nus,
     wbr_fpath,
 ):
-    # n or number density
-    h_minus_density = calc_hminus_density(
-        h_neutral_density=splasma.ion_number_density.loc[(1, 0)].values,
-        temperature=marcs_model_fv.t.values * u.K,
-        electron_density=splasma.electron_densities.values,
-    )
-
+    
     wbr_cross_section = read_wbr_cross_section(wbr_fpath)
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
@@ -54,7 +40,7 @@ def calc_tau_h_minus(
 
     # tau = sigma * n * l; shape: (num cells, num tracing nus) - tau for each frequency in each cell
     tau_h_minus = (
-        h_minus_sigma_nu * (h_minus_density * marcs_model_fv.cell_length.values)[None].T
+        h_minus_sigma_nu * (np.array(splasma.h_minus_density) * marcs_model_fv.cell_length.values)[None].T
     )
     return tau_h_minus
 
@@ -65,14 +51,7 @@ def calc_tau_e(
     marcs_model_fv,
     tracing_nus,
 ):
-
-    h_minus_density = calc_hminus_density(
-        h_neutral_density=splasma.ion_number_density.loc[(1, 0)].values,
-        temperature=marcs_model_fv.t.values * u.K,
-        electron_density=splasma.electron_densities.values,
-    )
-
-    new_electron_density = splasma.electron_densities.values - h_minus_density
+    new_electron_density = splasma.electron_densities.values - splasma.h_minus_density
 
     tau_e = (
         const.sigma_T.cgs.value
