@@ -4,7 +4,11 @@ import pandas as pd
 from astropy import constants as const, units as u
 
 from tardis.plasma.base import BasePlasma
-from tardis.plasma.properties.base import DataFrameInput, ProcessingPlasmaProperty, ArrayInput
+from tardis.plasma.properties.base import (
+    DataFrameInput,
+    ProcessingPlasmaProperty,
+    ArrayInput,
+)
 
 from tardis.plasma.properties.property_collections import (
     basic_inputs,
@@ -30,9 +34,11 @@ from tardis.plasma.properties.property_collections import (
 import tardis.plasma
 
 
-ALPHA_COEFFICIENT  = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
+ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
 THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
-H_MINUS_CHI = 0.754195 * u.eV # see https://en.wikipedia.org/wiki/Hydrogen_anion
+H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
+
+
 class AlphaLine(ProcessingPlasmaProperty):
     """
     Attributes
@@ -58,19 +64,16 @@ class AlphaLine(ProcessingPlasmaProperty):
         f_lu,
     ):
         f_lu = f_lu.values[np.newaxis].T
-        #wavelength = wavelength_cm.values[np.newaxis].T
-        
+        # wavelength = wavelength_cm.values[np.newaxis].T
+
         n_lower = level_number_density.values.take(
             lines_lower_level_index, axis=0, mode="raise"
         )
-        alpha =  ALPHA_COEFFICIENT * n_lower * stimulated_emission_factor * f_lu
+        alpha = ALPHA_COEFFICIENT * n_lower * stimulated_emission_factor * f_lu
 
-        if np.any(np.isnan(alpha)) or np.any(
-            np.isinf(np.abs(alpha))
-        ):
+        if np.any(np.isnan(alpha)) or np.any(np.isinf(np.abs(alpha))):
             raise ValueError(
-                "Some alpha_line are nan, inf, -inf "
-                " Something went wrong!"
+                "Some alpha_line are nan, inf, -inf " " Something went wrong!"
             )
 
         return pd.DataFrame(
@@ -79,38 +82,49 @@ class AlphaLine(ProcessingPlasmaProperty):
             columns=np.array(level_number_density.columns),
         )
 
+
 class CellLength(ArrayInput):
-    outputs = ('cell_length',)
+    outputs = ("cell_length",)
+
 
 class HMinusOpacityWBR(ProcessingPlasmaProperty):
-    outputs = ('tau_h_minus')
+    outputs = "tau_h_minus"
+
     def __init__(self, plasma_parent, wbr_opacity_df):
         super(HMinusOpacityWBR, self).__init__(plasma_parent)
         self.wbr_opacity_df = wbr_opacity_df
 
     def calculate(self, h_minus_density, tracing_nus, cell_length):
-        tracing_wavelength = (tracing_nus / const.c)
-        h_minus_sigma_nu = np.interp(tracing_wavelength, 
-                        self.wbr_opacity_df.wavelength,
-                        self.wbr_opacity_df.cross_section)
+        tracing_wavelength = tracing_nus / const.c
+        h_minus_sigma_nu = np.interp(
+            tracing_wavelength,
+            self.wbr_opacity_df.wavelength,
+            self.wbr_opacity_df.cross_section,
+        )
         tau_h_minus = h_minus_sigma_nu * (h_minus_density * cell_length)[None].T
         return tau_h_minus
 
 
 class HMinusDensity(ProcessingPlasmaProperty):
-    outputs = ('h_minus_density',)
+    outputs = ("h_minus_density",)
+
     def calculate(self, ion_number_density, t_rad, electron_densities):
         t_rad = t_rad * u.K
-        h_neutral_density = ion_number_density.loc[1,0]
-        thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / t_rad) ** (3/2)).to(u.cm**3)
+        h_neutral_density = ion_number_density.loc[1, 0]
+        thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / t_rad) ** (3 / 2)).to(
+            u.cm**3
+        )
         phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * t_rad))
         return h_neutral_density * electron_densities * phi.value
 
+
 class TracingNus(ArrayInput):
-    outputs = ('tracing_nus',)
+    outputs = ("tracing_nus",)
     pass
 
+
 # Code that hasn't seen light of the day yet, might be useful in future
+
 
 class InputNumberDensity(DataFrameInput):
     """
@@ -122,7 +136,8 @@ class InputNumberDensity(DataFrameInput):
 
     outputs = ("number_density",)
     latex_name = ("N_{i}",)
-    
+
+
 class SelectedAtoms(ProcessingPlasmaProperty):
     """
     Attributes
@@ -136,15 +151,17 @@ class SelectedAtoms(ProcessingPlasmaProperty):
     def calculate(self, number_density):
         return number_density.index
 
+
 def assemble_plasma(marcs_df):
     pass
 
 
 # creating splasma
 
+
 def create_splasma(marcs_model_fv, marcs_abundances_all, adata, tracing_nus):
-    
-    #basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
+
+    # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
     plasma_modules = []
     plasma_modules += basic_inputs
     plasma_modules += basic_properties
@@ -152,27 +169,31 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, adata, tracing_nus):
     plasma_modules += lte_excitation_properties
     plasma_modules += non_nlte_properties
 
-    plasma_modules.append(tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE)
+    plasma_modules.append(
+        tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE
+    )
     plasma_modules.remove(tardis.plasma.properties.radiative_properties.TauSobolev)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.TimeExplosion)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.DilutionFactor)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.HeliumTreatment)
-    plasma_modules.remove(tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies)
-    plasma_modules+= helium_lte_properties
+    plasma_modules.remove(
+        tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies
+    )
+    plasma_modules += helium_lte_properties
     plasma_modules.append(AlphaLine)
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(TracingNus)
-    #plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
+    # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
 
-    #plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
-    #plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
-    
+    # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
+    # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
+
     return BasePlasma(
         plasma_properties=plasma_modules,
         t_rad=marcs_model_fv.t.values,
         abundance=marcs_abundances_all,
-        atomic_data=adata, 
+        atomic_data=adata,
         density=marcs_model_fv.density.values,
         link_t_rad_t_electron=1.0,
-        tracing_nus=tracing_nus 
-        )
+        tracing_nus=tracing_nus,
+    )
