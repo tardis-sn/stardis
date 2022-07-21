@@ -35,7 +35,6 @@ def calc_tau_h_minus(
     marcs_model_fv,
     tracing_nus,
     wbr_fpath,
-    tracing_wavelength,
 ):
     # n or number density
     h_minus_density = calc_hminus_density(
@@ -46,7 +45,7 @@ def calc_tau_h_minus(
 
     wbr_cross_section = read_wbr_cross_section(wbr_fpath)
     
-    #tracing_wavelength = tracing_nus.to(u.AA, u.spectral())
+    tracing_wavelength = tracing_nus.to(u.AA, u.spectral()).value
 
     # sigma
     h_minus_sigma_nu = np.interp(
@@ -110,8 +109,39 @@ def calc_tau_photo(
 
 
 # line opacity
-def calc_tau_nus(delta_tau, delta_nu):
+def calc_tau_nus(
+    splasma,
+    marcs_model_fv,
+    tracing_nus
+):
+    
+    tau_nus = np.zeros([len(marcs_model_fv),len(tracing_nus)])
+    
+    alpha_line = splasma.alpha_line.reset_index(drop=True).values[::-1]
+    delta_tau_lines = alpha_line * marcs_model_fv.cell_length.values
+    
+    # transition doesn't happen at a specific nu due to several factors (changing temperatires, doppler shifts, relativity, etc.)
+    # so we take a window 2e11 Hz wide - if nu falls within that, we consider it
+    lines_nu = splasma.lines.nu.values[::-1] # reverse to bring them to ascending order
+    # search_sorted finds the index before which a (tracing_nu +- 1e11) can be inserted 
+    # in lines_nu array to maintain its sort order
+    line_id_starts = lines_nu.searchsorted(tracing_nus.value-1e11)
+    line_id_ends = lines_nu.searchsorted(tracing_nus.value+1e11)
+    
+    for i in range(len(tracing_nus)):  # iterating over nus (columns)
+        nu, line_id_start, line_id_end = (
+            tracing_nus[i],
+            line_id_starts[i],
+            line_id_ends[i],
+        )
+
+        if line_id_start != line_id_end:
+            delta_tau = delta_tau_lines[line_id_start:line_id_end]
+            delta_nu = nu.value - lines_nu[line_id_start:line_id_end]
+    
+    
     gauss_prefactor = 1 / (0.35e10 * np.sqrt(2 * np.pi))
 
     phi = gauss_prefactor * np.exp(-0.5 * (delta_nu / 0.35e10) ** 2)
-    return (delta_tau * phi[None].T).sum(axis=0)
+    returns (delta_tau * phi[None].T).sum(axis=0)
+    return tau_nus
