@@ -14,8 +14,9 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
         The filenamefor the MARCS model.
     atom_data : tardis.io.atom_data.base.AtomData
         Atomic data used for converting number density to mass density.
-    final_atomic_number : int
-        Atomic number for the final element included in the model.
+    final_atomic_number : int, optional
+        Atomic number for the final element included in the model. Default
+        is 30.
         
     Returns
     -------
