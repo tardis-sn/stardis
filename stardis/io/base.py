@@ -5,6 +5,28 @@ from astropy import units as u, constants as const
 
 
 def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
+    """
+    Reads MARCS model and produces a finite volume model.
+    
+    Parameters
+    ----------
+    fname : str
+        The filenamefor the MARCS model.
+    atom_data : tardis.io.atom_data.base.AtomData
+        Atomic data used for converting number density to mass density.
+    final_atomic_number : int
+        Atomic number for the final element included in the model.
+        
+    Returns
+    -------
+    marcs_model_fv : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
+    marcs_abundances_all : pandas.core.frame.DataFrame
+        Abundance DataFrame with all included elements and mass abundances.
+    boundary_temps : numpy.ndarray
+        Temperatures in K of all shell boundaries. Note that array is transposed.
+    """
+
     marcs_model1 = pd.read_csv(
         fname, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
     )
@@ -38,7 +60,7 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     )
     marcs_model = marcs_model[::-1]
 
-    temps = marcs_model.t.values[None].T
+    boundary_temps = marcs_model.t.values[None].T
 
     marcs_model_fv = pd.DataFrame(
         data=0.5 * (marcs_model.iloc[:-1].values + marcs_model.iloc[1:].values),
@@ -57,5 +79,5 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     )
     for i in range(len(marcs_abundances_all.columns)):
         marcs_abundances_all[i] = marcs_abundances["mass_abundance"]
-    marcs_abundances_all = marcs_abundances_all
-    return marcs_model_fv, marcs_abundances_all[:final_atomic_number], temps
+    marcs_abundances_all = marcs_abundances_all[:final_atomic_number]
+    return marcs_model_fv, marcs_abundances_all, boundary_temps

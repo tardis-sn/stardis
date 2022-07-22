@@ -131,7 +131,7 @@ class InputNumberDensity(DataFrameInput):
     Attributes
     ----------
     number_density : Pandas DataFrame, dtype float
-                     Indexed by atomic number, columns corresponding to zones
+        Indexed by atomic number, columns corresponding to zones
     """
 
     outputs = ("number_density",)
@@ -159,7 +159,26 @@ def assemble_plasma(marcs_df):
 # creating splasma
 
 
-def create_splasma(marcs_model_fv, marcs_abundances_all, adata, tracing_nus):
+def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus):
+    """
+    Creates stellar plasma.
+    
+    Parameters
+    ----------
+    marcs_model_fv : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
+    marcs_abundances_all : pandas.core.frame.DataFrame
+        Abundance DataFrame with all included elements and mass abundances.
+    atom_data : tardis.io.atom_data.base.AtomData
+        Atomic data used for converting number density to mass density.
+    tracing_nus : numpy.ndarray * astropy unit Hz
+        Frequencies used for ray tracing.
+    
+    Returns
+    -------
+    splasma : tardis.plasma.base.BasePlasma
+        Stellar plasma.
+    """
 
     # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
     plasma_modules = []
@@ -187,13 +206,15 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, adata, tracing_nus):
 
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
-
-    return BasePlasma(
+    
+    splasma = BasePlasma(
         plasma_properties=plasma_modules,
         t_rad=marcs_model_fv.t.values,
         abundance=marcs_abundances_all,
-        atomic_data=adata,
+        atomic_data=atom_data,
         density=marcs_model_fv.density.values,
         link_t_rad_t_electron=1.0,
         tracing_nus=tracing_nus,
     )
+
+    return splasma
