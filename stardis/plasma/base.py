@@ -143,7 +143,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
     Attributes
     ----------
     selected_atoms : Pandas Int64Index, dtype int
-                     Atomic numbers of elements required for particular simulation
+        Atomic numbers of elements required for particular simulation
     """
 
     outputs = ("selected_atoms",)
@@ -171,8 +171,8 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
         Abundance DataFrame with all included elements and mass abundances.
     atom_data : tardis.io.atom_data.base.AtomData
         Atomic data used for converting number density to mass density.
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
 
     Returns
     -------

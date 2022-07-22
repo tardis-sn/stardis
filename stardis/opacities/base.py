@@ -50,8 +50,8 @@ def calc_tau_h_minus(
         Stellar plasma.
     marcs_model_fv : pandas.core.frame.DataFrame
         Finite volume model DataFrame.
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
     wbr_fpath : str
         Filepath to read H minus cross sections.
 
@@ -98,8 +98,8 @@ def calc_tau_e(
         Stellar plasma.
     marcs_model_fv : pandas.core.frame.DataFrame
         Finite volume model DataFrame.
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
 
     Returns
     -------
@@ -140,8 +140,8 @@ def calc_tau_photo(
         Stellar plasma.
     marcs_model_fv : pandas.core.frame.DataFrame
         Finite volume model DataFrame.
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
     level : tuple
         Species being ionized. Expressed as
         (atomic_number, ion_number, level_number).
@@ -182,8 +182,8 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
         Stellar plasma.
     marcs_model_fv : pandas.core.frame.DataFrame
         Finite volume model DataFrame.
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
 
     Returns
     -------
