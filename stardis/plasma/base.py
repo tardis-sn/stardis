@@ -162,7 +162,7 @@ def assemble_plasma(marcs_df):
 def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus):
     """
     Creates stellar plasma.
-    
+
     Parameters
     ----------
     marcs_model_fv : pandas.core.frame.DataFrame
@@ -173,7 +173,7 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
         Atomic data used for converting number density to mass density.
     tracing_nus : numpy.ndarray * astropy unit Hz
         Frequencies used for ray tracing.
-    
+
     Returns
     -------
     splasma : tardis.plasma.base.BasePlasma
@@ -206,7 +206,7 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
 
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
-    
+
     splasma = BasePlasma(
         plasma_properties=plasma_modules,
         t_rad=marcs_model_fv.t.values,

@@ -12,18 +12,18 @@ def read_wbr_cross_section(wbr_fpath):
     """
     Reads H minus cross sections by wavelength from Wishart (1979) and
     Broad and Reinhardt (1976).
-    
+
     Parameters
     ----------
     wbr_fpath : str
         Filepath to read H minus cross sections.
-    
+
     Returns
     -------
     wbr_cross_section : pandas.core.frame.DataFrame
         H minus cross sections by wavelength.
     """
-    
+
     wbr_cross_section = pd.read_csv(
         wbr_fpath,
         names=["wavelength", "cross_section"],
@@ -43,7 +43,7 @@ def calc_tau_h_minus(
 ):
     """
     Calculates H minus optical depth.
-    
+
     Parameters
     ----------
     splasma : tardis.plasma.base.BasePlasma
@@ -54,7 +54,7 @@ def calc_tau_h_minus(
         Frequencies used for ray tracing.
     wbr_fpath : str
         Filepath to read H minus cross sections.
-        
+
     Returns
     -------
     tau_h_minus : numpy.ndarray
@@ -75,7 +75,10 @@ def calc_tau_h_minus(
 
     # tau = sigma * n * l; shape: (num cells, num tracing nus) - tau for each frequency in each cell
     tau_h_minus = (
-        h_minus_sigma_nu * (np.array(splasma.h_minus_density) * marcs_model_fv.cell_length.values)[None].T
+        h_minus_sigma_nu
+        * (np.array(splasma.h_minus_density) * marcs_model_fv.cell_length.values)[
+            None
+        ].T
     )
     return tau_h_minus
 
@@ -88,7 +91,7 @@ def calc_tau_e(
 ):
     """
     Calculates electron scattering optical depth.
-    
+
     Parameters
     ----------
     splasma : tardis.plasma.base.BasePlasma
@@ -97,14 +100,14 @@ def calc_tau_e(
         Finite volume model DataFrame.
     tracing_nus : numpy.ndarray * astropy unit Hz
         Frequencies used for ray tracing.
-        
+
     Returns
     -------
     tau_e : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Electron scattering
         optical depth in each shell for each frequency in tracing_nus.
     """
-    
+
     new_electron_density = splasma.electron_densities.values - splasma.h_minus_density
 
     tau_e_by_shell = (
@@ -130,7 +133,7 @@ def calc_tau_photo(
 ):
     """
     Calculates photoionization optical depth.
-    
+
     Parameters
     ----------
     splasma : tardis.plasma.base.BasePlasma
@@ -147,7 +150,7 @@ def calc_tau_photo(
         optical depth, expressed in cm^2.
     cutoff_frequency : float
         Minimum frequency of light to ionize atom.
-        
+
     Returns
     -------
     tau_photo : numpy.ndarray
@@ -172,7 +175,7 @@ def calc_tau_photo(
 def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
     """
     Calculates line interaction optical depth.
-    
+
     Parameters
     ----------
     splasma : tardis.plasma.base.BasePlasma
@@ -181,7 +184,7 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
         Finite volume model DataFrame.
     tracing_nus : numpy.ndarray * astropy unit Hz
         Frequencies used for ray tracing.
-        
+
     Returns
     -------
     tau_line : numpy.ndarray

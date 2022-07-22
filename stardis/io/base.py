@@ -7,7 +7,7 @@ from astropy import units as u, constants as const
 def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     """
     Reads MARCS model and produces a finite volume model.
-    
+
     Parameters
     ----------
     fname : str
@@ -17,7 +17,7 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     final_atomic_number : int, optional
         Atomic number for the final element included in the model. Default
         is 30.
-        
+
     Returns
     -------
     marcs_model_fv : pandas.core.frame.DataFrame
