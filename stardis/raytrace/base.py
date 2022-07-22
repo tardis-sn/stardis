@@ -4,6 +4,24 @@ from astropy import units as u, constants as const
 
 
 def bb_nu(tracing_nus, boundary_temps):
+    """
+    Planck blackbody intensity distribution w.r.t. frequency.
+    
+    Parameters
+    ----------
+    tracing_nus : numpy.ndarray * astropy unit Hz
+        Frequencies used for ray tracing.
+    boundary_temps : numpy.ndarray
+        Temperatures in K of all shell boundaries. Note that array must
+        be transposed.
+        
+    Returns
+    -------
+    bb : numpy.ndarray * astropy unit erg/(s cm^2 Hz)
+        Array of shape (no_of_shells + 1, no_of_frequencies). Blackbody specific
+        intensity at each shell boundary for each frequency in tracing_nus.
+    """
+    
     bb_prefactor = (2 * const.h.cgs * tracing_nus**3) / const.c.cgs**2
     bb = bb_prefactor / (
         np.exp(
@@ -15,6 +33,24 @@ def bb_nu(tracing_nus, boundary_temps):
 
 
 def bb_lambda(tracing_lambdas, boundary_temps):
+    """
+    Planck blackbody intensity distribution w.r.t. wavelength.
+    
+    Parameters
+    ----------
+    tracing_lambdas : numpy.ndarray * astropy unit AA
+        Wavelengths used for ray tracing.
+    boundary_temps : numpy.ndarray
+        Temperatures in K of all shell boundaries. Note that array must
+        be transposed.
+        
+    Returns
+    -------
+    bb : numpy.ndarray * astropy unit erg/(s cm^2 AA)
+        Array of shape (no_of_shells + 1, no_of_wavelengths). Blackbody specific
+        intensity at each shell boundary for each wavelength in tracing_lambdas.
+    """
+    
     AA_to_cm = 1e-8
     
     bbw_prefactor = (2 * const.h.cgs * const.c.cgs**2) / ( tracing_lambdas**5 * AA_to_cm**4 )
@@ -32,6 +68,20 @@ def bb_lambda(tracing_lambdas, boundary_temps):
 
 @numba.njit
 def calc_weights(delta_tau):
+    """
+    Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
+    
+    Parameters
+    ----------
+    delta_tau : float
+        Total optical depth.
+        
+    Returns
+    -------
+    w0 : float
+    w1 : float
+    """
+    
     if delta_tau < 5e-4:
         w0 = delta_tau * (1 - delta_tau / 2)
         w1 = delta_tau**2 * (0.5 - delta_tau / 3)
@@ -46,6 +96,29 @@ def calc_weights(delta_tau):
 
 
 def raytrace(bb, all_taus, tracing_nus, no_of_shells):
+    """
+    Performs ray tracing following van Noort 2001 eq 14.
+    
+    Parameters
+    ----------
+    bb : numpy.ndarray * astropy unit erg/(s cm^2 Hz)
+        Array of shape (no_of_shells + 1, no_of_frequencies). Blackbody specific
+        intensity at each shell boundary for each frequency in tracing_nus.
+    all_taus : iterable
+        Contains all optical depths used. Each entry must be an array of shape
+        (no_of_shells, no_of_frequencies).
+    tracing_nus : numpy.ndarray * astropy unit Hz
+        Frequencies used for ray tracing.
+    no_of_shells : int
+        Number of shells in the model.
+    
+    Returns
+    -------
+    I_nu : numpy.ndarray
+        Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
+        intensity at each shell boundary for each frequency in tracing_nus.
+    """
+    
     source = bb[1:].value
     delta_source = bb.diff(axis=0).value  # for cells, not boundary
     I_nu = np.ones((no_of_shells + 1, len(tracing_nus))) * -99
