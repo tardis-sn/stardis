@@ -9,17 +9,18 @@ def bb_nu(tracing_nus, boundary_temps):
 
     Parameters
     ----------
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
     boundary_temps : numpy.ndarray
         Temperatures in K of all shell boundaries. Note that array must
         be transposed.
 
     Returns
     -------
-    bb : numpy.ndarray * astropy unit erg/(s cm^2 Hz)
-        Array of shape (no_of_shells + 1, no_of_frequencies). Blackbody specific
-        intensity at each shell boundary for each frequency in tracing_nus.
+    bb : astropy.unit.quantity.Quantity
+        Numpy array of shape (no_of_shells + 1, no_of_frequencies) with units
+        of erg/(s cm^2 Hz). Blackbody specific intensity at each shell
+        boundary for each frequency in tracing_nus.
     """
 
     bb_prefactor = (2 * const.h.cgs * tracing_nus**3) / const.c.cgs**2
@@ -38,17 +39,18 @@ def bb_lambda(tracing_lambdas, boundary_temps):
 
     Parameters
     ----------
-    tracing_lambdas : numpy.ndarray * astropy unit AA
-        Wavelengths used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of wavelengths used for ray tracing with units of AA.
     boundary_temps : numpy.ndarray
         Temperatures in K of all shell boundaries. Note that array must
         be transposed.
 
     Returns
     -------
-    bb : numpy.ndarray * astropy unit erg/(s cm^2 AA)
-        Array of shape (no_of_shells + 1, no_of_wavelengths). Blackbody specific
-        intensity at each shell boundary for each wavelength in tracing_lambdas.
+    bbw : astropy.unit.quantity.Quantity
+        Numpy array of shape (no_of_shells + 1, no_of_wavelengths) with units
+        of erg/(s cm^2 AA). Blackbody specific intensity at each shell
+        boundary for each wavelength in tracing_lambdas.
     """
 
     AA_to_cm = 1e-8
@@ -103,14 +105,15 @@ def raytrace(bb, all_taus, tracing_nus, no_of_shells):
 
     Parameters
     ----------
-    bb : numpy.ndarray * astropy unit erg/(s cm^2 Hz)
-        Array of shape (no_of_shells + 1, no_of_frequencies). Blackbody specific
-        intensity at each shell boundary for each frequency in tracing_nus.
+    bb : astropy.unit.quantity.Quantity
+        Numpy array of shape (no_of_shells + 1, no_of_frequencies) with units
+        of erg/(s cm^2 Hz). Blackbody specific intensity at each shell
+        boundary for each frequency in tracing_nus.
     all_taus : iterable
         Contains all optical depths used. Each entry must be an array of shape
         (no_of_shells, no_of_frequencies).
-    tracing_nus : numpy.ndarray * astropy unit Hz
-        Frequencies used for ray tracing.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
     no_of_shells : int
         Number of shells in the model.
 
