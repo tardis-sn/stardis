@@ -83,28 +83,6 @@ class AlphaLine(ProcessingPlasmaProperty):
         )
 
 
-class CellLength(ArrayInput):
-    outputs = ("cell_length",)
-
-
-class HMinusOpacityWBR(ProcessingPlasmaProperty):
-    outputs = "tau_h_minus"
-
-    def __init__(self, plasma_parent, wbr_opacity_df):
-        super(HMinusOpacityWBR, self).__init__(plasma_parent)
-        self.wbr_opacity_df = wbr_opacity_df
-
-    def calculate(self, h_minus_density, tracing_nus, cell_length):
-        tracing_wavelength = tracing_nus / const.c
-        h_minus_sigma_nu = np.interp(
-            tracing_wavelength,
-            self.wbr_opacity_df.wavelength,
-            self.wbr_opacity_df.cross_section,
-        )
-        tau_h_minus = h_minus_sigma_nu * (h_minus_density * cell_length)[None].T
-        return tau_h_minus
-
-
 class HMinusDensity(ProcessingPlasmaProperty):
     outputs = ("h_minus_density",)
 
@@ -123,7 +101,8 @@ class TracingNus(ArrayInput):
     pass
 
 
-# Code that hasn't seen light of the day yet, might be useful in future
+# Properties that haven't been used in creating stellar plasma yet,
+# might be useful in future ----------------------------------------------------
 
 
 class InputNumberDensity(DataFrameInput):
@@ -152,11 +131,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
         return number_density.index
 
 
-def assemble_plasma(marcs_df):
-    pass
-
-
-# creating splasma
+# Creating stellar plasma ------------------------------------------------------
 
 
 def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus):
@@ -203,7 +178,6 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(TracingNus)
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
-
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
 
