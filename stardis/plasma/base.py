@@ -83,28 +83,6 @@ class AlphaLine(ProcessingPlasmaProperty):
         )
 
 
-class CellLength(ArrayInput):
-    outputs = ("cell_length",)
-
-
-class HMinusOpacityWBR(ProcessingPlasmaProperty):
-    outputs = "tau_h_minus"
-
-    def __init__(self, plasma_parent, wbr_opacity_df):
-        super(HMinusOpacityWBR, self).__init__(plasma_parent)
-        self.wbr_opacity_df = wbr_opacity_df
-
-    def calculate(self, h_minus_density, tracing_nus, cell_length):
-        tracing_wavelength = tracing_nus / const.c
-        h_minus_sigma_nu = np.interp(
-            tracing_wavelength,
-            self.wbr_opacity_df.wavelength,
-            self.wbr_opacity_df.cross_section,
-        )
-        tau_h_minus = h_minus_sigma_nu * (h_minus_density * cell_length)[None].T
-        return tau_h_minus
-
-
 class HMinusDensity(ProcessingPlasmaProperty):
     outputs = ("h_minus_density",)
 
@@ -123,7 +101,8 @@ class TracingNus(ArrayInput):
     pass
 
 
-# Code that hasn't seen light of the day yet, might be useful in future
+# Properties that haven't been used in creating stellar plasma yet,
+# might be useful in future ----------------------------------------------------
 
 
 class InputNumberDensity(DataFrameInput):
@@ -131,7 +110,7 @@ class InputNumberDensity(DataFrameInput):
     Attributes
     ----------
     number_density : Pandas DataFrame, dtype float
-                     Indexed by atomic number, columns corresponding to zones
+        Indexed by atomic number, columns corresponding to zones
     """
 
     outputs = ("number_density",)
@@ -152,14 +131,29 @@ class SelectedAtoms(ProcessingPlasmaProperty):
         return number_density.index
 
 
-def assemble_plasma(marcs_df):
-    pass
+# Creating stellar plasma ------------------------------------------------------
 
 
-# creating splasma
+def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus):
+    """
+    Creates stellar plasma.
 
+    Parameters
+    ----------
+    marcs_model_fv : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
+    marcs_abundances_all : pandas.core.frame.DataFrame
+        Abundance DataFrame with all included elements and mass abundances.
+    atom_data : tardis.io.atom_data.base.AtomData
+        Atomic data used for converting number density to mass density.
+    tracing_nus : numpy.ndarray * astropy unit Hz
+        Frequencies used for ray tracing.
 
-def create_splasma(marcs_model_fv, marcs_abundances_all, adata, tracing_nus):
+    Returns
+    -------
+    splasma : tardis.plasma.base.BasePlasma
+        Stellar plasma.
+    """
 
     # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
     plasma_modules = []
@@ -184,16 +178,17 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, adata, tracing_nus):
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(TracingNus)
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
-
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
 
-    return BasePlasma(
+    splasma = BasePlasma(
         plasma_properties=plasma_modules,
         t_rad=marcs_model_fv.t.values,
         abundance=marcs_abundances_all,
-        atomic_data=adata,
+        atomic_data=atom_data,
         density=marcs_model_fv.density.values,
         link_t_rad_t_electron=1.0,
         tracing_nus=tracing_nus,
     )
+
+    return splasma
