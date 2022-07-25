@@ -7,7 +7,6 @@ from tardis.plasma.base import BasePlasma
 from tardis.plasma.properties.base import (
     DataFrameInput,
     ProcessingPlasmaProperty,
-    ArrayInput,
 )
 
 from tardis.plasma.properties.property_collections import (
@@ -96,11 +95,6 @@ class HMinusDensity(ProcessingPlasmaProperty):
         return h_neutral_density * electron_densities * phi.value
 
 
-class TracingNus(ArrayInput):
-    outputs = ("tracing_nus",)
-    pass
-
-
 # Properties that haven't been used in creating stellar plasma yet,
 # might be useful in future ----------------------------------------------------
 
@@ -134,7 +128,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 # Creating stellar plasma ------------------------------------------------------
 
 
-def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus):
+def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data):
     """
     Creates stellar plasma.
 
@@ -146,8 +140,6 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
         Abundance DataFrame with all included elements and mass abundances.
     atom_data : tardis.io.atom_data.base.AtomData
         Atomic data used for converting number density to mass density.
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
 
     Returns
     -------
@@ -176,7 +168,6 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
     plasma_modules += helium_lte_properties
     plasma_modules.append(AlphaLine)
     plasma_modules.append(HMinusDensity)
-    plasma_modules.append(TracingNus)
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
@@ -188,7 +179,6 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data, tracing_nus)
         atomic_data=atom_data,
         density=marcs_model_fv.density.values,
         link_t_rad_t_electron=1.0,
-        tracing_nus=tracing_nus,
     )
 
     return splasma
