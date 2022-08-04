@@ -20,7 +20,7 @@ def calc_phi(delta_nu, line_id, T, splasma):
     
     Returns
     -------
-    phi : int
+    phi : float
         Line profile.
     """
     gauss_prefactor = 1 / (3.5e10 * np.sqrt(2 * np.pi))
