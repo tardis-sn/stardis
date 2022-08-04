@@ -5,7 +5,7 @@ def calc_phi(delta_nu):
     """
     Calculates line profile of a single line in a single shell at a single
     frequency.
-    
+
     Parameters
     ----------
     delta_nu : float
@@ -20,7 +20,7 @@ def calc_phi(delta_nu):
 def assemble_phis(splasma, marcs_model_fv, nu, line_id_start, line_id_end):
     """
     Puts together several line profiles at a single frequency for all shells.
-    
+
     Parameters
     ----------
     splasma : tardis.plasma.base.BasePlasma
@@ -33,7 +33,7 @@ def assemble_phis(splasma, marcs_model_fv, nu, line_id_start, line_id_end):
         Line id for first line considered.
     line_id_end : int
         Line id for line after last line considered.
-        
+
     Returns
     -------
     phis : numpy.ndarray
@@ -45,5 +45,5 @@ def assemble_phis(splasma, marcs_model_fv, nu, line_id_start, line_id_end):
     phis = np.zeros((len(delta_nus), len(marcs_model_fv)))
     for j in range(len(marcs_model_fv)):
         for i in range(len(delta_nus)):
-            phis[i,j] = calc_phi(delta_nus[i])
+            phis[i, j] = calc_phi(delta_nus[i])
     return phis
