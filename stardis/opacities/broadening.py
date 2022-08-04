@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def calc_phi(delta_nu):
+def calc_phi(delta_nu, line_id, T, splasma):
     """
     Calculates line profile of a single line in a single shell at a single
     frequency.
@@ -11,9 +11,21 @@ def calc_phi(delta_nu):
     delta_nu : float
         Difference between the frequency that the profile is evaluated at
         and the resonance frequency of the line.
+    line_id : int
+        Line id for the line being considered.
+    T : float
+        Temperature in the shell being considered.
+    splasma : tardis.plasma.base.BasePlasma
+        Stellar plasma.
+    
+    Returns
+    -------
+    phi : int
+        Line profile.
     """
     gauss_prefactor = 1 / (3.5e10 * np.sqrt(2 * np.pi))
     phi = gauss_prefactor * np.exp(-0.5 * (delta_nu / 3.5e10) ** 2)
+    
     return phi
 
 
@@ -43,7 +55,11 @@ def assemble_phis(splasma, marcs_model_fv, nu, line_id_start, line_id_end):
     lines_nu = splasma.lines.nu.values[::-1]
     delta_nus = nu - lines_nu[line_id_start:line_id_end]
     phis = np.zeros((len(delta_nus), len(marcs_model_fv)))
+    
     for j in range(len(marcs_model_fv)):
+        T = marcs_model_fv.t[j]
         for i in range(len(delta_nus)):
-            phis[i, j] = calc_phi(delta_nus[i])
+            line_id = line_id_start + i
+            phis[i, j] = calc_phi(delta_nus[i], line_id, T, splasma)
+    
     return phis
