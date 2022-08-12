@@ -222,7 +222,14 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
             lines_considered = lines.loc[line_id_start : line_id_end - 1].reset_index(
                 drop=True
             )
-            phis = assemble_phis(splasma, marcs_model_fv, nu, lines_considered)
+            phis = assemble_phis(
+                atomic_masses=splasma.atomic_mass.values,
+                temperatures=marcs_model_fv.t.values,
+                nu=nu,
+                lines_considered_nu=lines_considered.nu.values,
+                lines_considered_atomic_num=lines_considered.atomic_number.values,
+                lines_considered_A_ul=lines_considered.A_ul.values,
+            )
             tau_line[:, i] = (delta_taus * phis).sum(axis=0)
         else:
             tau_line[:, i] = np.zeros(len(marcs_model_fv))
