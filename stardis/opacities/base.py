@@ -201,6 +201,7 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
     lines = splasma.lines[::-1].reset_index()  # bring lines in ascending order of nu
     # convert df's columns to arrays in advance because it's a costly operation esp. in loop
+    # TODO: better way? create a 2d array and a map of df column names to array index
     lines_nu = lines.nu.values
     lines_atomic_number = lines.atomic_number.values
     lines_A_ul = lines.A_ul.values
@@ -213,14 +214,16 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
     line_id_ends = lines_nu.searchsorted(tracing_nus.value + 1e11) + 1
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
-        nu, line_id_start, line_id_end = (
-            tracing_nus[i].value,
-            line_id_starts[i],
-            line_id_ends[i],
-        )
+        nu = tracing_nus[i].value
+
+        # starting and ending indices of all lines considered at a particular frequency, `nu`
+        line_id_start, line_id_end = (line_id_starts[i], line_id_ends[i])
 
         if line_id_start != line_id_end:
+            # optical depth of each considered line for each shell at `nu`
             delta_taus = delta_tau_lines[line_id_start:line_id_end]
+
+            # line profiles of each considered line for each shell at `nu`
             phis = assemble_phis(
                 atomic_masses=splasma.atomic_mass.values,
                 temperatures=marcs_model_fv.t.values,
@@ -231,7 +234,12 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
                 ],
                 lines_considered_A_ul=lines_A_ul[line_id_start:line_id_end],
             )
+
+            # apply spectral broadening to optical depths (by multiplying line profiles)
+            # and take sum of these broadened optical depths along "considered lines" axis
+            # to obtain line-interaction optical depths for each shell at `nu` (1D array)
             tau_line[:, i] = (delta_taus * phis).sum(axis=0)
+
         else:
             tau_line[:, i] = np.zeros(len(marcs_model_fv))
 
