@@ -15,7 +15,7 @@ BOHR_RADIUS = const.a0.cgs.value
 VACUUM_ELECTRIC_PERMITTIVITY = 1
 
 
-@numba.jit
+@numba.njit
 def calc_doppler_width(nu_line, temperature, atomic_mass):
     return (
         nu_line
@@ -24,12 +24,12 @@ def calc_doppler_width(nu_line, temperature, atomic_mass):
     )
 
 
-@numba.jit
+@numba.njit
 def calc_n_effective(atomic_number, ionization_energy, level_energy):
     return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * atomic_number
 
 
-@numba.jit
+@numba.njit
 def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
     Calculates broadening parameter for linear Stark broadening.???
@@ -58,7 +58,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     return gamma_linear_stark
 
 
-@numba.jit
+@numba.njit
 def calc_gamma_resonance():
     """
     Calculates broadening parameter for resonance broadening.???
@@ -76,7 +76,7 @@ def calc_gamma_resonance():
     return gamma_resonance
 
 
-@numba.jit
+@numba.njit
 def calc_gamma_quadratic_stark(
     atomic_number, n_eff_upper, n_eff_lower, electron_density, temperature
 ):
@@ -110,7 +110,7 @@ def calc_gamma_quadratic_stark(
     return gamma_quadratic_stark
 
 
-@numba.jit
+@numba.njit
 def calc_gamma_van_der_waals():
     """
     Calculates broadening parameter for van der Waals broadening.???
@@ -128,7 +128,7 @@ def calc_gamma_van_der_waals():
     return gamma_van_der_waals
 
 
-@numba.jit
+@numba.njit
 def calc_gamma_collision(
     atomic_number,
     ion_number,
