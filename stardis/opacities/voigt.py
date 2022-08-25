@@ -6,6 +6,14 @@ import numba
 def faddeeva(z):
     """
     Adapted from https://github.com/tiagopereira/Transparency.jl/blob/966fb46c21d5847c28f6f2eaa5ea6ff569e25bf2/src/voigt.jl#L13
+
+    Parameters
+    ----------
+    z : complex
+
+    Returns
+    -------
+    w : complex
     """
     s = abs(np.real(z)) + np.imag(z)
 
@@ -66,6 +74,25 @@ def faddeeva(z):
 
 @numba.njit
 def voigt_profile(delta_nu, doppler_width, gamma):
+    """
+    Calculates the Voigt profile, the convolution of a Lorentz profile
+    and a Gaussian profile.
+
+    Parameters
+    ----------
+    delta_nu : float
+        Difference between the frequency that the profile is being evaluated at
+        and the line's resonance frequency.
+    doppler_width : float
+        Doppler width for Gaussian profile.
+    gamma : float
+        Broadening parameter for Lorentz profile.
+
+    Returns
+    -------
+    phi : float
+        Value of Voigt profile.
+    """
     z = (delta_nu + (gamma / (4 * np.pi)) * 1j) / doppler_width
     phi = np.real(faddeeva(z)) / (np.sqrt(np.pi) * doppler_width)
     return phi
