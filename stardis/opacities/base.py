@@ -237,6 +237,9 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
     line_cols = map_items_to_indices(lines.columns.to_list())
     lines_array = lines.to_numpy()
+    
+    h_densities = splasma.ion_number_density.loc[1, 0].to_numpy()
+    he_abundances = splasma.abundance.loc[2].to_numpy()
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         # starting and ending indices of all lines considered at a particular frequency, `nu`
@@ -251,8 +254,8 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
                 atomic_masses=splasma.atomic_mass.values,
                 temperatures=marcs_model_fv.t.values,
                 electron_densities=splasma.electron_densities.values,
-                h_densities=np.array(splasma.ion_number_density.loc[1, 0]),
-                he_abundances=np.array(splasma.abundance.loc[2]),
+                h_densities=h_densities,
+                he_abundances=he_abundances,
                 nu=tracing_nus[i].value,
                 lines_considered=lines_array[line_id_start:line_id_end],
                 line_cols=line_cols,

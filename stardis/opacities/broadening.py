@@ -63,11 +63,16 @@ def calc_n_effective(atomic_number, ionization_energy, level_energy):
 @numba.njit
 def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
-    Calculates broadening parameter for linear Stark broadening.???
+    Calculates broadening parameter for linear Stark broadening.
 
     Parameters
     ----------
-    ???
+    n_eff_upper : float
+        Effective principal quantum number of upper level of transition.
+    n_eff_lower : float
+        Effective principal quantum number of lower level of transition.
+    electron_density : float
+        Electron density in shell being considered.
 
     Returns
     -------
@@ -95,7 +100,7 @@ def calc_gamma_quadratic_stark(
     atomic_number, n_eff_upper, n_eff_lower, electron_density, temperature
 ):
     """
-    Calculates broadening parameter for quadratic Stark broadening.???
+    Calculates broadening parameter for quadratic Stark broadening.
 
     Parameters
     ----------
@@ -147,7 +152,7 @@ def calc_gamma_van_der_waals(
     he_mass,
 ):
     """
-    Calculates broadening parameter for van der Waals broadening.???
+    Calculates broadening parameter for van der Waals broadening.
 
     Parameters
     ----------
