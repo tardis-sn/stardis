@@ -220,6 +220,7 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
                 splasma, marcs_model_fv, nu, line_id_start, line_id_end
             )
             tau_line[:, i] = (delta_tau * phis).sum(axis=0)
+
         else:
             tau_line[:, i] = np.zeros(len(marcs_model_fv))
 
