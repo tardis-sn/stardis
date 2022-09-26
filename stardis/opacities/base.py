@@ -194,7 +194,7 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
     tau_line = np.zeros([len(marcs_model_fv), len(tracing_nus)])
 
-    gauss_prefactor = 1 / (0.35e10 * np.sqrt(2 * np.pi))
+    gauss_prefactor = 1 / (3.5e10 * np.sqrt(2 * np.pi))
 
     alpha_line = splasma.alpha_line.reset_index(drop=True).values[::-1]
     delta_tau_lines = alpha_line * marcs_model_fv.cell_length.values
@@ -217,7 +217,7 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
         if line_id_start != line_id_end:
             delta_tau = delta_tau_lines[line_id_start:line_id_end]
             delta_nu = nu.value - lines_nu[line_id_start:line_id_end]
-            phi = gauss_prefactor * np.exp(-0.5 * (delta_nu / 0.35e10) ** 2)
+            phi = gauss_prefactor * np.exp(-0.5 * (delta_nu / 3.5e10) ** 2)
             tau_line[:, i] = (delta_tau * phi[None].T).sum(axis=0)
         else:
             tau_line[:, i] = np.zeros(len(marcs_model_fv))
