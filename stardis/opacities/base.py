@@ -199,14 +199,18 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
     alpha_line = splasma.alpha_line.reset_index(drop=True).values[::-1]
     delta_tau_lines = alpha_line * marcs_model_fv.cell_length.values
 
-    # transition doesn't happen at a specific nu due to several factors (changing temperatires, doppler shifts, relativity, etc.)
+    lines = splasma.lines[::-1].reset_index()  # bring lines in ascending order of nu
+    # convert df's columns to arrays in advance because it's a costly operation esp. in loop
+    lines_nu = lines.nu.values
+    lines_atomic_number = lines.atomic_number.values
+    lines_A_ul = lines.A_ul.values
+
+    # transition doesn't happen at a specific nu due to several factors (changing temperatures, doppler shifts, relativity, etc.)
     # so we take a window 2e11 Hz wide - if nu falls within that, we consider it
-    lines = splasma.lines[::-1].reset_index() # reverse to bring them to ascending order
-    lines_nu = lines.nu
     # search_sorted finds the index before which a (tracing_nu +- 1e11) can be inserted
     # in lines_nu array to maintain its sort order
-    line_id_starts = lines_nu.values.searchsorted(tracing_nus.value - 1e11) + 1
-    line_id_ends = lines_nu.values.searchsorted(tracing_nus.value + 1e11) + 1
+    line_id_starts = lines_nu.searchsorted(tracing_nus.value - 1e11) + 1
+    line_id_ends = lines_nu.searchsorted(tracing_nus.value + 1e11) + 1
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         nu, line_id_start, line_id_end = (
@@ -217,9 +221,15 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
         if line_id_start != line_id_end:
             delta_taus = delta_tau_lines[line_id_start:line_id_end]
-            lines_considered = lines.loc[line_id_start:line_id_end-1].reset_index(drop=True)
             phis = assemble_phis(
-                splasma, marcs_model_fv, nu, lines_considered
+                atomic_masses=splasma.atomic_mass.values,
+                temperatures=marcs_model_fv.t.values,
+                nu=nu,
+                lines_considered_nu=lines_nu[line_id_start:line_id_end],
+                lines_considered_atomic_num=lines_atomic_number[
+                    line_id_start:line_id_end
+                ],
+                lines_considered_A_ul=lines_A_ul[line_id_start:line_id_end],
             )
             tau_line[:, i] = (delta_taus * phis).sum(axis=0)
         else:
