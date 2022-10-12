@@ -201,11 +201,12 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
     # transition doesn't happen at a specific nu due to several factors (changing temperatires, doppler shifts, relativity, etc.)
     # so we take a window 2e11 Hz wide - if nu falls within that, we consider it
-    lines_nu = splasma.lines.nu.values[::-1]  # reverse to bring them to ascending order
+    lines = splasma.lines[::-1].reset_index() # reverse to bring them to ascending order
+    lines_nu = lines.nu
     # search_sorted finds the index before which a (tracing_nu +- 1e11) can be inserted
     # in lines_nu array to maintain its sort order
-    line_id_starts = lines_nu.searchsorted(tracing_nus.value - 1e11)
-    line_id_ends = lines_nu.searchsorted(tracing_nus.value + 1e11)
+    line_id_starts = lines_nu.values.searchsorted(tracing_nus.value - 1e11) + 1
+    line_id_ends = lines_nu.values.searchsorted(tracing_nus.value + 1e11) + 1
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         nu, line_id_start, line_id_end = (
@@ -215,12 +216,12 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
         )
 
         if line_id_start != line_id_end:
-            delta_tau = delta_tau_lines[line_id_start:line_id_end]
+            delta_taus = delta_tau_lines[line_id_start:line_id_end]
+            lines_considered = lines.loc[line_id_start:line_id_end-1].reset_index(drop=True)
             phis = assemble_phis(
-                splasma, marcs_model_fv, nu, line_id_start, line_id_end
+                splasma, marcs_model_fv, nu, lines_considered
             )
-            tau_line[:, i] = (delta_tau * phis).sum(axis=0)
-
+            tau_line[:, i] = (delta_taus * phis).sum(axis=0)
         else:
             tau_line[:, i] = np.zeros(len(marcs_model_fv))
 
