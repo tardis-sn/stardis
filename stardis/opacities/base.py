@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from numba.core import types
+from numba.typed import Dict
 from astropy import units as u, constants as const
 
 from stardis.opacities.broadening import assemble_phis
@@ -200,39 +202,77 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
     delta_tau_lines = alpha_line * marcs_model_fv.cell_length.values
 
     lines = splasma.lines[::-1].reset_index()  # bring lines in ascending order of nu
-    # convert df's columns to arrays in advance because it's a costly operation esp. in loop
-    lines_nu = lines.nu.values
-    lines_atomic_number = lines.atomic_number.values
-    lines_A_ul = lines.A_ul.values
+
+    # add ionization energy to lines
+    ionization_data = splasma.ionization_data.reset_index()
+    ionization_data["ion_number"] -= 1
+    lines = pd.merge(
+        lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
+    )
+
+    # add level energy (lower and upper) to lines
+    levels_energy = splasma.atomic_data.levels.energy
+    lines = pd.merge(
+        lines,
+        levels_energy,
+        how="left",
+        left_on=["atomic_number", "ion_number", "level_number_lower"],
+        right_on=["atomic_number", "ion_number", "level_number"],
+    ).rename(columns={"energy": "level_energy_lower"})
+    lines = pd.merge(
+        lines,
+        levels_energy,
+        how="left",
+        left_on=["atomic_number", "ion_number", "level_number_upper"],
+        right_on=["atomic_number", "ion_number", "level_number"],
+    ).rename(columns={"energy": "level_energy_upper"})
 
     # transition doesn't happen at a specific nu due to several factors (changing temperatures, doppler shifts, relativity, etc.)
     # so we take a window 2e11 Hz wide - if nu falls within that, we consider it
     # search_sorted finds the index before which a (tracing_nu +- 1e11) can be inserted
     # in lines_nu array to maintain its sort order
-    line_id_starts = lines_nu.searchsorted(tracing_nus.value - 1e11) + 1
-    line_id_ends = lines_nu.searchsorted(tracing_nus.value + 1e11) + 1
+    line_id_starts = lines.nu.values.searchsorted(tracing_nus.value - 1e11) + 1
+    line_id_ends = lines.nu.values.searchsorted(tracing_nus.value + 1e11) + 1
+
+    line_cols = map_items_to_indices(lines.columns.to_list())
+    lines_array = lines.to_numpy()
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
-        nu, line_id_start, line_id_end = (
-            tracing_nus[i].value,
-            line_id_starts[i],
-            line_id_ends[i],
-        )
+        # starting and ending indices of all lines considered at a particular frequency, `nu`
+        line_id_start, line_id_end = (line_id_starts[i], line_id_ends[i])
 
         if line_id_start != line_id_end:
+            # optical depth of each considered line for each shell at `nu`
             delta_taus = delta_tau_lines[line_id_start:line_id_end]
+
+            # line profiles of each considered line for each shell at `nu`
             phis = assemble_phis(
                 atomic_masses=splasma.atomic_mass.values,
                 temperatures=marcs_model_fv.t.values,
-                nu=nu,
-                lines_considered_nu=lines_nu[line_id_start:line_id_end],
-                lines_considered_atomic_num=lines_atomic_number[
-                    line_id_start:line_id_end
-                ],
-                lines_considered_A_ul=lines_A_ul[line_id_start:line_id_end],
+                electron_densities=splasma.electron_densities.values,
+                nu=tracing_nus[i].value,
+                lines_considered=lines_array[line_id_start:line_id_end],
+                line_cols=line_cols,
             )
+
+            # apply spectral broadening to optical depths (by multiplying line profiles)
+            # and take sum of these broadened optical depths along "considered lines" axis
+            # to obtain line-interaction optical depths for each shell at `nu` (1D array)
             tau_line[:, i] = (delta_taus * phis).sum(axis=0)
+
         else:
             tau_line[:, i] = np.zeros(len(marcs_model_fv))
 
     return tau_line
+
+
+def map_items_to_indices(items):
+    items_dict = Dict.empty(
+        key_type=types.unicode_type,
+        value_type=types.int64,
+    )
+
+    for i, item in enumerate(items):
+        items_dict[item] = i
+
+    return items_dict

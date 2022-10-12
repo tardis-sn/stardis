@@ -2,7 +2,7 @@ import numpy as np
 import numba
 
 
-@numba.jit
+@numba.njit
 def faddeeva(z):
     """
     Adapted from https://github.com/tiagopereira/Transparency.jl/blob/966fb46c21d5847c28f6f2eaa5ea6ff569e25bf2/src/voigt.jl#L13
@@ -64,7 +64,7 @@ def faddeeva(z):
     return w
 
 
-@numba.jit
+@numba.njit
 def voigt_profile(delta_nu, doppler_width, gamma):
     z = (delta_nu + (gamma / (4 * np.pi)) * 1j) / doppler_width
     phi = np.real(faddeeva(z)) / (np.sqrt(np.pi) * doppler_width)
