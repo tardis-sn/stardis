@@ -212,6 +212,7 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
     # add level energy (lower and upper) to lines
     levels_energy = splasma.atomic_data.levels.energy
+    levels_g = splasma.atomic_data.levels.g
     lines = pd.merge(
         lines,
         levels_energy,
@@ -228,14 +229,17 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
     ).rename(columns={"energy": "level_energy_upper"})
 
     # transition doesn't happen at a specific nu due to several factors (changing temperatures, doppler shifts, relativity, etc.)
-    # so we take a window 2e11 Hz wide - if nu falls within that, we consider it
+    # so we take a window 1e12 Hz wide - if nu falls within that, we consider it
     # search_sorted finds the index before which a (tracing_nu +- 1e11) can be inserted
     # in lines_nu array to maintain its sort order
-    line_id_starts = lines.nu.values.searchsorted(tracing_nus.value - 1e11) + 1
-    line_id_ends = lines.nu.values.searchsorted(tracing_nus.value + 1e11) + 1
+    line_id_starts = lines.nu.values.searchsorted(tracing_nus.value - 1e12) + 1
+    line_id_ends = lines.nu.values.searchsorted(tracing_nus.value + 1e12) + 1
 
     line_cols = map_items_to_indices(lines.columns.to_list())
     lines_array = lines.to_numpy()
+    
+    h_densities = splasma.ion_number_density.loc[1, 0].to_numpy()
+    he_abundances = splasma.abundance.loc[2].to_numpy()
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         # starting and ending indices of all lines considered at a particular frequency, `nu`
@@ -250,6 +254,8 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
                 atomic_masses=splasma.atomic_mass.values,
                 temperatures=marcs_model_fv.t.values,
                 electron_densities=splasma.electron_densities.values,
+                h_densities=h_densities,
+                he_abundances=he_abundances,
                 nu=tracing_nus[i].value,
                 lines_considered=lines_array[line_id_start:line_id_end],
                 line_cols=line_cols,
@@ -267,6 +273,18 @@ def calc_tau_line(splasma, marcs_model_fv, tracing_nus):
 
 
 def map_items_to_indices(items):
+    """
+    Creates dictionary matching quantities in lines dataframe to their indices.
+
+    Parameters
+    ----------
+    items : list
+        List of column names.
+
+    Returns
+    -------
+    items_dict : dict
+    """
     items_dict = Dict.empty(
         key_type=types.unicode_type,
         value_type=types.int64,
