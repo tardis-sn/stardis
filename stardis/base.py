@@ -1,6 +1,6 @@
-from astropy import units as u
-
 from tardis.io.atom_data import AtomData
+
+from astropy import units as u
 
 from stardis.io import read_marcs_to_fv
 from stardis.plasma import create_stellar_plasma
