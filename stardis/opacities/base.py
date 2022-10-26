@@ -197,6 +197,18 @@ def calc_alpha_line_at_nu(
         "radiation",
     ],
 ):
+def calc_alpha_line_at_nu(
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
+    broadening_methods=[
+        "doppler",
+        "linear_stark",
+        "quadratic_stark",
+        "van_der_waals",
+        "radiation",
+    ],
+):
     """
     Calculates line interaction opacity.
 
