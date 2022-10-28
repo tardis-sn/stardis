@@ -321,7 +321,13 @@ def calc_alphas(
     wbr_fpath=None,
     h_photo_levels=[1, 2, 3],
     h_photo_strength=7.91e-18,
-    broadening_methods=["doppler", "linear_stark", "quadratic_stark", "van_der_waals", "radiation"],
+    broadening_methods=[
+        "doppler",
+        "linear_stark",
+        "quadratic_stark",
+        "van_der_waals",
+        "radiation",
+    ],
 ):
     if "h_minus" in alpha_sources:
         alpha_h_minus = calc_alpha_h_minus(

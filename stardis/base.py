@@ -17,12 +17,21 @@ def run_stardis(
     wbr_fpath=None,
     h_photo_levels=[1, 2, 3],
     h_photo_strength=7.91e-18,
-    broadening_methods=["doppler", "linear_stark", "quadratic_stark", "van_der_waals", "radiation"]
+    broadening_methods=[
+        "doppler",
+        "linear_stark",
+        "quadratic_stark",
+        "van_der_waals",
+        "radiation",
+    ],
+    no_of_thetas=20,
 ):
-    
+
     # TODO: allow inputing tracing_nus, allow inputing without units
     adata = AtomData.from_hdf(adata_fpath)
-    stellar_model = read_marcs_to_fv(marcs_model_fpath, adata, final_atomic_number=final_atomic_number)
+    stellar_model = read_marcs_to_fv(
+        marcs_model_fpath, adata, final_atomic_number=final_atomic_number
+    )
     adata.prepare_atom_data(stellar_model.abundances.index.tolist())
     tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
@@ -36,19 +45,19 @@ def run_stardis(
         h_photo_strength=h_photo_strength,
         broadening_methods=broadening_methods,
     )
-    I_nu = raytrace(stellar_model, alphas, tracing_nus)
-    
-    return StellarSpectrum(I_nu, tracing_nus, tracing_lambdas)
-    
+    F_nu = raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=no_of_thetas)
+
+    return StellarSpectrum(F_nu, tracing_nus, tracing_lambdas)
+
 
 class StellarSpectrum:
-    def __init__(self, I_nu, tracing_nus, tracing_lambdas):
-        length = len(I_nu)
-        I_lambda = I_nu * tracing_nus/tracing_lambdas
+    def __init__(self, F_nu, tracing_nus, tracing_lambdas):
+        length = len(F_nu)
+        F_lambda = F_nu * tracing_nus / tracing_lambdas
         # TODO: Units
-        self.I_nu = I_nu
-        self.I_lambda = I_lambda
-        self.spectrum_nu = I_nu[length-1]
-        self.spectrum_lambda = I_lambda[length-1]
+        self.F_nu = F_nu
+        self.F_lambda = F_lambda
+        self.spectrum_nu = F_nu[length - 1]
+        self.spectrum_lambda = F_lambda[length - 1]
         self.nus = tracing_nus
         self.lambdas = tracing_lambdas
