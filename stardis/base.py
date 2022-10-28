@@ -30,12 +30,18 @@ def run_stardis(
     # TODO: allow inputing tracing_nus, allow inputing without units
     adata = AtomData.from_hdf(adata_fpath)
 <<<<<<< HEAD
+<<<<<<< HEAD
     stellar_model = read_marcs_to_fv(
         marcs_model_fpath, adata, final_atomic_number=final_atomic_number
     )
 =======
     stellar_model = read_marcs_to_fv(marcs_model_fpath, adata, final_atomic_number=final_atomic_number)
 >>>>>>> fixing mistake
+=======
+    stellar_model = read_marcs_to_fv(
+        marcs_model_fpath, adata, final_atomic_number=final_atomic_number
+    )
+>>>>>>> multi-angle raytracing
     adata.prepare_atom_data(stellar_model.abundances.index.tolist())
     tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
     stellar_plasma = create_stellar_plasma(stellar_model, adata)

@@ -116,6 +116,7 @@ def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
     return I_nu_theta
 
 
+<<<<<<< HEAD
 def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=10):
     dtheta = (np.pi / 2) / no_of_thetas
     start_theta = dtheta / 2
@@ -126,5 +127,15 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=10):
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(stellar_model, alphas, tracing_nus, theta)
+=======
+def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
+
+    thetas = np.linspace(0, np.pi / 2, no_of_thetas + 1, endpoint=False)[1:]
+    F_nu = np.zeros((len(stellar_model.fv_geometry) + 1, len(tracing_nus)))
+
+    for theta in thetas:
+        factor = np.sin(theta) * np.cos(theta) / 2
+        F_nu += factor * single_theta_trace(stellar_model, alphas, tracing_nus, theta)
+>>>>>>> multi-angle raytracing
 
     return F_nu
