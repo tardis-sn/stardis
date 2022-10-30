@@ -33,8 +33,8 @@ from tardis.plasma.properties.property_collections import (
 import tardis.plasma
 
 
-ALPHA_COEFFICIENT = (np.pi * const.e.gauss ** 2) / (const.m_e.cgs * const.c.cgs)
-THERMAL_DE_BROGLIE_CONST = const.h ** 2 / (2 * np.pi * const.m_e * const.k_B)
+ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
+THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
 H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
 
 
@@ -76,7 +76,9 @@ class AlphaLine(ProcessingPlasmaProperty):
             )
 
         return pd.DataFrame(
-            alpha, index=lines.index, columns=np.array(level_number_density.columns),
+            alpha,
+            index=lines.index,
+            columns=np.array(level_number_density.columns),
         )
 
 
@@ -87,7 +89,7 @@ class HMinusDensity(ProcessingPlasmaProperty):
         t_rad = t_rad * u.K
         h_neutral_density = ion_number_density.loc[1, 0]
         thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / t_rad) ** (3 / 2)).to(
-            u.cm ** 3
+            u.cm**3
         )
         phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * t_rad))
         return h_neutral_density * electron_densities * phi.value
