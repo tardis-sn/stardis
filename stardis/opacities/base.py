@@ -7,9 +7,9 @@ from astropy import units as u, constants as const
 from stardis.opacities.broadening import assemble_phis
 
 
-THERMAL_DE_BROGLIE_CONST = const.h ** 2 / (2 * np.pi * const.m_e * const.k_B)
+THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
 H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
-SAHA_CONST = const.h ** 2 / (2 * np.pi * const.m_e * const.k_B)
+SAHA_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
 
 # H minus opacity
 def read_wbr_cross_section(wbr_fpath):
@@ -29,7 +29,9 @@ def read_wbr_cross_section(wbr_fpath):
     """
 
     wbr_cross_section = pd.read_csv(
-        wbr_fpath, names=["wavelength", "cross_section"], comment="#",
+        wbr_fpath,
+        names=["wavelength", "cross_section"],
+        comment="#",
     )
     wbr_cross_section.wavelength *= 10  ## nm to AA
     wbr_cross_section.cross_section *= 1e-18  ## to cm^2
@@ -38,7 +40,10 @@ def read_wbr_cross_section(wbr_fpath):
 
 
 def calc_alpha_h_minus(
-    stellar_plasma, stellar_model, tracing_nus, wbr_fpath,
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
+    wbr_fpath,
 ):
     """
     Calculates H minus optical depth.
@@ -69,7 +74,9 @@ def calc_alpha_h_minus(
 
     # sigma
     h_minus_sigma_nu = np.interp(
-        tracing_lambdas, wbr_cross_section.wavelength, wbr_cross_section.cross_section,
+        tracing_lambdas,
+        wbr_cross_section.wavelength,
+        wbr_cross_section.cross_section,
     )
 
     # alpha = sigma * n * l; shape: (num cells, num tracing nus) - alpha for each frequency in each cell
@@ -79,7 +86,9 @@ def calc_alpha_h_minus(
 
 # electron opacity
 def calc_alpha_e(
-    stellar_plasma, stellar_model, tracing_nus,
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
 ):
     """
     Calculates electron scattering optical depth.
@@ -118,7 +127,11 @@ def calc_alpha_e(
 
 # photoionization opacity
 def calc_alpha_h_photo(
-    stellar_plasma, stellar_model, tracing_nus, levels=[1, 2, 3], strength=7.91e-18,
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
+    levels=[1, 2, 3],
+    strength=7.91e-18,
 ):
     """
     Calculates photoionization optical depth.
@@ -305,7 +318,10 @@ def map_items_to_indices(items):
     -------
     items_dict : dict
     """
-    items_dict = Dict.empty(key_type=types.unicode_type, value_type=types.int64,)
+    items_dict = Dict.empty(
+        key_type=types.unicode_type,
+        value_type=types.int64,
+    )
 
     for i, item in enumerate(items):
         items_dict[item] = i
