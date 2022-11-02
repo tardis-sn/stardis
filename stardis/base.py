@@ -21,8 +21,8 @@ def run_stardis(
 ):
     
     # TODO: allow inputing tracing_nus, allow inputing without units
-    adata = AtomData.from_hdf('kurucz_cd23_chianti_H_He.h5')
-    stellar_model = read_marcs_to_fv('data/marcs/sun.mod', adata, final_atomic_number=final_atomic_number)
+    adata = AtomData.from_hdf(adata_fpath)
+    stellar_model = read_marcs_to_fv(marcs_model_fpath, adata, final_atomic_number=final_atomic_number)
     adata.prepare_atom_data(stellar_model.abundances.index.tolist())
     tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
