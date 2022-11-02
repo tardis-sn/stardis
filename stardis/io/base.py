@@ -12,14 +12,14 @@ class StellarModel:
         self.boundary_temps = boundary_temps
 
 
-def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
+def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
     """
     Reads MARCS model and produces a finite volume model.
 
     Parameters
     ----------
-    fname : str
-        The filenamefor the MARCS model.
+    fpath : str
+        The filepath for the MARCS model.
     atom_data : tardis.io.atom_data.base.AtomData
         Atomic data used for converting number density to mass density.
     final_atomic_number : int, optional
@@ -37,10 +37,10 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     """
 
     marcs_model1 = pd.read_csv(
-        fname, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
+        fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
     )
     marcs_model2 = pd.read_csv(
-        fname, skiprows=81, nrows=56, delim_whitespace=True, index_col="k"
+        fpath, skiprows=81, nrows=56, delim_whitespace=True, index_col="k"
     )
     del marcs_model2["lgTauR"]
     marcs_model = marcs_model1.join(marcs_model2)
@@ -49,7 +49,7 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     marcs_model["lgtau5"] = 10 ** marcs_model["lgtau5"]
 
     marcs_model = marcs_model.rename(columns={"lgtaur": "tau_ref", "lgtau5": "tau_500"})
-    with open(fname) as fh:
+    with open(fpath) as fh:
         marcs_lines = fh.readlines()
     marcs_abundance_scale_str = " ".join([item.strip() for item in marcs_lines[12:22]])
     marcs_abundances = pd.DataFrame(
