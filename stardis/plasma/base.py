@@ -83,6 +83,13 @@ class AlphaLine(ProcessingPlasmaProperty):
 
 
 class HMinusDensity(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    h_minus_density : Pandas DataFrame, dtype float
+          Density of H-, indexed by shell.
+    """
+
     outputs = ("h_minus_density",)
 
     def calculate(self, ion_number_density, t_rad, electron_densities):
@@ -104,7 +111,7 @@ class InputNumberDensity(DataFrameInput):
     Attributes
     ----------
     number_density : Pandas DataFrame, dtype float
-        Indexed by atomic number, columns corresponding to zones
+        Indexed by atomic number, columns corresponding to zones.
     """
 
     outputs = ("number_density",)
@@ -116,7 +123,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
     Attributes
     ----------
     selected_atoms : Pandas Int64Index, dtype int
-        Atomic numbers of elements required for particular simulation
+        Atomic numbers of elements required for particular simulation.
     """
 
     outputs = ("selected_atoms",)
