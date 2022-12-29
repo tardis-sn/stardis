@@ -1,10 +1,14 @@
 import pandas as pd
 import numpy as np
+
+import numba
 from numba.core import types
 from numba.typed import Dict
+
 from astropy import units as u, constants as const
 
-from stardis.opacities.broadening import assemble_phis
+from stardis.opacities.broadening import calculate_broadening
+from stardis.opacities.voigt import voigt_profile
 
 
 THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
@@ -180,6 +184,8 @@ def calc_alpha_h_photo(
                         strength * n[j] * (cutoff_frequency / nu.value) ** 3
                     )
         alpha_h_photo += alpha_h_photo_level
+        
+    #alpha_ff = /np.sqrt(temperature)
 
     return alpha_h_photo
 
@@ -202,51 +208,24 @@ def calc_alpha_line_at_nu(
     stellar_model,
     tracing_nus,
     broadening_methods=[
-        "doppler",
         "linear_stark",
         "quadratic_stark",
         "van_der_waals",
         "radiation",
     ],
+    line_nu_min=0,
+    line_nu_max=np.inf,
+    line_range=None,
 ):
-    """
-    Calculates line interaction opacity.
-
-    Parameters
-    ----------
-    stellar_plasma : tardis.plasma.base.BasePlasma
-        Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
-    broadening_methods : list, optional
-        List of broadening mechanisms to be considered. Options are "doppler",
-        "linear_stark", "quadratic_stark", "van_der_waals", and "radiation".
-        By default all are included.
-
-    Returns
-    -------
-    alpha_line : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Line interaction
-        opacity in each shell for each frequency in tracing_nus.
-    """
-
-    doppler = "doppler" in broadening_methods
+    
     linear_stark = "linear_stark" in broadening_methods
     quadratic_stark = "quadratic_stark" in broadening_methods
     van_der_waals = "van_der_waals" in broadening_methods
     radiation = "radiation" in broadening_methods
-
+    
     fv_geometry = stellar_model.fv_geometry
-
-    alpha_line_at_nu = np.zeros([len(fv_geometry), len(tracing_nus)])
-
-    alpha_lines = stellar_plasma.alpha_line.reset_index(drop=True).values[::-1]
-
-    lines = stellar_plasma.lines[
-        ::-1
-    ].reset_index()  # bring lines in ascending order of nu
+    
+    lines = stellar_plasma.lines.reset_index()  # bring lines in ascending order of nu
 
     # add ionization energy to lines
     ionization_data = stellar_plasma.ionization_data.reset_index()
@@ -273,53 +252,102 @@ def calc_alpha_line_at_nu(
         right_on=["atomic_number", "ion_number", "level_number"],
     ).rename(columns={"energy": "level_energy_upper"})
 
-    # transition doesn't happen at a specific nu due to several factors (changing temperatures, doppler shifts, relativity, etc.)
-    # so we take a window 1e12 Hz wide - if nu falls within that, we consider it
-    # search_sorted finds the index before which a (tracing_nu +- 1e11) can be inserted
-    # in lines_nu array to maintain its sort order
-    line_id_starts = lines.nu.values.searchsorted(tracing_nus.value - 1e12) + 1
-    line_id_ends = lines.nu.values.searchsorted(tracing_nus.value + 1e12) + 1
-
     line_cols = map_items_to_indices(lines.columns.to_list())
-    lines_array = lines.to_numpy()
+    
+    lines_sorted = lines.sort_values('nu').reset_index(drop=True)
+    lines_sorted_in_range = lines_sorted[
+        lines_sorted.nu.between(line_nu_min, line_nu_max)
+    ]
+    lines_array = lines_sorted_in_range.to_numpy()
 
+    atomic_masses=stellar_plasma.atomic_mass.values
+    temperatures=fv_geometry.t.values
+    electron_densities=stellar_plasma.electron_densities.values
+    
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
-    he_abundances = stellar_plasma.abundance.loc[2].to_numpy()
+    h_mass = atomic_masses[0]
+    
+    alphas_and_nu = stellar_plasma.alpha_line.sort_values('nu').reset_index(drop=True)
+    alphas_and_nu_in_range = alphas_and_nu[
+        alphas_and_nu.nu.between(line_nu_min, line_nu_max)
+    ]
+    alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
+    alphas_array = alphas.to_numpy()
+    
+    no_shells = len(fv_geometry)
+    
+    line_nus, gammas, doppler_widths = calculate_broadening(
+        lines_array,
+        line_cols,
+        no_shells,
+        atomic_masses,
+        h_mass,
+        electron_densities,
+        temperatures,
+        h_densities,
+        linear_stark=linear_stark,
+        quadratic_stark=quadratic_stark,
+        van_der_waals=van_der_waals,
+        radiation=radiation,
+    )
+    
+    alpha_line_at_nu = np.zeros((no_shells, len(tracing_nus)))
 
-    for i in range(len(tracing_nus)):  # iterating over nus (columns)
-        # starting and ending indices of all lines considered at a particular frequency, `nu`
-        line_id_start, line_id_end = (line_id_starts[i], line_id_ends[i])
-
-        if line_id_start != line_id_end:
-            # opacity of each considered line for each shell at `nu`
-            alphas = alpha_lines[line_id_start:line_id_end]
-
-            # line profiles of each considered line for each shell at `nu`
-            phis = assemble_phis(
-                atomic_masses=stellar_plasma.atomic_mass.values,
-                temperatures=fv_geometry.t.values,
-                electron_densities=stellar_plasma.electron_densities.values,
-                h_densities=h_densities,
-                he_abundances=he_abundances,
-                nu=tracing_nus[i].value,
-                lines_considered=lines_array[line_id_start:line_id_end],
-                line_cols=line_cols,
-                doppler=doppler,
-                linear_stark=linear_stark,
-                quadratic_stark=quadratic_stark,
-                van_der_waals=van_der_waals,
-                radiation=radiation,
-            )
-
-            # apply spectral broadening to opacitys (by multiplying line profiles)
-            # and take sum of these broadened opacitys along "considered lines" axis
-            # to obtain line-interaction opacitys for each shell at `nu` (1D array)
-            alpha_line_at_nu[:, i] = (alphas * phis).sum(axis=0)
-
-        else:
-            alpha_line_at_nu[:, i] = np.zeros(len(fv_geometry))
-
+    for i in range(len(tracing_nus)):
+    
+        nu = tracing_nus[i].value
+        delta_nus = nu - line_nus
+        
+        for j in range(no_shells):
+            
+            gammas_in_shell = gammas[:,j]
+            doppler_widths_in_shell = doppler_widths[:,j]
+            alphas_in_shell = alphas_array[:,j]
+            
+            if line_range is None: 
+                alpha_line_at_nu[j,i] = calc_alan_entries(
+                    delta_nus,
+                    doppler_widths_in_shell,
+                    gammas_in_shell,
+                    alphas_in_shell,
+                )
+                
+            else:
+                line_start = line_nus.searchsorted(nu - line_range) + 1
+                line_end = line_nus.searchsorted(nu + line_range) + 1
+                delta_nus_considered = delta_nus[line_start:line_end]
+                gammas_considered = gammas_in_shell[line_start:line_end]
+                doppler_widths_considered = doppler_widths_in_shell[line_start:line_end]
+                alphas_considered = alphas_in_shell[line_start:line_end]
+                alpha_line_at_nu[j,i] = calc_alan_entries(
+                    delta_nus_considered,
+                    doppler_widths_considered,
+                    gammas_considered,
+                    alphas_considered,
+                )
+                
     return alpha_line_at_nu
+
+
+@numba.njit
+def calc_alan_entries(
+    delta_nus,
+    doppler_widths_in_shell,
+    gammas_in_shell,
+    alphas_in_shell,
+):
+    
+    phis = np.zeros(len(delta_nus))
+    
+    for k in range(len(delta_nus)):
+        
+        delta_nu = np.abs(delta_nus[k])
+        doppler_width = doppler_widths_in_shell[k]
+        gamma = gammas_in_shell[k]
+        
+        phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
+        
+    return np.sum(phis*alphas_in_shell)
 
 
 def map_items_to_indices(items):
@@ -361,6 +389,9 @@ def calc_alphas(
         "van_der_waals",
         "radiation",
     ],
+    line_nu_min=0,
+    line_nu_max=np.inf,
+    line_range=None,
 ):
     """
     Calculates total opacity.
@@ -423,7 +454,13 @@ def calc_alphas(
 
     if "line" in alpha_sources:
         alpha_line_at_nu = calc_alpha_line_at_nu(
-            stellar_plasma, stellar_model, tracing_nus, broadening_methods
+            stellar_plasma,
+            stellar_model,
+            tracing_nus,
+            broadening_methods,
+            line_nu_min,
+            line_nu_max,
+            line_range=line_range,
         )
     else:
         alpha_line_at_nu = 0

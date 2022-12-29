@@ -1,3 +1,5 @@
+import numpy as np
+
 from tardis.io.atom_data import AtomData
 
 from astropy import units as u
@@ -24,6 +26,9 @@ def run_stardis(
         "van_der_waals",
         "radiation",
     ],
+    line_nu_min=0,
+    line_nu_max=np.inf,
+    line_range=None,
     no_of_thetas=20,
 ):
     """
@@ -83,6 +88,9 @@ def run_stardis(
         h_photo_levels=h_photo_levels,
         h_photo_strength=h_photo_strength,
         broadening_methods=broadening_methods,
+        line_nu_min=line_nu_min,
+        line_nu_max=line_nu_max,
+        line_range=line_range,
     )
     F_nu = raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=no_of_thetas)
 
