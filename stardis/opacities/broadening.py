@@ -2,8 +2,6 @@ import numpy as np
 from astropy import constants as const
 import numba
 
-from stardis.opacities.voigt import voigt_profile
-
 
 SPEED_OF_LIGHT = const.c.cgs.value
 BOLTZMANN_CONSTANT = const.k_B.cgs.value
@@ -40,7 +38,7 @@ def calc_doppler_width(nu_line, temperature, atomic_mass):
 
 
 @numba.njit
-def calc_n_effective(atomic_number, ionization_energy, level_energy):
+def calc_n_effective(ion_number, ionization_energy, level_energy):
     """
     Calculates the effective principal quantum number of an energy level.
 
@@ -57,13 +55,14 @@ def calc_n_effective(atomic_number, ionization_energy, level_energy):
     -------
     float
     """
-    return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * atomic_number
+    return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
 
 
 @numba.njit
 def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
     Calculates broadening parameter for linear Stark broadening.
+    https://ui.adsabs.harvard.edu/abs/1978JQSRT..20..333S%2F/abstract
 
     Parameters
     ----------
@@ -97,7 +96,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
 
 @numba.njit
 def calc_gamma_quadratic_stark(
-    atomic_number, n_eff_upper, n_eff_lower, electron_density, temperature
+    ion_number, n_eff_upper, n_eff_lower, electron_density, temperature
 ):
     """
     Calculates broadening parameter for quadratic Stark broadening.
@@ -121,7 +120,7 @@ def calc_gamma_quadratic_stark(
         Broadening parameter for quadratic Stark broadening.
     """
     c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
-        36 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * atomic_number**4
+        36 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * ion_number**4
     )
     c4 = c4_prefactor * (
         (n_eff_upper * ((5 * n_eff_upper**2) + 1)) ** 2
@@ -141,7 +140,7 @@ def calc_gamma_quadratic_stark(
 
 @numba.njit
 def calc_gamma_van_der_waals(
-    atomic_number,
+    ion_number,
     atomic_mass,
     n_eff_upper,
     n_eff_lower,
@@ -153,6 +152,7 @@ def calc_gamma_van_der_waals(
 ):
     """
     Calculates broadening parameter for van der Waals broadening.
+    https://doi.org/10.1093/mnras/136.4.381
 
     Parameters
     ----------
@@ -178,24 +178,12 @@ def calc_gamma_van_der_waals(
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
-    c6_prefactor = (
-        5.625
-        * ELEMENTARY_CHARGE**2
-        * BOHR_RADIUS**5
-        / (PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY)
-    )
-
-    c6 = c6_prefactor * atomic_number**6 / (n_eff_upper**4 - n_eff_lower**4)
+    c6 = 6.46e-34 * (n_eff_upper**2 * (5 * n_eff_upper**2 + 1) - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)) / (2 * ion_number**2 )
 
     gamma_van_der_waals = (
-        8.08
-        * (
-            (1 + atomic_mass / h_mass) ** 0.3
-            + he_abundance * (1 + atomic_mass / he_mass) ** 2
-        )
-        * (8 * BOLTZMANN_CONSTANT / (np.pi * atomic_mass)) ** 0.3
+        17
+        * (8 * BOLTZMANN_CONSTANT * temperature / (np.pi * h_mass)) ** 0.3
         * c6**0.4
-        * temperature**0.3
         * h_density
     )
 
@@ -203,13 +191,14 @@ def calc_gamma_van_der_waals(
 
 
 @numba.njit
-def calc_gamma_collision(
+def calc_gamma(
     atomic_number,
     atomic_mass,
     ion_number,
     ionization_energy,
     upper_level_energy,
     lower_level_energy,
+    A_ul,
     electron_density,
     temperature,
     h_density,
@@ -219,6 +208,7 @@ def calc_gamma_collision(
     linear_stark=True,
     quadratic_stark=True,
     van_der_waals=True,
+    radiation=True
 ):
     """
     Calculates total collision broadening parameter by adding up all
@@ -265,10 +255,10 @@ def calc_gamma_collision(
     gamma_collision : float
         Total collision broadening parameter.
     """
-    n_eff_upper = calc_n_effective(atomic_number, ionization_energy, upper_level_energy)
-    n_eff_lower = calc_n_effective(atomic_number, ionization_energy, lower_level_energy)
+    n_eff_upper = calc_n_effective(ion_number, ionization_energy, upper_level_energy)
+    n_eff_lower = calc_n_effective(ion_number, ionization_energy, lower_level_energy)
 
-    if (atomic_number - ion_number == 1) and linear_stark:  # species is hydrogenic
+    if (atomic_number == 1) and linear_stark:  # only for hydrogen
         gamma_linear_stark = calc_gamma_linear_stark(
             n_eff_upper, n_eff_lower, electron_density
         )
@@ -277,14 +267,14 @@ def calc_gamma_collision(
 
     if quadratic_stark:
         gamma_quadratic_stark = calc_gamma_quadratic_stark(
-            atomic_number, n_eff_upper, n_eff_lower, electron_density, temperature
+            ion_number, n_eff_upper, n_eff_lower, electron_density, temperature
         )
     else:
         gamma_quadratic_stark = 0
 
     if van_der_waals:
         gamma_van_der_waals = calc_gamma_van_der_waals(
-            atomic_number,
+            ion_number,
             atomic_mass,
             n_eff_upper,
             n_eff_lower,
@@ -296,114 +286,77 @@ def calc_gamma_collision(
         )
     else:
         gamma_van_der_waals = 0
+        
+    if radiation:
+        gamma_radiation = A_ul
+    else:
+        gamma_radiation = 0
 
-    gamma_collision = gamma_linear_stark + gamma_quadratic_stark + gamma_van_der_waals
+    gamma = gamma_linear_stark + gamma_quadratic_stark + gamma_van_der_waals + gamma_radiation
 
-    return gamma_collision
+    return gamma
 
 
-@numba.njit
-def assemble_phis(
-    atomic_masses,
-    temperatures,
-    electron_densities,
-    h_densities,
-    he_abundances,
-    nu,
-    lines_considered,
+def calculate_broadening(
+    lines_array,
     line_cols,
-    doppler=True,
+    no_shells,
+    atomic_masses,
+    h_mass,
+    electron_densities,
+    temperatures,
+    h_densities,
     linear_stark=True,
     quadratic_stark=True,
     van_der_waals=True,
     radiation=True,
 ):
-    """
-    Puts together several line profiles at a single frequency for all shells.
-
-    Parameters
-    ----------
-    atomic_masses : numpy.ndarray
-        Atomic masses of all atoms considered in the model in grams.
-    temperatures : numpy.ndarray
-        Temperatures of all shells.
-    electron_densities : numpy.ndarray
-        Electron Densities of all shells.
-    h_densities : numpy.ndarray
-        Neutral hydrogen number density in all shells.
-    he_abundances : numpy.ndarray
-        Fractional abundance (by mass) of Helium in all shells.
-    nu : float
-        Frequency at which line profiles are being evaluated.
-    lines_considered : numpy.ndarray
-        Attributes of all considered lines as 2D array of shape
-        (no_of_lines_considered, no_of_line_cols).
-    line_cols : numba.typed.Dict
-        Column names of lines_considered mapped to indices.
-    doppler : bool, optional
-        True if doppler broadening is to be considered, otherwise False. By
-        default True.
-    linear_stark : bool, optional
-        True if linear Stark broadening is to be considered, otherwise False.
-        By default True.
-    quadratic_stark : bool, optional
-        True if quadratic Stark broadening is to be considered, otherwise
-        False. By default True.
-    van_der_waals : bool, optional
-        True if Van Der Waals broadening is to be considered, otherwise False.
-        By default True.
-    radiation : bool, optional
-        True if radiation broadening is to be considered, otherwise False. By
-        default True.
-
-    Returns
-    -------
-    phis : numpy.ndarray
-        Array of shape (no_of_lines_considered, no_of_shells). Line profiles
-        of each line in each shell evaluated at the specified frequency.
-    """
-
-    phis = np.zeros((len(lines_considered), len(temperatures)))
-
-    for j in range(len(temperatures)):  # iterate over shells (columns)
-        for i in range(len(lines_considered)):  # iterate over lines considered (rows)
-            delta_nu = nu - lines_considered[i, line_cols["nu"]]
-
-            atomic_number = int(lines_considered[i, line_cols["atomic_number"]])
-            atomic_mass = atomic_masses[atomic_number - 1]
-
-            if doppler:
-                doppler_width = calc_doppler_width(
-                    lines_considered[i, line_cols["nu"]], temperatures[j], atomic_mass
-                )
-            else:
-                doppler_width = 0
-
-            gamma_collision = calc_gamma_collision(
+    
+    line_nus = np.zeros(len(lines_array))
+    gammas = np.zeros((len(lines_array), no_shells))
+    doppler_widths = np.zeros((len(lines_array), no_shells))
+    
+    for i in range(len(lines_array)):
+        
+        atomic_number = int(lines_array[i, line_cols["atomic_number"]])
+        atomic_mass = atomic_masses[atomic_number - 1]
+        ion_number = int(lines_array[i, line_cols["ion_number"]])+1
+        ionization_energy = lines_array[i, line_cols["ionization_energy"]]
+        upper_level_energy = lines_array[i, line_cols["level_energy_upper"]]
+        lower_level_energy = lines_array[i, line_cols["level_energy_lower"]]
+        A_ul = lines_array[i, line_cols["A_ul"]]
+        line_nu = lines_array[i, line_cols["nu"]]
+        
+        line_nus[i] = line_nu
+        
+        for j in range(no_shells):
+            
+            electron_density=electron_densities[j]
+            temperature=temperatures[j]
+            h_density=h_densities[j]
+            
+            gammas[i,j] = calc_gamma(
                 atomic_number=atomic_number,
                 atomic_mass=atomic_mass,
-                ion_number=int(lines_considered[i, line_cols["ion_number"]]),
-                ionization_energy=lines_considered[i, line_cols["ionization_energy"]],
-                upper_level_energy=lines_considered[i, line_cols["level_energy_upper"]],
-                lower_level_energy=lines_considered[i, line_cols["level_energy_lower"]],
-                electron_density=electron_densities[j],
-                temperature=temperatures[j],
-                h_density=h_densities[j],
-                he_abundance=he_abundances[j],
-                h_mass=atomic_masses[0],
-                he_mass=atomic_masses[1],
+                ion_number=ion_number,
+                ionization_energy=ionization_energy,
+                upper_level_energy=upper_level_energy,
+                lower_level_energy=lower_level_energy,
+                A_ul=A_ul,
+                electron_density=electron_density,
+                temperature=temperature,
+                h_density=h_density,
+                he_abundance=0,
+                h_mass=h_mass,
+                he_mass=0,
                 linear_stark=linear_stark,
                 quadratic_stark=quadratic_stark,
                 van_der_waals=van_der_waals,
+                radiation=radiation,
             )
-
-            if radiation:
-                gamma = (
-                    lines_considered[i, line_cols["A_ul"]] + gamma_collision
-                )  # includes radiation broadening
-            else:
-                gamma = gamma_collision
-
-            phis[i, j] = voigt_profile(delta_nu, doppler_width, gamma)
-
-    return phis
+            
+            doppler_widths[i,j] = doppler_width = calc_doppler_width(
+                line_nu, temperature, atomic_mass
+            )
+        
+    return line_nus, gammas, doppler_widths
