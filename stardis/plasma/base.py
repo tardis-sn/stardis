@@ -75,11 +75,15 @@ class AlphaLine(ProcessingPlasmaProperty):
                 "Some alpha_line are nan, inf, -inf " " Something went wrong!"
             )
 
-        return pd.DataFrame(
+        df = pd.DataFrame(
             alpha,
             index=lines.index,
             columns=np.array(level_number_density.columns),
         )
+        
+        df["nu"] = lines.nu
+        
+        return df
 
 
 class HMinusDensity(ProcessingPlasmaProperty):
@@ -188,6 +192,7 @@ def create_stellar_plasma(stellar_model, atom_data):
         atomic_data=atom_data,
         density=fv_geometry.density.values,
         link_t_rad_t_electron=1.0,
+        nlte_ionization_species=[],
     )
 
     return stellar_plasma
