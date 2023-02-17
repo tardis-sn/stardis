@@ -1,34 +1,48 @@
+import numpy as np
 import pandas as pd
 
+from scipy.interpolate import interp1d, interp2d
+from radioactivedecay.utils import elem_to_Z
 from numba.core import types
 from numba.typed import Dict
 
+roman_numerals = {
+    "I": 1,
+    "II": 2,
+    "III": 3,
+    "IV": 4,
+    "V": 5,
+    "VI": 6,
+    "VII": 7,
+    "VIII": 8,
+    "IX": 9,
+    "X": 10,
+}
 
-def read_wbr_cross_section(wbr_fpath):
-    """
-    Reads H minus cross sections by wavelength from Wishart (1979) and
-    Broad and Reinhardt (1976).
 
-    Parameters
-    ----------
-    wbr_fpath : str
-        Filepath to read H minus cross sections.
+def sigma_file(tracing_lambdas, temperatures, fpath):
 
-    Returns
-    -------
-    wbr_cross_section : pandas.core.frame.DataFrame
-        H minus cross sections by wavelength.
-    """
+    df = pd.read_csv(fpath, header=None, comment="#")
+    if np.isnan(df.loc[0, 0]):
+        file_wavelengths = np.array(df.loc[1:, 0])
+        file_temperatures = np.array(df.loc[0, 1:])
+        file_cross_sections = np.array(df.loc[1:, 1:]).T
+        fn = interp2d(file_wavelengths, file_temperatures, file_cross_sections)
+        sigmas = fn(tracing_lambdas, temperatures)
+    else:
+        file_wavelengths = np.array(df.loc[:, 0])
+        file_temperatures = np.array([0])
+        file_cross_sections = np.array(df.loc[:, 1])
+        fn = interp1d(
+            file_wavelengths,
+            file_cross_sections,
+            bounds_error=False,
+            fill_value=(file_cross_sections[0], file_cross_sections[-1]),
+        )
+        sigmas = np.zeros((len(temperatures), len(tracing_lambdas)))
+        sigmas[:] = fn(tracing_lambdas)
 
-    wbr_cross_section = pd.read_csv(
-        wbr_fpath,
-        names=["wavelength", "cross_section"],
-        comment="#",
-    )
-    wbr_cross_section.wavelength *= 10  ## nm to AA
-    wbr_cross_section.cross_section *= 1e-18  ## to cm^2
-
-    return wbr_cross_section
+    return sigmas
 
 
 def map_items_to_indices(items):
@@ -54,3 +68,55 @@ def map_items_to_indices(items):
 
     return items_dict
 
+
+def get_number_density(stellar_plasma, spec):
+
+    if spec == "Hminus_bf":
+        return stellar_plasma.h_minus_density, None, None
+    elif spec == "Hminus_ff":
+        return (
+            stellar_plasma.ion_number_density.loc[1, 0]
+            * stellar_plasma.electron_densities,
+            None,
+            None,
+        )
+    elif spec == "Heminus_ff":
+        return (
+            stellar_plasma.ion_number_density.loc[2, 0]
+            * stellar_plasma.electron_densities,
+            None,
+            None,
+        )
+    elif spec == "H2minus_ff":
+        return stellar_plasma.h2_density * stellar_plasma.electron_densities, None, None
+    elif spec == "H2plus_ff":
+        return (
+            stellar_plasma.ion_number_density.loc[1, 0]
+            * stellar_plasma.ion_number_density.loc[1, 1],
+            None,
+            None,
+        )
+    elif spec == "H2plus_bf":
+        pass  # Maybe implement?
+
+    ion = spec[: len(spec) - 3]
+
+    try:
+        atomic_number = elem_to_Z(ion[0])
+        ion_number = roman_numerals[ion[1:]] - 1
+    except KeyError:
+        atomic_number = elem_to_Z(ion[0:2])
+        ion_number = roman_numerals[ion[2:]] - 1
+
+    number_density = 1
+
+    if spec[len(spec) - 2 :] == "ff":
+        ion_number += 1
+        number_density *= stellar_plasma.electron_densities
+
+    if (ion_number < 0) or (ion_number > atomic_number):
+        return None, atomic_number, ion_number
+
+    number_density *= stellar_plasma.ion_number_density.loc[atomic_number, ion_number]
+
+    return number_density, atomic_number, ion_number
