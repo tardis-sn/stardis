@@ -33,7 +33,7 @@ def run_stardis(
 ):
     """
     Runs STARDIS based on given parameters.
- 
+
     Parameters
     ----------
     adata_fpath: str
@@ -64,7 +64,7 @@ def run_stardis(
         By default all are included.
     no_of_thetas : int, optional
         Number of angles to sample for ray tracing, by default 20.
-   
+
     Returns
     -------
     stardis.base.StellarSpectrum
@@ -129,7 +129,7 @@ class StellarSpectrum:
         Numpy array of wavelengths used for spectrum with units of Angstroms.
     """
 
-    def __init__(self, F_nu, nus):        
+    def __init__(self, F_nu, nus):
         length = len(F_nu)
         lambdas = nus.to(u.AA, u.spectral())
         F_lambda = F_nu * nus / lambdas
