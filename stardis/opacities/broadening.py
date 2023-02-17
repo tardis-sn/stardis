@@ -178,7 +178,14 @@ def calc_gamma_van_der_waals(
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
-    c6 = 6.46e-34 * (n_eff_upper**2 * (5 * n_eff_upper**2 + 1) - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)) / (2 * ion_number**2 )
+    c6 = (
+        6.46e-34
+        * (
+            n_eff_upper**2 * (5 * n_eff_upper**2 + 1)
+            - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)
+        )
+        / (2 * ion_number**2)
+    )
 
     gamma_van_der_waals = (
         17
@@ -208,7 +215,7 @@ def calc_gamma(
     linear_stark=True,
     quadratic_stark=True,
     van_der_waals=True,
-    radiation=True
+    radiation=True,
 ):
     """
     Calculates total collision broadening parameter by adding up all
@@ -286,13 +293,18 @@ def calc_gamma(
         )
     else:
         gamma_van_der_waals = 0
-        
+
     if radiation:
         gamma_radiation = A_ul
     else:
         gamma_radiation = 0
 
-    gamma = gamma_linear_stark + gamma_quadratic_stark + gamma_van_der_waals + gamma_radiation
+    gamma = (
+        gamma_linear_stark
+        + gamma_quadratic_stark
+        + gamma_van_der_waals
+        + gamma_radiation
+    )
 
     return gamma
 
@@ -311,31 +323,31 @@ def calculate_broadening(
     van_der_waals=True,
     radiation=True,
 ):
-    
+
     line_nus = np.zeros(len(lines_array))
     gammas = np.zeros((len(lines_array), no_shells))
     doppler_widths = np.zeros((len(lines_array), no_shells))
-    
+
     for i in range(len(lines_array)):
-        
+
         atomic_number = int(lines_array[i, line_cols["atomic_number"]])
         atomic_mass = atomic_masses[atomic_number - 1]
-        ion_number = int(lines_array[i, line_cols["ion_number"]])+1
+        ion_number = int(lines_array[i, line_cols["ion_number"]]) + 1
         ionization_energy = lines_array[i, line_cols["ionization_energy"]]
         upper_level_energy = lines_array[i, line_cols["level_energy_upper"]]
         lower_level_energy = lines_array[i, line_cols["level_energy_lower"]]
         A_ul = lines_array[i, line_cols["A_ul"]]
         line_nu = lines_array[i, line_cols["nu"]]
-        
+
         line_nus[i] = line_nu
-        
+
         for j in range(no_shells):
-            
-            electron_density=electron_densities[j]
-            temperature=temperatures[j]
-            h_density=h_densities[j]
-            
-            gammas[i,j] = calc_gamma(
+
+            electron_density = electron_densities[j]
+            temperature = temperatures[j]
+            h_density = h_densities[j]
+
+            gammas[i, j] = calc_gamma(
                 atomic_number=atomic_number,
                 atomic_mass=atomic_mass,
                 ion_number=ion_number,
@@ -354,9 +366,9 @@ def calculate_broadening(
                 van_der_waals=van_der_waals,
                 radiation=radiation,
             )
-            
-            doppler_widths[i,j] = doppler_width = calc_doppler_width(
+
+            doppler_widths[i, j] = doppler_width = calc_doppler_width(
                 line_nu, temperature, atomic_mass
             )
-        
+
     return line_nus, gammas, doppler_widths

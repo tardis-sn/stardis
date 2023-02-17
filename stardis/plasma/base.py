@@ -52,9 +52,9 @@ class HMinusDensity(ProcessingPlasmaProperty):
     def calculate(self, ion_number_density, t_rad, electron_densities):
         t_rad = t_rad * u.K
         h_neutral_density = ion_number_density.loc[1, 0]
-        thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / (const.m_e * t_rad)) ** (3 / 2)).to(
-            u.cm**3
-        )
+        thermal_de_broglie = (
+            (THERMAL_DE_BROGLIE_CONST / (const.m_e * t_rad)) ** (3 / 2)
+        ).to(u.cm**3)
         phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * t_rad))
         return h_neutral_density * electron_densities * phi.value
 
@@ -66,15 +66,15 @@ class H2Density(ProcessingPlasmaProperty):
     h2_density : Pandas DataFrame, dtype float
           Density of H2, indexed by shell.
     """
-    
+
     outputs = ("h2_density",)
 
     def calculate(self, ion_number_density, t_rad):
         t_rad = t_rad * u.K
         h_neutral_density = ion_number_density.loc[1, 0]
-        thermal_de_broglie = ((2 * THERMAL_DE_BROGLIE_CONST / (m_p * t_rad)) ** (3 / 2)).to(
-            u.cm**3
-        )
+        thermal_de_broglie = (
+            (2 * THERMAL_DE_BROGLIE_CONST / (m_p * t_rad)) ** (3 / 2)
+        ).to(u.cm**3)
         phi = thermal_de_broglie * np.exp(H2_DISSOCIATION_ENERGY / (const.k_B * t_rad))
         return h_neutral_density**2 * phi.value
 
@@ -121,9 +121,9 @@ class AlphaLine(ProcessingPlasmaProperty):
             index=lines.index,
             columns=np.array(level_number_density.columns),
         )
-        
+
         df["nu"] = lines.nu
-        
+
         return df
 
 
@@ -198,12 +198,12 @@ def create_stellar_plasma(stellar_model, atom_data):
         tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies
     )
     plasma_modules += helium_lte_properties
-    
+
     plasma_modules.append(AlphaLine)
-    
+
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
-    
+
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
