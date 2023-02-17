@@ -4,7 +4,7 @@ from tardis.io.atom_data import AtomData
 
 from astropy import units as u
 
-from stardis.io import read_marcs_to_fv
+from stardis.model import read_marcs_to_fv
 from stardis.plasma import create_stellar_plasma
 from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
