@@ -12,7 +12,7 @@ from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
 
 
-def run_stardis(config_fname):
+def run_stardis(config_fname, tracing_nus):
     
     config_dict = validate_yaml(config_fname, schemapath='config_schema.yml')
     config = Configuration(config_dict)
