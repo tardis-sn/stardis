@@ -39,7 +39,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     temperatures = fv_geometry.temperatures
     alphas = np.zeros((len(temperatures), len(tracing_lambdas)))
 
-    for spec, ff, fpath in species:
+    for spec, fname in species.items():
 
         sigmas = sigma_file(tracing_lambdas, temperatures, fpath)
 
@@ -112,6 +112,7 @@ def calc_alpha_e(
     stellar_plasma,
     stellar_model,
     tracing_nus,
+    disable_electron_scattering=False,
 ):
     """
     Calculates electron scattering opacity.
@@ -131,6 +132,9 @@ def calc_alpha_e(
         Array of shape (no_of_shells, no_of_frequencies). Electron scattering
         opacity in each shell for each frequency in tracing_nus.
     """
+    
+    if disable_electron_scattering:
+        return 0
 
     fv_geometry = stellar_model.fv_geometry
 
@@ -141,6 +145,7 @@ def calc_alpha_e(
     alpha_e = np.zeros([len(fv_geometry), len(tracing_nus)])
     for j in range(len(fv_geometry)):
         alpha_e[j] = alpha_e_by_shell[j]
+    
     return alpha_e
 
 
@@ -152,7 +157,7 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
     inv_nu3 = tracing_nus ** (-3)
     alpha_bf = np.zeros([len(fv_geometry), len(tracing_nus)])
 
-    for spec, gaunt_fpath, departure_fpath in species:
+    for spec, dct in species.items():
 
         # just for reading atomic number and ion number
         ion_number_density, atomic_number, ion_number = get_number_density(
@@ -219,7 +224,7 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     inv_nu3 = tracing_nus ** (-3)
     alpha_bf = np.zeros([len(fv_geometry), len(tracing_nus)])
 
-    for spec, gaunt_fpath, departure_fpath in species:
+    for spec, dct in species.items():
 
         alpha_spec = np.zeros([len(fv_geometry), len(tracing_nus)])
 
@@ -255,17 +260,17 @@ def calc_alpha_line_at_nu(
     stellar_plasma,
     stellar_model,
     tracing_nus,
-    broadening_methods=[
-        "linear_stark",
-        "quadratic_stark",
-        "van_der_waals",
-        "radiation",
-    ],
-    line_nu_min=0,
-    line_nu_max=np.inf,
-    line_range=None,
+    line_opacity_config,
 ):
+    
+    if line_opacity_config.disable:
+        return 0
 
+    broadening_methods = line_opacity_config.broadening
+    line_nu_min = line_opacity_config.nu_min
+    line_nu_max = line_opacity_config.nu_max
+    line_range = line_opacity_config.range
+    
     linear_stark = "linear_stark" in broadening_methods
     quadratic_stark = "quadratic_stark" in broadening_methods
     van_der_waals = "van_der_waals" in broadening_methods
@@ -402,91 +407,14 @@ def calc_alphas(
     stellar_plasma,
     stellar_model,
     tracing_nus,
-    alpha_sources=["h_minus", "e", "h_photo", "line"],
-    wbr_fpath=None,
-    h_photo_levels=[1, 2, 3],
-    h_photo_strength=7.91e-18,
-    broadening_methods=[
-        "doppler",
-        "linear_stark",
-        "quadratic_stark",
-        "van_der_waals",
-        "radiation",
-    ],
-    line_nu_min=0,
-    line_nu_max=np.inf,
-    line_range=None,
+    opacity_config,
 ):
-    """
-    Calculates total opacity.
+    
+    alpha_file = calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, opacity_config.file)
+    alpha_bf = calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, opacity_config.bf)
+    alpha_ff = calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, opacity_config.ff)
+    alpha_rayleigh = calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh)
+    alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus, opacity_config.electron)
+    alpha_line_at_nu = calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus, opacity_config.line)
 
-    Parameters
-    ----------
-    stellar_plasma : tardis.plasma.base.BasePlasma
-        Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
-    alpha_sources: list, optional
-        List of sources of opacity to be considered. Options are "h_minus",
-        "e", "h_photo", and "line". By default all are included.
-    wbr_fpath: str, optional
-        Filepath to read H minus cross sections. By default None. Must be
-        provided if H minus opacities are calculated.
-    h_photo_levels: list, optional
-        Level numbers considered for hydrogen photoionization. By default
-        [1,2,3] which corresponds to the n=2 level of hydrogen with fine
-        splitting.
-    h_photo_strength : float, optional
-        Coefficient to inverse cube term in equation for photoionization
-        opacity, expressed in cm^2. By default 7.91e-18.
-    broadening_methods : list, optional
-        List of broadening mechanisms to be considered. Options are "doppler",
-        "linear_stark", "quadratic_stark", "van_der_waals", and "radiation".
-        By default all are included.
-
-    Returns
-    -------
-    numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
-        each shell for each frequency in tracing_nus.
-    """
-
-    if "h_minus" in alpha_sources:
-        alpha_h_minus = calc_alpha_h_minus(
-            stellar_plasma, stellar_model, tracing_nus, wbr_fpath
-        )
-    else:
-        alpha_h_minus = 0
-
-    if "e" in alpha_sources:
-        alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus)
-    else:
-        alpha_e = 0
-
-    if "h_photo" in alpha_sources:
-        alpha_h_photo = calc_alpha_h_photo(
-            stellar_plasma,
-            stellar_model,
-            tracing_nus,
-            levels=h_photo_levels,
-            strength=h_photo_strength,
-        )
-    else:
-        h_photo = 0
-
-    if "line" in alpha_sources:
-        alpha_line_at_nu = calc_alpha_line_at_nu(
-            stellar_plasma,
-            stellar_model,
-            tracing_nus,
-            broadening_methods,
-            line_nu_min,
-            line_nu_max,
-            line_range=line_range,
-        )
-    else:
-        alpha_line_at_nu = 0
-
-    return alpha_h_minus + alpha_e + alpha_h_photo + alpha_line_at_nu
+    return alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu, {}
