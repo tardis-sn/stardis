@@ -2,47 +2,14 @@ import pandas as pd
 import numpy as np
 
 import numba
-from numba.core import types
-from numba.typed import Dict
 
 from astropy import units as u, constants as const
 
 from stardis.opacities.broadening import calculate_broadening
 from stardis.opacities.voigt import voigt_profile
-
-
-THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
-H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
-SAHA_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
+from stardis.opacities.util import read_wbr_cross_section, map_items_to_indices
 
 # H minus opacity
-def read_wbr_cross_section(wbr_fpath):
-    """
-    Reads H minus cross sections by wavelength from Wishart (1979) and
-    Broad and Reinhardt (1976).
-
-    Parameters
-    ----------
-    wbr_fpath : str
-        Filepath to read H minus cross sections.
-
-    Returns
-    -------
-    wbr_cross_section : pandas.core.frame.DataFrame
-        H minus cross sections by wavelength.
-    """
-
-    wbr_cross_section = pd.read_csv(
-        wbr_fpath,
-        names=["wavelength", "cross_section"],
-        comment="#",
-    )
-    wbr_cross_section.wavelength *= 10  ## nm to AA
-    wbr_cross_section.cross_section *= 1e-18  ## to cm^2
-
-    return wbr_cross_section
-
-
 def calc_alpha_h_minus(
     stellar_plasma,
     stellar_model,
@@ -83,7 +50,7 @@ def calc_alpha_h_minus(
         wbr_cross_section.cross_section,
     )
 
-    # alpha = sigma * n * l; shape: (num cells, num tracing nus) - alpha for each frequency in each cell
+    # alpha = sigma * n ; shape: (num cells, num tracing nus) - alpha for each frequency in each cell
     alpha_h_minus = h_minus_sigma_nu * np.array(stellar_plasma.h_minus_density)[None].T
     return alpha_h_minus
 
@@ -114,10 +81,6 @@ def calc_alpha_e(
     """
 
     fv_geometry = stellar_model.fv_geometry
-
-    new_electron_density = (
-        stellar_plasma.electron_densities.values - stellar_plasma.h_minus_density
-    )
 
     alpha_e_by_shell = (
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
@@ -336,30 +299,6 @@ def calc_alan_entries(
         phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
         
     return np.sum(phis*alphas_in_shell)
-
-
-def map_items_to_indices(items):
-    """
-    Creates dictionary matching quantities in lines dataframe to their indices.
-
-    Parameters
-    ----------
-    items : list
-        List of column names.
-
-    Returns
-    -------
-    items_dict : dict
-    """
-    items_dict = Dict.empty(
-        key_type=types.unicode_type,
-        value_type=types.int64,
-    )
-
-    for i, item in enumerate(items):
-        items_dict[item] = i
-
-    return items_dict
 
 
 def calc_alphas(
