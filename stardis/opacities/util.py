@@ -1,23 +1,11 @@
 import numpy as np
 import pandas as pd
 
+from tardis.util.base import species_string_to_tuple
+
 from scipy.interpolate import interp1d, interp2d
-from radioactivedecay.utils import elem_to_Z
 from numba.core import types
 from numba.typed import Dict
-
-roman_numerals = {
-    "I": 1,
-    "II": 2,
-    "III": 3,
-    "IV": 4,
-    "V": 5,
-    "VI": 6,
-    "VII": 7,
-    "VIII": 8,
-    "IX": 9,
-    "X": 10,
-}
 
 
 def sigma_file(tracing_lambdas, temperatures, fpath):
@@ -101,12 +89,7 @@ def get_number_density(stellar_plasma, spec):
 
     ion = spec[: len(spec) - 3]
 
-    try:
-        atomic_number = elem_to_Z(ion[0])
-        ion_number = roman_numerals[ion[1:]] - 1
-    except KeyError:
-        atomic_number = elem_to_Z(ion[0:2])
-        ion_number = roman_numerals[ion[2:]] - 1
+    atomic_number, ion_number = species_string_to_tuple(ion.replace("_", " "))
 
     number_density = 1
 
