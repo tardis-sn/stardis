@@ -33,7 +33,7 @@ from tardis.plasma.properties.property_collections import (
 import tardis.plasma
 
 
-QUANTUM_CONCENTRATION_CONST = const.h**2 / (2 * np.pi * const.k_B)
+THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.k_B)
 H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
 H2_DISSOCIATION_ENERGY = 4.476 * u.eV
 ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
@@ -73,7 +73,7 @@ class H2Density(ProcessingPlasmaProperty):
         t_rad = t_rad * u.K
         h_neutral_density = ion_number_density.loc[1, 0]
         thermal_de_broglie = (
-            (2 * THERMAL_DE_BROGLIE_CONST / (m_p * t_rad)) ** (3 / 2)
+            (2 * THERMAL_DE_BROGLIE_CONST / (const.m_p * t_rad)) ** (3 / 2)
         ).to(u.cm**3)
         phi = thermal_de_broglie * np.exp(H2_DISSOCIATION_ENERGY / (const.k_B * t_rad))
         return h_neutral_density**2 * phi.value

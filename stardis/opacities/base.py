@@ -22,13 +22,13 @@ BF_CONSTANT = (
         * const.c.cgs**2
         * const.Ryd.cgs
     )
-)
+).value
 FF_CONSTANT = (
     4
     / (3 * const.h.cgs * const.c.cgs)
     * (const.e.esu**2 / (4 * np.pi * VACUUM_ELECTRIC_PERMITTIVITY)) ** 3
     * np.sqrt(2 * np.pi / (3 * const.m_e.cgs**3 * const.k_B.cgs))
-)
+).value
 
 
 # H minus opacity
@@ -36,8 +36,8 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
     fv_geometry = stellar_model.fv_geometry
-    temperatures = fv_geometry.temperatures
-    alphas = np.zeros((len(temperatures), len(tracing_lambdas)))
+    temperatures = fv_geometry.t.values
+    alpha_file = np.zeros((len(temperatures), len(tracing_lambdas)))
 
     for spec, fname in species.items():
 
@@ -66,7 +66,7 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     EH = const.h.cgs * const.c.cgs * const.Ryd.cgs
     upper_bound = 2.3e15 * u.Hz
     tracing_nus[tracing_nus > upper_bound] = 0
-    relative_nus = tracing_nus / (2 * EH)
+    relative_nus = tracing_nus.value / (2 * EH.value)
 
     nu4 = relative_nus**4
     nu6 = relative_nus**6
@@ -154,8 +154,8 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
 
     fv_geometry = stellar_model.fv_geometry
 
-    inv_nu3 = tracing_nus ** (-3)
-    alpha_bf = np.zeros([len(fv_geometry), len(tracing_nus)])
+    inv_nu3 = tracing_nus.value ** (-3)
+    alpha_bf = np.zeros((len(fv_geometry), len(tracing_nus)))
 
     for spec, dct in species.items():
 
@@ -166,17 +166,17 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
 
         if (
             (ion_number_density is None)
-            or (atomic_number is none)
+            or (atomic_number is None)
             or (ion_number is None)
         ):
             #### WARN ####
             continue
 
         ionization_energy = stellar_plasma.ionization_data.loc[
-            (atomic_number, ion_number)
+            (atomic_number, ion_number+1)
         ]
 
-        alpha_spec = np.zeros([len(fv_geometry), len(tracing_nus)])
+        alpha_spec = np.zeros((len(fv_geometry), len(tracing_nus)))
 
         levels = [
             (i, j, k)
@@ -184,18 +184,18 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
             if (i == atomic_number and j == ion_number)
         ]
         for level in levels:
-            alpha_level = np.zeros([len(fv_geometry), len(tracing_nus)])
+            alpha_level = np.zeros((len(fv_geometry), len(tracing_nus)))
             cutoff_frequency = (
-                ionization_energy - stellar_plasma.excitation_energy.loc[level_tuple]
+                ionization_energy - stellar_plasma.excitation_energy.loc[level]
             ) / const.h.cgs.value
-            number_density = stellar_plasma.level_number_density.loc[level]
+            number_density = np.array(stellar_plasma.level_number_density.loc[level])
             for i in range(len(tracing_nus)):
-                nu = tracing_nus[i]
+                nu = tracing_nus[i].value
                 alpha_level[:, i] = calc_contribution_bf(
                     nu, cutoff_frequency, number_density, ion_number
                 )
 
-            alpha_spec += alpha_h_photo_level
+            alpha_spec += alpha_level
 
         alpha_bf += alpha_spec
 
@@ -209,7 +209,7 @@ def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
 
     if nu >= cutoff_frequency:
         return (
-            BF_CONSTANT * (ion_number + 1) ** 4 * number_density * cutoff_frequency**3
+            BF_CONSTANT * (ion_number + 1)**4 * number_density * cutoff_frequency**3
         )
 
     else:
@@ -221,7 +221,7 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     fv_geometry = stellar_model.fv_geometry
     temperatures = fv_geometry.t.values
 
-    inv_nu3 = tracing_nus ** (-3)
+    inv_nu3 = tracing_nus.value ** (-3)
     alpha_bf = np.zeros([len(fv_geometry), len(tracing_nus)])
 
     for spec, dct in species.items():
@@ -414,7 +414,7 @@ def calc_alphas(
     alpha_bf = calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, opacity_config.bf)
     alpha_ff = calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, opacity_config.ff)
     alpha_rayleigh = calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh)
-    alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus, opacity_config.electron)
+    alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus, opacity_config.disable_electron_scattering)
     alpha_line_at_nu = calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus, opacity_config.line)
 
     return alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu, {}
