@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 from tardis.io.atom_data import AtomData
@@ -12,9 +14,12 @@ from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
 
 
-def run_stardis(config_fname, tracing_nus):
+base_dir = os.path.abspath(os.path.dirname(__file__))
+schema = os.path.join(base_dir, 'config_schema.yml')
+
+def run_stardis(config_fname, tracing_lambdas):
     
-    config_dict = validate_yaml(config_fname, schemapath='config_schema.yml')
+    config_dict = validate_yaml(config_fname, schemapath=schema)
     config = Configuration(config_dict)
     
     # TODO: allow inputing tracing_nus, allow inputing without units
@@ -72,7 +77,7 @@ class STARDISOutput:
         Numpy array of wavelengths used for spectrum with units of Angstroms.
     """
 
-    def __init__(self, stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, tracing_nus):
+    def __init__(self, stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, nus):
         
         self.stellar_plasma = stellar_plasma
         self.stellar_model = stellar_model
