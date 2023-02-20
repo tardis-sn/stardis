@@ -132,7 +132,7 @@ def calc_alpha_e(
         Array of shape (no_of_shells, no_of_frequencies). Electron scattering
         opacity in each shell for each frequency in tracing_nus.
     """
-    
+
     if disable_electron_scattering:
         return 0
 
@@ -145,7 +145,7 @@ def calc_alpha_e(
     alpha_e = np.zeros([len(fv_geometry), len(tracing_nus)])
     for j in range(len(fv_geometry)):
         alpha_e[j] = alpha_e_by_shell[j]
-    
+
     return alpha_e
 
 
@@ -173,7 +173,7 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
             continue
 
         ionization_energy = stellar_plasma.ionization_data.loc[
-            (atomic_number, ion_number+1)
+            (atomic_number, ion_number + 1)
         ]
 
         alpha_spec = np.zeros((len(fv_geometry), len(tracing_nus)))
@@ -209,7 +209,7 @@ def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
 
     if nu >= cutoff_frequency:
         return (
-            BF_CONSTANT * (ion_number + 1)**4 * number_density * cutoff_frequency**3
+            BF_CONSTANT * (ion_number + 1) ** 4 * number_density * cutoff_frequency**3
         )
 
     else:
@@ -262,7 +262,7 @@ def calc_alpha_line_at_nu(
     tracing_nus,
     line_opacity_config,
 ):
-    
+
     if line_opacity_config.disable:
         return 0
 
@@ -272,7 +272,7 @@ def calc_alpha_line_at_nu(
     line_nu_min = min(_nu_min, _nu_max)
     line_nu_max = max(_nu_min, _nu_max)
     line_range = line_opacity_config.broadening_range
-    
+
     linear_stark = "linear_stark" in broadening_methods
     quadratic_stark = "quadratic_stark" in broadening_methods
     van_der_waals = "van_der_waals" in broadening_methods
@@ -411,12 +411,31 @@ def calc_alphas(
     tracing_nus,
     opacity_config,
 ):
-    
-    alpha_file = calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, opacity_config.file)
-    alpha_bf = calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, opacity_config.bf)
-    alpha_ff = calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, opacity_config.ff)
-    alpha_rayleigh = calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh)
-    alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus, opacity_config.disable_electron_scattering)
-    alpha_line_at_nu = calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus, opacity_config.line)
 
-    return alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu, {}
+    alpha_file = calc_alpha_file(
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.file
+    )
+    alpha_bf = calc_alpha_bf(
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.bf
+    )
+    alpha_ff = calc_alpha_ff(
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.ff
+    )
+    alpha_rayleigh = calc_alpha_rayleigh(
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh
+    )
+    alpha_e = calc_alpha_e(
+        stellar_plasma,
+        stellar_model,
+        tracing_nus,
+        opacity_config.disable_electron_scattering,
+    )
+    alpha_line_at_nu = calc_alpha_line_at_nu(
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.line
+    )
+
+    ### TODO create opacity_dict to return
+    return (
+        alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu,
+        {},
+    )

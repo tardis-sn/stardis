@@ -15,35 +15,40 @@ from stardis.transport import raytrace
 
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
-schema = os.path.join(base_dir, 'config_schema.yml')
+schema = os.path.join(base_dir, "config_schema.yml")
+
 
 def run_stardis(config_fname, tracing_lambdas_or_nus):
-    
+
     tracing_lambdas = tracing_lambdas_or_nus.to(u.AA, u.spectral())
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
-    
+
     config_dict = validate_yaml(config_fname, schemapath=schema)
     config = Configuration(config_dict)
-    
+
     adata = AtomData.from_hdf(config.atom_data)
-    
+
     stellar_model = read_marcs_to_fv(
         config.model.fname, adata, final_atomic_number=config.model.final_atomic_number
     )
     adata.prepare_atom_data(stellar_model.abundances.index.tolist())
-    
+
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
-    
+
     alphas, opacity_dict = calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
         tracing_nus=tracing_nus,
         opacity_config=config.opacity,
     )
-    
-    F_nu = raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=config.no_of_thetas)
 
-    return STARDISOutput(stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, tracing_nus)
+    F_nu = raytrace(
+        stellar_model, alphas, tracing_nus, no_of_thetas=config.no_of_thetas
+    )
+
+    return STARDISOutput(
+        stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, tracing_nus
+    )
 
 
 class STARDISOutput:
@@ -79,12 +84,12 @@ class STARDISOutput:
     """
 
     def __init__(self, stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, nus):
-        
+
         self.stellar_plasma = stellar_plasma
         self.stellar_model = stellar_model
         self.alphas = alphas
         self.opacity_dict = opacity_dict
-        
+
         length = len(F_nu)
         lambdas = nus.to(u.AA, u.spectral())
         F_lambda = F_nu * nus / lambdas
