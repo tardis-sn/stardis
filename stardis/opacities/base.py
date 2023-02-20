@@ -267,9 +267,11 @@ def calc_alpha_line_at_nu(
         return 0
 
     broadening_methods = line_opacity_config.broadening
-    line_nu_min = line_opacity_config.nu_min
-    line_nu_max = line_opacity_config.nu_max
-    line_range = line_opacity_config.range
+    _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
+    _nu_max = line_opacity_config.max.to(u.Hz, u.spectral())
+    line_nu_min = min(_nu_min, _nu_max)
+    line_nu_max = max(_nu_min, _nu_max)
+    line_range = line_opacity_config.broadening_range
     
     linear_stark = "linear_stark" in broadening_methods
     quadratic_stark = "quadratic_stark" in broadening_methods

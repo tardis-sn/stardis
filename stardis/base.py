@@ -17,12 +17,14 @@ from stardis.transport import raytrace
 base_dir = os.path.abspath(os.path.dirname(__file__))
 schema = os.path.join(base_dir, 'config_schema.yml')
 
-def run_stardis(config_fname, tracing_lambdas):
+def run_stardis(config_fname, tracing_lambdas_or_nus):
+    
+    tracing_lambdas = tracing_lambdas_or_nus.to(u.AA, u.spectral())
+    tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
     
     config_dict = validate_yaml(config_fname, schemapath=schema)
     config = Configuration(config_dict)
     
-    # TODO: allow inputing tracing_nus, allow inputing without units
     adata = AtomData.from_hdf(config.atom_data)
     
     stellar_model = read_marcs_to_fv(
@@ -30,7 +32,6 @@ def run_stardis(config_fname, tracing_lambdas):
     )
     adata.prepare_atom_data(stellar_model.abundances.index.tolist())
     
-    tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
     
     alphas, opacity_dict = calc_alphas(
