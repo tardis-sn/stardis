@@ -3,6 +3,8 @@ import numpy as np
 
 import numba
 
+from tardis.io.config_reader import ConfigurationNameSpace
+
 from astropy import units as u, constants as const
 
 from stardis.opacities.broadening import calculate_broadening
@@ -39,7 +41,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     temperatures = fv_geometry.t.values
     alpha_file = np.zeros((len(temperatures), len(tracing_lambdas)))
 
-    for spec, fname in species.items():
+    for spec, fpath in species.items():
 
         sigmas = sigma_file(tracing_lambdas, temperatures, fpath)
 
@@ -47,11 +49,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
             stellar_plasma, spec
         )
 
-        if number_density is None:
-            #### WARN ####
-            continue
-
-        alpha_spec = sigmas * number_density[None].T
+        alpha_spec = sigmas * np.array(number_density)[None].T
 
         alpha_file += alpha_spec
 
@@ -164,14 +162,6 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
             stellar_plasma, spec + "_bf"
         )
 
-        if (
-            (ion_number_density is None)
-            or (atomic_number is None)
-            or (ion_number is None)
-        ):
-            #### WARN ####
-            continue
-
         ionization_energy = stellar_plasma.ionization_data.loc[
             (atomic_number, ion_number + 1)
         ]
@@ -232,16 +222,8 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
             stellar_plasma, spec + "_ff"
         )
 
-        if (
-            (ion_number_density is None)
-            or (atomic_number is none)
-            or (ion_number is None)
-        ):
-            #### WARN ####
-            continue
-
         for j in range(len(number_density)):
-            alpha_spec[j] = number_density[j] / np.sqrt(temperatures)
+            alpha_spec[j] = number_density[j] / np.sqrt(temperatures[j])
 
         alpha_spec *= FF_CONSTANT * ion_number**2
         alpha_bf += alpha_spec
@@ -381,7 +363,7 @@ def calc_alpha_line_at_nu(
                     alphas_considered,
                 )
 
-    return alpha_line_at_nu
+    return alpha_line_at_nu, gammas, doppler_widths
 
 
 @numba.njit
@@ -413,16 +395,16 @@ def calc_alphas(
 ):
 
     alpha_file = calc_alpha_file(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.file
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.file,
     )
     alpha_bf = calc_alpha_bf(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.bf
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.bf,
     )
     alpha_ff = calc_alpha_ff(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.ff
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.ff,
     )
     alpha_rayleigh = calc_alpha_rayleigh(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh,
     )
     alpha_e = calc_alpha_e(
         stellar_plasma,
@@ -430,12 +412,13 @@ def calc_alphas(
         tracing_nus,
         opacity_config.disable_electron_scattering,
     )
-    alpha_line_at_nu = calc_alpha_line_at_nu(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.line
+    alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
+        stellar_plasma, stellar_model, tracing_nus, opacity_config.line,
     )
 
     ### TODO create opacity_dict to return
     return (
         alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu,
-        {},
+        gammas,
+        doppler_widths,
     )

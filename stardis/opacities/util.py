@@ -97,7 +97,7 @@ def get_number_density(stellar_plasma, spec):
             None,
         )
     elif spec == "H2plus_bf":
-        pass  # Maybe implement?
+        return None, None, None  # Maybe implement?
 
     ion = spec[: len(spec) - 3]
 
@@ -113,9 +113,6 @@ def get_number_density(stellar_plasma, spec):
     if spec[len(spec) - 2 :] == "ff":
         ion_number += 1
         number_density *= stellar_plasma.electron_densities
-
-    if (ion_number < 0) or (ion_number > atomic_number):
-        return None, atomic_number, ion_number
 
     number_density *= stellar_plasma.ion_number_density.loc[atomic_number, ion_number]
 
