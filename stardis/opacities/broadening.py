@@ -44,8 +44,8 @@ def calc_n_effective(ion_number, ionization_energy, level_energy):
 
     Parameters
     ----------
-    atomic_number : int
-        Atomic number of the atom being considered.
+    ion_number : int
+        Ion number of the atom being considered.
     ionization_energy : float
         Energy in ergs needed to ionize the atom in the ground state.
     level_energy : float
@@ -103,8 +103,8 @@ def calc_gamma_quadratic_stark(
 
     Parameters
     ----------
-    atomic_number : int
-        Atomic number of the atom being considered.
+    ion_number : int
+        Ion number of the ion being considered.
     n_eff_upper : float
         Effective principal quantum number of upper level of transition.
     n_eff_lower : float
@@ -141,14 +141,11 @@ def calc_gamma_quadratic_stark(
 @numba.njit
 def calc_gamma_van_der_waals(
     ion_number,
-    atomic_mass,
     n_eff_upper,
     n_eff_lower,
     temperature,
     h_density,
-    he_abundance,
     h_mass,
-    he_mass,
 ):
     """
     Calculates broadening parameter for van der Waals broadening.
@@ -156,8 +153,8 @@ def calc_gamma_van_der_waals(
 
     Parameters
     ----------
-    atomic_number : int
-        Atomic number of the atom being considered.
+    ion_number : int
+        Ion number of the atom being considered.
     n_eff_upper : float
         Effective principal quantum number of upper level of transition.
     n_eff_lower : float
@@ -166,12 +163,8 @@ def calc_gamma_van_der_waals(
         Temperature of shell being considered.
     h_density : float
         Number density of Hydrogen in shell being considered.
-    he_abundance : float
-        Fractional abundance (by mass) of Helium in shell being considered.
     h_mass : float
         Atomic mass of Hydrogen in grams.
-    he_mass : float
-        Atomic mass of Helium in grams.
 
     Returns
     -------
@@ -200,7 +193,6 @@ def calc_gamma_van_der_waals(
 @numba.njit
 def calc_gamma(
     atomic_number,
-    atomic_mass,
     ion_number,
     ionization_energy,
     upper_level_energy,
@@ -209,24 +201,20 @@ def calc_gamma(
     electron_density,
     temperature,
     h_density,
-    he_abundance,
     h_mass,
-    he_mass,
     linear_stark=True,
     quadratic_stark=True,
     van_der_waals=True,
     radiation=True,
 ):
     """
-    Calculates total collision broadening parameter by adding up all
-    contributing broadening parameters.
+    Calculates total collision broadening parameter for a specific line
+    and shell.
 
     Parameters
     ----------
     atomic_number : int
         Atomic number of element being considered.
-    atomic_mass : float
-        Atomic mass of element being considered in grams.
     ion_number : int
         Ion number of ion being considered.
     ionization_energy : float
@@ -235,18 +223,16 @@ def calc_gamma(
         Energy in ergs of upper level of transition being considered.
     lower_level_energy : float
         Energy in ergs of upper level of transition being considered.
+    A_ul : float
+        Einstein A coefficient for the line being considered.
     electron_density : float
         Electron density in shell being considered.
     temperature : float
         Temperature of shell being considered.
     h_density : float
         Number density of Hydrogen in shell being considered.
-    he_abundance : float
-        Fractional abundance (by mass) of Helium in shell being considered.
     h_mass : float
         Atomic mass of Hydrogen in grams.
-    he_mass : float
-        Atomic mass of Helium in grams.
     linear_stark : bool, optional
         True if linear Stark broadening is to be considered, otherwise False.
         By default True.
@@ -255,6 +241,9 @@ def calc_gamma(
         False. By default True.
     van_der_waals : bool, optional
         True if Van Der Waals broadening is to be considered, otherwise False.
+        By default True.
+    radiation : bool, optional
+        True if radiation broadening is to be considered, otherwise False.
         By default True.
 
     Returns
@@ -265,7 +254,9 @@ def calc_gamma(
     n_eff_upper = calc_n_effective(ion_number, ionization_energy, upper_level_energy)
     n_eff_lower = calc_n_effective(ion_number, ionization_energy, lower_level_energy)
 
-    if (atomic_number == 1) and linear_stark:  # only for hydrogen
+    if (
+        atomic_number == 1
+    ) and linear_stark:  # only for hydrogen # why not all hydrogenic?
         gamma_linear_stark = calc_gamma_linear_stark(
             n_eff_upper, n_eff_lower, electron_density
         )
@@ -282,14 +273,11 @@ def calc_gamma(
     if van_der_waals:
         gamma_van_der_waals = calc_gamma_van_der_waals(
             ion_number,
-            atomic_mass,
             n_eff_upper,
             n_eff_lower,
             temperature,
             h_density,
-            he_abundance,
             h_mass,
-            he_mass,
         )
     else:
         gamma_van_der_waals = 0
@@ -314,7 +302,6 @@ def calculate_broadening(
     line_cols,
     no_shells,
     atomic_masses,
-    h_mass,
     electron_densities,
     temperatures,
     h_densities,
@@ -323,10 +310,55 @@ def calculate_broadening(
     van_der_waals=True,
     radiation=True,
 ):
+    """
+    Calculates broadening information for each line in each shell.
+
+    Parameters
+    ----------
+    lines_array :
+        Array containing each line and properties of the line.
+    line_cols : dict
+        Matches the name of a quantity to its column index in lines_array.
+    no_shells : int
+        Number of shells.
+    atomic_masses : numpy.ndarray
+        Atomic mass of all elements included in the simulation.
+    electron_densities : numpy.ndarray
+        Electron density in each shell.
+    temperatures : numpy.ndarray
+        Temperature in each shell.
+    h_densities : numpy.ndarray
+        Number density of hydrogen in each shell.
+    linear_stark : bool, optional
+        True if linear Stark broadening is to be considered, otherwise False.
+        By default True.
+    quadratic_stark : bool, optional
+        True if quadratic Stark broadening is to be considered, otherwise
+        False. By default True.
+    van_der_waals : bool, optional
+        True if Van Der Waals broadening is to be considered, otherwise False.
+        By default True.
+    radiation : bool, optional
+        True if radiation broadening is to be considered, otherwise False.
+        By default True.
+
+    Returns
+    -------
+    line_nus : numpy.ndarray
+        Frequency of each line.
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Collisional broadening
+        parameter of each line in each shell.
+    doppler_widths : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Doppler width of each
+        line in each shell.
+    """
 
     line_nus = np.zeros(len(lines_array))
     gammas = np.zeros((len(lines_array), no_shells))
     doppler_widths = np.zeros((len(lines_array), no_shells))
+
+    h_mass = atomic_masses[0]
 
     for i in range(len(lines_array)):
 
@@ -349,7 +381,6 @@ def calculate_broadening(
 
             gammas[i, j] = calc_gamma(
                 atomic_number=atomic_number,
-                atomic_mass=atomic_mass,
                 ion_number=ion_number,
                 ionization_energy=ionization_energy,
                 upper_level_energy=upper_level_energy,
@@ -358,9 +389,7 @@ def calculate_broadening(
                 electron_density=electron_density,
                 temperature=temperature,
                 h_density=h_density,
-                he_abundance=0,
                 h_mass=h_mass,
-                he_mass=0,
                 linear_stark=linear_stark,
                 quadratic_stark=quadratic_stark,
                 van_der_waals=van_der_waals,
