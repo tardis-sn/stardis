@@ -9,6 +9,24 @@ from numba.typed import Dict
 
 
 def sigma_file(tracing_lambdas, temperatures, fpath):
+    """
+    Reads and interpolates a cross-section file.
+
+    Parameters
+    ----------
+    tracing_lambdas : numpy.ndarray
+        Wavelengths to compute the cross-section for.
+    temperatures : numpy.ndarray
+        Temperatures to compute the cross-section for.
+    fpath : str
+        Filepath to cross-section file.
+
+    Returns
+    -------
+    sigmas : numpy.ndarray
+        Array of shape (no_of_temperatures, no_of_wavelengths). Cross-section
+        for each wavelength and temperature combination.
+    """
 
     df = pd.read_csv(fpath, header=None, comment="#")
     if np.isnan(df.loc[0, 0]):
@@ -58,6 +76,19 @@ def map_items_to_indices(items):
 
 
 def get_number_density(stellar_plasma, spec):
+    """
+    Computes number density, atomic number, and ion number for an opacity
+    source provided as a string.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    number_density : numpy.ndarray or pandas.Series
+    atomic_number : int
+    ion_number : int
+    """
 
     if spec == "Hminus_bf":
         return stellar_plasma.h_minus_density, None, None
