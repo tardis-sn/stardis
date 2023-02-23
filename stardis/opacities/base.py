@@ -11,6 +11,7 @@ from stardis.opacities.broadening import calculate_broadening
 from stardis.opacities.voigt import voigt_profile
 from stardis.opacities.util import sigma_file, map_items_to_indices, get_number_density
 
+
 VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
 BF_CONSTANT = (
     4
@@ -35,6 +36,26 @@ FF_CONSTANT = (
 
 # H minus opacity
 def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
+    """
+    Calculates opacities when a cross-section file is provided.
+
+    Parameters
+    ----------
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_model : stardis.model.base.StellarModel
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    species : tardis.io.config_reader.Configuration
+        Dictionary (in the form of a Configuration object) containing all
+        species and the cross-section files for which opacity is to be
+        calculated.
+
+    Returns
+    -------
+    alpha_file : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). File opacity in
+        each shell for each frequency in tracing_nus.
+    """
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
     fv_geometry = stellar_model.fv_geometry
@@ -58,6 +79,25 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
 
 # rayleigh opacity
 def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
+    """
+    Calculates Rayleigh scattering opacity.
+
+    Parameters
+    ----------
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_model : stardis.model.base.StellarModel
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    species : list of str
+        List of species for which Rayleigh scattering is to be considered.
+        Currently only "H", "He", and "H2" are supported.
+
+    Returns
+    -------
+    alpha_rayleigh : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Rayleigh scattering
+        opacity in each shell for each frequency in tracing_nus.
+    """
 
     fv_geometry = stellar_model.fv_geometry
     temperatures = fv_geometry.t.values
@@ -118,11 +158,11 @@ def calc_alpha_e(
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
-        Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
+    disable_electron_scattering : bool, optional
+        Forces function to return 0. By default False.
 
     Returns
     -------
@@ -149,6 +189,25 @@ def calc_alpha_e(
 
 # hydrogenic bound-free and free-free opacity
 def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
+    """
+    Calculates bound-free opacity.
+
+    Parameters
+    ----------
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_model : stardis.model.base.StellarModel
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    species : tardis.io.config_reader.Configuration
+        Dictionary (in the form of a Configuration object) containing all
+        species for which bound-free opacity is to be calculated.
+
+    Returns
+    -------
+    alpha_bf : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Bound-free opacity in
+        each shell for each frequency in tracing_nus.
+    """
 
     fv_geometry = stellar_model.fv_geometry
 
@@ -196,6 +255,27 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
 
 @numba.njit
 def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
+    """
+    Calculates the contribution of a single level to the bound-free opacity
+    coefficient of a single frequency in each shell.
+
+    Parameters
+    ----------
+    nu : float
+        Frequency in Hz.
+    cutoff_frequency : float
+        Lowest frequency in Hz that can ionize an electron in the level being
+        considered.
+    number_density : numpy.ndarray
+        Number density of level.
+    ion_number : int
+        Ion number of the ion being considered.
+
+    Returns
+    -------
+    numpy.ndarray
+        Bound-free opacity coefficient contribution.
+    """
 
     if nu >= cutoff_frequency:
         return (
@@ -207,6 +287,25 @@ def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
 
 
 def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
+    """
+    Calculates free-free opacity.
+
+    Parameters
+    ----------
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_model : stardis.model.base.StellarModel
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    species : tardis.io.config_reader.Configuration
+        Dictionary (in the form of a Configuration object) containing all
+        species for which free-free opacity is to be calculated.
+
+    Returns
+    -------
+    alpha_ff : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Free-free opacity in
+        each shell for each frequency in tracing_nus.
+    """
 
     fv_geometry = stellar_model.fv_geometry
     temperatures = fv_geometry.t.values
@@ -234,6 +333,9 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
 
 
 def gaunt_times_departure(tracing_nus, temperatures, gaunt_fpath, departure_fpath):
+    """
+    To be implemented.
+    """
     pass
 
 
@@ -244,6 +346,30 @@ def calc_alpha_line_at_nu(
     tracing_nus,
     line_opacity_config,
 ):
+    """
+    Calculates line opacity.
+
+    Parameters
+    ----------
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_model : stardis.model.base.StellarModel
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    line_opacity_config : tardis.io.config_reader.Configuration
+        Line opacity section of the STARDIS configuration.
+
+    Returns
+    -------
+    alpha_line_at_nu : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Line opacity in
+        each shell for each frequency in tracing_nus.
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Collisional broadening
+        parameter of each line in each shell.
+    doppler_widths : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Doppler width of each
+        line in each shell.
+    """
 
     if line_opacity_config.disable:
         return 0
@@ -302,7 +428,6 @@ def calc_alpha_line_at_nu(
     electron_densities = stellar_plasma.electron_densities.values
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
-    h_mass = atomic_masses[0]
 
     alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(drop=True)
     alphas_and_nu_in_range = alphas_and_nu[
@@ -318,7 +443,6 @@ def calc_alpha_line_at_nu(
         line_cols,
         no_shells,
         atomic_masses,
-        h_mass,
         electron_densities,
         temperatures,
         h_densities,
@@ -373,6 +497,27 @@ def calc_alan_entries(
     gammas_in_shell,
     alphas_in_shell,
 ):
+    """
+    Calculates the line opacity at a single frequency in a single shell.
+
+    Parameters
+    ----------
+    delta_nus : numpy.ndarray
+        Difference between the frequency considered and the frequency of each
+        line considered.
+    doppler_widths_in_shell : numpy.ndarray
+        The doppler width of each line considered in the shell considered.
+    gammas_in_shell : numpy.ndarray
+        The broadening parameter of each line considered in the shell
+        considered.
+    alphas_in_shell : numpy.ndarray
+        The total opacity of each line considered in the shell considered.
+
+    Returns
+    -------
+    float
+        Line opacity.
+    """
 
     phis = np.zeros(len(delta_nus))
 
@@ -393,18 +538,54 @@ def calc_alphas(
     tracing_nus,
     opacity_config,
 ):
+    """
+    Calculates total opacity.
+
+    Parameters
+    ----------
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_model : stardis.model.base.StellarModel
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    opacity_config : tardis.io.config_reader.Configuration
+        Opacity section of the STARDIS configuration.
+
+    Returns
+    -------
+    alphas : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
+        each shell for each frequency in tracing_nus.
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Collisional broadening
+        parameter of each line in each shell.
+    doppler_widths : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Doppler width of each
+        line in each shell.
+    """
 
     alpha_file = calc_alpha_file(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.file,
+        stellar_plasma,
+        stellar_model,
+        tracing_nus,
+        opacity_config.file,
     )
     alpha_bf = calc_alpha_bf(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.bf,
+        stellar_plasma,
+        stellar_model,
+        tracing_nus,
+        opacity_config.bf,
     )
     alpha_ff = calc_alpha_ff(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.ff,
+        stellar_plasma,
+        stellar_model,
+        tracing_nus,
+        opacity_config.ff,
     )
     alpha_rayleigh = calc_alpha_rayleigh(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.rayleigh,
+        stellar_plasma,
+        stellar_model,
+        tracing_nus,
+        opacity_config.rayleigh,
     )
     alpha_e = calc_alpha_e(
         stellar_plasma,
@@ -413,12 +594,15 @@ def calc_alphas(
         opacity_config.disable_electron_scattering,
     )
     alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
-        stellar_plasma, stellar_model, tracing_nus, opacity_config.line,
+        stellar_plasma,
+        stellar_model,
+        tracing_nus,
+        opacity_config.line,
+    )
+
+    alphas = (
+        alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu
     )
 
     ### TODO create opacity_dict to return
-    return (
-        alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu,
-        gammas,
-        doppler_widths,
-    )
+    return alphas, gammas, doppler_widths

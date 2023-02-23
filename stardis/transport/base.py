@@ -68,14 +68,13 @@ def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
 
     Parameters
     ----------
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    stellar_model : stardis.model.base.StellarModel
     alphas : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Total opacity in
         each shell for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    theta : int
+    theta : float
         Angle that the ray makes with the normal/radial direction.
 
     Returns
@@ -122,8 +121,7 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
 
     Parameters
     ----------
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    stellar_model : stardis.model.base.StellarModel
     alphas : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Total opacity in
         each shell for each frequency in tracing_nus.
