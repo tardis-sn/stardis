@@ -213,4 +213,5 @@ def create_stellar_plasma(stellar_model, atom_data):
         density=fv_geometry.density.values,
         link_t_rad_t_electron=1.0,
         nlte_ionization_species=[],
+        nlte_excitation_species=[],
     )
