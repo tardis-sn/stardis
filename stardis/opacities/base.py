@@ -14,24 +14,19 @@ from stardis.opacities.util import sigma_file, map_items_to_indices, get_number_
 
 VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
 BF_CONSTANT = (
-    4
-    * const.e.esu**2
-    / (
-        3
-        * np.pi
-        * np.sqrt(3)
-        * VACUUM_ELECTRIC_PERMITTIVITY
-        * const.m_e.cgs
-        * const.c.cgs**2
-        * const.Ryd.cgs
-    )
+    64
+    * np.pi**4
+    * const.e.esu**10
+    * const.m_e.cgs
+    / (3 * np.sqrt(3) * const.c.cgs * const.h.cgs**6)
 ).value
 FF_CONSTANT = (
     4
     / (3 * const.h.cgs * const.c.cgs)
-    * (const.e.esu**2 / (4 * np.pi * VACUUM_ELECTRIC_PERMITTIVITY)) ** 3
+    * const.e.esu**6
     * np.sqrt(2 * np.pi / (3 * const.m_e.cgs**3 * const.k_B.cgs))
 ).value
+RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
 
 
 # H minus opacity
@@ -101,46 +96,42 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
 
     fv_geometry = stellar_model.fv_geometry
     temperatures = fv_geometry.t.values
-    EH = const.h.cgs * const.c.cgs * const.Ryd.cgs
+    nu_H = const.c.cgs * const.Ryd.cgs
     upper_bound = 2.3e15 * u.Hz
     tracing_nus[tracing_nus > upper_bound] = 0
-    relative_nus = tracing_nus.value / (2 * EH.value)
+    relative_nus = tracing_nus.value / (2 * nu_H.value)
 
     nu4 = relative_nus**4
     nu6 = relative_nus**6
     nu8 = relative_nus**8
-    nu10 = relative_nus**10
 
     coefficient4 = np.zeros(len(temperatures))
     coefficient6 = np.zeros(len(temperatures))
     coefficient8 = np.zeros(len(temperatures))
-    coefficient10 = np.zeros(len(temperatures))
 
-    if "H" in species:  ##################???
-        density = stellar_plasma.ion_number_density.loc[1, 0, 0]
-        coefficent4 += 2 * density
-        coefficent6 += 4 * density
-        coefficent8 += 6 * density
-        coefficent10 += 8 * density
-    if "He" in species:  ##################???
-        density = stellar_plasma.ion_number_density.loc[2, 0, 0]
-        coefficent4 += 1 * density
-        coefficent6 += 1 * density
-        coefficent8 += 1 * density
-        coefficent10 += 1 * density
-    if "H2" in species:  ##################???
-        density = stellar_plasma.h2_density
-        coefficent4 += 1 * density
-        coefficent6 += 1 * density
-        coefficent8 += 1 * density
-        coefficent10 += 1 * density
+    if "H" in species:
+        density = np.array(stellar_plasma.ion_number_density.loc[1, 0])
+        coefficient4 += 20.24 * density
+        coefficient6 += 239.2 * density
+        coefficient8 += 2256 * density
+    if "He" in species:
+        density = np.array(stellar_plasma.ion_number_density.loc[2, 0])
+        coefficient4 += 1.913 * density
+        coefficient6 += 4.52 * density
+        coefficient8 += 7.90 * density
+    if "H2" in species:
+        density = np.array(stellar_plasma.h2_density)
+        coefficient4 += 28.39 * density
+        coefficient6 += 215.0 * density
+        coefficient8 += 1303 * density
 
     alpha_rayleigh = (
         coefficient4[None].T * nu4
         + coefficient6[None].T * nu6
         + coefficient8[None].T * nu8
-        + coefficient10[None].T * nu10
     )
+
+    alpha_rayleigh *= const.sigma_T.cgs.value
 
     return alpha_rayleigh
 
@@ -278,9 +269,8 @@ def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
     """
 
     if nu >= cutoff_frequency:
-        return (
-            BF_CONSTANT * (ion_number + 1) ** 4 * number_density * cutoff_frequency**3
-        )
+        n5 = ((ion_number + 1) * np.sqrt(RYDBERG_FREQUENCY / cutoff_frequency)) ** 5
+        return BF_CONSTANT * (ion_number + 1) ** 4 * number_density / n5
 
     else:
         return 0 * number_density
@@ -311,7 +301,7 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     temperatures = fv_geometry.t.values
 
     inv_nu3 = tracing_nus.value ** (-3)
-    alpha_bf = np.zeros([len(fv_geometry), len(tracing_nus)])
+    alpha_ff = np.zeros([len(fv_geometry), len(tracing_nus)])
 
     for spec, dct in species.items():
 
@@ -325,11 +315,11 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
             alpha_spec[j] = number_density[j] / np.sqrt(temperatures[j])
 
         alpha_spec *= FF_CONSTANT * ion_number**2
-        alpha_bf += alpha_spec
+        alpha_ff += alpha_spec
 
-    alpha_bf *= inv_nu3
+    alpha_ff *= inv_nu3
 
-    return alpha_bf
+    return alpha_ff
 
 
 def gaunt_times_departure(tracing_nus, temperatures, gaunt_fpath, departure_fpath):
