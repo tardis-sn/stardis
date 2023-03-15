@@ -464,8 +464,9 @@ def calc_alpha_line_at_nu(
                 )
 
             else:
-                line_start = line_nus.searchsorted(nu - line_range) + 1
-                line_end = line_nus.searchsorted(nu + line_range) + 1
+                line_range_value = line_range.to(u.Hz).value
+                line_start = line_nus.searchsorted(nu - line_range_value) + 1
+                line_end = line_nus.searchsorted(nu + line_range_value) + 1
                 delta_nus_considered = delta_nus[line_start:line_end]
                 gammas_considered = gammas_in_shell[line_start:line_end]
                 doppler_widths_considered = doppler_widths_in_shell[line_start:line_end]
