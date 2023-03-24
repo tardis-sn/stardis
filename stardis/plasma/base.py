@@ -33,8 +33,8 @@ from tardis.plasma.properties.property_collections import (
 import tardis.plasma
 
 
-ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
-THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
+ALPHA_COEFFICIENT = (np.pi * const.e.gauss ** 2) / (const.m_e.cgs * const.c.cgs)
+THERMAL_DE_BROGLIE_CONST = const.h ** 2 / (2 * np.pi * const.m_e * const.k_B)
 H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
 
 
@@ -76,9 +76,7 @@ class AlphaLine(ProcessingPlasmaProperty):
             )
 
         return pd.DataFrame(
-            alpha,
-            index=lines.index,
-            columns=np.array(level_number_density.columns),
+            alpha, index=lines.index, columns=np.array(level_number_density.columns),
         )
 
 
@@ -89,7 +87,7 @@ class HMinusDensity(ProcessingPlasmaProperty):
         t_rad = t_rad * u.K
         h_neutral_density = ion_number_density.loc[1, 0]
         thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / t_rad) ** (3 / 2)).to(
-            u.cm**3
+            u.cm ** 3
         )
         phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * t_rad))
         return h_neutral_density * electron_densities * phi.value
@@ -128,7 +126,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 # Creating stellar plasma ------------------------------------------------------
 
 
-def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data):
+def create_stellar_plasma(stellar_model, atom_data):
     """
     Creates stellar plasma.
 
@@ -143,7 +141,7 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data):
 
     Returns
     -------
-    splasma : tardis.plasma.base.BasePlasma
+    stellar_plasma : tardis.plasma.base.BasePlasma
         Stellar plasma.
     """
 
@@ -172,13 +170,15 @@ def create_splasma(marcs_model_fv, marcs_abundances_all, atom_data):
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
 
-    splasma = BasePlasma(
+    fv_geometry = stellar_model.fv_geometry
+
+    stellar_plasma = BasePlasma(
         plasma_properties=plasma_modules,
-        t_rad=marcs_model_fv.t.values,
-        abundance=marcs_abundances_all,
+        t_rad=fv_geometry.t.values,
+        abundance=stellar_model.abundances,
         atomic_data=atom_data,
-        density=marcs_model_fv.density.values,
+        density=fv_geometry.density.values,
         link_t_rad_t_electron=1.0,
     )
 
-    return splasma
+    return stellar_plasma

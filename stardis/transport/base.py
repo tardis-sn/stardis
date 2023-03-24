@@ -23,7 +23,7 @@ def bb_nu(tracing_nus, boundary_temps):
         boundary for each frequency in tracing_nus.
     """
 
-    bb_prefactor = (2 * const.h.cgs * tracing_nus**3) / const.c.cgs**2
+    bb_prefactor = (2 * const.h.cgs * tracing_nus ** 3) / const.c.cgs ** 2
     bb = bb_prefactor / (
         np.exp(
             ((const.h.cgs * tracing_nus) / (const.k_B.cgs * boundary_temps * u.K)).value
@@ -31,43 +31,6 @@ def bb_nu(tracing_nus, boundary_temps):
         - 1
     )
     return bb
-
-
-def bb_lambda(tracing_lambdas, boundary_temps):
-    """
-    Planck blackbody intensity distribution w.r.t. wavelength.
-
-    Parameters
-    ----------
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of wavelengths used for ray tracing with units of AA.
-    boundary_temps : numpy.ndarray
-        Temperatures in K of all shell boundaries. Note that array must
-        be transposed.
-
-    Returns
-    -------
-    bbw : astropy.unit.quantity.Quantity
-        Numpy array of shape (no_of_shells + 1, no_of_wavelengths) with units
-        of erg/(s cm^2 AA). Blackbody specific intensity at each shell
-        boundary for each wavelength in tracing_lambdas.
-    """
-
-    AA_to_cm = 1e-8
-
-    bbw_prefactor = (2 * const.h.cgs * const.c.cgs**2) / (
-        tracing_lambdas**5 * AA_to_cm**4
-    )
-    bbw = bbw_prefactor / (
-        np.exp(
-            (
-                (const.h.cgs * const.c.cgs)
-                / (const.k_B.cgs * tracing_lambdas * boundary_temps * u.K)
-            )
-        )
-        - 1
-    )
-    return bbw
 
 
 @numba.njit
@@ -88,7 +51,7 @@ def calc_weights(delta_tau):
 
     if delta_tau < 5e-4:
         w0 = delta_tau * (1 - delta_tau / 2)
-        w1 = delta_tau**2 * (0.5 - delta_tau / 3)
+        w1 = delta_tau ** 2 * (0.5 - delta_tau / 3)
     elif delta_tau > 50:
         w0 = 1.0
         w1 = 1.0
@@ -99,7 +62,7 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
-def raytrace(bb, all_taus, tracing_nus, no_of_shells):
+def raytrace(stellar_model, alphas, tracing_nus):
     """
     Performs ray tracing following van Noort 2001 eq 14.
 
@@ -123,7 +86,11 @@ def raytrace(bb, all_taus, tracing_nus, no_of_shells):
         Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
         intensity at each shell boundary for each frequency in tracing_nus.
     """
+    fv_geometry = stellar_model.fv_geometry
+    taus = alphas.T * fv_geometry.cell_length.to_numpy()
+    no_of_shells = len(fv_geometry)
 
+    bb = bb_nu(tracing_nus, stellar_model.boundary_temps)
     source = bb[1:].value
     delta_source = bb.diff(axis=0).value  # for cells, not boundary
     I_nu = np.ones((no_of_shells + 1, len(tracing_nus))) * -99
@@ -133,10 +100,7 @@ def raytrace(bb, all_taus, tracing_nus, no_of_shells):
 
         for j in range(no_of_shells):  # iterating over cells/shells (rows)
 
-            curr_tau = 0
-
-            for tau in all_taus:
-                curr_tau += tau[j, i]
+            curr_tau = taus[i, j]
 
             w0, w1 = calc_weights(curr_tau)
 

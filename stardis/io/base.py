@@ -4,6 +4,14 @@ import numpy as np
 from astropy import units as u, constants as const
 
 
+class StellarModel:
+    def __init__(self, fv_geometry, abundances, boundary_temps):
+
+        self.fv_geometry = fv_geometry
+        self.abundances = abundances
+        self.boundary_temps = boundary_temps
+
+
 def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     """
     Reads MARCS model and produces a finite volume model.
@@ -81,4 +89,5 @@ def read_marcs_to_fv(fname, atom_data, final_atomic_number=30):
     for i in range(len(marcs_abundances_all.columns)):
         marcs_abundances_all[i] = marcs_abundances["mass_abundance"]
     marcs_abundances_all = marcs_abundances_all[:final_atomic_number]
-    return marcs_model_fv, marcs_abundances_all, boundary_temps
+
+    return StellarModel(marcs_model_fv, marcs_abundances_all, boundary_temps)
