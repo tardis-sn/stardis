@@ -171,7 +171,18 @@ def calc_alpha_h_photo(
 
 
 # line opacity
-def calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus):
+def calc_alpha_line_at_nu(
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
+    broadening_methods=[
+        "doppler",
+        "linear_stark",
+        "quadratic_stark",
+        "van_der_waals",
+        "radiation",
+    ],
+):
     """
     Calculates line interaction optical depth.
 
@@ -190,6 +201,12 @@ def calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus):
         Array of shape (no_of_shells, no_of_frequencies). Line interaction
         optical depth in each shell for each frequency in tracing_nus.
     """
+
+    doppler = "doppler" in broadening_methods
+    linear_stark = "linear_stark" in broadening_methods
+    quadratic_stark = "quadratic_stark" in broadening_methods
+    van_der_waals = "van_der_waals" in broadening_methods
+    radiation = "radiation" in broadening_methods
 
     fv_geometry = stellar_model.fv_geometry
 
@@ -257,6 +274,11 @@ def calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus):
                 nu=tracing_nus[i].value,
                 lines_considered=lines_array[line_id_start:line_id_end],
                 line_cols=line_cols,
+                doppler=doppler,
+                linear_stark=linear_stark,
+                quadratic_stark=quadratic_stark,
+                van_der_waals=van_der_waals,
+                radiation=radiation,
             )
 
             # apply spectral broadening to optical depths (by multiplying line profiles)
@@ -295,24 +317,40 @@ def calc_alphas(
     stellar_plasma,
     stellar_model,
     tracing_nus,
-    wbr_fpath,
+    alpha_sources=["h_minus", "e", "h_photo", "line"],
+    wbr_fpath=None,
     h_photo_levels=[1, 2, 3],
     h_photo_strength=7.91e-18,
+    broadening_methods=["doppler", "linear_stark", "quadratic_stark", "van_der_waals", "radiation"],
 ):
-    """
-    TODO: allow for selecting certain opacities to calculate
-    """
-    alpha_h_minus = calc_alpha_h_minus(
-        stellar_plasma, stellar_model, tracing_nus, wbr_fpath
-    )
-    alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus)
-    alpha_h_photo = calc_alpha_h_photo(
-        stellar_plasma,
-        stellar_model,
-        tracing_nus,
-        levels=h_photo_levels,
-        strength=h_photo_strength,
-    )
-    alpha_line_at_nu = calc_alpha_line_at_nu(stellar_plasma, stellar_model, tracing_nus)
+    if "h_minus" in alpha_sources:
+        alpha_h_minus = calc_alpha_h_minus(
+            stellar_plasma, stellar_model, tracing_nus, wbr_fpath
+        )
+    else:
+        alpha_h_minus = 0
+
+    if "e" in alpha_sources:
+        alpha_e = calc_alpha_e(stellar_plasma, stellar_model, tracing_nus)
+    else:
+        alpha_e = 0
+
+    if "h_photo" in alpha_sources:
+        alpha_h_photo = calc_alpha_h_photo(
+            stellar_plasma,
+            stellar_model,
+            tracing_nus,
+            levels=h_photo_levels,
+            strength=h_photo_strength,
+        )
+    else:
+        h_photo = 0
+
+    if "line" in alpha_sources:
+        alpha_line_at_nu = calc_alpha_line_at_nu(
+            stellar_plasma, stellar_model, tracing_nus, broadening_methods
+        )
+    else:
+        alpha_line_at_nu = 0
 
     return alpha_h_minus + alpha_e + alpha_h_photo + alpha_line_at_nu

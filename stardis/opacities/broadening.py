@@ -216,6 +216,9 @@ def calc_gamma_collision(
     he_abundance,
     h_mass,
     he_mass,
+    linear_stark=True,
+    quadratic_stark=True,
+    van_der_waals=True,
 ):
     """
     Calculates total collision broadening parameter by adding up all
@@ -256,28 +259,34 @@ def calc_gamma_collision(
     n_eff_upper = calc_n_effective(atomic_number, ionization_energy, upper_level_energy)
     n_eff_lower = calc_n_effective(atomic_number, ionization_energy, lower_level_energy)
 
-    if atomic_number - ion_number == 1:  # species is hydrogenic
+    if (atomic_number - ion_number == 1) and linear_stark:  # species is hydrogenic
         gamma_linear_stark = calc_gamma_linear_stark(
             n_eff_upper, n_eff_lower, electron_density
         )
     else:
         gamma_linear_stark = 0
 
-    gamma_quadratic_stark = calc_gamma_quadratic_stark(
-        atomic_number, n_eff_upper, n_eff_lower, electron_density, temperature
-    )
+    if quadratic_stark:
+        gamma_quadratic_stark = calc_gamma_quadratic_stark(
+            atomic_number, n_eff_upper, n_eff_lower, electron_density, temperature
+        )
+    else:
+        gamma_quadratic_stark = 0
 
-    gamma_van_der_waals = calc_gamma_van_der_waals(
-        atomic_number,
-        atomic_mass,
-        n_eff_upper,
-        n_eff_lower,
-        temperature,
-        h_density,
-        he_abundance,
-        h_mass,
-        he_mass,
-    )
+    if van_der_waals:
+        gamma_van_der_waals = calc_gamma_van_der_waals(
+            atomic_number,
+            atomic_mass,
+            n_eff_upper,
+            n_eff_lower,
+            temperature,
+            h_density,
+            he_abundance,
+            h_mass,
+            he_mass,
+        )
+    else:
+        gamma_van_der_waals = 0
 
     gamma_collision = gamma_linear_stark + gamma_quadratic_stark + gamma_van_der_waals
 
@@ -294,6 +303,11 @@ def assemble_phis(
     nu,
     lines_considered,
     line_cols,
+    doppler=True,
+    linear_stark=True,
+    quadratic_stark=True,
+    van_der_waals=True,
+    radiation=True,
 ):
     """
     Puts together several line profiles at a single frequency for all shells.
@@ -333,9 +347,13 @@ def assemble_phis(
 
             atomic_number = int(lines_considered[i, line_cols["atomic_number"]])
             atomic_mass = atomic_masses[atomic_number - 1]
-            doppler_width = calc_doppler_width(
-                lines_considered[i, line_cols["nu"]], temperatures[j], atomic_mass
-            )
+
+            if doppler:
+                doppler_width = calc_doppler_width(
+                    lines_considered[i, line_cols["nu"]], temperatures[j], atomic_mass
+                )
+            else:
+                doppler_width = 0
 
             gamma_collision = calc_gamma_collision(
                 atomic_number=atomic_number,
@@ -350,10 +368,17 @@ def assemble_phis(
                 he_abundance=he_abundances[j],
                 h_mass=atomic_masses[0],
                 he_mass=atomic_masses[1],
+                linear_stark=True,
+                quadratic_stark=True,
+                van_der_waals=True,
             )
-            gamma = (
-                lines_considered[i, line_cols["A_ul"]] + gamma_collision
-            )  # includes radiation broadening
+
+            if radiation:
+                gamma = (
+                    lines_considered[i, line_cols["A_ul"]] + gamma_collision
+                )  # includes radiation broadening
+            else:
+                gamma = gamma_collision
 
             phis[i, j] = voigt_profile(delta_nu, doppler_width, gamma)
 
