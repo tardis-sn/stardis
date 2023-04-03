@@ -5,8 +5,7 @@ import numba
 @numba.njit
 def faddeeva(z):
     """
-    The Faddeeva function. Code adapted from
-    https://github.com/tiagopereira/Transparency.jl/blob/966fb46c21d5847c28f6f2eaa5ea6ff569e25bf2/src/voigt.jl#L13.
+    Adapted from https://github.com/tiagopereira/Transparency.jl/blob/966fb46c21d5847c28f6f2eaa5ea6ff569e25bf2/src/voigt.jl#L13
 
     Parameters
     ----------

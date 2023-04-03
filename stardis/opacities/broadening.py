@@ -250,15 +250,6 @@ def calc_gamma_collision(
         Atomic mass of Hydrogen in grams.
     he_mass : float
         Atomic mass of Helium in grams.
-    linear_stark : bool, optional
-        True if linear Stark broadening is to be considered, otherwise False.
-        By default True.
-    quadratic_stark : bool, optional
-        True if quadratic Stark broadening is to be considered, otherwise
-        False. By default True.
-    van_der_waals : bool, optional
-        True if Van Der Waals broadening is to be considered, otherwise False.
-        By default True.
 
     Returns
     -------
@@ -340,21 +331,6 @@ def assemble_phis(
         (no_of_lines_considered, no_of_line_cols).
     line_cols : numba.typed.Dict
         Column names of lines_considered mapped to indices.
-    doppler : bool, optional
-        True if doppler broadening is to be considered, otherwise False. By
-        default True.
-    linear_stark : bool, optional
-        True if linear Stark broadening is to be considered, otherwise False.
-        By default True.
-    quadratic_stark : bool, optional
-        True if quadratic Stark broadening is to be considered, otherwise
-        False. By default True.
-    van_der_waals : bool, optional
-        True if Van Der Waals broadening is to be considered, otherwise False.
-        By default True.
-    radiation : bool, optional
-        True if radiation broadening is to be considered, otherwise False. By
-        default True.
 
     Returns
     -------
@@ -392,9 +368,9 @@ def assemble_phis(
                 he_abundance=he_abundances[j],
                 h_mass=atomic_masses[0],
                 he_mass=atomic_masses[1],
-                linear_stark=linear_stark,
-                quadratic_stark=quadratic_stark,
-                van_der_waals=van_der_waals,
+                linear_stark=True,
+                quadratic_stark=True,
+                van_der_waals=True,
             )
 
             if radiation:
