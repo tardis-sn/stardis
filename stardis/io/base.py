@@ -5,6 +5,25 @@ from astropy import units as u, constants as const
 
 
 class StellarModel:
+    """
+    Class containing information about the stellar model.
+
+    Parameters
+    ----------
+    fv_geometry : pandas.core.frame.DataFrame
+    abundances : pandas.core.frame.DataFrame
+    boundary_temps : numpy.ndarray
+
+    Attributes
+    ----------
+    fv_geometry : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
+    abundances : pandas.core.frame.DataFrame
+        Abundance DataFrame with all included elements and mass abundances.
+    boundary_temps : numpy.ndarray
+        Temperatures in K of all shell boundaries. Note that array is transposed.
+    """
+    
     def __init__(self, fv_geometry, abundances, boundary_temps):
 
         self.fv_geometry = fv_geometry
@@ -19,7 +38,7 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
     Parameters
     ----------
     fpath : str
-        The filepath for the MARCS model.
+        The filepath to the MARCS model.
     atom_data : tardis.io.atom_data.base.AtomData
         Atomic data used for converting number density to mass density.
     final_atomic_number : int, optional
@@ -28,12 +47,8 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
 
     Returns
     -------
-    marcs_model_fv : pandas.core.frame.DataFrame
-        Finite volume model DataFrame.
-    marcs_abundances_all : pandas.core.frame.DataFrame
-        Abundance DataFrame with all included elements and mass abundances.
-    boundary_temps : numpy.ndarray
-        Temperatures in K of all shell boundaries. Note that array is transposed.
+    stardis.io.base.StellarModel
+        Stellar model.
     """
 
     marcs_model1 = pd.read_csv(

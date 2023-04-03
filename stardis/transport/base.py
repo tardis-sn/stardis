@@ -64,21 +64,19 @@ def calc_weights(delta_tau):
 
 def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
     """
-    Performs ray tracing following van Noort 2001 eq 14.
+    Performs ray tracing at an angle following van Noort 2001 eq 14.
 
     Parameters
     ----------
-    bb : astropy.unit.quantity.Quantity
-        Numpy array of shape (no_of_shells + 1, no_of_frequencies) with units
-        of erg/(s cm^2 Hz). Blackbody specific intensity at each shell
-        boundary for each frequency in tracing_nus.
-    all_taus : iterable
-        Contains all optical depths used. Each entry must be an array of shape
-        (no_of_shells, no_of_frequencies).
+    stellar_model : stardis.io.base.StellarModel
+        Stellar model.
+    alphas : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
+        each shell for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    no_of_shells : int
-        Number of shells in the model.
+    theta : int
+        Angle that the ray makes with the normal/radial direction.
 
     Returns
     -------
@@ -86,6 +84,7 @@ def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
         Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
         intensity at each shell boundary for each frequency in tracing_nus.
     """
+
     fv_geometry = stellar_model.fv_geometry
     taus = alphas.T * fv_geometry.cell_length.to_numpy() / np.cos(theta)
     no_of_shells = len(fv_geometry)
@@ -116,7 +115,35 @@ def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
     return I_nu_theta
 
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=10):
+=======
+def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
+    """
+    Raytraces over many angles and integrates to get flux using the midpoint
+    rule.
+
+    Parameters
+    ----------
+    stellar_model : stardis.io.base.StellarModel
+        Stellar model.
+    alphas : numpy.ndarray
+        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
+        each shell for each frequency in tracing_nus.
+    tracing_nus : astropy.unit.quantity.Quantity
+        Numpy array of frequencies used for ray tracing with units of Hz.
+    no_of_thetas : int, optional
+        Number of angles to sample for ray tracing, by default 20.
+
+    Returns
+    -------
+    F_nu : numpy.ndarray
+        Array of shape (no_of_shells + 1, no_of_frequencies). Output flux at
+        each shell boundary for each frequency in tracing_nus.
+    """
+
+>>>>>>> added docstrings
     dtheta = (np.pi / 2) / no_of_thetas
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
@@ -126,5 +153,15 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=10):
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(stellar_model, alphas, tracing_nus, theta)
+=======
+def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
+
+    thetas = np.linspace(0, np.pi / 2, no_of_thetas + 1, endpoint=False)[1:]
+    F_nu = np.zeros((len(stellar_model.fv_geometry) + 1, len(tracing_nus)))
+
+    for theta in thetas:
+        factor = np.sin(theta) * np.cos(theta) / 2
+        F_nu += factor * single_theta_trace(stellar_model, alphas, tracing_nus, theta)
+>>>>>>> multi-angle raytracing
 
     return F_nu
