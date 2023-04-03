@@ -46,14 +46,14 @@ def calc_alpha_h_minus(
     wbr_fpath,
 ):
     """
-    Calculates H minus opacity.
+    Calculates H minus optical depth.
 
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
         Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    fv_geometry : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
     wbr_fpath : str
@@ -62,8 +62,8 @@ def calc_alpha_h_minus(
     Returns
     -------
     alpha_h_minus : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). H minus opacity
-        in each shell for each frequency in tracing_nus.
+        Array of shape (no_of_shells, no_of_frequencies). H minus optical
+        depth in each shell for each frequency in tracing_nus.
     """
 
     fv_geometry = stellar_model.fv_geometry
@@ -91,14 +91,14 @@ def calc_alpha_e(
     tracing_nus,
 ):
     """
-    Calculates electron scattering opacity.
+    Calculates electron scattering optical depth.
 
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
         Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    fv_geometry : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
 
@@ -106,7 +106,7 @@ def calc_alpha_e(
     -------
     alpha_e : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Electron scattering
-        opacity in each shell for each frequency in tracing_nus.
+        optical depth in each shell for each frequency in tracing_nus.
     """
 
     fv_geometry = stellar_model.fv_geometry
@@ -134,29 +134,28 @@ def calc_alpha_h_photo(
     strength=7.91e-18,
 ):
     """
-    Calculates photoionization opacity.
+    Calculates photoionization optical depth.
 
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
         Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    fv_geometry : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    levels : list, optional
-        Level numbers considered for hydrogen photoionization. By default
-        [1,2,3] which corresponds to the n=2 level of hydrogen with fine
-        splitting.
-    strength : float, optional
+    level : tuple
+        Species being ionized. Expressed as
+        (atomic_number, ion_number, level_number).
+    strength : float
         Coefficient to inverse cube term in equation for photoionization
-        opacity, expressed in cm^2. By default 7.91e-18.
+        optical depth, expressed in cm^2.
 
     Returns
     -------
     alpha_photo : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Photoiosnization
-        opacity in each shell for each frequency in tracing_nus.
+        optical depth in each shell for each frequency in tracing_nus.
     """
 
     fv_geometry = stellar_model.fv_geometry
@@ -198,26 +197,22 @@ def calc_alpha_line_at_nu(
     ],
 ):
     """
-    Calculates line interaction opacity.
+    Calculates line interaction optical depth.
 
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
         Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
+    fv_geometry : pandas.core.frame.DataFrame
+        Finite volume model DataFrame.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    broadening_methods : list, optional
-        List of broadening mechanisms to be considered. Options are "doppler",
-        "linear_stark", "quadratic_stark", "van_der_waals", and "radiation".
-        By default all are included.
 
     Returns
     -------
     alpha_line : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Line interaction
-        opacity in each shell for each frequency in tracing_nus.
+        optical depth in each shell for each frequency in tracing_nus.
     """
 
     doppler = "doppler" in broadening_methods
@@ -279,7 +274,7 @@ def calc_alpha_line_at_nu(
         line_id_start, line_id_end = (line_id_starts[i], line_id_ends[i])
 
         if line_id_start != line_id_end:
-            # opacity of each considered line for each shell at `nu`
+            # optical depth of each considered line for each shell at `nu`
             alphas = alpha_lines[line_id_start:line_id_end]
 
             # line profiles of each considered line for each shell at `nu`
@@ -299,9 +294,9 @@ def calc_alpha_line_at_nu(
                 radiation=radiation,
             )
 
-            # apply spectral broadening to opacitys (by multiplying line profiles)
-            # and take sum of these broadened opacitys along "considered lines" axis
-            # to obtain line-interaction opacitys for each shell at `nu` (1D array)
+            # apply spectral broadening to optical depths (by multiplying line profiles)
+            # and take sum of these broadened optical depths along "considered lines" axis
+            # to obtain line-interaction optical depths for each shell at `nu` (1D array)
             alpha_line_at_nu[:, i] = (alphas * phis).sum(axis=0)
 
         else:
@@ -350,42 +345,6 @@ def calc_alphas(
         "radiation",
     ],
 ):
-    """
-    Calculates total opacity.
-
-    Parameters
-    ----------
-    stellar_plasma : tardis.plasma.base.BasePlasma
-        Stellar plasma.
-    stellar_model : stardis.io.base.StellarModel
-        Stellar model.
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
-    alpha_sources: list, optional
-        List of sources of opacity to be considered. Options are "h_minus",
-        "e", "h_photo", and "line". By default all are included.
-    wbr_fpath: str, optional
-        Filepath to read H minus cross sections. By default None. Must be
-        provided if H minus opacities are calculated.
-    h_photo_levels: list, optional
-        Level numbers considered for hydrogen photoionization. By default
-        [1,2,3] which corresponds to the n=2 level of hydrogen with fine
-        splitting.
-    h_photo_strength : float, optional
-        Coefficient to inverse cube term in equation for photoionization
-        opacity, expressed in cm^2. By default 7.91e-18.
-    broadening_methods : list, optional
-        List of broadening mechanisms to be considered. Options are "doppler",
-        "linear_stark", "quadratic_stark", "van_der_waals", and "radiation".
-        By default all are included.
-
-    Returns
-    -------
-    numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
-        each shell for each frequency in tracing_nus.
-    """
-
     if "h_minus" in alpha_sources:
         alpha_h_minus = calc_alpha_h_minus(
             stellar_plasma, stellar_model, tracing_nus, wbr_fpath
