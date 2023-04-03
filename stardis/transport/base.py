@@ -23,7 +23,7 @@ def bb_nu(tracing_nus, boundary_temps):
         boundary for each frequency in tracing_nus.
     """
 
-    bb_prefactor = (2 * const.h.cgs * tracing_nus ** 3) / const.c.cgs ** 2
+    bb_prefactor = (2 * const.h.cgs * tracing_nus**3) / const.c.cgs**2
     bb = bb_prefactor / (
         np.exp(
             ((const.h.cgs * tracing_nus) / (const.k_B.cgs * boundary_temps * u.K)).value
@@ -51,7 +51,7 @@ def calc_weights(delta_tau):
 
     if delta_tau < 5e-4:
         w0 = delta_tau * (1 - delta_tau / 2)
-        w1 = delta_tau ** 2 * (0.5 - delta_tau / 3)
+        w1 = delta_tau**2 * (0.5 - delta_tau / 3)
     elif delta_tau > 50:
         w0 = 1.0
         w1 = 1.0
@@ -62,7 +62,7 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
-def raytrace(stellar_model, alphas, tracing_nus):
+def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
     """
     Performs ray tracing following van Noort 2001 eq 14.
 
@@ -82,19 +82,19 @@ def raytrace(stellar_model, alphas, tracing_nus):
 
     Returns
     -------
-    I_nu : numpy.ndarray
+    I_nu_theta : numpy.ndarray
         Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
         intensity at each shell boundary for each frequency in tracing_nus.
     """
     fv_geometry = stellar_model.fv_geometry
-    taus = alphas.T * fv_geometry.cell_length.to_numpy()
+    taus = alphas.T * fv_geometry.cell_length.to_numpy() / np.cos(theta)
     no_of_shells = len(fv_geometry)
 
     bb = bb_nu(tracing_nus, stellar_model.boundary_temps)
     source = bb[1:].value
     delta_source = bb.diff(axis=0).value  # for cells, not boundary
-    I_nu = np.ones((no_of_shells + 1, len(tracing_nus))) * -99
-    I_nu[0] = bb[0]  # the innermost boundary is photosphere
+    I_nu_theta = np.ones((no_of_shells + 1, len(tracing_nus))) * -99
+    I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
 
@@ -109,8 +109,22 @@ def raytrace(stellar_model, alphas, tracing_nus):
             else:
                 second_term = w1 * delta_source[j, i] / curr_tau
 
-            I_nu[j + 1, i] = (
-                (1 - w0) * I_nu[j, i] + w0 * source[j, i] + second_term
+            I_nu_theta[j + 1, i] = (
+                (1 - w0) * I_nu_theta[j, i] + w0 * source[j, i] + second_term
             )  # van Noort 2001 eq 14
 
-    return I_nu
+    return I_nu_theta
+
+
+def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=10):
+    dtheta = (np.pi / 2) / no_of_thetas
+    start_theta = dtheta / 2
+    end_theta = (np.pi / 2) - (dtheta / 2)
+    thetas = np.linspace(start_theta, end_theta, no_of_thetas)
+    F_nu = np.zeros((len(stellar_model.fv_geometry) + 1, len(tracing_nus)))
+
+    for theta in thetas:
+        weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
+        F_nu += weight * single_theta_trace(stellar_model, alphas, tracing_nus, theta)
+
+    return F_nu

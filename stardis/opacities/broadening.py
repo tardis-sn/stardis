@@ -88,7 +88,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     gamma_linear_stark = (
         0.51
         * a1
-        * (n_eff_upper ** 2 - n_eff_lower ** 2)
+        * (n_eff_upper**2 - n_eff_lower**2)
         * (electron_density ** (2 / 3))
     )
 
@@ -120,16 +120,16 @@ def calc_gamma_quadratic_stark(
     gamma_quadratic_stark : float
         Broadening parameter for quadratic Stark broadening.
     """
-    c4_prefactor = (ELEMENTARY_CHARGE ** 2 * BOHR_RADIUS ** 3) / (
-        36 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * atomic_number ** 4
+    c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
+        36 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * atomic_number**4
     )
     c4 = c4_prefactor * (
-        (n_eff_upper * ((5 * n_eff_upper ** 2) + 1)) ** 2
-        - (n_eff_lower * ((5 * n_eff_lower ** 2) + 1)) ** 2
+        (n_eff_upper * ((5 * n_eff_upper**2) + 1)) ** 2
+        - (n_eff_lower * ((5 * n_eff_lower**2) + 1)) ** 2
     )
 
     gamma_quadratic_stark = (
-        10 ** 19
+        10**19
         * BOLTZMANN_CONSTANT
         * electron_density
         * c4 ** (2 / 3)
@@ -180,12 +180,12 @@ def calc_gamma_van_der_waals(
     """
     c6_prefactor = (
         5.625
-        * ELEMENTARY_CHARGE ** 2
-        * BOHR_RADIUS ** 5
+        * ELEMENTARY_CHARGE**2
+        * BOHR_RADIUS**5
         / (PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY)
     )
 
-    c6 = c6_prefactor * atomic_number ** 6 / (n_eff_upper ** 4 - n_eff_lower ** 4)
+    c6 = c6_prefactor * atomic_number**6 / (n_eff_upper**4 - n_eff_lower**4)
 
     gamma_van_der_waals = (
         8.08
@@ -194,8 +194,8 @@ def calc_gamma_van_der_waals(
             + he_abundance * (1 + atomic_mass / he_mass) ** 2
         )
         * (8 * BOLTZMANN_CONSTANT / (np.pi * atomic_mass)) ** 0.3
-        * c6 ** 0.4
-        * temperature ** 0.3
+        * c6**0.4
+        * temperature**0.3
         * h_density
     )
 
