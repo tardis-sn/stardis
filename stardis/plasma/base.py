@@ -44,7 +44,7 @@ class HMinusDensity(ProcessingPlasmaProperty):
     Attributes
     ----------
     h_minus_density : Pandas DataFrame, dtype float
-          Density of H-, indexed by shell.
+        Density of H-, indexed by shell.
     """
 
     outputs = ("h_minus_density",)
@@ -64,7 +64,7 @@ class H2Density(ProcessingPlasmaProperty):
     Attributes
     ----------
     h2_density : Pandas DataFrame, dtype float
-          Density of H2, indexed by shell.
+        Density of H2, indexed by shell.
     """
 
     outputs = ("h2_density",)
@@ -84,8 +84,8 @@ class AlphaLine(ProcessingPlasmaProperty):
     Attributes
     ----------
     alpha_line : Pandas DataFrame, dtype float
-          Sobolev optical depth for each line. Indexed by line.
-          Columns as zones.
+        Sobolev optical depth for each line. Indexed by line.
+        Columns as zones.
     """
 
     outputs = ("alpha_line",)
@@ -166,17 +166,12 @@ def create_stellar_plasma(stellar_model, atom_data):
 
     Parameters
     ----------
-    marcs_model_fv : pandas.core.frame.DataFrame
-        Finite volume model DataFrame.
-    marcs_abundances_all : pandas.core.frame.DataFrame
-        Abundance DataFrame with all included elements and mass abundances.
+    stellar_model : stardis.model.base.StellarModel
     atom_data : tardis.io.atom_data.base.AtomData
-        Atomic data used for converting number density to mass density.
 
     Returns
     -------
-    stellar_plasma : tardis.plasma.base.BasePlasma
-        Stellar plasma.
+    tardis.plasma.base.BasePlasma
     """
 
     # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
@@ -210,7 +205,7 @@ def create_stellar_plasma(stellar_model, atom_data):
 
     fv_geometry = stellar_model.fv_geometry
 
-    stellar_plasma = BasePlasma(
+    return BasePlasma(
         plasma_properties=plasma_modules,
         t_rad=fv_geometry.t.values,
         abundance=stellar_model.abundances,
@@ -219,5 +214,3 @@ def create_stellar_plasma(stellar_model, atom_data):
         link_t_rad_t_electron=1.0,
         nlte_ionization_species=[],
     )
-
-    return stellar_plasma

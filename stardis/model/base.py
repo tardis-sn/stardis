@@ -40,15 +40,13 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
     fpath : str
         The filepath to the MARCS model.
     atom_data : tardis.io.atom_data.base.AtomData
-        Atomic data used for converting number density to mass density.
     final_atomic_number : int, optional
         Atomic number for the final element included in the model. Default
         is 30.
 
     Returns
     -------
-    stardis.io.base.StellarModel
-        Stellar model.
+    stardis.model.base.StellarModel
     """
 
     marcs_model1 = pd.read_csv(
