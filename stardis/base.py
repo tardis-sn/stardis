@@ -35,7 +35,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
-    alphas, opacity_dict = calc_alphas(
+    alphas, gammas, doppler_widths = calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
         tracing_nus=tracing_nus,
@@ -47,7 +47,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     )
 
     return STARDISOutput(
-        stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, tracing_nus
+        stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, tracing_nus
     )
 
 
@@ -83,20 +83,21 @@ class STARDISOutput:
         Numpy array of wavelengths used for spectrum with units of Angstroms.
     """
 
-    def __init__(self, stellar_plasma, stellar_model, alphas, opacity_dict, F_nu, nus):
+    def __init__(self, stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, tracing_nus):
 
         self.stellar_plasma = stellar_plasma
         self.stellar_model = stellar_model
         self.alphas = alphas
-        self.opacity_dict = opacity_dict
+        self.gammas = gammas
+        self.doppler_widths = doppler_widths
 
         length = len(F_nu)
-        lambdas = nus.to(u.AA, u.spectral())
-        F_lambda = F_nu * nus / lambdas
+        lambdas = tracing_nus.to(u.AA, u.spectral())
+        F_lambda = F_nu * tracing_nus / lambdas
         # TODO: Units
         self.F_nu = F_nu
         self.F_lambda = F_lambda.value
         self.spectrum_nu = F_nu[length - 1]
         self.spectrum_lambda = F_lambda[length - 1]
-        self.nus = nus
+        self.nus = tracing_nus
         self.lambdas = lambdas
