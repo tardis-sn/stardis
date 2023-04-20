@@ -33,9 +33,50 @@ from tardis.plasma.properties.property_collections import (
 import tardis.plasma
 
 
-ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
-THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.m_e * const.k_B)
+QUANTUM_CONCENTRATION_CONST = const.h**2 / (2 * np.pi * const.k_B)
 H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
+H2_DISSOCIATION_ENERGY = 4.476 * u.eV
+ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
+
+
+class HMinusDensity(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    h_minus_density : Pandas DataFrame, dtype float
+          Density of H-, indexed by shell.
+    """
+
+    outputs = ("h_minus_density",)
+
+    def calculate(self, ion_number_density, t_rad, electron_densities):
+        t_rad = t_rad * u.K
+        h_neutral_density = ion_number_density.loc[1, 0]
+        thermal_de_broglie = (
+            (THERMAL_DE_BROGLIE_CONST / (const.m_e * t_rad)) ** (3 / 2)
+        ).to(u.cm**3)
+        phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * t_rad))
+        return h_neutral_density * electron_densities * phi.value
+
+
+class H2Density(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    h2_density : Pandas DataFrame, dtype float
+          Density of H2, indexed by shell.
+    """
+
+    outputs = ("h2_density",)
+
+    def calculate(self, ion_number_density, t_rad):
+        t_rad = t_rad * u.K
+        h_neutral_density = ion_number_density.loc[1, 0]
+        thermal_de_broglie = (
+            (2 * THERMAL_DE_BROGLIE_CONST / (m_p * t_rad)) ** (3 / 2)
+        ).to(u.cm**3)
+        phi = thermal_de_broglie * np.exp(H2_DISSOCIATION_ENERGY / (const.k_B * t_rad))
+        return h_neutral_density**2 * phi.value
 
 
 class AlphaLine(ProcessingPlasmaProperty):
@@ -80,30 +121,10 @@ class AlphaLine(ProcessingPlasmaProperty):
             index=lines.index,
             columns=np.array(level_number_density.columns),
         )
-        
+
         df["nu"] = lines.nu
-        
+
         return df
-
-
-class HMinusDensity(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    h_minus_density : Pandas DataFrame, dtype float
-          Density of H-, indexed by shell.
-    """
-
-    outputs = ("h_minus_density",)
-
-    def calculate(self, ion_number_density, t_rad, electron_densities):
-        t_rad = t_rad * u.K
-        h_neutral_density = ion_number_density.loc[1, 0]
-        thermal_de_broglie = ((THERMAL_DE_BROGLIE_CONST / t_rad) ** (3 / 2)).to(
-            u.cm**3
-        )
-        phi = (thermal_de_broglie / 4) * np.exp(H_MINUS_CHI / (const.k_B * t_rad))
-        return h_neutral_density * electron_densities * phi.value
 
 
 # Properties that haven't been used in creating stellar plasma yet,
@@ -177,8 +198,12 @@ def create_stellar_plasma(stellar_model, atom_data):
         tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies
     )
     plasma_modules += helium_lte_properties
+
     plasma_modules.append(AlphaLine)
+
     plasma_modules.append(HMinusDensity)
+    plasma_modules.append(H2Density)
+
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)

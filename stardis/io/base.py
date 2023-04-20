@@ -23,7 +23,7 @@ class StellarModel:
     boundary_temps : numpy.ndarray
         Temperatures in K of all shell boundaries. Note that array is transposed.
     """
-    
+
     def __init__(self, fv_geometry, abundances, boundary_temps):
 
         self.fv_geometry = fv_geometry
