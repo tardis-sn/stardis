@@ -5,7 +5,7 @@
 ### Setting Up the Environment
 
 > **_NOTE:_** 
-> - STARDIS is only supported on macOS and GNU/Linux. Windows users can run STARDIS from [WSL](https://docs.microsoft.com/en-us/windows/wsl/) or a Virtual Machine
+> - STARDIS is only supported on macOS and GNU/Linux. Windows users can run STARDIS from [WSL](https://docs.microsoft.com/en-us/windows/wsl/) or a Virtual Machine.
 > - STARDIS packages and dependencies are distributed only through the [conda](https://docs.conda.io/en/latest/) package management system, therefore installation requires [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) or [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to be installed on your system.
 
 STARDIS uses exclusively the packages in the TARDIS enviroment, as well as using the TARDIS code itself. However, since STARDIS can be sensitive to changes in TARDIS, we strongly suggest that users create a separate environment for STARDIS that pins the TARDIS version. To do this, run the following in the terminal (replacing `{platform}` with either `linux` or `osx` as applicable):
@@ -23,7 +23,7 @@ The third command (`conda activate stardis`) activates the environment, which is
 
 STARDIS can be downloaded by **non-developers** by running `$ pip install git+https://github.com/tardis-sn/stardis.git@main` in the terminal while in your STARDIS environment.
 
-**Developers must instead clone and fork the STARDIS repository.** First, [fork the repository](https://github.com/tardis-sn/stardis/fork), and [configure GitHub to work with SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), and then run the following in the terminal:
+**Developers** must instead clone and fork the STARDIS repository. First, [fork the repository](https://github.com/tardis-sn/stardis/fork) and [configure GitHub to work with SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), and then run the following in the terminal:
 
 ```
 $ git clone git@github.com:<username>/stardis.git
@@ -50,7 +50,7 @@ atom_data: <filepath to atomic data file>
 model:
     type: marcs # more options will be available in the future
     fname: <filepath to MARCS model file>
-    final_atomic_number: <atomic number of largest element considered, may be up to 30>
+    final_atomic_number: <atomic number of largest element considered> # may be up to 30
 opacity:
     file: # reads an opacity file, omit if none
         <species1>_<either bf for bound-free or ff for free-free>: <filepath to opacity file>
@@ -64,9 +64,9 @@ opacity:
         <species1>: {} # there will eventually be options to include files with gaunt factors or departure coefficients
         <species2>: {}
         ...
-    disable_electron_scattering: <True or False>
     rayleigh: <list of species considered for rayleigh scattering> # may include H, He, and/or H2, omit or use [] for none
-    line: # settings for line interaction opacity
+    disable_electron_scattering: <True or False>
+    line: # settings for line interaction opacity, at least one subfield is required
         disable: <True or False>
         broadening: <list of non-thermal broadening sources considered> # may include radiation, linear_stark, quadratic_stark, and/or van_der_waals, omit or use [] for none
         min: <minimum resonance frequency or wavelength of lines considered> # must have units, such as Hz or AA
@@ -91,7 +91,7 @@ wavelength_3, cross-section_3
 or
 
 ```csv
-, wavelength_1, wavelength_2, wavelength_3 ...
+, wavelength_1, wavelength_2, wavelength_3, ...
 temperature_1, cross-section_11, cross-section_12, cross-section_13, ...
 temperature_2, cross-section_21, cross-section_22, cross-section_23, ...
 temperature_3, cross-section_31, cross-section_32, cross-section_33, ...
