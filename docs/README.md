@@ -42,7 +42,7 @@ In the repository, `docs/quickstart.ipynb` has a basic notebook that runs STARDI
 
 ### The STARDIS Configuration
 
-STARDIS uses [YAML](https://yaml.org/) files for the configuration. The quickstart notebook uses an example configuration called `stardis_example.yml`. Below, we present an example for instructions for customizing the configuration for your needs.
+STARDIS uses [YAML](https://yaml.org/) files for the configuration. The [quickstart notebook](quickstart.ipynb) uses an [example configuration](stardis_example.yml) called `stardis_example.yml`. Below, we present an example for instructions for customizing the configuration for your needs.
 
 ```yaml
 stardis_config_version: 1.0
@@ -108,4 +108,4 @@ The following is an excerpt from a poster presentation on STARDIS:
 
 ## References
 
-See `docs/stardis.bib`.
+See [stardis.bib](stardis.bib).
