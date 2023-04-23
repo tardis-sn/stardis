@@ -104,7 +104,7 @@ Note the leading comma in the latter format. Temperatures must be in Kelvin, wav
 
 The following is an excerpt from a poster presentation on STARDIS:
 
-<img src="Isolated.png" alt="isolated" width="700"/>
+<img src="physics_of_stardis.png" alt="physics of stardis" width="700"/>
 
 ## References
 
