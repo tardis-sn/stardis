@@ -6,7 +6,7 @@
 
 > **_NOTE:_** 
 > - STARDIS is only supported on macOS and GNU/Linux. Windows users can run STARDIS from [WSL](https://docs.microsoft.com/en-us/windows/wsl/) or a Virtual Machine
-> - STARDIS packages and dependencies are distributed only through the [conda](https://docs.conda.io/en/latest/) package management system, therefore installation requires [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) or [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html>) to be installed on your system.
+> - STARDIS packages and dependencies are distributed only through the [conda](https://docs.conda.io/en/latest/) package management system, therefore installation requires [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) or [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to be installed on your system.
 
 STARDIS uses exclusively the packages in the TARDIS enviroment, as well as using the TARDIS code itself. However, since STARDIS can be sensitive to changes in TARDIS, we strongly suggest that users create a separate environment for STARDIS that pins the TARDIS version. To do this, run the following in the terminal (replacing `{platform}` with either `linux` or `osx` as applicable):
 
@@ -23,7 +23,7 @@ The third command (`conda activate stardis`) activates the environment, which is
 
 STARDIS can be downloaded by **non-developers** by running `$ pip install git+https://github.com/tardis-sn/stardis.git@main` in the terminal while in your STARDIS environment.
 
-**Developers must instead clone and fork the STARDIS repository.** First, `[fork the repository](https://github.com/tardis-sn/stardis/fork), configure GitHub to [work with SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), and then run the following in the terminal:
+**Developers must instead clone and fork the STARDIS repository.** First, [fork the repository](https://github.com/tardis-sn/stardis/fork), and [configure GitHub to work with SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), and then run the following in the terminal:
 
 ```
 $ git clone git@github.com:<username>/stardis.git
@@ -104,7 +104,7 @@ Note the leading comma in the latter format. Temperatures must be in Kelvin, wav
 
 The following is an excerpt from a poster presentation on STARDIS:
 
-<img src="physics_of_stardis.png" alt="physics of stardis" width="700"/>
+<img src="physics_of_stardis.png" alt="physics of stardis" width="1000"/>
 
 ## References
 
