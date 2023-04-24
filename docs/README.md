@@ -52,15 +52,15 @@ model:
     fname: <filepath to MARCS model file>
     final_atomic_number: <atomic number of largest element considered> # may be up to 30
 opacity:
-    file: # reads an opacity file, omit if none
+    file: # reads a bound-free or free-free opacity file, omit if none
         <species1>_<either bf for bound-free or ff for free-free>: <filepath to opacity file>
         <species2>_<either bf for bound-free or ff for free-free>: <filepath to opacity file>
         ...
-    bf: # uses hydrogenic approximation for bound-free opacity, omit if none
+    bf: # uses the hydrogenic approximation for bound-free opacity, omit if none
         <species1>: {} # there will eventually be options to include files with gaunt factors or departure coefficients
         <species2>: {}
         ...
-    ff: # uses hydrogenic approximation for free-free opacity, omit if none
+    ff: # uses the hydrogenic approximation for free-free opacity, omit if none
         <species1>: {} # there will eventually be options to include files with gaunt factors or departure coefficients
         <species2>: {}
         ...
@@ -77,9 +77,16 @@ no_of_thetas: <number of angles to sample for raytracing>
 
 In fields where an atomic species is requested, the species must be in the form `<atomic symbol>_<ionization roman numeral>`. For example, `H_I` for neutral hydrogen, or `Si_III` for twice-ionized silicon.
 
+Additionally, in the opacity file section, the following entries are valid:
+- `Hminus_bf`
+- `Hminus_ff`
+- `Heminus_ff`
+- `H2minus_ff`
+- `H2plus_ff`
+
 ### Opacity File Format
 
-STARDIS can read and interpolate opacity cross-section files. The files must be one of the following formats:
+STARDIS can read and interpolate continuum opacity cross-section files for bound-free or free-free absorption (technically, for free-free absorption the files would provide the cross-section per electron density). The files must be one of the following formats:
 
 ```csv
 wavelength_1, cross-section_1
@@ -98,7 +105,7 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 ...
 ```
 
-Note the leading comma in the latter format. Temperatures must be in Kelvin, wavelengths in Angstroms, and cross-sections in cm^2 for bound-free or cm^5 for free-free (as the electron density is determined by STARDIS).
+Note the leading comma in the latter format. Temperatures must be in Kelvin, wavelengths in Angstroms, and cross-sections in cm^2 for bound-free or cm^5 for free-free (once again because free-free opacity files provide the cross-section per electron density).
 
 ## The Physics of STARDIS
 
