@@ -76,6 +76,8 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
 def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     """
     Calculates Rayleigh scattering opacity.
+    https://iopscience.iop.org/article/10.3847/0004-637X/817/2/116
+    https://ui.adsabs.harvard.edu/abs/1962ApJ...136..690D/
 
     Parameters
     ----------
@@ -137,7 +139,7 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
 
 
 # electron opacity
-def calc_alpha_e(
+def calc_alpha_electron(
     stellar_plasma,
     stellar_model,
     tracing_nus,
@@ -157,7 +159,7 @@ def calc_alpha_e(
 
     Returns
     -------
-    alpha_e : numpy.ndarray
+    alpha_electron : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Electron scattering
         opacity in each shell for each frequency in tracing_nus.
     """
@@ -167,21 +169,22 @@ def calc_alpha_e(
 
     fv_geometry = stellar_model.fv_geometry
 
-    alpha_e_by_shell = (
+    alpha_electron_by_shell = (
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
     )
 
-    alpha_e = np.zeros([len(fv_geometry), len(tracing_nus)])
+    alpha_electron = np.zeros([len(fv_geometry), len(tracing_nus)])
     for j in range(len(fv_geometry)):
-        alpha_e[j] = alpha_e_by_shell[j]
+        alpha_electron[j] = alpha_electron_by_shell[j]
 
-    return alpha_e
+    return alpha_electron
 
 
 # hydrogenic bound-free and free-free opacity
 def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
     """
     Calculates bound-free opacity.
+    https://ui.adsabs.harvard.edu/abs/2014tsa..book.....H/ chapter 7
 
     Parameters
     ----------
@@ -279,6 +282,7 @@ def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
 def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     """
     Calculates free-free opacity.
+    https://ui.adsabs.harvard.edu/abs/2014tsa..book.....H/ chapter 7
 
     Parameters
     ----------
@@ -578,7 +582,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.rayleigh,
     )
-    alpha_e = calc_alpha_e(
+    alpha_electron = calc_alpha_electron(
         stellar_plasma,
         stellar_model,
         tracing_nus,
@@ -592,7 +596,12 @@ def calc_alphas(
     )
 
     alphas = (
-        alpha_file + alpha_bf + alpha_ff + alpha_rayleigh + alpha_e + alpha_line_at_nu
+        alpha_file
+        + alpha_bf
+        + alpha_ff
+        + alpha_rayleigh
+        + alpha_electron
+        + alpha_line_at_nu
     )
 
     ### TODO create opacity_dict to return
