@@ -16,6 +16,7 @@ VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
 def calc_doppler_width(nu_line, temperature, atomic_mass):
     """
     Calculates doppler width.
+    https://ui.adsabs.harvard.edu/abs/2003rtsa.book.....R/
 
     Parameters
     ----------
@@ -62,7 +63,7 @@ def calc_n_effective(ion_number, ionization_energy, level_energy):
 def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
     Calculates broadening parameter for linear Stark broadening.
-    https://ui.adsabs.harvard.edu/abs/1978JQSRT..20..333S%2F/abstract
+    https://ui.adsabs.harvard.edu/abs/1978JQSRT..20..333S/
 
     Parameters
     ----------
@@ -100,6 +101,9 @@ def calc_gamma_quadratic_stark(
 ):
     """
     Calculates broadening parameter for quadratic Stark broadening.
+    Code adapted from https://github.com/tiagopereira/Transparency.jl/blob/5c8ee69/src/broadening.jl#L117
+    Source (cited by Transparency.jl) https://doi.org/10.1017/CBO9781316036570
+    Also cites Traving (1960) "Uber die Theorie der Druckverbreiterung von Spektrallinien" (not in stardis.bib)
 
     Parameters
     ----------
