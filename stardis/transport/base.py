@@ -2,7 +2,12 @@ import numba
 import numpy as np
 from astropy import units as u, constants as const
 
+H_CGS = const.h.cgs.value
+C_CGS = const.c.cgs.value
+K_B_CGS = const.k_B.cgs.value
 
+
+@numba.njit
 def bb_nu(tracing_nus, boundary_temps):
     """
     Planck blackbody intensity distribution w.r.t. frequency.
@@ -23,12 +28,9 @@ def bb_nu(tracing_nus, boundary_temps):
         boundary for each frequency in tracing_nus.
     """
 
-    bb_prefactor = (2 * const.h.cgs * tracing_nus**3) / const.c.cgs**2
+    bb_prefactor = (2 * H_CGS * tracing_nus**3) / C_CGS**2
     bb = bb_prefactor / (
-        np.exp(
-            ((const.h.cgs * tracing_nus) / (const.k_B.cgs * boundary_temps * u.K)).value
-        )
-        - 1
+        np.exp(((H_CGS * tracing_nus) / (K_B_CGS * boundary_temps))) - 1
     )
     return bb
 
@@ -62,13 +64,24 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
-def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
+@numba.njit()
+def single_theta_trace(
+    fv_geometry_cell_length,
+    boundary_temps,
+    alphas,
+    tracing_nus,
+    theta,
+):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
 
     Parameters
     ----------
-    stellar_model : stardis.model.base.StellarModel
+    fv_geometry_cell_length : numpy.ndarray
+        Cell length column as a numpy array from the finite volume model.
+    boundary_temps : numpy.ndarray
+        Temperatures in K of all shell boundaries. Note that array must
+        be transposed.
     alphas : numpy.ndarray
         Array of shape (no_of_shells, no_of_frequencies). Total opacity in
         each shell for each frequency in tracing_nus.
@@ -84,20 +97,17 @@ def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
         intensity at each shell boundary for each frequency in tracing_nus.
     """
 
-    fv_geometry = stellar_model.fv_geometry
-    taus = alphas.T * fv_geometry.cell_length.to_numpy() / np.cos(theta)
-    no_of_shells = len(fv_geometry)
+    taus = alphas.T * fv_geometry_cell_length / np.cos(theta)
+    no_of_shells = len(fv_geometry_cell_length)
 
-    bb = bb_nu(tracing_nus, stellar_model.boundary_temps)
-    source = bb[1:].value
-    delta_source = bb.diff(axis=0).value  # for cells, not boundary
+    bb = bb_nu(tracing_nus, boundary_temps)
+    source = bb[1:]
+    delta_source = bb[1:] - bb[:-1]  # for cells, not boundary
     I_nu_theta = np.ones((no_of_shells + 1, len(tracing_nus))) * -99
     I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
-
         for j in range(no_of_shells):  # iterating over cells/shells (rows)
-
             curr_tau = taus[i, j]
 
             w0, w1 = calc_weights(curr_tau)
@@ -145,6 +155,12 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
 
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
-        F_nu += weight * single_theta_trace(stellar_model, alphas, tracing_nus, theta)
+        F_nu += weight * single_theta_trace(
+            stellar_model.fv_geometry.cell_length.to_numpy(),
+            stellar_model.boundary_temps,
+            alphas,
+            tracing_nus,
+            theta,
+        )
 
     return F_nu
