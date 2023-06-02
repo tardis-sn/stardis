@@ -7,6 +7,10 @@ This is the documentation for stardis.
    :maxdepth: 2
    :caption: Contents:
 
+   quickstart
+
+	     
+
 
 
 Indices and tables
