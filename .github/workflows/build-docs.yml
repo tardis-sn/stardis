@@ -22,7 +22,7 @@ on:
 
   workflow_dispatch:                    # manual trigger
 
-env:
+# env:
   # CACHE_NUMBER: 0                       # increase to reset cache manually
   # DEPLOY_BRANCH: gh-pages               # deployed docs branch
   # HDF5_USE_FILE_LOCKING: 'FALSE'        # disable file locking
