@@ -80,19 +80,13 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
         Broadening parameter for linear Stark broadening.
     """
 
-    if n_eff_upper - n_eff_lower < 1.5:
-        a1 = 0.642
-    else:
-        a1 = 1
-
-    gamma_linear_stark = (
+    a1 = 0.642 if n_eff_upper - n_eff_lower < 1.5 else 1
+    return (
         0.51
         * a1
         * (n_eff_upper**2 - n_eff_lower**2)
         * (electron_density ** (2 / 3))
     )
-
-    return gamma_linear_stark
 
 
 @numba.njit
@@ -131,15 +125,13 @@ def calc_gamma_quadratic_stark(
         - (n_eff_lower * ((5 * n_eff_lower**2) + 1)) ** 2
     )
 
-    gamma_quadratic_stark = (
+    return (
         10**19
         * BOLTZMANN_CONSTANT
         * electron_density
         * c4 ** (2 / 3)
         * temperature ** (1 / 6)
     )
-
-    return gamma_quadratic_stark
 
 
 @numba.njit
@@ -184,14 +176,12 @@ def calc_gamma_van_der_waals(
         / (2 * ion_number**2)
     )
 
-    gamma_van_der_waals = (
+    return (
         17
         * (8 * BOLTZMANN_CONSTANT * temperature / (np.pi * h_mass)) ** 0.3
         * c6**0.4
         * h_density
     )
-
-    return gamma_van_der_waals
 
 
 @numba.njit
@@ -286,19 +276,13 @@ def calc_gamma(
     else:
         gamma_van_der_waals = 0
 
-    if radiation:
-        gamma_radiation = A_ul
-    else:
-        gamma_radiation = 0
-
-    gamma = (
+    gamma_radiation = A_ul if radiation else 0
+    return (
         gamma_linear_stark
         + gamma_quadratic_stark
         + gamma_van_der_waals
         + gamma_radiation
     )
-
-    return gamma
 
 
 def calculate_broadening(

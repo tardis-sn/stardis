@@ -24,13 +24,15 @@ def bb_nu(tracing_nus, boundary_temps):
     """
 
     bb_prefactor = (2 * const.h.cgs * tracing_nus**3) / const.c.cgs**2
-    bb = bb_prefactor / (
+    return bb_prefactor / (
         np.exp(
-            ((const.h.cgs * tracing_nus) / (const.k_B.cgs * boundary_temps * u.K)).value
+            (
+                (const.h.cgs * tracing_nus)
+                / (const.k_B.cgs * boundary_temps * u.K)
+            ).value
         )
         - 1
     )
-    return bb
 
 
 @numba.njit
@@ -102,11 +104,7 @@ def single_theta_trace(stellar_model, alphas, tracing_nus, theta):
 
             w0, w1 = calc_weights(curr_tau)
 
-            if curr_tau == 0:
-                second_term = 0
-            else:
-                second_term = w1 * delta_source[j, i] / curr_tau
-
+            second_term = 0 if curr_tau == 0 else w1 * delta_source[j, i] / curr_tau
             I_nu_theta[j + 1, i] = (
                 (1 - w0) * I_nu_theta[j, i] + w0 * source[j, i] + second_term
             )  # van Noort 2001 eq 14
