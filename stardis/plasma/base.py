@@ -61,6 +61,8 @@ class HMinusDensity(ProcessingPlasmaProperty):
 
 class H2Density(ProcessingPlasmaProperty):
     """
+    Used Kittel and Kroemer "Thermal Physics".
+    
     Attributes
     ----------
     h2_density : Pandas DataFrame, dtype float

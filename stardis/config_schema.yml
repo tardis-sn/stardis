@@ -88,6 +88,7 @@ properties:
                             - quadratic_stark
                             - van_der_waals
                             - radiation
+                        default: []
                     min:
                         type: quantity
                         default: 0 Hz
@@ -97,10 +98,8 @@ properties:
                     broadening_range:
                         type: [quantity, "null"]
                         default: null
-                required:
-                - broadening
-        required:
-        - line
+        #required:
+        #- line
     no_of_thetas:
         type: number
         multipleOf: 1
