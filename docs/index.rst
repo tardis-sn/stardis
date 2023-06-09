@@ -8,7 +8,8 @@ This is the documentation for stardis.
    :caption: Contents:
 
    Quickstart <quickstart/quickstart>
-
+   Downloading and Installation <installation>
+   
 Indices and tables
 ==================
 
