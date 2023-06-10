@@ -83,3 +83,41 @@ Line Interaction
    :width: 100 %
    :alt: Diagram of line interaction
    
+----------
+Broadening
+----------
+
+Line interaction opacity does not occur only at the exact resonant frequencies; lines are broadened to reach other nearby frequencies. Thus, the line interaction opacity is the total line opacity
+
+.. math::
+   \alpha_{lu} = \frac{\pi e^2}{m_e c} n_l f_{lu} \left ( 1 - \frac{g_l n_u}{g_u n_l} \right )
+
+times the *line profile* :math:`\phi(v)` which describes the broadening.
+
+The line profile uses the following parameters for determining how much the line is broadened:
+
+- The Einstein coefficient :math:`A_{ul}`, describing the line’s natural acceptance of non-resonant frequencies.
+- The doppler width :math:`\Delta v_D`, the range of frequencies that are doppler shifted to be the resonant frequency due to the movement of ions in the plasma.
+- The collisional broadening parameter :math:`\gamma_{\text{col}}`, describing the effects of forces between ions or ions and electrons which shift the resonant frequency.
+
+The line profile centered at the resonant frequency :math:`v_{lu}` is then:
+
+.. math::
+   \phi(v) = \frac{\gamma_{\text{col}}}{4 \pi^{\frac{5}{2}} \Delta v_D} \int_{-\infty}^{\infty} \frac{\exp \left ( -\frac{y^2}{\Delta v_D^2} \right )}{\left (v - v_{lu} - y \right )^2 + \left ( \frac{\gamma_{\text{col}} + A_{ul}}{4 \pi} \right )^2} \, d y
+
+=========
+Transport
+=========
+
+Finally, we use the opacity information to trace beams of light coming from the photosphere at different angles and frequencies to find the final intensity. We use the equation
+
+.. math::
+   I_{N + 1}(v, \theta) = I_N(v, \theta) e^{-\tau} + (1 - e^{- \tau}) B_{N + 1} (v) + (1 - e^{-\tau} - \tau e^{-\tau}) \frac{\Delta B_{N + 1}(v)}{\tau}
+
+where :math:`\tau = \frac{\alpha l}{\cos \theta}` is the *optical depth*, :math:`l` is the depth of each shell, and :math:`B(v)` is the blackbody distribution.
+
+The flux density (the desired spectrum) is then:
+
+.. math::
+   F(v) = 2 \pi \int_0^{\frac{\pi}{2}} I(v, \theta) \sin \theta \cos \theta \, d \theta.
+
