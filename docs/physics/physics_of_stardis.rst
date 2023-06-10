@@ -31,6 +31,11 @@ Bound-Free Absorbtion
 .. math::
    \alpha = \frac{64 \pi^4 e^{10} m_e Z^4}{3 \sqrt 3 h^6 c n_{\text{eff}}^5} n
 
+.. image:: media/bound_free_absorbtion-1.png
+   :width: 100 %
+   :alt: Diagram of bound-free absorbtion
+	   
+
 ^^^^^^^^^^^^^^^^^^^^
 Free-Free Absorbtion
 ^^^^^^^^^^^^^^^^^^^^
