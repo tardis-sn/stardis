@@ -22,7 +22,7 @@ To determine an output spectrum, we need to understand how photons of light move
 Opacity Sources
 ---------------
 
-The first four of these interactions are called continuum interactions, as they affect light at a large range of frequencies. Line interactions, on the other hand, only occur with light around specific frequencies, corresponding to the electron’s jump in energy. These are called resonant frequencies.
+The first four of these interactions are called continuum interactions, as they affect light at a large range of frequencies. Line interactions, on the other hand, only occur with light around specific frequencies, corresponding to the electron’s jump in energy. These are called *resonant frequencies*.
 
 ^^^^^^^^^^^^^^^^^^^^^
 Bound-Free Absorbtion
