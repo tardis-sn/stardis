@@ -1,5 +1,5 @@
-`stardis`__ Documentation
----------------------
+stardis Documentation
+-----------------------
 
 This is the documentation for stardis.
 
