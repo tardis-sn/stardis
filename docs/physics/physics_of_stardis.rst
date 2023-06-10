@@ -16,7 +16,7 @@ STARDIS breaks down the stellar atmosphere into spherical shells as shown below 
 Opacities
 =========
 
-To determine an output spectrum, we need to understand how photons of light move through the atmosphere and what interactions they experience. Opacity is a measure of how likely it is that light will be scattered or absorbed by some material, like the stellar plasma, per unit distance it travels. This is contributed to by several mechanisms, which are described below.
+To determine an output spectrum, we need to understand how photons of light move through the atmosphere and what interactions they experience. Opacity is a measure of how likely it is that light will be scattered or absorbed by some material, like the stellar plasma, per unit distance it travels. This is contributed to by several mechanisms, which are described :ref:`below<Opacity Sources>`.
 
 ---------------
 Opacity Sources
