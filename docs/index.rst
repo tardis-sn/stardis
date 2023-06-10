@@ -1,4 +1,4 @@
-stardis Documentation
+`stardis`__ Documentation
 ---------------------
 
 This is the documentation for stardis.
@@ -9,7 +9,8 @@ This is the documentation for stardis.
 
    Quickstart <quickstart/quickstart>
    Downloading and Installation <installation>
-   
+   Physics of STARDIS <physics/physics_of_stardis>
+	     
 Indices and tables
 ==================
 
