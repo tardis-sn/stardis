@@ -42,7 +42,12 @@ Free-Free Absorbtion
 
 .. math::
    \alpha = \frac{4 e^6 Z^2 n}{3 h c v^3} \sqrt{\frac{2 \pi}{3 m_e^3 k_B T}}
-   
+
+.. image:: media/free_free_absorbtion-1.png
+   :width: 100 %
+   :alt: Diagram of free-free absorbtion
+
+
 ^^^^^^^^^^^^^^^^^^^
 Rayleigh Scattering
 ^^^^^^^^^^^^^^^^^^^
@@ -50,14 +55,22 @@ Rayleigh Scattering
 .. math::
    \alpha = \sigma_T n \left ( c_4 \left ( \frac{v}{2 v_H} \right )^4 + c_6 \left ( \frac{v}{2 v_H} \right )^6 + c_8 \left ( \frac{v}{2 v_H} \right )^8 \right )
 
+.. image:: media/rayleigh_scattering-1.png
+   :width: 100 %
+   :alt: Diagram of Rayleigh scattering
+
 
 ^^^^^^^^^^^^^^^^^^^
 Electron Scattering
 ^^^^^^^^^^^^^^^^^^^
 
 .. math::
-   \alpha \sigma_T n_E
-   
+   \alpha = \sigma_T n_E
+
+.. image:: media/electron_scattering-1.png
+   :width: 100 %
+   :alt: Diagram of electron scattering
+
 
 ^^^^^^^^^^^^^^^^
 Line Interaction
@@ -66,4 +79,7 @@ Line Interaction
 .. math::
    \alpha = \frac{\pi e^2}{m_e c} n_l f_{lu} \left (1 - \frac{g_l n_u}{g_u n_l} \right ) \phi(v)
 
+.. image:: media/line_interaction-1.png
+   :width: 100 %
+   :alt: Diagram of line interaction
    
