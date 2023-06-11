@@ -94,6 +94,21 @@ Line interaction opacity does not occur only at the exact resonant frequencies; 
 
 times the *line profile* :math:`\phi(v)` which describes the broadening.
 
+..
+   The below was taken from https://stackoverflow.com/a/42522042
+
+|wide_line_profile| vs. |narrow_line_profile|
+
+.. |wide_line_profile| image:: media/wide_line_profile.png
+   :width: 45 %
+   :alt: Broad line profile
+
+.. |narrow_line_profile| image:: media/narrow_line_profile.png
+   :width: 45 %
+   :alt: Less broad line profile
+
+Above are examples of line profiles, the left being very broadened and the right being less broadened.
+	 
 The line profile uses the following parameters for determining how much the line is broadened:
 
 - The Einstein coefficient :math:`A_{ul}`, describing the line’s natural acceptance of non-resonant frequencies.
