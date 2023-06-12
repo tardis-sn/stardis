@@ -366,7 +366,7 @@ def calc_alpha_line_at_nu(
     """
 
     if line_opacity_config.disable:
-        return 0
+        return 0, 0, 0
 
     broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
