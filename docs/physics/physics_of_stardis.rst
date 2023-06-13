@@ -131,6 +131,11 @@ Finally, we use the opacity information to trace beams of light coming from the 
 
 where :math:`\tau = \frac{\alpha l}{\cos \theta}` is the *optical depth*, :math:`l` is the depth of each shell, and :math:`B(v)` is the blackbody distribution.
 
+.. image:: media/transport.png
+   :width: 100 %
+   :alt: A diagram of how the opacity is a function of the angle and frequency of a location in the photosphere
+
+
 The flux density (the desired spectrum) is then:
 
 .. math::
