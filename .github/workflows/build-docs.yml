@@ -8,3 +8,4 @@ jobs:
         run: |
           echo "Hello World!"
           uname -a
+          lsb_release -a
