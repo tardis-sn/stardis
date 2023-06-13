@@ -21,7 +21,8 @@ line_interaction-1.png: line_interaction.tex
 	 latexmk -halt-on-error -shell-escape -use-make $? 
 
 clean:
-	latexmk -C
+	latexmk -c
 
-cleanall: clean
+cleanall:
+	latexmk -C
 	rm -vf *-1.png *~
