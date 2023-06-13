@@ -1,0 +1,15 @@
+\documentclass[convert,tikz]{standalone}
+\usepackage{tikz-feynman}
+\usepackage{tikz}
+%\usetikzlibrary{animations}
+\begin{document}
+\begin{tikzpicture}
+  %\filldraw[fill=blue, draw=blue, outer sep = 7px] (0,0) circle (7px) node[label=right:\(e^-\)]{} ;
+  % \path[densely dotted, draw=blue] (0,0) circle (105px);
+  % \filldraw[fill=blue, draw=blue] (-79px, 70px) circle (3px) node[anchor=north west]{\tiny \(e^-\)};
+  \node[circle, fill=blue, draw=blue,label={right:\(e^-\)}] (e1) at (-41px, 63px) {} ;
+  \draw[->,decorate, decoration=snake, draw=yellow] (-180px, 90px) node[anchor=south east]{} -- (e1);
+  \node[] (e2) at (10px, 200px) {} ;
+  \draw[->,decorate, decoration=snake, draw=yellow] (e1) -- (e2);
+\end{tikzpicture}
+\end{document}
