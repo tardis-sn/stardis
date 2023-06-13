@@ -3,7 +3,7 @@
 all: model_and_plasma-1.png bound_free_absorbtion-1.png free_free_absorbtion-1.png rayleigh_scattering-1.png electron_scattering-1.png line_interaction-1.png
 
 model_and_plasma-1.png: model_and_plasma.tex
-	 latexmk -halt-on-error -shell-escape -use-make x$?
+	 latexmk -halt-on-error -shell-escape -use-make $?
 
 bound_free_absorbtion-1.png: bound_free_absorbtion.tex
 	 latexmk -halt-on-error -shell-escape -use-make $?
