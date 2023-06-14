@@ -48,5 +48,5 @@ jobs:
         id: install-stardis
         run: |
           pwd
-          ls -a
+          ls -a ..
           python setup.py develop
