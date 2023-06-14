@@ -46,6 +46,7 @@ jobs:
 
       - name: Install STARDIS
         id: install-stardis
+        shell: bash -l {0}
         run: |
           pwd
           ls -a ..
