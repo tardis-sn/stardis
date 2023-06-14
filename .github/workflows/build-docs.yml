@@ -49,12 +49,16 @@ jobs:
 
       - name: Install STARDIS
         id: install-stardis
-        shell: bash -l {0}
+        # shell: bash -l {0}
         run: |
-          pwd
-          ls -a ..
           python setup.py develop
 
+      - name: Make Sphinx HTML
+        id: make-sphinx-html
+        run: |
+          cd docs
+          make html
+          
       # - name: Set destination directory
       #   run: |
       #     BRANCH=$(echo ${GITHUB_REF#refs/heads/})
