@@ -35,3 +35,12 @@ jobs:
           mamba update -n stardis --file conda-linux-64.lock
         if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
         
+      - name: Install TARDIS
+        id: install-tardis
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+
+      - name: Install STARDIS
+        id: install-stardis
+        run: |
+          python setup.py develop
