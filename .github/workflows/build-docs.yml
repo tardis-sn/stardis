@@ -25,9 +25,13 @@ jobs:
         id: cache-env-lockfile
         uses: actions/cache@v3
         with:
-          path: ~/.stardis/envs/conda-linux-64.lock
+          path: etc/conda-linux-64.lock
           key: conda-linux-64-lockfile
                   
-      # - name: Update Conda Environment
-      #   id: update-env
+      - name: Update Conda Environment
+        id: update-env
+        run: |
+          wget -nv https://github.com/tardis-sn/tardis/releases/latest/download/conda-linux-64.lock -O etc/conda-linux-64.lock
+          mamba update -n stardis --file etc/conda-linux-64.lock
+        if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
         
