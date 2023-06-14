@@ -1,14 +1,14 @@
 name: build-docs
 on: push
 jobs:
-  hello-world-job:
-    runs-on: ubuntu-latest
-    steps:
-      - name: echo-hello-world
-        run: |
-          echo "Hello World!"
-          uname -a
-          lsb_release -a
+  # hello-world-job:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: echo-hello-world
+  #       run: |
+  #         echo "Hello World!"
+  #         uname -a
+  #         lsb_release -a
 
   build-sphinx-html:
     runs-on: ubuntu-latest
