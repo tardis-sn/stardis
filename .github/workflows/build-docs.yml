@@ -9,3 +9,29 @@ jobs:
           echo "Hello World!"
           uname -a
           lsb_release -a
+
+  build-sphinx-html:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: stardis
+          use-mamba: true
+      
+      - name: Cache Environment Lockfile
+        id: cache-env-lockfile
+        uses: actions/cache@v3
+        with:
+          path: conda-linux-64.lock
+          key: conda-linux-64-lockfile
+                  
+      - name: Update Conda Environment
+        id: update-env
+        run: |
+          wget -nv https://github.com/tardis-sn/tardis/releases/latest/download/conda-linux-64.lock -O conda-linux-64.lock
+          mamba update -n stardis --file conda-linux-64.lock
+        if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
+        
