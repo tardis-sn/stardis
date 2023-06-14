@@ -9,3 +9,15 @@ jobs:
           echo "Hello World!"
           uname -a
           lsb_release -a
+
+  build-sphinx-html:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Environment Lockfile
+          id: cache-env-lockfile
+        uses: actions/cache@v3
+        with:
+          path: ~/.stardis/envs/conda-linux-64.lock
+          key: conda-linux-64-lockfile
+                  
+        # - name: Update Conda Environment
