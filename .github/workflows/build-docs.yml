@@ -17,6 +17,9 @@ jobs:
   build-sphinx-html:
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v2
+        
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -52,28 +55,28 @@ jobs:
           ls -a ..
           python setup.py develop
 
-      - name: Set destination directory
-        run: |
-          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-          if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+      # - name: Set destination directory
+      #   run: |
+      #     BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+      #     if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
 
-            if [[ $BRANCH == $DEFAULT ]]; then
-              echo "DEST_DIR=" >> $GITHUB_ENV
-            else
-              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
-            fi
+      #       if [[ $BRANCH == $DEFAULT ]]; then
+      #         echo "DEST_DIR=" >> $GITHUB_ENV
+      #       else
+      #         echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+      #       fi
 
-          elif [[ $EVENT == pull_request_target ]]; then
-            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+      #     elif [[ $EVENT == pull_request_target ]]; then
+      #       echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
-          else
-            echo "Unexpected event trigger $EVENT"
-            exit 1
+      #     else
+      #       echo "Unexpected event trigger $EVENT"
+      #       exit 1
 
-          fi
+      #     fi
 
-          cat $GITHUB_ENV
-        env:
-          DEFAULT: ${{ github.event.repository.default_branch }}
-          EVENT: ${{ github.event_name }}
-          PR: ${{ github.event.number }}
+      #     cat $GITHUB_ENV
+      #   env:
+      #     DEFAULT: ${{ github.event.repository.default_branch }}
+      #     EVENT: ${{ github.event_name }}
+      #     PR: ${{ github.event.number }}
