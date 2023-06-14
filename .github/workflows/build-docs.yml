@@ -13,6 +13,14 @@ jobs:
   build-sphinx-html:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: stardis
+          use-mamba: true
+      
       - name: Cache Environment Lockfile
         id: cache-env-lockfile
         uses: actions/cache@v3
@@ -20,4 +28,6 @@ jobs:
           path: ~/.stardis/envs/conda-linux-64.lock
           key: conda-linux-64-lockfile
                   
-        # - name: Update Conda Environment
+      # - name: Update Conda Environment
+      #   id: update-env
+        
