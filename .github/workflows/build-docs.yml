@@ -44,4 +44,4 @@ jobs:
         id: install-stardis
         run: |
           pwd
-          python setup.py develop
+          python "../setup.py" develop
