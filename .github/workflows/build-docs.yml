@@ -1,6 +1,9 @@
 name: build-docs
 on: push
 
+env:
+  DEPLOY_BRANCH: gh-pages               # deployed docs branch
+
 defaults:
   run:
     shell: bash -le {0}
@@ -17,6 +20,9 @@ jobs:
   build-sphinx-html:
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v2
+        
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -46,12 +52,16 @@ jobs:
 
       - name: Install STARDIS
         id: install-stardis
-        shell: bash -l {0}
+        # shell: bash -l {0}
         run: |
-          pwd
-          ls -a ..
           python setup.py develop
 
+      - name: Make Sphinx HTML
+        id: make-sphinx-html
+        run: |
+          cd docs
+          make html
+          
       - name: Set destination directory
         run: |
           BRANCH=$(echo ${GITHUB_REF#refs/heads/})
