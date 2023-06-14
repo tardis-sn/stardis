@@ -25,7 +25,7 @@ jobs:
         id: cache-env-lockfile
         uses: actions/cache@v3
         with:
-          path: conda-linux-64.lock
+          path: /usr/share/miniconda3/envs/stardis
           key: conda-linux-64-lockfile
                   
       - name: Update Conda Environment
