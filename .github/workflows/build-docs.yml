@@ -43,6 +43,5 @@ jobs:
       - name: Install STARDIS
         id: install-stardis
         run: |
-          pwd
-          echo ~
-          python "../setup.py" develop
+          cd ..
+          python setup.py develop
