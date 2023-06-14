@@ -31,7 +31,7 @@ jobs:
       - name: Update Conda Environment
         id: update-env
         run: |
-          wget -nv https://github.com/tardis-sn/tardis/releases/latest/download/conda-linux-64.lock -O etc/conda-linux-64.lock
-          mamba update -n stardis --file etc/conda-linux-64.lock
+          wget -nv https://github.com/tardis-sn/tardis/releases/latest/download/conda-linux-64.lock -O tmp/conda-linux-64.lock
+          # mamba update -n stardis --file etc/conda-linux-64.lock
         if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
         
