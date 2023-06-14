@@ -1,14 +1,18 @@
 name: build-docs
 on: push
+
+defaults:
+  run:
+    shell: bash -le {0}
 jobs:
-  hello-world-job:
-    runs-on: ubuntu-latest
-    steps:
-      - name: echo-hello-world
-        run: |
-          echo "Hello World!"
-          uname -a
-          lsb_release -a
+  # hello-world-job:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: echo-hello-world
+  #       run: |
+  #         echo "Hello World!"
+  #         uname -a
+  #         lsb_release -a
 
   build-sphinx-html:
     runs-on: ubuntu-latest
@@ -25,7 +29,7 @@ jobs:
         id: cache-env-lockfile
         uses: actions/cache@v3
         with:
-          path: conda-linux-64.lock
+          path: /usr/share/miniconda3/envs/stardis
           key: conda-linux-64-lockfile
                   
       - name: Update Conda Environment
@@ -35,3 +39,41 @@ jobs:
           mamba update -n stardis --file conda-linux-64.lock
         if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
         
+      - name: Install TARDIS
+        id: install-tardis
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+
+      - name: Install STARDIS
+        id: install-stardis
+        shell: bash -l {0}
+        run: |
+          pwd
+          ls -a ..
+          python setup.py develop
+
+      - name: Set destination directory
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+
+            if [[ $BRANCH == $DEFAULT ]]; then
+              echo "DEST_DIR=" >> $GITHUB_ENV
+            else
+              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+            fi
+
+          elif [[ $EVENT == pull_request_target ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+
+          else
+            echo "Unexpected event trigger $EVENT"
+            exit 1
+
+          fi
+
+          cat $GITHUB_ENV
+        env:
+          DEFAULT: ${{ github.event.repository.default_branch }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.number }}
