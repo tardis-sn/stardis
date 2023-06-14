@@ -1,0 +1,10 @@
+\documentclass[convert,tikz]{standalone}
+\usepackage{tikz-feynman}
+\usepackage{tikz}
+\begin{document}
+\begin{tikzpicture}
+  \filldraw[fill=blue, draw=blue, outer sep = 25px] (0,0) circle (50px) node[label=right:Ion]{};
+  \node[circle,minimum size=5px, radius=5px,fill=blue, draw=blue, label=right:\(e^-\)] (e1) at (-79px, 70px) {} ;
+  \draw[->,decorate, decoration=snake, draw=yellow] (-180px, 70px) node[anchor=south east]{} -- (e1);
+\end{tikzpicture}
+\end{document}
