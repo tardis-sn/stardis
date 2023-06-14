@@ -47,5 +47,6 @@ jobs:
       - name: Install STARDIS
         id: install-stardis
         run: |
-          cd ..
+          pwd
+          ls -a
           python setup.py develop
