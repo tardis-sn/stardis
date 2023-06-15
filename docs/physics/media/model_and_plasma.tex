@@ -1,0 +1,14 @@
+\documentclass[convert,tikz]{standalone}
+\usepackage{tikz-feynman}
+\usepackage{tikz}
+\begin{document}
+\begin{tikzpicture}
+  \draw[ultra thick] (0,0) circle (200px);
+  \draw[ultra thick] (0,0) circle (175px);
+  \draw[ultra thick] (0,0) circle (150px);
+  \draw[ultra thick] (0,0) circle (125px);
+  \filldraw[fill=orange!50!white, draw=orange, ultra thick] (0,0) circle (100px);
+  \node[] (inner) {Inner boundary of atmosphere} (0, 0);
+  \node[] at (8, -5) (outer) {Outer boundary of atmosphere};
+\end{tikzpicture}
+\end{document}
