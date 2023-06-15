@@ -79,6 +79,7 @@ def get_MARCS_meta(fpath):
             "Luminosity": float(Luminosity),
             "Luminosity_units": Lumonsity_units,
             "Convective Alpha": float(conv_alpha),
+            "Convective Nu": float(conv_nu),
             "Convective Beta": float(conv_beta),
             "Convective Gamma": float(conv_y),
             "X": float(X),
