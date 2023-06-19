@@ -2,27 +2,29 @@ import pandas as pd
 import gzip
 import re
 from dataclasses import dataclass
+from astropy import units as u
 
 
 @dataclass
 class MARCSModel(object):
     """
-    Class to hold a MARCS model. Holds a dict of the meta information and a pandas dataframe of the contents.
+    Class to hold a MARCS model. Holds a dict of the metadata information and a pandas dataframe of the contents.
 
     """
 
-    meta: dict
+    metadata: dict
     data: pd.DataFrame
 
 
-def get_MARCS_meta(fpath):
+def read_marcs_metadata(fpath):
     """
-    Grabs the meta information from a gzipped MARCS model file and returns it in a python dictionary.
-    Matches the meta information and units using regex. Fails if the file does not exist or is formatted unexpectedly.
+    Grabs the metadata information from a gzipped MARCS model file and returns it in a python dictionary.
+    Matches the metadata information and units using regex. Assumes line structure of plane-parallel models.
+    Fails if the file does not exist or is formatted unexpectedly.
 
     Parameters
     ----------
-    fname : string
+    fpath : str
             Path to model file
 
     Returns
@@ -31,70 +33,86 @@ def get_MARCS_meta(fpath):
             parameters of file
     """
 
-    with gzip.open(fpath, "r") as file:
+    METADATA_RE_STR = [
+        ("(.+)\\n", "fname"),
+        (
+            "  (\d+\.)\s+Teff \[(.+)\]\.\s+Last iteration; yyyymmdd=\d+",
+            "teff",
+            "teff_units",
+        ),
+        ("  (\d+\.\d+E\+\d+) Flux \[(.+)\]", "flux", "flux_units"),
+        (
+            "  (\d+.\d+E\+\d+) Surface gravity \[(.+)\]",
+            "surface_grav",
+            "surface_grav_units",
+        ),
+        (
+            "  (\d+\.\d+)\W+Microturbulence parameter \[(.+)\]",
+            "microturbulence",
+            "microturbulence_units",
+        ),
+        ("  (\d+\.\d+)\s+(No mass for plane-parallel models)", "plane_parallel_mass"),
+        (
+            " (\+?\-?\d+.\d+) (\+?\-?\d+.\d+) Metallicity \[Fe\/H] and \[alpha\/Fe\]",
+            "feh",
+            "afe",
+        ),
+        (
+            "  (\d+\.\d+E\+00) (1 cm radius for plane-parallel models)",
+            "radius for plane-parallel model",
+        ),
+        ("  (\d.\d+E-\d+) Luminosity \[(.+)\]", "luminosity", "luminosity_units"),
+        (
+            "  (\d+.\d+) (\d+.\d+) (\d+.\d+) (\d+.\d+) are the convection parameters: alpha, nu, y and beta",
+            "conv_alpha",
+            "conv_nu",
+            "conv_y",
+            "conv_beta",
+        ),
+        (
+            "  (0.\d+) (0.\d+) (\d.\d+E-\d+) are X, Y and Z, 12C\/13C=(\d+.?\d+)",
+            "x",
+            "y",
+            "z",
+            "12C/13C",
+        ),
+    ]
+
+    metadata_re = [re.compile(re_str[0]) for re_str in METADATA_RE_STR]
+    metadata = {}
+    with gzip.open(fpath, "rt") as file:
         contents = file.readlines(550)
-        lines = [line.decode() for line in contents]
+        lines = [line for line in contents]
 
-        # regex is used to search for the lines.
-        teff, teff_units = re.search(
-            "(\d+\.)\s+Teff (\[K\])\.\s+Last iteration; yyyymmdd=\d+", lines[1]
-        ).group(1, 2)
-        flux, flux_units = re.search(
-            "(\d+\.\d+E\+\d+) Flux (\[erg.cm2.s\])", lines[2]
-        ).group(1, 2)
-        surface_grav, surface_grav_units = re.search(
-            "(\d+.\d+E\+\d+) Surface gravity (\[cm\/s2\])", lines[3]
-        ).group(1, 2)
-        microturbulence, microturbulence_units = re.search(
-            "(\d+\.\d+)\W+Microturbulence parameter (\[km\/s])", lines[4]
-        ).group(1, 2)
-        feh, afe, feh_units, afe_units = re.search(
-            "(\+?\-?\d+.\d+) (\+?\-?\d+.\d+) Metallicity (\[Fe\/H]) and (\[alpha\/Fe\])",
-            lines[6],
-        ).group(1, 2, 3, 4)
-        Luminosity, Lumonsity_units = re.search(
-            "(\d.\d+E-\d+) Luminosity (\[Lsun\])", lines[8]
-        ).group(1, 2)
-        conv_alpha, conv_nu, conv_y, conv_beta = re.search(
-            "(\d+.\d+) (\d+.\d+) (\d+.\d+) (\d+.\d+) are the convection parameters: alpha, nu, y and beta",
-            lines[9],
-        ).group(1, 2, 3, 4)
-        X, Y, Z = re.search(
-            " (0.\d+) (0.\d+) (\d.\d+E-\d+) are X, Y and Z", lines[10]
-        ).group(1, 2, 3)
+        for i, line in enumerate(lines):
+            metadata_re_match = metadata_re[i].match(line)
 
-        param_dict = {
-            "teff": float(teff),
-            "teff_units": teff_units,
-            "flux": float(flux),
-            "flux_units": flux_units,
-            "surface_grav": float(surface_grav),
-            "surface_grav_units": surface_grav_units,
-            "microturbulence": float(microturbulence),
-            "microturbulence": microturbulence_units,
-            "feh": float(feh),
-            "feh_units": feh_units,
-            "afe": float(afe),
-            "afe_units": afe_units,
-            "Luminosity": float(Luminosity),
-            "Luminosity_units": Lumonsity_units,
-            "Convective Alpha": float(conv_alpha),
-            "Convective Nu": float(conv_nu),
-            "Convective Beta": float(conv_beta),
-            "Convective Gamma": float(conv_y),
-            "X": float(X),
-            "Y": float(Y),
-            "Z": float(Z),
-        }
+            for j, metadata_name in enumerate(METADATA_RE_STR[i][1:]):
+                metadata[metadata_name] = metadata_re_match.group(j + 1)
 
-    return param_dict
+    # clean up metadata by changing strings of numbers to floats and attaching parsed units where appropriate
+
+    keys_to_remove = []
+
+    for i, key in enumerate(metadata.keys()):
+        if "_units" in key:
+            quantity_to_add_unit = key.split("_units")[0]
+            metadata[quantity_to_add_unit] *= u.Unit(metadata[key])
+            keys_to_remove.append(key)
+        elif key == "fname":
+            pass
+        else:
+            metadata[key] = float(metadata[key])
+    metadata = {key: metadata[key] for key in metadata if key not in keys_to_remove}
+
+    return metadata
 
 
-def get_MARCS_data(fpath):
+def read_marcs_data(fpath):
     """
     Parameters
     ----------
-    fname : string
+    fpath : str
             Path to model file
 
     Returns
@@ -103,28 +121,30 @@ def get_MARCS_data(fpath):
 
     """
 
-    marcs_model_first_half = pd.read_csv(
+    marcs_model_data_upper_split = pd.read_csv(
         fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
     )
-    marcs_model_second_half = pd.read_csv(
+    marcs_model_data_lower_split = pd.read_csv(
         fpath,
         skiprows=81,
         nrows=56,
         index_col="k",
         sep="(?:\s+)|(?<=\+\d{2})(?=-)",
     )
-    del marcs_model_second_half["lgTauR"]
-    marcs_model = marcs_model_first_half.join(marcs_model_second_half)
-    marcs_model.columns = [item.lower() for item in marcs_model.columns]
 
-    return marcs_model
+    marcs_model_data = pd.merge(
+        marcs_model_data_upper_split, marcs_model_data_lower_split, on=["k", "lgTauR"]
+    )
+    marcs_model_data.columns = [item.lower() for item in marcs_model_data.columns]
+
+    return marcs_model_data
 
 
-def read_MARCS_model(fpath):
+def read_marcs_model(fpath):
     """
     Parameters
     ----------
-    fname : string
+    fpath : str
             Path to model file
 
     Returns
@@ -132,7 +152,7 @@ def read_MARCS_model(fpath):
     model : MARCSModel
 
     """
-    meta = get_MARCS_meta(fpath)
-    data = get_MARCS_data(fpath)
+    metadata = read_marcs_metadata(fpath)
+    data = read_marcs_data(fpath)
 
-    return MARCSModel(meta, data)
+    return MARCSModel(metadata, data)
