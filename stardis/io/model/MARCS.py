@@ -30,7 +30,7 @@ def read_marcs_metadata(fpath):
     Returns
     -------
     dict : dictionary
-            parameters of file
+            metadata parameters of file
     """
 
     METADATA_RE_STR = [
@@ -78,6 +78,8 @@ def read_marcs_metadata(fpath):
         ),
     ]
 
+    # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
+    # Then add each of the matched patterns as a key:value pair to the metadata dict.
     metadata_re = [re.compile(re_str[0]) for re_str in METADATA_RE_STR]
     metadata = {}
     with gzip.open(fpath, "rt") as file:
@@ -90,10 +92,8 @@ def read_marcs_metadata(fpath):
             for j, metadata_name in enumerate(METADATA_RE_STR[i][1:]):
                 metadata[metadata_name] = metadata_re_match.group(j + 1)
 
-    # clean up metadata by changing strings of numbers to floats and attaching parsed units where appropriate
-
+    # clean up metadata dictionary by changing strings of numbers to floats and attaching parsed units where appropriate
     keys_to_remove = []
-
     for i, key in enumerate(metadata.keys()):
         if "_units" in key:
             quantity_to_add_unit = key.split("_units")[0]
@@ -118,9 +118,11 @@ def read_marcs_data(fpath):
     Returns
     -------
     data : pd.DataFrame
-
+        data contents of the MARCS model file
     """
 
+    # Interior model file contents are split in to two tables vertically. Each needs to be read
+    # in separately and then joined on shared planes (k for plane number or lgTauR for optical depth.)
     marcs_model_data_upper_split = pd.read_csv(
         fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
     )
@@ -150,7 +152,7 @@ def read_marcs_model(fpath):
     Returns
     -------
     model : MARCSModel
-
+        Assembled metadata and data pair of a MARCS model
     """
     metadata = read_marcs_metadata(fpath)
     data = read_marcs_data(fpath)
