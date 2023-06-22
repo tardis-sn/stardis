@@ -129,7 +129,7 @@ def read_marcs_data(fpath):
 
     marcs_model_data_upper_split = pd.read_csv(
         fpath,
-        skiprows=LINES_BEFORE_FIRST_TABLE,
+        skiprows=LINES_BEFORE_UPPER_TABLE,
         nrows=MARCS_MODEL_SHELLS,
         delim_whitespace=True,
         index_col="k",
