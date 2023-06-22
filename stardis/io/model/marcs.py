@@ -123,13 +123,21 @@ def read_marcs_data(fpath):
 
     # Interior model file contents are split in to two tables vertically. Each needs to be read
     # in separately and then joined on shared planes (k for plane number or lgTauR for optical depth.)
+    MARCS_MODEL_SHELLS = 56
+    LINES_BEFORE_UPPER_TABLE = 24
+    LINES_BEFORE_LOWER_TABLE = 81
+
     marcs_model_data_upper_split = pd.read_csv(
-        fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
+        fpath,
+        skiprows=LINES_BEFORE_FIRST_TABLE,
+        nrows=MARCS_MODEL_SHELLS,
+        delim_whitespace=True,
+        index_col="k",
     )
     marcs_model_data_lower_split = pd.read_csv(
         fpath,
-        skiprows=81,
-        nrows=56,
+        skiprows=LINES_BEFORE_LOWER_TABLE,
+        nrows=MARCS_MODEL_SHELLS,
         index_col="k",
         sep="(?:\s+)|(?<=\+\d{2})(?=-)",
     )
