@@ -3,6 +3,7 @@ import gzip
 import re
 from dataclasses import dataclass
 from astropy import units as u
+import numpy as np
 
 
 @dataclass
@@ -77,13 +78,14 @@ def read_marcs_metadata(fpath):
             "12C/13C",
         ),
     ]
+    BYTES_THROUGH_METADATA = 550
 
     # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
     # Then add each of the matched patterns as a key:value pair to the metadata dict.
     metadata_re = [re.compile(re_str[0]) for re_str in METADATA_RE_STR]
     metadata = {}
     with gzip.open(fpath, "rt") as file:
-        contents = file.readlines(550)
+        contents = file.readlines(BYTES_THROUGH_METADATA)
         lines = [line for line in contents]
 
         for i, line in enumerate(lines):
@@ -127,6 +129,10 @@ def read_marcs_data(fpath):
     LINES_BEFORE_UPPER_TABLE = 24
     LINES_BEFORE_LOWER_TABLE = 81
 
+    BYTES_THROUGH_ABUNDANCES = 1290
+    LINES_BEFORE_ABUNDANCES = 12
+    LINES_THROUGH_ABUNDANCES = 22
+
     marcs_model_data_upper_split = pd.read_csv(
         fpath,
         skiprows=LINES_BEFORE_UPPER_TABLE,
@@ -140,12 +146,28 @@ def read_marcs_data(fpath):
         nrows=MARCS_MODEL_SHELLS,
         index_col="k",
         sep="(?:\s+)|(?<=\+\d{2})(?=-)",
+        engine="python",
     )
 
     marcs_model_data = pd.merge(
         marcs_model_data_upper_split, marcs_model_data_lower_split, on=["k", "lgTauR"]
     )
     marcs_model_data.columns = [item.lower() for item in marcs_model_data.columns]
+
+    with gzip.open(fpath, "rt") as file:
+        contents = file.readlines(BYTES_THROUGH_ABUNDANCES)
+
+    marcs_abundance_scale_str = " ".join(
+        [
+            item.strip()
+            for item in contents[LINES_BEFORE_ABUNDANCES:LINES_THROUGH_ABUNDANCES]
+        ]
+    )
+
+    for i, abundance in enumerate(marcs_abundance_scale_str.split()):
+        marcs_model_data[f"scaled_log_number_fraction_{i+1}"] = float(abundance)
+
+    marcs_model_data.replace({-99.00: np.nan}, inplace=True)
 
     return marcs_model_data
 
