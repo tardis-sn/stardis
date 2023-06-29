@@ -52,8 +52,7 @@ jobs:
       - name: Make Sphinx HTML
         id: make-sphinx-html
         run: |
-          cd docs
-          make html
+          make -C docs html
           
       - name: Set destination directory
         run: |
