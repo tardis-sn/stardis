@@ -83,7 +83,7 @@ jobs:
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v3
         with:
-          # github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           # publish_branch: ${GITHUB_REF} # ${{ env.DEPLOY_BRANCH }}
           # publish_dir: ./docs/_build/html
           # destination_dir: ${{ env.DEST_DIR }}
@@ -91,7 +91,7 @@ jobs:
           # force_orphan: ${{ env.CLEAN_BRANCH }}
           # user_name: 'github-actions[bot]'
           # user_email: 'github-actions[bot]@users.noreply.github.com'
-          github_token: ${{ secrets.BOT_TOKEN }}
+          # github_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: ./docs/_build/html
           destination_dir: ${{ env.DEST_DIR }}
