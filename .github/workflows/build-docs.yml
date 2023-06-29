@@ -1,5 +1,7 @@
 name: build-docs
-on: push
+on:
+  push:
+  workflow_dispatch:
 
 env:
   DEPLOY_BRANCH: gh-pages               # deployed docs branch
