@@ -123,7 +123,7 @@ def read_marcs_data(fpath):
         data contents of the MARCS model file
     """
 
-    # Interior model file contents are split in to two tables vertically. Each needs to be read
+    # Interior model file contents are split into two tables vertically. Each needs to be read
     # in separately and then joined on shared planes (k for plane number or lgTauR for optical depth.)
     MARCS_MODEL_SHELLS = 56
     LINES_BEFORE_UPPER_TABLE = 24
