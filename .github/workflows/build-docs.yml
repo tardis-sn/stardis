@@ -1,0 +1,93 @@
+name: build-docs
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  DEPLOY_BRANCH: gh-pages               # deployed docs branch
+
+defaults:
+  run:
+    shell: bash -le {0}
+jobs:
+  build-sphinx-html:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+        
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: stardis
+          use-mamba: true
+      
+      - name: Cache Environment Lockfile
+        id: cache-env-lockfile
+        uses: actions/cache@v3
+        with:
+          path: /usr/share/miniconda3/envs/stardis
+          key: conda-linux-64-lockfile
+                  
+      - name: Update Conda Environment
+        id: update-env
+        run: |
+          wget -nv https://github.com/tardis-sn/tardis/releases/latest/download/conda-linux-64.lock -O conda-linux-64.lock
+          mamba update -n stardis --file conda-linux-64.lock
+        if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
+        
+      - name: Install TARDIS
+        id: install-tardis
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+
+      - name: Install STARDIS
+        id: install-stardis
+        # shell: bash -l {0}
+        run: |
+          python setup.py develop
+
+      - name: Make Sphinx HTML
+        id: make-sphinx-html
+        run: |
+          make -C docs html
+          
+      - name: Set destination directory
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+
+            if [[ $BRANCH == $DEFAULT ]]; then
+              echo "DEST_DIR=" >> $GITHUB_ENV
+            else
+              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+            fi
+
+          elif [[ $EVENT == pull_request_target ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+            
+          else
+            echo "Unexpected event trigger $EVENT"
+            exit 1
+
+          fi
+
+          cat $GITHUB_ENV
+        env:
+          DEFAULT: ${{ github.event.repository.default_branch }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.number }}
+
+      - name: Deploy ${{ env.DEST_DIR }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: ./docs/_build/html
+          destination_dir: ${{ env.DEST_DIR }}
+          keep_files: true
+          force_orphan: ${{ env.CLEAN_BRANCH }}
+          user_name: 'TARDIS Bot'
+          user_email: 'tardis.sn.bot@gmail.com'
