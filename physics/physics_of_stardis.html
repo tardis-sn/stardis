@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Physics of STARDIS &#8212; stardis 0.1.dev1+gcf6e8eb documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Downloading and Installation" href="../installation.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="physics-of-stardis">
+<h1>Physics of STARDIS<a class="headerlink" href="#physics-of-stardis" title="Permalink to this heading">¶</a></h1>
+<section id="model-and-plasma">
+<h2>Model and Plasma<a class="headerlink" href="#model-and-plasma" title="Permalink to this heading">¶</a></h2>
+<p>STARDIS breaks down the stellar atmosphere into spherical shells as shown below and approximates that the plasma state is uniform throughout each shell. We rely on the MARCS code, a code that generates models of stellar atmospheres, to determine the temperatures, elemental abundances, and densities in each shell. The existing TARDIS plasma infrastructure determines the rest of the plasma state, namely the excitation and ionization properties and transition rates.</p>
+<a class="reference internal image-reference" href="../_images/model_and_plasma-1.png"><img alt="Diagram showing inner and outer boundaries of the stellar atmosphere" src="../_images/model_and_plasma-1.png" style="width: 100%;" /></a>
+</section>
+<section id="opacities">
+<h2>Opacities<a class="headerlink" href="#opacities" title="Permalink to this heading">¶</a></h2>
+<p>To determine an output spectrum, we need to understand how photons of light move through the atmosphere and what interactions they experience. Opacity is a measure of how likely it is that light will be scattered or absorbed by some material, like the stellar plasma, per unit distance it travels. This is contributed to by several mechanisms, which are described <a class="reference internal" href="#opacity-sources"><span class="std std-ref">below</span></a>.</p>
+<section id="opacity-sources">
+<h3>Opacity Sources<a class="headerlink" href="#opacity-sources" title="Permalink to this heading">¶</a></h3>
+<p>The first four of these interactions are called continuum interactions, as they affect light at a large range of frequencies. Line interactions, on the other hand, only occur with light around specific frequencies, corresponding to the electron’s jump in energy. These are called <em>resonant frequencies</em>.</p>
+<section id="bound-free-absorbtion">
+<h4>Bound-Free Absorbtion<a class="headerlink" href="#bound-free-absorbtion" title="Permalink to this heading">¶</a></h4>
+<div class="math notranslate nohighlight">
+\[\alpha = \frac{64 \pi^4 e^{10} m_e Z^4}{3 \sqrt 3 h^6 c n_{\text{eff}}^5} n\]</div>
+<a class="reference internal image-reference" href="../_images/bound_free_absorbtion-1.png"><img alt="Diagram of bound-free absorbtion" src="../_images/bound_free_absorbtion-1.png" style="width: 100%;" /></a>
+</section>
+<section id="free-free-absorbtion">
+<h4>Free-Free Absorbtion<a class="headerlink" href="#free-free-absorbtion" title="Permalink to this heading">¶</a></h4>
+<div class="math notranslate nohighlight">
+\[\alpha = \frac{4 e^6 Z^2 n}{3 h c v^3} \sqrt{\frac{2 \pi}{3 m_e^3 k_B T}}\]</div>
+<a class="reference internal image-reference" href="../_images/free_free_absorbtion-1.png"><img alt="Diagram of free-free absorbtion" src="../_images/free_free_absorbtion-1.png" style="width: 100%;" /></a>
+</section>
+<section id="rayleigh-scattering">
+<h4>Rayleigh Scattering<a class="headerlink" href="#rayleigh-scattering" title="Permalink to this heading">¶</a></h4>
+<div class="math notranslate nohighlight">
+\[\alpha = \sigma_T n \left ( c_4 \left ( \frac{v}{2 v_H} \right )^4 + c_6 \left ( \frac{v}{2 v_H} \right )^6 + c_8 \left ( \frac{v}{2 v_H} \right )^8 \right )\]</div>
+<a class="reference internal image-reference" href="../_images/rayleigh_scattering-1.png"><img alt="Diagram of Rayleigh scattering" src="../_images/rayleigh_scattering-1.png" style="width: 100%;" /></a>
+</section>
+<section id="electron-scattering">
+<h4>Electron Scattering<a class="headerlink" href="#electron-scattering" title="Permalink to this heading">¶</a></h4>
+<div class="math notranslate nohighlight">
+\[\alpha = \sigma_T n_E\]</div>
+<a class="reference internal image-reference" href="../_images/electron_scattering-1.png"><img alt="Diagram of electron scattering" src="../_images/electron_scattering-1.png" style="width: 100%;" /></a>
+</section>
+<section id="line-interaction">
+<h4>Line Interaction<a class="headerlink" href="#line-interaction" title="Permalink to this heading">¶</a></h4>
+<div class="math notranslate nohighlight">
+\[\alpha = \frac{\pi e^2}{m_e c} n_l f_{lu} \left (1 - \frac{g_l n_u}{g_u n_l} \right ) \phi(v)\]</div>
+<a class="reference internal image-reference" href="../_images/line_interaction-1.png"><img alt="Diagram of line interaction" src="../_images/line_interaction-1.png" style="width: 100%;" /></a>
+</section>
+</section>
+<section id="broadening">
+<h3>Broadening<a class="headerlink" href="#broadening" title="Permalink to this heading">¶</a></h3>
+<p>Line interaction opacity does not occur only at the exact resonant frequencies; lines are broadened to reach other nearby frequencies. Thus, the line interaction opacity is the total line opacity</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{lu} = \frac{\pi e^2}{m_e c} n_l f_{lu} \left ( 1 - \frac{g_l n_u}{g_u n_l} \right )\]</div>
+<p>times the <em>line profile</em> <span class="math notranslate nohighlight">\(\phi(v)\)</span> which describes the broadening.</p>
+<p><a class="reference internal" href="../_images/wide_line_profile.png"><img alt="Broad line profile" src="../_images/wide_line_profile.png" style="width: 45%;" /></a> vs. <a class="reference internal" href="../_images/narrow_line_profile.png"><img alt="Less broad line profile" src="../_images/narrow_line_profile.png" style="width: 45%;" /></a></p>
+<p>Above are examples of line profiles, the left being very broadened and the right being less broadened.</p>
+<p>The line profile uses the following parameters for determining how much the line is broadened:</p>
+<ul class="simple">
+<li><p>The Einstein coefficient <span class="math notranslate nohighlight">\(A_{ul}\)</span>, describing the line’s natural acceptance of non-resonant frequencies.</p></li>
+<li><p>The doppler width <span class="math notranslate nohighlight">\(\Delta v_D\)</span>, the range of frequencies that are doppler shifted to be the resonant frequency due to the movement of ions in the plasma.</p></li>
+<li><p>The collisional broadening parameter <span class="math notranslate nohighlight">\(\gamma_{\text{col}}\)</span>, describing the effects of forces between ions or ions and electrons which shift the resonant frequency.</p></li>
+</ul>
+<p>The line profile centered at the resonant frequency <span class="math notranslate nohighlight">\(v_{lu}\)</span> is then:</p>
+<div class="math notranslate nohighlight">
+\[\phi(v) = \frac{\gamma_{\text{col}}}{4 \pi^{\frac{5}{2}} \Delta v_D} \int_{-\infty}^{\infty} \frac{\exp \left ( -\frac{y^2}{\Delta v_D^2} \right )}{\left (v - v_{lu} - y \right )^2 + \left ( \frac{\gamma_{\text{col}} + A_{ul}}{4 \pi} \right )^2} \, d y\]</div>
+</section>
+</section>
+<section id="transport">
+<h2>Transport<a class="headerlink" href="#transport" title="Permalink to this heading">¶</a></h2>
+<p>Finally, we use the opacity information to trace beams of light coming from the photosphere at different angles and frequencies to find the final intensity. We use the equation</p>
+<div class="math notranslate nohighlight">
+\[I_{N + 1}(v, \theta) = I_N(v, \theta) e^{-\tau} + (1 - e^{- \tau}) B_{N + 1} (v) + (1 - e^{-\tau} - \tau e^{-\tau}) \frac{\Delta B_{N + 1}(v)}{\tau}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau = \frac{\alpha l}{\cos \theta}\)</span> is the <em>optical depth</em>, <span class="math notranslate nohighlight">\(l\)</span> is the depth of each shell, and <span class="math notranslate nohighlight">\(B(v)\)</span> is the blackbody distribution.</p>
+<a class="reference internal image-reference" href="../_images/transport.png"><img alt="A diagram of how the opacity is a function of the angle and frequency of a location in the photosphere" src="../_images/transport.png" style="width: 100%;" /></a>
+<p>The flux density (the desired spectrum) is then:</p>
+<div class="math notranslate nohighlight">
+\[F(v) = 2 \pi \int_0^{\frac{\pi}{2}} I(v, \theta) \sin \theta \cos \theta \, d \theta.\]</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">stardis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Physics of STARDIS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-and-plasma">Model and Plasma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opacities">Opacities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transport">Transport</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../installation.html" title="previous chapter">Downloading and Installation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, TARDIS Collaboration.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/physics/physics_of_stardis.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
