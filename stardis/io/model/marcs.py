@@ -10,7 +10,8 @@ import numpy as np
 class MARCSModel(object):
     """
     Class to hold a MARCS model. Holds a dict of the metadata information and a pandas dataframe of the contents.
-
+    Metadata matches for an effective temperature, surface gravity, microturbulence, metallicity (both fe/h and alpha/fe),
+    convective parameters, and X (hydrogen mass fraction), Y (helium mass fraction), and Z (heavy element mass fraction).
     """
 
     metadata: dict
@@ -20,7 +21,7 @@ class MARCSModel(object):
 def read_marcs_metadata(fpath):
     """
     Grabs the metadata information from a gzipped MARCS model file and returns it in a python dictionary.
-    Matches the metadata information and units using regex. Assumes line structure of plane-parallel models.
+    Matches the metadata information and units using regex. Assumes file line structure of plane-parallel models.
     Fails if the file does not exist or is formatted unexpectedly.
 
     Parameters
