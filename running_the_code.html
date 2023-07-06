@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Running the Code &#8212; stardis 0.1.dev1+g1fd1f69 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Physics of STARDIS" href="physics/physics_of_stardis.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="running-the-code">
+<h1>Running the Code<a class="headerlink" href="#running-the-code" title="Permalink to this heading">¶</a></h1>
+<section id="the-run-stardis-function">
+<h2>The <code class="docutils literal notranslate"><span class="pre">run_stardis()</span></code> Function<a class="headerlink" href="#the-run-stardis-function" title="Permalink to this heading">¶</a></h2>
+<p>In the <a class="reference internal" href="quickstart/quickstart.html"><span class="doc">Quickstart</span></a>, there is a basic notebook that
+runs STARDIS and plots a spectrum. The main function, <code class="docutils literal notranslate"><span class="pre">run_stardis()</span></code>,
+requires as its first argument the name of a configuration file, which
+will be described below. The second argument is an array of the
+frequencies or wavelengths for which you are requesting the flux
+density, times an appropriate astropy quantity (such as Hertz or
+Angstroms). Note that this must be an array times a quantity, <strong>not</strong> an
+array of astropy quantities.</p>
+</section>
+<section id="the-stardis-configuration">
+<h2>The STARDIS Configuration<a class="headerlink" href="#the-stardis-configuration" title="Permalink to this heading">¶</a></h2>
+<p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration.
+The <a class="reference internal" href="quickstart/quickstart.html"><span class="doc">quickstart notebook</span></a> uses an example configuration called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code>.
+Below, we present an example for instructions for customizing the
+configuration for your needs.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to atomic data file&gt;</span>
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span><span class="w"> </span><span class="c1"># more options will be available in the future</span>
+<span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to MARCS model file&gt;</span>
+<span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;atomic number of largest element considered&gt;</span><span class="w"> </span><span class="c1"># may be up to 30</span>
+<span class="nt">opacity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="c1"># reads a bound-free or free-free opacity file, omit if none</span>
+<span class="w">        </span><span class="nt">&lt;species1&gt;_&lt;either bf for bound-free or ff for free-free&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to opacity file&gt;</span>
+<span class="w">        </span><span class="nt">&lt;species2&gt;_&lt;either bf for bound-free or ff for free-free&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to opacity file&gt;</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">    </span><span class="nt">bf</span><span class="p">:</span><span class="w"> </span><span class="c1"># uses the hydrogenic approximation for bound-free opacity, omit if none</span>
+<span class="w">        </span><span class="nt">&lt;species1&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"> </span><span class="c1"># there will eventually be options to include files with gaunt factors or departure coefficients</span>
+<span class="w">        </span><span class="nt">&lt;species2&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">    </span><span class="nt">ff</span><span class="p">:</span><span class="w"> </span><span class="c1"># uses the hydrogenic approximation for free-free opacity, omit if none</span>
+<span class="w">        </span><span class="nt">&lt;species1&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"> </span><span class="c1"># there will eventually be options to include files with gaunt factors or departure coefficients</span>
+<span class="w">        </span><span class="nt">&lt;species2&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">    </span><span class="nt">rayleigh</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;list of species considered for rayleigh scattering&gt;</span><span class="w"> </span><span class="c1"># may include H, He, and/or H2, omit or use [] for none</span>
+<span class="w">    </span><span class="nt">disable_electron_scattering</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;True or False&gt;</span>
+<span class="w">    </span><span class="nt">line</span><span class="p">:</span><span class="w"> </span><span class="c1"># settings for line interaction opacity, at least one subfield is required</span>
+<span class="w">        </span><span class="nt">disable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;True or False&gt;</span>
+<span class="w">        </span><span class="nt">broadening</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;list of non-thermal broadening sources considered&gt;</span><span class="w"> </span><span class="c1"># may include radiation, linear_stark, quadratic_stark, and/or van_der_waals, omit or use [] for none</span>
+<span class="w">        </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;minimum resonance frequency or wavelength of lines considered&gt;</span><span class="w"> </span><span class="c1"># must have units, such as Hz or AA</span>
+<span class="w">        </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;maximum resonance frequency or wavelength of lines considered&gt;</span><span class="w"> </span><span class="c1"># must have units, such as Hz or AA</span>
+<span class="w">        </span><span class="nt">broadening_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;maximum distance in frquency space to the resonant frequency for line broadening to be considered&gt;</span><span class="w"> </span><span class="c1"># necessary for computational efficiency and must have units, 1e13 Hz recommended</span>
+<span class="nt">no_of_thetas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;number of angles to sample for raytracing&gt;</span>
+</pre></div>
+</div>
+<p>In fields where an atomic species is requested, the species must be in
+the form <code class="docutils literal notranslate"><span class="pre">&lt;atomic</span> <span class="pre">symbol&gt;_&lt;ionization</span> <span class="pre">roman</span> <span class="pre">numeral&gt;</span></code>. For example,
+<code class="docutils literal notranslate"><span class="pre">H_I</span></code> for neutral hydrogen, or <code class="docutils literal notranslate"><span class="pre">Si_III</span></code> for twice-ionized silicon.</p>
+<p>Additionally, in the opacity file section, the following entries are
+valid: - <code class="docutils literal notranslate"><span class="pre">Hminus_bf</span></code> - <code class="docutils literal notranslate"><span class="pre">Hminus_ff</span></code> - <code class="docutils literal notranslate"><span class="pre">Heminus_ff</span></code> - <code class="docutils literal notranslate"><span class="pre">H2minus_ff</span></code>
+- <code class="docutils literal notranslate"><span class="pre">H2plus_ff</span></code></p>
+</section>
+<section id="opacity-file-format">
+<h2>Opacity File Format<a class="headerlink" href="#opacity-file-format" title="Permalink to this heading">¶</a></h2>
+<p>STARDIS can read and interpolate continuum opacity cross-section files
+for bound-free or free-free absorption (technically, for free-free
+absorption the files would provide the cross-section per electron
+density). The files must be one of the following formats:</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>wavelength_1, cross-section_1
+wavelength_2, cross-section_2
+wavelength_3, cross-section_3
+...
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>, temperature_1, temperature_2, temperature_3, ...
+wavelength_1, cross-section_11, cross-section_12, cross-section_13, ...
+wavelength_2, cross-section_21, cross-section_22, cross-section_23, ...
+wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
+...
+</pre></div>
+</div>
+<p>Note the leading comma in the latter format. Temperatures must be in
+Kelvin, wavelengths in Angstroms, and cross-sections in cm^2 for
+bound-free or cm^5 for free-free (once again because free-free opacity
+files provide the cross-section per electron density).</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">stardis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running the Code</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-run-stardis-function">The <code class="docutils literal notranslate"><span class="pre">run_stardis()</span></code> Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-stardis-configuration">The STARDIS Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opacity-file-format">Opacity File Format</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="physics/physics_of_stardis.html" title="previous chapter">Physics of STARDIS</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, TARDIS Collaboration.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/running_the_code.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
