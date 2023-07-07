@@ -1,7 +1,17 @@
 def test_primes():
-    from ..example_mod import primes
+    from functools import reduce
 
-    assert primes(10) == [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+    N = 30
+
+    assert reduce(
+        (
+            lambda r, x: [p for p in r if p not in list(range(x**2, N, x))]
+            if (x in r)
+            else r
+        ),
+        range(2, N),
+        list(range(2, N)),
+    ) == [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
 
 
 def test_deprecation():
