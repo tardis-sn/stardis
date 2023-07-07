@@ -44,3 +44,8 @@ jobs:
           use-mamba: true
 
 
+      - uses: actions/cache@v2
+        with:
+          path: ${{ matrix.prefix }}
+          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
+        id: cache-conda
