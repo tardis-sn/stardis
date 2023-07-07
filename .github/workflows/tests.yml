@@ -68,3 +68,6 @@ jobs:
         # shell: bash -l {0}
         run: |
           python setup.py develop
+
+      - name: Run tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}          
