@@ -1,6 +1,9 @@
 def test_primes():
     from functools import reduce
 
+    # The following algorithm is the Sieve of Eratosthenes:
+    # https://stackoverflow.com/a/10640037
+
     N = 30
 
     assert reduce(
