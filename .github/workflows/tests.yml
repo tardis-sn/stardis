@@ -8,7 +8,9 @@ on:
   pull_request:
     branches:
       - '*'
-
+  workflow_dispatch:
+    branches:
+      - '*'
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --cov=stardis --cov-report=xml --cov-report=html
