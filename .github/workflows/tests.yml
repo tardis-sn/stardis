@@ -70,4 +70,4 @@ jobs:
           python setup.py develop
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }}          
+        run: pytest stardis ${{ env.PYTEST_FLAGS }}          
