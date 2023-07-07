@@ -44,10 +44,18 @@ jobs:
           use-mamba: true
 
 
-      - uses: actions/cache@v2
+      - name: Cache lockfile
+        uses: actions/cache@v2
         with:
           path: ${{ matrix.prefix }}
           key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
+
+      - name: Update Conda Environment
+        id: update-env
+        run: |
+          wget -nv https://github.com/tardis-sn/tardis/releases/latest/download/conda-${{ matrix.label }}.lock -O conda-${{ matrix.label }}.lock
+          mamba update -n stardis --file conda-${{ matrix.label }}.lock
+        if: steps.cache-conda.outputs.cache-hit != 'true'
 
         
