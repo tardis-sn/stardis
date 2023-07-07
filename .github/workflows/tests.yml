@@ -8,3 +8,10 @@ on:
   pull_request:
     branches:
       - '*'
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --cov=stardis --cov-report=xml --cov-report=html
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
