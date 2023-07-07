@@ -14,4 +14,6 @@ env:
   PYTEST_FLAGS: --cov=stardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-
+defaults:
+  run:
+    shell: bash -l {0}
