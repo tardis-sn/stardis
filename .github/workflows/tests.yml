@@ -17,3 +17,21 @@ env:
 defaults:
   run:
     shell: bash -l {0}
+
+jobs:
+  build:
+    # if: github.repository_owner == 'tardis-sn'
+    strategy:
+      matrix:
+        include:
+
+        - os: ubuntu-latest
+          label: linux-64
+          prefix: /usr/share/miniconda3/envs/tardis
+
+        - os: macos-latest
+          label: osx-64
+          prefix: /Users/runner/miniconda3/envs/tardis
+    
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
