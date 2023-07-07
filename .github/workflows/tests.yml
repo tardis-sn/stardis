@@ -35,3 +35,13 @@ jobs:
     
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Clone tardis-sn/tardis-refdata
+        uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis-refdata
+          path: tardis-refdata
+
