@@ -11,6 +11,7 @@ defaults:
     shell: bash -le {0}
 jobs:
   build-sphinx-html:
+    if: ((github.repository == 'tardis-sn/stardis') && (${{ github.head_ref || github.ref_name}} == 'main')) || (github.repository_owner != 'tardis-sn')
     runs-on: ubuntu-latest
     steps:
 
