@@ -1,6 +1,7 @@
 name: build-docs
 on:
   push:
+  pull_request_target:
   workflow_dispatch:
 
 env:
