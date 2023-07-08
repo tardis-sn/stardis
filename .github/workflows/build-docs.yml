@@ -12,6 +12,9 @@ defaults:
 jobs:
   build-sphinx-html:
     if: ((github.repository == 'tardis-sn/stardis') && (${{ github.head_ref || github.ref_name}} == 'main')) || (github.repository_owner != 'tardis-sn')
+    # The above line makes this action run if it is either not on the upstream/main or the main branch of upstream/main.
+    # If there is a better way to implement this, I'd like someone to please share.
+    # The context to get the branch name is from https://stackoverflow.com/a/71158878
     runs-on: ubuntu-latest
     steps:
 
