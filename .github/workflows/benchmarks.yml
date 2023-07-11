@@ -85,7 +85,8 @@ jobs:
         run: asv publish
 
       - name: Delete env files
-        run: rm -r .asv/env
+        if: github.event_name != 'pull_request'
+        run: rm -r .asv/env #Delete env from prev run if not PR
 
       - name: Create results html on dest repo
         if: github.event_name != 'pull_request'
