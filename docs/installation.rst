@@ -9,10 +9,12 @@ Setting Up the Environment
 --------------------------
 
 .. note::
-   - STARDIS is only supported on macOS and GNU/Linux. Windows
+   * STARDIS is only supported on macOS and GNU/Linux. Windows
    users can run STARDIS from
    `WSL <https://docs.microsoft.com/en-us/windows/wsl/>`__ or a Virtual
-   Machine. - STARDIS packages and dependencies are distributed only
+   Machine.
+
+   * STARDIS packages and dependencies are distributed only
    through the `conda <https://docs.conda.io/en/latest/>`__ package
    management system, therefore installation requires
    `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`__
