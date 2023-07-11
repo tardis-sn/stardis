@@ -9,7 +9,7 @@ Model and Plasma
 STARDIS breaks down the stellar atmosphere into spherical shells as shown below and approximates that the plasma state is uniform throughout each shell. We rely on the MARCS code, a code that generates models of stellar atmospheres, to determine the temperatures, elemental abundances, and densities in each shell. The existing TARDIS plasma infrastructure determines the rest of the plasma state, namely the excitation and ionization properties and transition rates.
 
 .. image:: media/model_and_plasma-1.png
-   :width: 100 %
+   :width: 500 px
    :alt: Diagram showing inner and outer boundaries of the stellar atmosphere
 
 =========
@@ -32,7 +32,7 @@ Bound-Free Absorbtion
    \alpha = \frac{64 \pi^4 e^{10} m_e Z^4}{3 \sqrt 3 h^6 c n_{\text{eff}}^5} n
 
 .. image:: media/bound_free_absorbtion-1.png
-   :width: 100 %
+   :width: 500 px
    :alt: Diagram of bound-free absorbtion
 	   
 
@@ -44,7 +44,7 @@ Free-Free Absorbtion
    \alpha = \frac{4 e^6 Z^2 n}{3 h c v^3} \sqrt{\frac{2 \pi}{3 m_e^3 k_B T}}
 
 .. image:: media/free_free_absorbtion-1.png
-   :width: 100 %
+   :width: 500 px
    :alt: Diagram of free-free absorbtion
 
 
@@ -56,7 +56,7 @@ Rayleigh Scattering
    \alpha = \sigma_T n \left ( c_4 \left ( \frac{v}{2 v_H} \right )^4 + c_6 \left ( \frac{v}{2 v_H} \right )^6 + c_8 \left ( \frac{v}{2 v_H} \right )^8 \right )
 
 .. image:: media/rayleigh_scattering-1.png
-   :width: 100 %
+   :width: 500 px
    :alt: Diagram of Rayleigh scattering
 
 
@@ -68,7 +68,7 @@ Electron Scattering
    \alpha = \sigma_T n_E
 
 .. image:: media/electron_scattering-1.png
-   :width: 100 %
+   :width: 500 px
    :alt: Diagram of electron scattering
 
 
@@ -80,7 +80,7 @@ Line Interaction
    \alpha = \frac{\pi e^2}{m_e c} n_l f_{lu} \left (1 - \frac{g_l n_u}{g_u n_l} \right ) \phi(v)
 
 .. image:: media/line_interaction-1.png
-   :width: 100 %
+   :width: 500 px
    :alt: Diagram of line interaction
    
 ----------
@@ -132,7 +132,7 @@ Finally, we use the opacity information to trace beams of light coming from the 
 where :math:`\tau = \frac{\alpha l}{\cos \theta}` is the *optical depth*, :math:`l` is the depth of each shell, and :math:`B(v)` is the blackbody distribution.
 
 .. image:: media/transport.png
-   :width: 100 %
+   :width: 500 px
    :alt: A diagram of how the opacity is a function of the angle and frequency of a location in the photosphere
 
 
