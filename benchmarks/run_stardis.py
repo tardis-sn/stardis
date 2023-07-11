@@ -37,6 +37,8 @@ class BenchmarkRaytrace:
     Class to benchmark raytrace function.
     """
 
+    timeout = 1800  # Worst case timeout of 30 mins
+
     def setup(self):
         base_dir = os.path.abspath(os.path.dirname(__file__))
         schema = os.path.join(base_dir, "config_schema.yml")
