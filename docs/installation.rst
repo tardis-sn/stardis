@@ -8,7 +8,8 @@ Downloading and Installation
 Setting Up the Environment
 --------------------------
 
-   **NOTE:** - STARDIS is only supported on macOS and GNU/Linux. Windows
+.. note::
+   - STARDIS is only supported on macOS and GNU/Linux. Windows
    users can run STARDIS from
    `WSL <https://docs.microsoft.com/en-us/windows/wsl/>`__ or a Virtual
    Machine. - STARDIS packages and dependencies are distributed only
