@@ -14,11 +14,8 @@ Setting Up the Environment
 
    * STARDIS packages and dependencies are distributed only
    through the `conda <https://docs.conda.io/en/latest/>`__ package
-   management system, therefore installation requires
-   `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`__
-   or
-   `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__
-   to be installed on your system.
+   management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses
+   `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__ by default. Other distributions are untested.
 
 STARDIS uses exclusively the packages in the TARDIS enviroment, as well
 as using the TARDIS code itself. However, since STARDIS can be sensitive
