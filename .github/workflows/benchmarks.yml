@@ -152,8 +152,6 @@ jobs:
       - name: Post comment
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -184,6 +182,7 @@ jobs:
             </details>
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
 
       - name: Save results artifact
         uses: actions/upload-artifact@v3
