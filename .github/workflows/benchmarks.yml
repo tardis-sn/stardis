@@ -152,8 +152,10 @@ jobs:
       - name: Post comment
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
         with:
-          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
