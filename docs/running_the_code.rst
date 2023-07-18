@@ -17,7 +17,7 @@ The STARDIS Configuration
 -------------------------
 
 STARDIS uses `YAML <https://yaml.org/>`__ files for the configuration.
-The `quickstart notebook <quickstart/quickstart.ipynb>`__ uses an example configuration called ``stardis_example.yml``.
+The `Quickstart notebook <quickstart/quickstart.ipynb>`__ uses an example configuration called ``stardis_example.yml``, which can be found `here <https://github.com/tardis-sn/stardis/tree/main/docs/quickstart>`__, along with any other files from the Quickstart.
 Below, we present an example for instructions for customizing the
 configuration for your needs.
 
