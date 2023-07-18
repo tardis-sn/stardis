@@ -21,27 +21,19 @@ def test_faddeeva_sample_values(
     )
 
 
-@pytest.mark.parametrize(
-    "voigt_profile_input_delta_nu, voigt_profile_input_doppler_width, voigt_profile_input_gamma",
-    [
-        (0, 0, 0),
-        (1, 0, 0),
-        (0, 0, 1),
-        (1, 0, 1),
-    ],
-)
+@pytest.mark.parametrize("voigt_profile_division_by_zero_input_delta_nu", range(11))
+@pytest.mark.parametrize("voigt_profile_division_by_zero_input_gamma", range(11))
 def test_voigt_profile_division_by_zero(
-    voigt_profile_input_delta_nu,
-    voigt_profile_input_doppler_width,
-    voigt_profile_input_gamma,
+    voigt_profile_division_by_zero_input_delta_nu,
+    voigt_profile_division_by_zero_input_gamma,
 ):
     from stardis.opacities.voigt import voigt_profile
 
     with pytest.raises(ZeroDivisionError):
         _ = voigt_profile(
-            voigt_profile_input_delta_nu,
-            voigt_profile_input_doppler_width,
-            voigt_profile_input_gamma,
+            voigt_profile_division_by_zero_input_delta_nu,
+            0,
+            voigt_profile_division_by_zero_input_gamma,
         )
 
 
