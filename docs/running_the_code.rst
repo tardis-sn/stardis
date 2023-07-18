@@ -57,8 +57,13 @@ the form ``<atomic symbol>_<ionization roman numeral>``. For example,
 ``H_I`` for neutral hydrogen, or ``Si_III`` for twice-ionized silicon.
 
 Additionally, in the opacity file section, the following entries are
-valid: - ``Hminus_bf`` - ``Hminus_ff`` - ``Heminus_ff`` - ``H2minus_ff``
-- ``H2plus_ff``
+valid:
+
+* ``Hminus_bf``
+* ``Hminus_ff``
+* ``Heminus_ff``
+* ``H2minus_ff``
+* ``H2plus_ff``
 
 Opacity File Format
 -------------------
