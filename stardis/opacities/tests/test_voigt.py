@@ -38,25 +38,25 @@ def test_voigt_profile_division_by_zero(
 
 
 @pytest.mark.parametrize(
-    "voigt_profile_input_delta_nu, voigt_profile_input_doppler_width, voigt_profile_input_gamma, voigt_profile_expected_result",
+    "voigt_profile_sample_values_input_delta_nu, voigt_profile_sample_values_input_doppler_width, voigt_profile_sample_values_input_gamma, voigt_profile_sample_values_expected_result",
     [
         (0, 1, 0, 1 / sqrt(PI)),
         (0, 2, 0, 1 / (sqrt(PI) * 2)),
     ],
 )
-def test_voigt_profile_sample_values(
-    voigt_profile_input_delta_nu,
-    voigt_profile_input_doppler_width,
-    voigt_profile_input_gamma,
-    voigt_profile_expected_result,
+def test_voigt_profile_sample_values_sample_values(
+    voigt_profile_sample_values_input_delta_nu,
+    voigt_profile_sample_values_input_doppler_width,
+    voigt_profile_sample_values_input_gamma,
+    voigt_profile_sample_values_expected_result,
 ):
     from stardis.opacities.voigt import voigt_profile
 
     assert allclose(
         voigt_profile(
-            voigt_profile_input_delta_nu,
-            voigt_profile_input_doppler_width,
-            voigt_profile_input_gamma,
+            voigt_profile_sample_values_input_delta_nu,
+            voigt_profile_sample_values_input_doppler_width,
+            voigt_profile_sample_values_input_gamma,
         ),
-        voigt_profile_expected_result,
+        voigt_profile_sample_values_expected_result,
     )
