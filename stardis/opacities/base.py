@@ -568,7 +568,7 @@ def calc_alan_numba(
                         alpha_line_in_shell * voigt_profile(delta_nu, doppler_width, gamma)
                     )
         
-        alpha_line_at_nu += phis
+        alpha_line_at_nu += single_line_alpha
 
     return alpha_line_at_nu
 
