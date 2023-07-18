@@ -91,6 +91,6 @@ or
    ...
 
 Note the leading comma in the latter format. Temperatures must be in
-Kelvin, wavelengths in Angstroms, and cross-sections in cm^2 for
-bound-free or cm^5 for free-free (once again because free-free opacity
+Kelvin, wavelengths in Angstroms, and cross-sections in cm\ :sup:`2`\  for
+bound-free or cm\ :sup:`5`\  for free-free (once again because free-free opacity
 files provide the cross-section per electron density).
