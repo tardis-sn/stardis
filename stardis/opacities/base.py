@@ -7,7 +7,7 @@ from tardis.io.config_reader import ConfigurationNameSpace
 
 from astropy import units as u, constants as const
 
-from stardis.opacities.broadening import calculate_broadening
+from stardis.opacities.broadening import calc_gamma, calc_doppler_width
 from stardis.opacities.voigt import voigt_profile
 from stardis.opacities.util import sigma_file, map_items_to_indices, get_number_density
 
@@ -366,7 +366,7 @@ def calc_alpha_line_at_nu(
     """
 
     if line_opacity_config.disable:
-        return 0, 0, 0
+        return 0
 
     broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
@@ -432,7 +432,8 @@ def calc_alpha_line_at_nu(
 
     no_shells = len(fv_geometry)
 
-    line_nus, gammas, doppler_widths = calculate_broadening(
+    return calc_alan_numba(
+        tracing_nus,
         lines_array,
         line_cols,
         no_shells,
@@ -440,91 +441,136 @@ def calc_alpha_line_at_nu(
         electron_densities,
         temperatures,
         h_densities,
+        alphas_array,
         linear_stark=linear_stark,
         quadratic_stark=quadratic_stark,
         van_der_waals=van_der_waals,
         radiation=radiation,
     )
 
-    alpha_line_at_nu = np.zeros((no_shells, len(tracing_nus)))
-
-    for i in range(len(tracing_nus)):
-
-        nu = tracing_nus[i].value
-        delta_nus = nu - line_nus
-
-        for j in range(no_shells):
-
-            gammas_in_shell = gammas[:, j]
-            doppler_widths_in_shell = doppler_widths[:, j]
-            alphas_in_shell = alphas_array[:, j]
-
-            if line_range is None:
-                alpha_line_at_nu[j, i] = calc_alan_entries(
-                    delta_nus,
-                    doppler_widths_in_shell,
-                    gammas_in_shell,
-                    alphas_in_shell,
-                )
-
-            else:
-                line_range_value = line_range.to(u.Hz).value
-                line_start = line_nus.searchsorted(nu - line_range_value) + 1
-                line_end = line_nus.searchsorted(nu + line_range_value) + 1
-                delta_nus_considered = delta_nus[line_start:line_end]
-                gammas_considered = gammas_in_shell[line_start:line_end]
-                doppler_widths_considered = doppler_widths_in_shell[line_start:line_end]
-                alphas_considered = alphas_in_shell[line_start:line_end]
-                alpha_line_at_nu[j, i] = calc_alan_entries(
-                    delta_nus_considered,
-                    doppler_widths_considered,
-                    gammas_considered,
-                    alphas_considered,
-                )
-
-    return alpha_line_at_nu, gammas, doppler_widths
-
 
 @numba.njit
-def calc_alan_entries(
-    delta_nus,
-    doppler_widths_in_shell,
-    gammas_in_shell,
-    alphas_in_shell,
+def calc_alan_numba(
+    tracing_nus,
+    lines_array,
+    line_cols,
+    no_shells,
+    atomic_masses,
+    electron_densities,
+    temperatures,
+    h_densities,
+    alphas_array,
+    linear_stark=True,
+    quadratic_stark=True,
+    van_der_waals=True,
+    radiation=True,
 ):
     """
-    Calculates the line opacity at a single frequency in a single shell.
+    Calculates broadening information for each line in each shell.
 
     Parameters
     ----------
-    delta_nus : numpy.ndarray
-        Difference between the frequency considered and the frequency of each
-        line considered.
-    doppler_widths_in_shell : numpy.ndarray
-        The doppler width of each line considered in the shell considered.
-    gammas_in_shell : numpy.ndarray
-        The broadening parameter of each line considered in the shell
-        considered.
-    alphas_in_shell : numpy.ndarray
-        The total opacity of each line considered in the shell considered.
+    lines_array :
+        Array containing each line and properties of the line.
+    line_cols : dict
+        Matches the name of a quantity to its column index in lines_array.
+    no_shells : int
+        Number of shells.
+    atomic_masses : numpy.ndarray
+        Atomic mass of all elements included in the simulation.
+    electron_densities : numpy.ndarray
+        Electron density in each shell.
+    temperatures : numpy.ndarray
+        Temperature in each shell.
+    h_densities : numpy.ndarray
+        Number density of hydrogen in each shell.
+    linear_stark : bool, optional
+        True if linear Stark broadening is to be considered, otherwise False.
+        By default True.
+    quadratic_stark : bool, optional
+        True if quadratic Stark broadening is to be considered, otherwise
+        False. By default True.
+    van_der_waals : bool, optional
+        True if Van Der Waals broadening is to be considered, otherwise False.
+        By default True.
+    radiation : bool, optional
+        True if radiation broadening is to be considered, otherwise False.
+        By default True.
 
     Returns
     -------
-    float
-        Line opacity.
+    line_nus : numpy.ndarray
+        Frequency of each line.
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Collisional broadening
+        parameter of each line in each shell.
+    doppler_widths : numpy.ndarray
+        Array of shape (no_of_lines, no_of_shells). Doppler width of each
+        line in each shell.
     """
 
-    phis = np.zeros(len(delta_nus))
+#     line_nus = np.zeros(len(lines_array))
+#     gammas = np.zeros((len(lines_array), no_shells))
+#     doppler_widths = np.zeros((len(lines_array), no_shells))
 
-    for k in range(len(delta_nus)):
+    h_mass = atomic_masses[0]
+    
+    alpha_line_at_nu = np.zeros((no_shells, len(tracing_nus)))
 
-        delta_nu = np.abs(delta_nus[k])
-        doppler_width = doppler_widths_in_shell[k]
-        gamma = gammas_in_shell[k]
+    for i in range(len(lines_array)):
 
-        phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
+        atomic_number = np.int(lines_array[i, line_cols["atomic_number"]])
+        atomic_mass = atomic_masses[atomic_number - 1]
+        ion_number = np.int(lines_array[i, line_cols["ion_number"]]) + 1
+        ionization_energy = lines_array[i, line_cols["ionization_energy"]]
+        upper_level_energy = lines_array[i, line_cols["level_energy_upper"]]
+        lower_level_energy = lines_array[i, line_cols["level_energy_lower"]]
+        A_ul = lines_array[i, line_cols["A_ul"]]
+        line_nu = lines_array[i, line_cols["nu"]]
+        
+        delta_nus = line_nu - tracing_nus
+        
+        single_line_alpha = np.zeros((no_shells, len(tracing_nus)))
 
-    return np.sum(phis * alphas_in_shell)
+        for j in range(no_shells):
+
+            electron_density = electron_densities[j]
+            temperature = temperatures[j]
+            h_density = h_densities[j]
+
+            gamma = calc_gamma(
+                atomic_number=atomic_number,
+                ion_number=ion_number,
+                ionization_energy=ionization_energy,
+                upper_level_energy=upper_level_energy,
+                lower_level_energy=lower_level_energy,
+                A_ul=A_ul,
+                electron_density=electron_density,
+                temperature=temperature,
+                h_density=h_density,
+                h_mass=h_mass,
+                linear_stark=linear_stark,
+                quadratic_stark=quadratic_stark,
+                van_der_waals=van_der_waals,
+                radiation=radiation,
+            )
+
+            doppler_width = calc_doppler_width(
+                line_nu, temperature, atomic_mass
+            )
+            
+            alpha_line_in_shell = alphas_array[i,j]
+            
+            for k in range(len(delta_nus)):
+                delta_nu = np.abs(delta_nus[k])
+                if delta_nu <= 3*(doppler_width + gamma):
+                    single_line_alpha[j, k] = (
+                        alpha_line_in_shell * voigt_profile(delta_nu, doppler_width, gamma)
+                    )
+        
+        alpha_line_at_nu += phis
+
+    return alpha_line_at_nu
 
 
 def calc_alphas(
@@ -588,7 +634,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.disable_electron_scattering,
     )
-    alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
+    alpha_line_at_nu = calc_alpha_line_at_nu(
         stellar_plasma,
         stellar_model,
         tracing_nus,
@@ -605,4 +651,4 @@ def calc_alphas(
     )
 
     ### TODO create opacity_dict to return
-    return alphas, gammas, doppler_widths
+    return alphas
