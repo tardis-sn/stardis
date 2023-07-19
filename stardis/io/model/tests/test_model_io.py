@@ -37,7 +37,36 @@ def test_read_marcs_model_metadata_surface_grav(marcs_model_test_data_file_path)
         model.metadata["surface_grav"].value,
         10000,
     )
-    #
-    # np.testing.assert_almost_equal(model.metadata["x"], 0.73826)
-    # np.testing.assert_almost_equal(model.data.depth.iloc[-1], 44610000.0)
-    # np.testing.assert_almost_equal(model.data.lgtaur.iloc[0], -5.0)
+
+
+def test_read_marcs_model_metadata_x(marcs_model_test_data_file_path):
+    from stardis.io.model.marcs import read_marcs_model
+
+    model = read_marcs_model(marcs_model_test_data_file_path)
+
+    assert np.allclose(
+        model.metadata["x"],
+        0.73826,
+    )
+
+
+def test_read_marcs_model_data_depth(marcs_model_test_data_file_path):
+    from stardis.io.model.marcs import read_marcs_model
+
+    model = read_marcs_model(marcs_model_test_data_file_path)
+
+    assert np.allclose(
+        model.data.depth.iloc[-1],
+        44610000.0,
+    )
+
+
+def test_read_marcs_model_data_lgtaur(marcs_model_test_data_file_path):
+    from stardis.io.model.marcs import read_marcs_model
+
+    model = read_marcs_model(marcs_model_test_data_file_path)
+
+    assert np.allclose(
+        model.data.lgtaur.iloc[0],
+        -5.0,
+    )
