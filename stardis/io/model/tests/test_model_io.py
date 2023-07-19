@@ -14,7 +14,7 @@ def marcs_model_test_data_file_path():
     return fpath.joinpath(fname)
 
 
-def test_read_marcs_model(marcs_model_test_data_file_path):
+def test_read_marcs_model_scaled_log_number_fraction(marcs_model_test_data_file_path):
     """
     Test reading a MARCS model file
     """
