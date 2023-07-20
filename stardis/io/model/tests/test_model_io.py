@@ -6,6 +6,8 @@ import numpy as np
 
 from importlib_resources import files
 
+from stardis.io.model.marcs import read_marcs_model
+
 
 @pytest.fixture
 def marcs_model_test_data_file_path():
@@ -18,8 +20,6 @@ def test_read_marcs_model_scaled_log_number_fraction(marcs_model_test_data_file_
     """
     Test reading a MARCS model file
     """
-    from stardis.io.model.marcs import read_marcs_model
-
     model = read_marcs_model(marcs_model_test_data_file_path)
 
     assert np.allclose(
@@ -29,8 +29,6 @@ def test_read_marcs_model_scaled_log_number_fraction(marcs_model_test_data_file_
 
 
 def test_read_marcs_model_metadata_surface_grav(marcs_model_test_data_file_path):
-    from stardis.io.model.marcs import read_marcs_model
-
     model = read_marcs_model(marcs_model_test_data_file_path)
 
     assert np.allclose(
@@ -40,8 +38,6 @@ def test_read_marcs_model_metadata_surface_grav(marcs_model_test_data_file_path)
 
 
 def test_read_marcs_model_metadata_x(marcs_model_test_data_file_path):
-    from stardis.io.model.marcs import read_marcs_model
-
     model = read_marcs_model(marcs_model_test_data_file_path)
 
     assert np.allclose(
@@ -51,8 +47,6 @@ def test_read_marcs_model_metadata_x(marcs_model_test_data_file_path):
 
 
 def test_read_marcs_model_data_depth(marcs_model_test_data_file_path):
-    from stardis.io.model.marcs import read_marcs_model
-
     model = read_marcs_model(marcs_model_test_data_file_path)
 
     assert np.allclose(
@@ -62,8 +56,6 @@ def test_read_marcs_model_data_depth(marcs_model_test_data_file_path):
 
 
 def test_read_marcs_model_data_lgtaur(marcs_model_test_data_file_path):
-    from stardis.io.model.marcs import read_marcs_model
-
     model = read_marcs_model(marcs_model_test_data_file_path)
 
     assert np.allclose(
