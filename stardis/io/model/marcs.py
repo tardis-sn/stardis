@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 from astropy import units as u
 import numpy as np
+from stardis.model.geometry.radial1d import Radial1DGeometry
 
 
 @dataclass
@@ -17,8 +18,19 @@ class MARCSModel(object):
     metadata: dict
     data: pd.DataFrame
 
+    def to_geometry(self):
+        """
+        Returns a stardis.model.geometry.radial1d.Radial1DGeometry object from the MARCS model.
 
-def read_marcs_metadata(fpath):
+        Returns
+        -------
+        stardis.model.geometry.radial1d.Radial1DGeometry
+        """
+        r = self.data.depth.values * u.cm
+        return Radial1DGeometry(r)
+
+
+def read_marcs_metadata(fpath, gzipped=True):
     """
     Grabs the metadata information from a gzipped MARCS model file and returns it in a python dictionary.
     Matches the metadata information and units using regex. Assumes file line structure of plane-parallel models.
@@ -85,15 +97,22 @@ def read_marcs_metadata(fpath):
     # Then add each of the matched patterns as a key:value pair to the metadata dict.
     metadata_re = [re.compile(re_str[0]) for re_str in METADATA_RE_STR]
     metadata = {}
-    with gzip.open(fpath, "rt") as file:
-        contents = file.readlines(BYTES_THROUGH_METADATA)
-        lines = [line for line in contents]
 
-        for i, line in enumerate(lines):
-            metadata_re_match = metadata_re[i].match(line)
+    if gzipped:
+        with gzip.open(fpath, "rt") as file:
+            contents = file.readlines(BYTES_THROUGH_METADATA)
 
-            for j, metadata_name in enumerate(METADATA_RE_STR[i][1:]):
-                metadata[metadata_name] = metadata_re_match.group(j + 1)
+    else:
+        with open(fpath, "rt") as file:
+            contents = file.readlines(BYTES_THROUGH_METADATA)
+
+    lines = [line for line in contents]
+
+    for i, line in enumerate(lines):
+        metadata_re_match = metadata_re[i].match(line)
+
+        for j, metadata_name in enumerate(METADATA_RE_STR[i][1:]):
+            metadata[metadata_name] = metadata_re_match.group(j + 1)
 
     # clean up metadata dictionary by changing strings of numbers to floats and attaching parsed units where appropriate
     keys_to_remove = []
@@ -111,7 +130,7 @@ def read_marcs_metadata(fpath):
     return metadata
 
 
-def read_marcs_data(fpath):
+def read_marcs_data(fpath, gzipped=True):
     """
     Parameters
     ----------
@@ -155,8 +174,12 @@ def read_marcs_data(fpath):
     )
     marcs_model_data.columns = [item.lower() for item in marcs_model_data.columns]
 
-    with gzip.open(fpath, "rt") as file:
-        contents = file.readlines(BYTES_THROUGH_ABUNDANCES)
+    if gzipped:
+        with gzip.open(fpath, "rt") as file:
+            contents = file.readlines(BYTES_THROUGH_ABUNDANCES)
+    else:
+        with open(fpath, "rt") as file:
+            contents = file.readlines(BYTES_THROUGH_ABUNDANCES)
 
     marcs_abundance_scale_str = " ".join(
         [
@@ -173,7 +196,7 @@ def read_marcs_data(fpath):
     return marcs_model_data
 
 
-def read_marcs_model(fpath):
+def read_marcs_model(fpath, gzipped=True):
     """
     Parameters
     ----------
@@ -185,7 +208,7 @@ def read_marcs_model(fpath):
     model : MARCSModel
         Assembled metadata and data pair of a MARCS model
     """
-    metadata = read_marcs_metadata(fpath)
-    data = read_marcs_data(fpath)
+    metadata = read_marcs_metadata(fpath, gzipped=gzipped)
+    data = read_marcs_data(fpath, gzipped=gzipped)
 
     return MARCSModel(metadata, data)
