@@ -22,10 +22,9 @@ the following in the terminal (replacing ``{platform}`` with either
 
 ::
 
-   $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
+   $ cd <path-to-stardis-directory>
    $ conda create --name stardis --file conda-{platform}-64.lock
    $ conda activate stardis
-   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
 
 The third command (``conda activate stardis``) activates the
 environment, which is necessary to install the pinned version of TARDIS
