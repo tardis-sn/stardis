@@ -205,7 +205,9 @@ def create_stellar_plasma(stellar_model, atom_data):
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
 
-    fv_geometry = stellar_model.fv_geometry
+    fv_geometry = (
+        stellar_model.fv_geometry
+    )  # None of this is actually geomoetry and should be passed some other way
 
     return BasePlasma(
         plasma_properties=plasma_modules,

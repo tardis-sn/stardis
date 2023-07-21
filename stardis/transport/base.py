@@ -64,6 +64,7 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
+# cell_length name should be changed with radial1d geometry name
 @numba.njit()
 def single_theta_trace(
     fv_geometry_cell_length,
@@ -151,12 +152,12 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
-    F_nu = np.zeros((len(stellar_model.fv_geometry) + 1, len(tracing_nus)))
+    F_nu = np.zeros(len(stellar_model.geometry, len(tracing_nus)))
 
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(
-            stellar_model.fv_geometry.cell_length.to_numpy(),
+            stellar_model.geometry.cell_length,
             stellar_model.boundary_temps,
             alphas,
             tracing_nus,
