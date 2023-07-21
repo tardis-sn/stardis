@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from astropy import units as u
 import numpy as np
 
-# from stardis.model.geometry.radial1d import Radial1DGeometry
+from stardis.model.geometry.radial1d import Radial1DGeometry
 
 
 @dataclass
@@ -19,16 +19,16 @@ class MARCSModel(object):
     metadata: dict
     data: pd.DataFrame
 
-    # def to_geometry(self):
-    #     """
-    #     Returns a stardis.model.geometry.radial1d.Radial1DGeometry object from the MARCS model.
+    def to_geometry(self):
+        """
+        Returns a stardis.model.geometry.radial1d.Radial1DGeometry object from the MARCS model.
 
-    #     Returns
-    #     -------
-    #     stardis.model.geometry.radial1d.Radial1DGeometry
-    #     """
-    #     r = self.data.depth.values * u.cm
-    #     return Radial1DGeometry(r)
+        Returns
+        -------
+        stardis.model.geometry.radial1d.Radial1DGeometry
+        """
+        r = self.data.depth.values * u.cm
+        return Radial1DGeometry(r)
 
 
 def read_marcs_metadata(fpath, gzipped=True):
