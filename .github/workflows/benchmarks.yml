@@ -100,7 +100,7 @@ jobs:
         if: github.event_name != 'pull_request_target'
         run: rm -r .asv/env #Delete env from prev run if not PR
 
-      - name: Create results html on dest repo
+      - name: Push results to dest repo
         if: github.event_name != 'pull_request_target'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
