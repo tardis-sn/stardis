@@ -107,25 +107,10 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
         with:
-          source-directory: ".asv/html"
+          source-directory: ".asv"
           destination-github-username: "tardis-sn"
-          destination-repository-name: "stardis-benchmarks"
           user.email: tardis.sn.bot@gmail.com
           target-branch: main
-
-      - name: Push misc data to dest repo
-        if: github.event_name != 'pull_request_target'
-        continue-on-error: true
-        uses: cpina/github-action-push-to-another-repository@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
-        with:
-          source-directory: ".asv/results"
-          destination-github-username: "tardis-sn"
-          destination-repository-name: "stardis-benchmarks"
-          user.email: tardis.sn.bot@gmail.com
-          target-branch: main
-          target-directory: "misc"
 
       - name: Compare HEAD with main if PR
         if: github.event_name == 'pull_request_target'
