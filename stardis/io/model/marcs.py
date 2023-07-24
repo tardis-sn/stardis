@@ -229,3 +229,83 @@ def read_marcs_model(fpath, gzipped=True):
     data = read_marcs_data(fpath, gzipped=gzipped)
 
     return MARCSModel(metadata, data)
+
+
+#THIS SHOULD NOT BE USED. JUST HERE TO SHOW WHAT STELLAR MODEL WILL LOOK LIKE 
+class StellarModel:
+    """
+    Class containing information about the stellar model.
+
+    Parameters
+    ----------
+    geometry : pandas.core.frame.DataFrame
+    chemical_mass_fractions : pandas.core.frame.DataFrame
+
+    Attributes
+    ----------
+    geometry : pandas.core.frame.DataFrame
+        Finite difference model DataFrame.
+    chemical_mass_fractions : pandas.core.frame.DataFrame
+        Chemical mass fraction DataFrame with all included elements and chemical_mass_fractions.
+    """
+
+    def __init__(self, geometry, chemical_mass_fractions):
+        self.geometry = geometry
+        self.chemical_mass_fractions = chemical_mass_fractions
+
+
+def raw_marcs_to_stellar_model(raw_marcs_model, atom_data, final_atomic_number=30, chemical_mass_fractions=None):
+    """
+    Reads MARCS model and produces a finite difference model.
+
+    Parameters
+    ----------
+    fpath : str
+        The filepath to the MARCS model.
+    atom_data : tardis.io.atom_data.base.AtomData
+    final_atomic_number : int, optional
+        Atomic number for the final element included in the model. Default
+        is 30.
+
+    Returns
+    -------
+    stardis.model.base.StellarModel
+    """
+
+    marcs_model = raw_marcs_model.data.copy()
+    marcs_model["tau_ref"] = 10 ** marcs_model["lgtaur"]
+    marcs_model["tau_500"] = 10 ** marcs_model["lgtau5"]
+
+    #NOTE: abundance_scale is now scaled_log_number_[element_number] and formatted by shell
+    if chemical_mass_fractions == None:
+        logging.warning('No abundance profile specified. Assuming uniform provided by the MARCS model file.')
+        marcs_chemical_mass_fractions = marcs_model.filter(regex='scaled_log_number').copy()
+    
+    if atom_data.atom_data.index.max() < final_atomic_number:
+        if len(marcs_chemical_mass_fractions.columns) > atom_data.atom_data.index.max():
+            logging.warning(f'Final model chemical number is {len(marcs_achemical_mass_fractions.columns)} while final atom data chemical number is {atom_data.atom_data.index.max()} and final atomic number requested is {final_atomic_number}.')
+
+    for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
+        if atom_num >= len(atom_data.atom_data):
+            marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = np.nan
+        else:
+            marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = (10 ** marcs_chemical_mass_fractions[col]) * atom_data.atom_data.mass.iloc[atom_num] 
+        
+
+    marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] / marcs_chemical_mass_fractions.filter(regex='mass_fraction').sum(axis=1)
+
+    #Remove scaled log number columns - leaves only masses
+    dropped_cols = [c for c in marcs_chemical_mass_fractions.columns if 'scaled_log_number' in c]
+    marcs_chemical_mass_fractions.drop(columns=dropped_cols, inplace=True)
+    
+    #Divide by sum to leave mass densities
+    marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.div(marcs_chemical_mass_fractions.sum(axis=1), axis=0)
+    marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.iloc[:, : final_atomic_number]
+
+    marcs_model = marcs_model[['tau_ref', 'tau_500', 'depth', 't', 'density']]
+    marcs_model = marcs_model[::-1]
+
+    marcs_chemical_mass_fractions = marcs_chemical_mass_fractions[::-1]
+
+
+    return StellarModel(marcs_model, marcs_chemical_mass_fractions)
