@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Running the Code &mdash; stardis 0.1.dev1+g60df53a documentation</title>
+  <title>Running the Code &mdash; stardis 0.1.dev1+g58b9a4c documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -100,7 +100,7 @@ array of astropy quantities.</p>
 <section id="the-stardis-configuration">
 <h2>The STARDIS Configuration<a class="headerlink" href="#the-stardis-configuration" title="Permalink to this heading"></a></h2>
 <p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration.
-The <a class="reference internal" href="quickstart/quickstart.html"><span class="doc">quickstart notebook</span></a> uses an example configuration called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code>.
+The <a class="reference internal" href="quickstart/quickstart.html"><span class="doc">Quickstart notebook</span></a> uses an example configuration called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code>, which can be found <a class="reference external" href="https://github.com/tardis-sn/stardis/tree/main/docs/quickstart">here</a>, along with any other files from the Quickstart.
 Below, we present an example for instructions for customizing the
 configuration for your needs.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
@@ -137,8 +137,14 @@ configuration for your needs.</p>
 the form <code class="docutils literal notranslate"><span class="pre">&lt;atomic</span> <span class="pre">symbol&gt;_&lt;ionization</span> <span class="pre">roman</span> <span class="pre">numeral&gt;</span></code>. For example,
 <code class="docutils literal notranslate"><span class="pre">H_I</span></code> for neutral hydrogen, or <code class="docutils literal notranslate"><span class="pre">Si_III</span></code> for twice-ionized silicon.</p>
 <p>Additionally, in the opacity file section, the following entries are
-valid: - <code class="docutils literal notranslate"><span class="pre">Hminus_bf</span></code> - <code class="docutils literal notranslate"><span class="pre">Hminus_ff</span></code> - <code class="docutils literal notranslate"><span class="pre">Heminus_ff</span></code> - <code class="docutils literal notranslate"><span class="pre">H2minus_ff</span></code>
-- <code class="docutils literal notranslate"><span class="pre">H2plus_ff</span></code></p>
+valid:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Hminus_bf</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hminus_ff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Heminus_ff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H2minus_ff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H2plus_ff</span></code></p></li>
+</ul>
 </section>
 <section id="opacity-file-format">
 <h2>Opacity File Format<a class="headerlink" href="#opacity-file-format" title="Permalink to this heading"></a></h2>
@@ -161,8 +167,8 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 </pre></div>
 </div>
 <p>Note the leading comma in the latter format. Temperatures must be in
-Kelvin, wavelengths in Angstroms, and cross-sections in cm^2 for
-bound-free or cm^5 for free-free (once again because free-free opacity
+Kelvin, wavelengths in Angstroms, and cross-sections in cm<sup>2</sup> for
+bound-free or cm<sup>5</sup> for free-free (once again because free-free opacity
 files provide the cross-section per electron density).</p>
 </section>
 </section>
