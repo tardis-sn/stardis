@@ -21,8 +21,27 @@ def test_faddeeva_sample_values(
     )
 
 
-@pytest.mark.parametrize("voigt_profile_division_by_zero_input_delta_nu", range(11))
-@pytest.mark.parametrize("voigt_profile_division_by_zero_input_gamma", range(11))
+test_voigt_profile_division_by_zero_test_values = [
+    -100,
+    -5,
+    -1,
+    0,
+    0.0,
+    1j,
+    1.2,
+    3,
+    100,
+]
+
+
+@pytest.mark.parametrize(
+    "voigt_profile_division_by_zero_input_delta_nu",
+    test_voigt_profile_division_by_zero_test_values,
+)
+@pytest.mark.parametrize(
+    "voigt_profile_division_by_zero_input_gamma",
+    test_voigt_profile_division_by_zero_test_values,
+)
 def test_voigt_profile_division_by_zero(
     voigt_profile_division_by_zero_input_delta_nu,
     voigt_profile_division_by_zero_input_gamma,
