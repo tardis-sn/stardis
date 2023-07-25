@@ -6,6 +6,7 @@ from astropy import units as u
 import numpy as np
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
+from stardis.model.composition.base import Composition
 
 
 @dataclass
@@ -29,6 +30,20 @@ class MARCSModel(object):
         """
         r = self.data.depth.values * u.cm
         return Radial1DGeometry(r)
+
+    def to_composition(self):
+        """
+        Returns a stardis.model.composition.base.Composition object from the MARCS model.
+
+        Returns
+        -------
+        stardis.model.composition.base.Composition
+        """
+        density = self.data.density.values * u.g / u.cm**3
+        atomic_mass_fraction = self.data[
+            [f"scaled_log_number_fraction_{i+1}" for i in range(30)]
+        ].values
+        return Composition(density, atomic_mass_fraction)
 
 
 def read_marcs_metadata(fpath, gzipped=True):
