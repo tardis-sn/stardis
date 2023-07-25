@@ -40,6 +40,7 @@ class MARCSModel(object):
         stardis.model.composition.base.Composition
         """
         density = self.data.density.values * u.g / u.cm**3
+        # THIS IS VERY WRONG. NEEDS TO BE FIXED WITH WORK FROM THE MASS FRACTION BRANCH
         atomic_mass_fraction = self.data[
             [f"scaled_log_number_fraction_{i+1}" for i in range(30)]
         ].values
