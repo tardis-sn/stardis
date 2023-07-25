@@ -31,20 +31,19 @@ class MARCSModel(object):
         r = self.data.depth.values * u.cm
         return Radial1DGeometry(r)
 
-    # def to_composition(self):
-    #     """
-    #     Returns a stardis.model.composition.base.Composition object from the MARCS model.
+    def to_composition(self):
+        """
+        Returns a stardis.model.composition.base.Composition object from the MARCS model.
 
-    #     Returns
-    #     -------
-    #     stardis.model.composition.base.Composition
-    #     """
-    #     density = self.data.density.values * u.g / u.cm**3
-    #     # THIS IS VERY WRONG. NEEDS TO BE FIXED WITH WORK FROM THE MASS FRACTION BRANCH
-    #     atomic_mass_fraction = self.data[
-    #         [f"scaled_log_number_fraction_{i+1}" for i in range(30)]
-    #     ].values
-    #     return Composition(density, atomic_mass_fraction)
+        Returns
+        -------
+        stardis.model.composition.base.Composition
+        """
+        density = self.data.density.values * u.g / u.cm**3
+        atomic_mass_fraction = self.data[
+            [f"scaled_log_number_fraction_{i+1}" for i in range(30)]
+        ].values
+        return Composition(density, atomic_mass_fraction)
 
 
 def read_marcs_metadata(fpath, gzipped=True):
