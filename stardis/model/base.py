@@ -14,6 +14,7 @@ class StellarModel:
     fv_geometry : pandas.core.frame.DataFrame
     abundances : pandas.core.frame.DataFrame
     boundary_temps : numpy.ndarray
+    geometry : stardis.model.geometry
 
     Attributes
     ----------
@@ -23,6 +24,8 @@ class StellarModel:
         Abundance DataFrame with all included elements and mass abundances.
     boundary_temps : numpy.ndarray
         Temperatures in K of all shell boundaries. Note that array is transposed.
+    geometry : stardis.model.geometry
+        Geometry of the model.
     """
 
     def __init__(self, fv_geometry, abundances, boundary_temps, geometry):
