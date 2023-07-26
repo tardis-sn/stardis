@@ -5,9 +5,9 @@ class Composition:
     Parameters
     ----------
     density : astropy.units.quantity.Quantity
-        Density of the plasma
+        Density of the plasma at each depth point
     atomic_mass_fraction : pandas.core.frame.DataFrame
-        Mass fraction of each element
+        Mass fraction of each element at each depth point
 
 
 
