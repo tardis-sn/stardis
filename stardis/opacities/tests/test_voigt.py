@@ -2,6 +2,8 @@ import pytest
 from numpy import allclose, pi as PI
 from math import sqrt
 
+from stardis.opacities.voigt import faddeeva, voigt_profile
+
 
 @pytest.mark.parametrize(
     "faddeeva_sample_values_input, faddeeva_sample_values_expected_result",
@@ -13,8 +15,6 @@ from math import sqrt
 def test_faddeeva_sample_values(
     faddeeva_sample_values_input, faddeeva_sample_values_expected_result
 ):
-    from stardis.opacities.voigt import faddeeva
-
     assert allclose(
         faddeeva(faddeeva_sample_values_input),
         faddeeva_sample_values_expected_result,
@@ -46,8 +46,6 @@ def test_voigt_profile_division_by_zero(
     voigt_profile_division_by_zero_input_delta_nu,
     voigt_profile_division_by_zero_input_gamma,
 ):
-    from stardis.opacities.voigt import voigt_profile
-
     with pytest.raises(ZeroDivisionError):
         _ = voigt_profile(
             voigt_profile_division_by_zero_input_delta_nu,
@@ -69,8 +67,6 @@ def test_voigt_profile_sample_values_sample_values(
     voigt_profile_sample_values_input_gamma,
     voigt_profile_sample_values_expected_result,
 ):
-    from stardis.opacities.voigt import voigt_profile
-
     assert allclose(
         voigt_profile(
             voigt_profile_sample_values_input_delta_nu,
