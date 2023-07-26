@@ -11,7 +11,7 @@ Setting Up the Environment
 .. note::
    * STARDIS is only supported on macOS and GNU/Linux. Windows users can run STARDIS on a virtual machine.
 
-   * STARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`__ package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__ by default. Other distributions are untested.
+   * STARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`__ package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__ or `Mamba <https://mamba.readthedocs.io/en/latest/installation.html>`__ by default. Other distributions are untested.
 
 STARDIS uses exclusively the packages in the TARDIS enviroment, as well
 as using the TARDIS code itself. However, since STARDIS can be sensitive
@@ -22,23 +22,39 @@ the following in the terminal (replacing ``{platform}`` with either
 
 ::
 
-   $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
+   $ cd <path-to-stardis-directory>
    $ conda create --name stardis --file conda-{platform}-64.lock
    $ conda activate stardis
-   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
 
 The third command (``conda activate stardis``) activates the
-environment, which is necessary to install the pinned version of TARDIS
-to your STARDIS environment.
+environment, which is necessary to correctly install STARDIS using the directions below.
 
-Downloading STARDIS
--------------------
+If you are using Mamba, the steps are similar:
+
+::
+
+   $ cd <path-to-stardis-directory>
+   $ mamba create --name stardis --file conda-{platform}-64.lock
+   $ mamba activate stardis
+   
+Downloading and Installing STARDIS
+----------------------------------
+
+For Non-Developers
+^^^^^^^^^^^^^^^^^^
 
 STARDIS can be downloaded by **non-developers** by running
-``$ pip install git+https://github.com/tardis-sn/stardis.git@main`` in
-the terminal while in your STARDIS environment.
 
-**Developers** must instead clone and fork the STARDIS repository.
+::
+   
+   $ pip install git+https://github.com/tardis-sn/stardis.git@main
+
+in the terminal with your STARDIS environment activated.
+
+For Developers
+^^^^^^^^^^^^^^
+
+Developers should fork and clone the STARDIS repository.
 First, `fork the
 repository <https://github.com/tardis-sn/stardis/fork>`__ and `configure
 GitHub to work with SSH

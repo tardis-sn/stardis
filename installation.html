@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloading and Installation &mdash; stardis 0.1.dev1+g306c451 documentation</title>
+  <title>Downloading and Installation &mdash; stardis 0.1.dev1+gea93b48 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -13,8 +13,6 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -51,7 +49,11 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Downloading and Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-environment">Setting Up the Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#downloading-stardis">Downloading STARDIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#downloading-and-installing-stardis">Downloading and Installing STARDIS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#for-non-developers">For Non-Developers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#for-developers">For Developers</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="physics/physics_of_stardis.html">Physics of STARDIS</a></li>
@@ -91,7 +93,7 @@
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>STARDIS is only supported on macOS and GNU/Linux. Windows users can run STARDIS on a virtual machine.</p></li>
-<li><p>STARDIS packages and dependencies are distributed only through the <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Miniconda</a> by default. Other distributions are untested.</p></li>
+<li><p>STARDIS packages and dependencies are distributed only through the <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Miniconda</a> or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation.html">Mamba</a> by default. Other distributions are untested.</p></li>
 </ul>
 </div>
 <p>STARDIS uses exclusively the packages in the TARDIS enviroment, as well
@@ -100,22 +102,33 @@ to changes in TARDIS, we strongly suggest that users create a separate
 environment for STARDIS that pins the TARDIS version. To do this, run
 the following in the terminal (replacing <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with either
 <code class="docutils literal notranslate"><span class="pre">linux</span></code> or <code class="docutils literal notranslate"><span class="pre">osx</span></code> as applicable):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd &lt;path-to-stardis-directory&gt;
 $ conda create --name stardis --file conda-{platform}-64.lock
 $ conda activate stardis
-$ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
 </pre></div>
 </div>
 <p>The third command (<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">stardis</span></code>) activates the
-environment, which is necessary to install the pinned version of TARDIS
-to your STARDIS environment.</p>
+environment, which is necessary to correctly install STARDIS using the directions below.</p>
+<p>If you are using Mamba, the steps are similar:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd &lt;path-to-stardis-directory&gt;
+$ mamba create --name stardis --file conda-{platform}-64.lock
+$ mamba activate stardis
+</pre></div>
+</div>
 </section>
-<section id="downloading-stardis">
-<h2>Downloading STARDIS<a class="headerlink" href="#downloading-stardis" title="Permalink to this heading"></a></h2>
-<p>STARDIS can be downloaded by <strong>non-developers</strong> by running
-<code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/tardis-sn/stardis.git&#64;main</span></code> in
-the terminal while in your STARDIS environment.</p>
-<p><strong>Developers</strong> must instead clone and fork the STARDIS repository.
+<section id="downloading-and-installing-stardis">
+<h2>Downloading and Installing STARDIS<a class="headerlink" href="#downloading-and-installing-stardis" title="Permalink to this heading"></a></h2>
+<section id="for-non-developers">
+<h3>For Non-Developers<a class="headerlink" href="#for-non-developers" title="Permalink to this heading"></a></h3>
+<p>STARDIS can be downloaded by <strong>non-developers</strong> by running</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://github.com/tardis-sn/stardis.git@main
+</pre></div>
+</div>
+<p>in the terminal with your STARDIS environment activated.</p>
+</section>
+<section id="for-developers">
+<h3>For Developers<a class="headerlink" href="#for-developers" title="Permalink to this heading"></a></h3>
+<p>Developers should fork and clone the STARDIS repository.
 First, <a class="reference external" href="https://github.com/tardis-sn/stardis/fork">fork the
 repository</a> and <a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">configure
 GitHub to work with SSH
@@ -129,6 +142,7 @@ $ git checkout upstream/main
 $ python setup.py develop
 </pre></div>
 </div>
+</section>
 </section>
 </section>
 
