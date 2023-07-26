@@ -153,7 +153,7 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
-    F_nu = np.zeros(len(stellar_model.geometry, len(tracing_nus)))
+    F_nu = np.zeros((len(stellar_model.geometry.r), len(tracing_nus)))
 
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)

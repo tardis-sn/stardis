@@ -17,7 +17,7 @@ The STARDIS Configuration
 -------------------------
 
 STARDIS uses `YAML <https://yaml.org/>`__ files for the configuration.
-The `quickstart notebook <quickstart/quickstart.ipynb>`__ uses an example configuration called ``stardis_example.yml``.
+The `Quickstart notebook <quickstart/quickstart.ipynb>`__ uses an example configuration called ``stardis_example.yml``, which can be found `here <https://github.com/tardis-sn/stardis/tree/main/docs/quickstart>`__, along with any other files from the Quickstart.
 Below, we present an example for instructions for customizing the
 configuration for your needs.
 
@@ -57,8 +57,13 @@ the form ``<atomic symbol>_<ionization roman numeral>``. For example,
 ``H_I`` for neutral hydrogen, or ``Si_III`` for twice-ionized silicon.
 
 Additionally, in the opacity file section, the following entries are
-valid: - ``Hminus_bf`` - ``Hminus_ff`` - ``Heminus_ff`` - ``H2minus_ff``
-- ``H2plus_ff``
+valid:
+
+* ``Hminus_bf``
+* ``Hminus_ff``
+* ``Heminus_ff``
+* ``H2minus_ff``
+* ``H2plus_ff``
 
 Opacity File Format
 -------------------
@@ -86,6 +91,6 @@ or
    ...
 
 Note the leading comma in the latter format. Temperatures must be in
-Kelvin, wavelengths in Angstroms, and cross-sections in cm^2 for
-bound-free or cm^5 for free-free (once again because free-free opacity
+Kelvin, wavelengths in Angstroms, and cross-sections in cm\ :sup:`2`\  for
+bound-free or cm\ :sup:`5`\  for free-free (once again because free-free opacity
 files provide the cross-section per electron density).
