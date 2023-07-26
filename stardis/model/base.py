@@ -59,6 +59,7 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
     marcs_raw_model = read_marcs_model(fpath, gzipped=False)
     geometry = marcs_raw_model.to_geometry()
     # composition = marcs_raw_model.to_composition()
+    composition = None
 
     marcs_model1 = pd.read_csv(
         fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
