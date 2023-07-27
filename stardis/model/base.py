@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-from astropy import units as u, constants as const
 from stardis.io.model.marcs import read_marcs_model
 
 
@@ -15,6 +14,7 @@ class StellarModel:
     abundances : pandas.core.frame.DataFrame
     boundary_temps : numpy.ndarray
     geometry : stardis.model.geometry
+    composition : stardis.model.composition.base.Composition
 
     Attributes
     ----------
@@ -26,13 +26,16 @@ class StellarModel:
         Temperatures in K of all shell boundaries. Note that array is transposed.
     geometry : stardis.model.geometry
         Geometry of the model.
+    composition : stardis.model.composition.base.Composition
+        Composition of the model. Includes density and atomic mass fractions.
     """
 
-    def __init__(self, fv_geometry, abundances, boundary_temps, geometry):
+    def __init__(self, fv_geometry, abundances, boundary_temps, geometry, composition):
         self.fv_geometry = fv_geometry
         self.abundances = abundances
         self.boundary_temps = boundary_temps
         self.geometry = geometry
+        self.composition = composition
 
 
 def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
@@ -55,6 +58,8 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
 
     marcs_raw_model = read_marcs_model(fpath, gzipped=False)
     geometry = marcs_raw_model.to_geometry()
+    # composition = marcs_raw_model.to_composition()
+    composition = None
 
     marcs_model1 = pd.read_csv(
         fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"
@@ -110,4 +115,6 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
         marcs_abundances_all[i] = marcs_abundances["mass_abundance"]
     marcs_abundances_all = marcs_abundances_all[:final_atomic_number]
 
-    return StellarModel(marcs_model_fv, marcs_abundances_all, boundary_temps, geometry)
+    return StellarModel(
+        marcs_model_fv, marcs_abundances_all, boundary_temps, geometry, composition
+    )
