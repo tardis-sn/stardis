@@ -10,7 +10,6 @@ import logging
 from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.composition.base import Composition
 
-# This import creates a circular import error.
 from stardis.model.base import StellarModel
 
 
