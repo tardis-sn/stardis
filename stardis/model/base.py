@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 
-from stardis.io.model.marcs import read_marcs_model
-
 
 class StellarModel:
     """
@@ -56,10 +54,14 @@ def read_marcs_to_fv(fpath, atom_data, final_atomic_number=30):
     stardis.model.base.StellarModel
     """
 
+    # This is a hacky workaround to avoid circular imports. Should be fixed when we remove the read_marcs_to_fv function.
+    from stardis.io.model.marcs import read_marcs_model
+
     marcs_raw_model = read_marcs_model(fpath, gzipped=False)
     geometry = marcs_raw_model.to_geometry()
-    # composition = marcs_raw_model.to_composition()
-    composition = None
+    composition = marcs_raw_model.to_composition(
+        atom_data=atom_data, final_atomic_number=final_atomic_number
+    )
 
     marcs_model1 = pd.read_csv(
         fpath, skiprows=24, nrows=56, delim_whitespace=True, index_col="k"

@@ -9,6 +9,8 @@ import logging
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.composition.base import Composition
+
+# This import creates a circular import error.
 from stardis.model.base import StellarModel
 
 
@@ -44,7 +46,7 @@ class MARCSModel(object):
         """
         density = self.data.density.values * u.g / u.cm**3
         atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
-            self, atom_data, final_atomic_number=final_atomic_number
+            atom_data, final_atomic_number
         )
         return Composition(density, atomic_mass_fraction)
 
@@ -100,9 +102,7 @@ class MARCSModel(object):
 
         return marcs_chemical_mass_fractions
 
-    def to_stellar_model(
-        self, atom_data, final_atomic_number=30, chemical_mass_fractions=None
-    ):
+    def to_stellar_model(self, atom_data, final_atomic_number=30):
         """
         Produces a stellar model readable by stardis.
 
@@ -121,9 +121,8 @@ class MARCSModel(object):
         marcs_composition = self.to_composition(
             atom_data=atom_data, final_atomic_number=final_atomic_number
         )
-        temperatures = (
-            self.data.t.values * u.K
-        )  # This is a placeholder to carry temps for now
+        temperatures = self.data.t.values * u.K
+        # This is a placeholder to carry temps for now - Needed to pass into plasma and eventual also radiation field.
         # stellar model should have fv_geometry, abundances, boundary temps, geometry, composition for now
         return StellarModel(None, None, temperatures, marcs_geometry, marcs_composition)
 
