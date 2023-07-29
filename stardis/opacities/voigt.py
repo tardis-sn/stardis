@@ -74,6 +74,15 @@ def faddeeva(z):
     return w
 
 
+@cuda.jit
+def faddeeva_cuda(res, z):
+    tid = cuda.grid(1)
+    size = len(z)
+
+    if tid < size:
+        res[tid] = faddeeva(z[tid])
+
+
 @numba.njit
 def voigt_profile(delta_nu, doppler_width, gamma):
     """
