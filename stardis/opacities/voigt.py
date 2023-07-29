@@ -1,5 +1,6 @@
 import numpy as np
 import numba
+from numba import cuda
 
 
 @numba.njit
