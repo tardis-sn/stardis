@@ -30,7 +30,7 @@ def test_faddeeva_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "faddeeva_sample_values_input, faddeeva_sample_values_expected_result",
+    "faddeeva_cuda_sample_values_input, faddeeva_cuda_sample_values_expected_result",
     [
         # (0, 1 + 0j),
         # (0.0, 1.0 + 0.0j),
@@ -39,18 +39,18 @@ def test_faddeeva_sample_values(
     ],
 )
 def test_faddeeva_cuda_sample_values(
-    faddeeva_sample_values_input, faddeeva_sample_values_expected_result
+    faddeeva_cuda_sample_values_input, faddeeva_cuda_sample_values_expected_result
 ):
-    test_values = cuda.to_device(faddeeva_sample_values_input)
+    test_values = cuda.to_device(faddeeva_cuda_sample_values_input)
     result_values = cuda.device_array_like(test_values)
 
-    length = len(faddeeva_sample_values_input)
+    length = len(faddeeva_cuda_sample_values_input)
 
     faddeeva_cuda.forall(length)(result_values, test_values)
 
     assert np.allclose(
         result_values.copy_to_host(),
-        faddeeva_sample_values_expected_result,
+        faddeeva_cuda_sample_values_expected_result,
     )
 
 
