@@ -83,12 +83,21 @@ def faddeeva(z):
 
 
 @cuda.jit
-def faddeeva_cuda(res, z):
+def _faddeeva_cuda(res, z):
     tid = cuda.grid(1)
     size = len(z)
 
     if tid < size:
         res[tid] = _faddeeva(z[tid])
+
+
+def faddeeva_cuda(z):
+    size = len(z)
+    z = z.astype(complex)
+    res = cuda.device_array_like(z)
+
+    _faddeeva_cuda.forall(size)(res, z)
+    return res.copy_to_host()
 
 
 @numba.njit
