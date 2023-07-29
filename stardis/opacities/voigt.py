@@ -2,6 +2,8 @@ import numpy as np
 import numba
 from numba import cuda
 
+SQRT_PI = np.sqrt(np.pi)
+
 
 @numba.njit
 def faddeeva(z):
@@ -21,13 +23,13 @@ def faddeeva(z):
 
     if s > 15.0:
         # region I
-        w = 1j * 1 / np.sqrt(np.pi) * z / (z**2 - 0.5)
+        w = 1j * 1 / SQRT_PI * z / (z**2 - 0.5)
 
     elif s > 5.5:
         # region II
         w = (
             1j
-            * (z * (z**2 * 1 / np.sqrt(np.pi) - 1.4104739589))
+            * (z * (z**2 * 1 / SQRT_PI - 1.4104739589))
             / (0.75 + z**2 * (z**2 - 3.0))
         )
 
@@ -105,5 +107,5 @@ def voigt_profile(delta_nu, doppler_width, gamma):
         Value of Voigt profile.
     """
     z = (delta_nu + (gamma / (4 * np.pi)) * 1j) / doppler_width
-    phi = np.real(faddeeva(z)) / (np.sqrt(np.pi) * doppler_width)
+    phi = np.real(faddeeva(z)) / (SQRT_PI * doppler_width)
     return phi
