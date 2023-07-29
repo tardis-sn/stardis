@@ -1,13 +1,13 @@
 import numpy as np
 import numba
 from numba import cuda
+import cmath
 
 SQRT_PI = np.sqrt(np.pi)
 
 
-# @numba.njit
-@numba.vectorize(nopython=True)
-def faddeeva(z):
+@numba.njit()
+def _faddeeva(z):
     """
     The Faddeeva function. Code adapted from
     https://github.com/tiagopereira/Transparency.jl/blob/966fb46c21/src/voigt.jl#L13.
@@ -20,7 +20,7 @@ def faddeeva(z):
     -------
     w : complex
     """
-    s = abs(np.real(z)) + np.imag(z)
+    s = abs(z.real) + z.imag
 
     if s > 15.0:
         # region I
@@ -35,8 +35,8 @@ def faddeeva(z):
         )
 
     else:
-        x = np.real(z)
-        y = np.imag(z)
+        x = z.real
+        y = z.imag
         t = y - 1j * x
 
         if y >= 0.195 * abs(x) - 0.176:
@@ -72,9 +72,14 @@ def faddeeva(z):
                     - u * (2186.18 - u * (364.219 - u * (61.5704 - u * (1.84144 - u))))
                 )
             )
-            w = np.exp(u) - numerator / denominantor
+            w = cmath.exp(u) - numerator / denominantor
 
     return w
+
+
+@numba.vectorize
+def faddeeva(z):
+    return _faddeeva(z)
 
 
 @cuda.jit
@@ -83,7 +88,7 @@ def faddeeva_cuda(res, z):
     size = len(z)
 
     if tid < size:
-        res[tid] = faddeeva(z[tid])
+        res[tid] = _faddeeva(z[tid])
 
 
 @numba.njit
