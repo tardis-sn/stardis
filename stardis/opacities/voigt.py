@@ -5,7 +5,8 @@ from numba import cuda
 SQRT_PI = np.sqrt(np.pi)
 
 
-@numba.njit
+# @numba.njit
+@numba.vectorize(nopython=True)
 def faddeeva(z):
     """
     The Faddeeva function. Code adapted from
