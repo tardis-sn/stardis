@@ -70,6 +70,14 @@ def test_faddeeva_cuda_unwrapped_sample_values(
         # (0.0, 1.0 + 0.0j),
         (np.array([0.0]), np.array([1.0 + 0.0j])),
         (np.array([0, 0]), np.array([1 + 0j, 1 + 0j])),
+        (
+            cuda.device_array_like(np.array([0, 0], dtype=complex)),
+            np.array([1 + 0j, 1 + 0j]),
+        ),
+        # (
+        #     cuda.device_array_like(np.array([0, 0], dtype=float)),
+        #     np.array([1 + 0j, 1 + 0j]),
+        # ),
     ],
 )
 def test_faddeeva_cuda_wrapped_sample_values(
@@ -80,6 +88,23 @@ def test_faddeeva_cuda_wrapped_sample_values(
         faddeeva_cuda(faddeeva_cuda_wrapped_sample_values_input),
         faddeeva_cuda_wrapped_sample_values_expected_result,
     )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "faddeeva_cuda_wrapped_noncomplex_input_input",
+    [
+        cuda.device_array_like(np.array([0, 0], dtype=int)),
+        cuda.device_array_like(np.array([0, 0], dtype=float)),
+    ],
+)
+def test_faddeeva_cuda_wrapped_noncomplex_input(
+    faddeeva_cuda_wrapped_noncomplex_input_input,
+):
+    with pytest.raises(TypeError):
+        _ = faddeeva_cuda(faddeeva_cuda_wrapped_noncomplex_input_input)
 
 
 test_voigt_profile_division_by_zero_test_values = [

@@ -93,7 +93,12 @@ def _faddeeva_cuda(res, z):
 
 def faddeeva_cuda(z):
     size = len(z)
-    z = z.astype(complex)
+    if hasattr(z, "astype"):
+        z = z.astype(complex)
+    if not np.iscomplexobj(z):
+        raise TypeError(
+            f"Faddeeva with cuda only works with complex arguments. Expected any complex datatyep and instead got {z.dtype}."
+        )
     res = cuda.device_array_like(z)
 
     _faddeeva_cuda.forall(size)(res, z)
