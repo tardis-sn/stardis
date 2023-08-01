@@ -1,23 +1,23 @@
 class Radial1DGeometry:
 
     """
-    Holds information about model geometry for radial 1D models.
+    Holds information about model geometry (distribution of depth points) for radial 1D models.
 
     Parameters
     ----------
     r : astropy.units.quantity.Quantity
+        The spacial coordinate of the depth point
     ----------
 
     Attributes
     ----------
-    cell_length : astropy.units.quantity.Quantity
-        Length in each shell
+    dist_to_next_depth_point : astropy.units.quantity.Quantity
+        distance to the next depth point
     """
 
     def __init__(self, r):
         self.r = r
 
     @property
-    def cell_length(self):
-        # NEED TO CHANGE THE NAME!!
+    def dist_to_next_depth_point(self):
         return self.r[1:] - self.r[:-1]

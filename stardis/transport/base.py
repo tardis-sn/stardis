@@ -64,10 +64,9 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
-# cell_length name should be changed with radial1d geometry name
 @numba.njit()
 def single_theta_trace(
-    fv_geometry_cell_length,
+    geometry_dist_to_next_depth_point,
     boundary_temps,
     alphas,
     tracing_nus,
@@ -78,8 +77,8 @@ def single_theta_trace(
 
     Parameters
     ----------
-    fv_geometry_cell_length : numpy.ndarray
-        Cell length column as a numpy array from the finite volume model.
+    geometry_dist_to_next_depth_point : numpy.ndarray
+        Distance to next depth point in geometry column as a numpy array from the finite volume model.
     boundary_temps : numpy.ndarray
         Temperatures in K of all shell boundaries. Note that array must
         be transposed.
@@ -98,17 +97,19 @@ def single_theta_trace(
         intensity at each shell boundary for each frequency in tracing_nus.
     """
 
-    taus = alphas.T * fv_geometry_cell_length / np.cos(theta)
-    no_of_shells = len(fv_geometry_cell_length)
+    taus = alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
+    no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
     bb = bb_nu(tracing_nus, boundary_temps)
     source = bb[1:]
-    delta_source = bb[1:] - bb[:-1]  # for cells, not boundary
-    I_nu_theta = np.ones((no_of_shells + 1, len(tracing_nus))) * -99
+    delta_source = (
+        bb[1:] - bb[:-1]
+    )  # for cells, not boundary - IS WRONG BUT SHOULD BE FIXED LATER
+    I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * -99
     I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
-        for j in range(no_of_shells):  # iterating over cells/shells (rows)
+        for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
             curr_tau = taus[i, j]
 
             w0, w1 = calc_weights(curr_tau)
@@ -152,12 +153,12 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
-    F_nu = np.zeros(len(stellar_model.geometry, len(tracing_nus)))
+    F_nu = np.zeros((len(stellar_model.geometry.r), len(tracing_nus)))
 
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(
-            stellar_model.geometry.cell_length,
+            stellar_model.geometry.dist_to_next_depth_point,
             stellar_model.boundary_temps,
             alphas,
             tracing_nus,
