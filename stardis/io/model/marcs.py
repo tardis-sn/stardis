@@ -79,16 +79,6 @@ class MARCSModel(object):
                     10 ** marcs_chemical_mass_fractions[col]
                 ) * atom_data.atom_data.mass.iloc[atom_num]
 
-        marcs_chemical_mass_fractions[
-            f"mass_fraction_{atom_num+1}"
-        ] = marcs_chemical_mass_fractions[
-            f"mass_fraction_{atom_num+1}"
-        ] / marcs_chemical_mass_fractions.filter(
-            regex="mass_fraction"
-        ).sum(
-            axis=1
-        )
-
         # Remove scaled log number columns - leaves only masses
         dropped_cols = [
             c for c in marcs_chemical_mass_fractions.columns if "scaled_log_number" in c
