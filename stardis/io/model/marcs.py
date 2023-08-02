@@ -35,12 +35,18 @@ class MARCSModel(object):
         r = self.data.depth.values * u.cm
         return Radial1DGeometry(r)
 
-    def to_composition(self, atom_data, final_atomic_number=30):
+    def to_composition(self, atom_data, final_atomic_number):
         """
         Returns a stardis.model.composition.base.Composition object from the MARCS model.
 
+        Parameters
+        ----------
+        atom_data : tardis.io.atom_data.base.AtomData
+        final_atomic_number : int, optional
+            Atomic number for the final element included in the model.
+
         Returns
-        -------
+        ----------
         stardis.model.composition.base.Composition
         """
         density = self.data.density.values * u.g / u.cm**3
@@ -101,7 +107,7 @@ class MARCSModel(object):
 
         return marcs_chemical_mass_fractions
 
-    def to_stellar_model(self, atom_data, final_atomic_number=30):
+    def to_stellar_model(self, atom_data, final_atomic_number=118):
         """
         Produces a stellar model readable by stardis.
 
@@ -110,7 +116,7 @@ class MARCSModel(object):
         atom_data : tardis.io.atom_data.base.AtomData
         final_atomic_number : int, optional
             Atomic number for the final element included in the model. Default
-            is 30.
+            is 118, an abitrarily large atomic number so as not to truncate by default.
 
         Returns
         -------
@@ -136,6 +142,8 @@ def read_marcs_metadata(fpath, gzipped=True):
     ----------
     fpath : str
             Path to model file
+    gzipped : Bool
+            Whether or not the file is gzipped
 
     Returns
     -------
@@ -232,6 +240,8 @@ def read_marcs_data(fpath, gzipped=True):
     ----------
     fpath : str
             Path to model file
+    gzipped : Bool
+            Whether or not the file is gzipped
 
     Returns
     -------
@@ -298,6 +308,8 @@ def read_marcs_model(fpath, gzipped=True):
     ----------
     fpath : str
             Path to model file
+    gzipped : Bool
+            Whether or not the file is gzipped
 
     Returns
     -------
