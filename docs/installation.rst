@@ -40,6 +40,9 @@ If you are using Mamba, the steps are similar:
 Downloading and Installing STARDIS
 ----------------------------------
 
+.. note::
+   Both of the below instructions should be run with your ``stardis`` virtual environment activated. That is, you should run ``$ conda activate stardis`` or ``$ mamba activate stardis`` if you are using conda or mamba, respectively, in the terminal before you continue with the directions below. 
+
 For Non-Developers
 ^^^^^^^^^^^^^^^^^^
 
