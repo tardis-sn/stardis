@@ -62,22 +62,26 @@ class MARCSModel(object):
             regex="scaled_log_number"
         ).copy()
 
+        num_of_chemicals_in_model = len(marcs_chemical_mass_fractions.columns)
+
         if atom_data.atom_data.index.max() < final_atomic_number:
             if (
                 len(marcs_chemical_mass_fractions.columns)
                 > atom_data.atom_data.index.max()
             ):
                 logging.warning(
-                    f"Final model chemical number is {len(marcs_chemical_mass_fractions.columns)} while final atom data chemical number is {atom_data.atom_data.index.max()} and final atomic number requested is {final_atomic_number}."
+                    f"Final model chemical number is {num_of_chemicals_in_model} while final atom data chemical number is {atom_data.atom_data.index.max()} and final atomic number requested is {final_atomic_number}."
                 )
 
         for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
-            if atom_num >= len(atom_data.atom_data):
-                marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = np.nan
-            else:
+            if atom_num < len(atom_data.atom_data):
                 marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = (
                     10 ** marcs_chemical_mass_fractions[col]
                 ) * atom_data.atom_data.mass.iloc[atom_num]
+            else:
+                for j in range(atom_num, marcs_chemical_mass_fractions.shape[1]):
+                    marcs_chemical_mass_fractions[f"mass_fraction_{j+1}"] = np.nan
+                break
 
         # Remove scaled log number columns - leaves only masses
         dropped_cols = [
@@ -90,7 +94,8 @@ class MARCSModel(object):
             marcs_chemical_mass_fractions.sum(axis=1), axis=0
         )
         marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.iloc[
-            :, :final_atomic_number
+            :,
+            : np.min([final_atomic_number, num_of_chemicals_in_model]),
         ]
 
         marcs_chemical_mass_fractions = marcs_chemical_mass_fractions[::-1]
