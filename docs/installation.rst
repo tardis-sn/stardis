@@ -46,13 +46,13 @@ Downloading and Installing STARDIS
 For Non-Developers
 ^^^^^^^^^^^^^^^^^^
 
-STARDIS can be downloaded by **non-developers** by running
+STARDIS can be downloaded for non-developers by running
 
 ::
    
    $ pip install git+https://github.com/tardis-sn/stardis.git@main
 
-in the terminal with your STARDIS environment activated.
+in the terminal.
 
 For Developers
 ^^^^^^^^^^^^^^
