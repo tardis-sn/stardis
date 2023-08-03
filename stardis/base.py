@@ -45,13 +45,16 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     adata = AtomData.from_hdf(config.atom_data)
 
+    # model
     stellar_model = read_marcs_to_fv(
         config.model.fname, adata, final_atomic_number=config.model.final_atomic_number
     )
     adata.prepare_atom_data(stellar_model.abundances.index.tolist())
 
+    # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
+    # Below becomes radiation field
     alphas, gammas, doppler_widths = calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
@@ -116,7 +119,6 @@ class STARDISOutput:
     def __init__(
         self, stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, nus
     ):
-
         self.stellar_plasma = stellar_plasma
         self.stellar_model = stellar_model
         self.alphas = alphas

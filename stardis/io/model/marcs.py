@@ -4,9 +4,13 @@ import re
 from dataclasses import dataclass
 from astropy import units as u
 import numpy as np
+import logging
+
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.composition.base import Composition
+
+from stardis.model.base import StellarModel
 
 
 @dataclass
@@ -31,20 +35,96 @@ class MARCSModel(object):
         r = self.data.depth.values * u.cm
         return Radial1DGeometry(r)
 
-    # def to_composition(self):
-    #     """
-    #     Returns a stardis.model.composition.base.Composition object from the MARCS model.
+    def to_composition(self, atom_data, final_atomic_number):
+        """
+        Returns a stardis.model.composition.base.Composition object from the MARCS model.
 
-    #     Returns
-    #     -------
-    #     stardis.model.composition.base.Composition
-    #     """
-    #     density = self.data.density.values * u.g / u.cm**3
-    #     # THIS IS VERY WRONG. NEEDS TO BE FIXED WITH WORK FROM THE MASS FRACTION BRANCH
-    #     atomic_mass_fraction = self.data[
-    #         [f"scaled_log_number_fraction_{i+1}" for i in range(30)]
-    #     ].values
-    #     return Composition(density, atomic_mass_fraction)
+        Parameters
+        ----------
+        atom_data : tardis.io.atom_data.base.AtomData
+        final_atomic_number : int, optional
+            Atomic number for the final element included in the model.
+
+        Returns
+        ----------
+        stardis.model.composition.base.Composition
+        """
+        density = self.data.density.values * u.g / u.cm**3
+        atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
+            atom_data, final_atomic_number
+        )
+        return Composition(density, atomic_mass_fraction)
+
+    def convert_marcs_raw_abundances_to_mass_fractions(
+        self, atom_data, final_atomic_number
+    ):
+        marcs_chemical_mass_fractions = self.data.filter(
+            regex="scaled_log_number"
+        ).copy()
+
+        num_of_chemicals_in_model = len(marcs_chemical_mass_fractions.columns)
+
+        if atom_data.atom_data.index.max() < final_atomic_number:
+            if (
+                len(marcs_chemical_mass_fractions.columns)
+                > atom_data.atom_data.index.max()
+            ):
+                logging.warning(
+                    f"Final model chemical number is {num_of_chemicals_in_model} while final atom data chemical number is {atom_data.atom_data.index.max()} and final atomic number requested is {final_atomic_number}."
+                )
+
+        for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
+            if atom_num < len(atom_data.atom_data):
+                marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = (
+                    10 ** marcs_chemical_mass_fractions[col]
+                ) * atom_data.atom_data.mass.iloc[atom_num]
+            else:
+                for j in range(atom_num, marcs_chemical_mass_fractions.shape[1]):
+                    marcs_chemical_mass_fractions[f"mass_fraction_{j+1}"] = np.nan
+                break
+
+        # Remove scaled log number columns - leaves only masses
+        dropped_cols = [
+            c for c in marcs_chemical_mass_fractions.columns if "scaled_log_number" in c
+        ]
+        marcs_chemical_mass_fractions.drop(columns=dropped_cols, inplace=True)
+
+        # Divide by sum to leave mass densities
+        marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.div(
+            marcs_chemical_mass_fractions.sum(axis=1), axis=0
+        )
+        marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.iloc[
+            :,
+            : np.min([final_atomic_number, num_of_chemicals_in_model]),
+        ]
+
+        marcs_chemical_mass_fractions = marcs_chemical_mass_fractions[::-1]
+
+        return marcs_chemical_mass_fractions
+
+    def to_stellar_model(self, atom_data, final_atomic_number=118):
+        """
+        Produces a stellar model readable by stardis.
+
+        Parameters
+        ----------
+        atom_data : tardis.io.atom_data.base.AtomData
+        final_atomic_number : int, optional
+            Atomic number for the final element included in the model. Default
+            is 118, an abitrarily large atomic number so as not to truncate by default.
+
+        Returns
+        -------
+        stardis.model.base.StellarModel
+        """
+        marcs_geometry = self.to_geometry()
+        marcs_composition = self.to_composition(
+            atom_data=atom_data, final_atomic_number=final_atomic_number
+        )
+        temperatures = self.data.t.values * u.K
+        # This is a placeholder to carry temps for now - Needed to pass into plasma and eventual also radiation field.
+        # stellar model should have fv_geometry, abundances, boundary temps, geometry, composition for now
+        return StellarModel(None, None, temperatures, marcs_geometry, marcs_composition)
 
 
 def read_marcs_metadata(fpath, gzipped=True):
@@ -57,6 +137,8 @@ def read_marcs_metadata(fpath, gzipped=True):
     ----------
     fpath : str
             Path to model file
+    gzipped : Bool
+            Whether or not the file is gzipped
 
     Returns
     -------
@@ -153,6 +235,8 @@ def read_marcs_data(fpath, gzipped=True):
     ----------
     fpath : str
             Path to model file
+    gzipped : Bool
+            Whether or not the file is gzipped
 
     Returns
     -------
@@ -219,6 +303,8 @@ def read_marcs_model(fpath, gzipped=True):
     ----------
     fpath : str
             Path to model file
+    gzipped : Bool
+            Whether or not the file is gzipped
 
     Returns
     -------
