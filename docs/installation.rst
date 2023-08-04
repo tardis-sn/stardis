@@ -18,7 +18,7 @@ as using the TARDIS code itself. However, since STARDIS can be sensitive
 to changes in TARDIS, we strongly suggest that users create a separate
 environment for STARDIS that pins the TARDIS version. To do this, run
 the following in the terminal (replacing ``{platform}`` with either
-``linux`` or ``osx`` as applicable):
+``linux``, ``linux-cuda``, or ``osx`` as applicable):
 
 ::
 
