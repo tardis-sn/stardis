@@ -9,6 +9,9 @@ In the interest of reproducibility, STARDIS uses `conda-lock <https://conda.gith
 .. note::
    These steps are only tested using `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__.
 
+.. note::
+   Both sets of steps below assume that all commands are being run from your local STARDIS git repository, which can be obtained using the developer installation instructions.
+
 Without CUDA Support
 ^^^^^^^^^^^^^^^^^^^^
 
