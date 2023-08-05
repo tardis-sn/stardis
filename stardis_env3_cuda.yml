@@ -1,6 +1,7 @@
 name: stardis-cuda
 
 channels:
+  - nvidia
   - conda-forge
 
 dependencies:
