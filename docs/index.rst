@@ -12,6 +12,7 @@ This is the documentation for stardis.
    Physics of STARDIS <physics/physics_of_stardis>
    Running the Code <running_the_code>
    Bibliography <bibliography>
+   Contributing <contributing>
 	     
 Indices and tables
 ==================
