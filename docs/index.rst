@@ -11,8 +11,8 @@ This is the documentation for stardis.
    Downloading and Installation <installation>
    Physics of STARDIS <physics/physics_of_stardis>
    Running the Code <running_the_code>
-   Bibliography <bibliography>
    Contributing <contributing>
+   Bibliography <bibliography>
 	     
 Indices and tables
 ==================
