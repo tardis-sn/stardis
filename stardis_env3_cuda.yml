@@ -81,3 +81,6 @@ dependencies:
 
   # Other
   - git-lfs
+platforms:
+  - linux-64
+
