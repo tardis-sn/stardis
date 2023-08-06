@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from math import sqrt
 from numba import cuda
+import cupy as cp
 from stardis.opacities.voigt import (
     faddeeva,
     _faddeeva_cuda,
@@ -45,15 +46,17 @@ def test_faddeeva_cuda_unwrapped_sample_values(
     faddeeva_cuda_unwrapped_sample_values_input,
     faddeeva_cuda_unwrapped_sample_values_expected_result,
 ):
-    test_values = cuda.to_device(faddeeva_cuda_unwrapped_sample_values_input)
-    result_values = cuda.device_array_like(test_values)
+    test_values = cp.asarray(faddeeva_cuda_unwrapped_sample_values_input)
+    result_values = cp.empty_like(test_values)
 
+    nthreads = 256
     length = len(faddeeva_cuda_unwrapped_sample_values_input)
+    nblocks = 1 + (length // nthreads)
 
-    _faddeeva_cuda.forall(length)(result_values, test_values)
+    _faddeeva_cuda[nblocks, nthreads](result_values, test_values)
 
     assert np.allclose(
-        result_values.copy_to_host(),
+        cp.asnumpy(result_values),
         faddeeva_cuda_unwrapped_sample_values_expected_result,
     )
 
@@ -95,30 +98,9 @@ def test_faddeeva_cuda_wrapped_sample_cuda_values(
     faddeeva_cuda_wrapped_sample_cuda_values_expected_result,
 ):
     assert np.allclose(
-        faddeeva_cuda(
-            cuda.device_array_like(faddeeva_cuda_wrapped_sample_cuda_values_input)
-        ),
+        faddeeva_cuda(cp.asarray(faddeeva_cuda_wrapped_sample_cuda_values_input)),
         faddeeva_cuda_wrapped_sample_cuda_values_expected_result,
     )
-
-
-@pytest.mark.skipif(
-    not GPUs_available, reason="No GPU is available to test CUDA function"
-)
-@pytest.mark.parametrize(
-    "faddeeva_cuda_wrapped_noncomplex_input_input",
-    [
-        np.array([0, 0], dtype=int),
-        np.array([0, 0], dtype=float),
-    ],
-)
-def test_faddeeva_cuda_wrapped_noncomplex_input(
-    faddeeva_cuda_wrapped_noncomplex_input_input,
-):
-    with pytest.raises(TypeError):
-        _ = faddeeva_cuda(
-            cuda.device_array_like(faddeeva_cuda_wrapped_noncomplex_input_input)
-        )
 
 
 test_voigt_profile_division_by_zero_test_values = [

@@ -1,6 +1,7 @@
 import numpy as np
 import numba
 from numba import cuda
+import cupy as cp
 import cmath
 
 SQRT_PI = np.sqrt(np.pi, dtype=float)
@@ -91,18 +92,14 @@ def _faddeeva_cuda(res, z):
         res[tid] = _faddeeva(z[tid])
 
 
-def faddeeva_cuda(z):
+def faddeeva_cuda(z, nthreads=256, ret_np_ndarray=True):
     size = len(z)
-    if hasattr(z, "astype"):
-        z = z.astype(complex)
-    if not np.iscomplexobj(z):
-        raise TypeError(
-            f"Faddeeva with cuda only works with complex arguments. Expected any complex datatyep and instead got {z.dtype}."
-        )
-    res = cuda.device_array_like(z)
+    nblocks = 1 + (size // nthreads)
+    z = cp.asarray(z, dtype=complex)
+    res = cp.empty_like(z)
 
-    _faddeeva_cuda.forall(size)(res, z)
-    return res.copy_to_host()
+    _faddeeva_cuda[nblocks, nthreads](res, z)
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
