@@ -52,7 +52,7 @@ jobs:
         id: install-stardis
         # shell: bash -l {0}
         run: |
-          python setup.py develop
+          pip install -e .[docs]
 
       - name: Make Sphinx HTML
         id: make-sphinx-html
