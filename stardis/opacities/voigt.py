@@ -1,8 +1,12 @@
 import numpy as np
 import numba
 from numba import cuda
-import cupy as cp
 import cmath
+
+GPUs_available = cuda.is_available()
+
+if GPUs_available:
+    import cupy as cp
 
 SQRT_PI = np.sqrt(np.pi, dtype=float)
 
