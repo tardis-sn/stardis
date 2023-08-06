@@ -47,7 +47,6 @@ jobs:
           activate-environment: stardis
           use-mamba: true
 
-
       - name: Cache lockfile
         uses: actions/cache@v2
         with:
@@ -72,7 +71,7 @@ jobs:
         # shell: bash -l {0}
         run: |
           pip install -e .[test]
-          
+
       - name: Run tests
         run: pytest stardis ${{ env.PYTEST_FLAGS }}          
 
