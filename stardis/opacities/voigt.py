@@ -3,7 +3,7 @@ import numba
 from numba import cuda
 import cmath
 
-SQRT_PI = np.sqrt(np.pi)
+SQRT_PI = np.sqrt(np.pi, dtype=float)
 
 
 @numba.njit()
@@ -20,64 +20,64 @@ def _faddeeva(z):
     -------
     w : complex
     """
-    s = abs(z.real) + z.imag
+    x = float(z.real)
+    y = float(z.imag)
+    t = y - 1j * x
+    s = abs(x) + y
+    w = complex(0.0)
+    u = t * t
 
-    if s > 15.0:
-        # region I
-        w = 1j * 1 / SQRT_PI * z / (z**2 - 0.5)
+    IN_REGION_I = s > 15.0
+    IN_REGION_II = (not IN_REGION_I) and (s > 5.5)
+    IN_REGION_III = (
+        (not IN_REGION_I) and (not IN_REGION_II) and (y >= 0.195 * abs(x) - 0.176)
+    )
+    IN_REGION_IV = (not IN_REGION_I) and (not IN_REGION_II) and (not IN_REGION_III)
 
-    elif s > 5.5:
-        # region II
-        w = (
-            1j
-            * (z * (z**2 * 1 / SQRT_PI - 1.4104739589))
-            / (0.75 + z**2 * (z**2 - 3.0))
+    # If in Region I
+    w = 1j * 1 / SQRT_PI * z / (z**2 - 0.5) if IN_REGION_I else w
+
+    # If in Region II
+    w = (
+        1j
+        * (z * (z**2 * 1 / SQRT_PI - 1.4104739589))
+        / (0.75 + z**2 * (z**2 - 3.0))
+        if IN_REGION_II
+        else w
+    )
+
+    # If in Region III
+    w = (
+        (16.4955 + t * (20.20933 + t * (11.96482 + t * (3.778987 + 0.5642236 * t))))
+        / (
+            16.4955
+            + t * (38.82363 + t * (39.27121 + t * (21.69274 + t * (6.699398 + t))))
         )
+        if IN_REGION_III
+        else w
+    )
 
-    else:
-        x = z.real
-        y = z.imag
-        t = y - 1j * x
-
-        if y >= 0.195 * abs(x) - 0.176:
-            # region III
-            w = (
-                16.4955
-                + t * (20.20933 + t * (11.96482 + t * (3.778987 + 0.5642236 * t)))
-            ) / (
-                16.4955
-                + t * (38.82363 + t * (39.27121 + t * (21.69274 + t * (6.699398 + t))))
-            )
-
-        else:
-            # region IV
-            u = t * t
-            numerator = t * (
-                36183.31
-                - u
-                * (
-                    3321.99
-                    - u
-                    * (
-                        1540.787
-                        - u * (219.031 - u * (35.7668 - u * (1.320522 - u * 0.56419)))
-                    )
-                )
-            )
-            denominantor = 32066.6 - u * (
-                24322.8
-                - u
-                * (
-                    9022.23
-                    - u * (2186.18 - u * (364.219 - u * (61.5704 - u * (1.84144 - u))))
-                )
-            )
-            w = cmath.exp(u) - numerator / denominantor
+    # If in Region IV
+    numerator = t * (
+        36183.31
+        - u
+        * (
+            3321.99
+            - u
+            * (1540.787 - u * (219.031 - u * (35.7668 - u * (1.320522 - u * 0.56419))))
+        )
+    )
+    denominator = 32066.6 - u * (
+        24322.8
+        - u
+        * (9022.23 - u * (2186.18 - u * (364.219 - u * (61.5704 - u * (1.84144 - u)))))
+    )
+    w = (cmath.exp(u) - numerator / denominator) if IN_REGION_IV else w
 
     return w
 
 
-@numba.vectorize
+@numba.vectorize(nopython=True)
 def faddeeva(z):
     return _faddeeva(z)
 
