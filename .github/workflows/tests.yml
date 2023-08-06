@@ -25,6 +25,10 @@ jobs:
           label: linux-64
           prefix: /usr/share/miniconda3/envs/stardis
 
+        - os: ubuntu-latest
+          label: linux-64-cuda
+          prefix: /usr/share/miniconda3/envs/stardis
+
         - os: macos-latest
           label: osx-64
           prefix: /Users/runner/miniconda3/envs/stardis
@@ -67,7 +71,7 @@ jobs:
         id: install-stardis
         # shell: bash -l {0}
         run: |
-          python setup.py develop
+          pip install -e .[test]
           
       - name: Run tests
         run: pytest stardis ${{ env.PYTEST_FLAGS }}          
