@@ -64,7 +64,8 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
-@numba.njit()
+# Commented out njit for debugging purposes. Turn back on when things are running.
+# @numba.njit()
 def single_theta_trace(
     geometry_dist_to_next_depth_point,
     boundary_temps,
@@ -96,8 +97,10 @@ def single_theta_trace(
         Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
         intensity at each shell boundary for each frequency in tracing_nus.
     """
-
-    taus = alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
+    # Messing with this. There's one fewer tau than alpha because you can't calculate optical depth for the first point because no distance to it.
+    # Need to calculate a mean opacity for the traversal between points. Linearly interpolate?
+    mean_alphas = (alphas[1:] + alphas[:-1]) * 0.5
+    taus = mean_alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
     bb = bb_nu(tracing_nus, boundary_temps)
@@ -159,7 +162,8 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(
             stellar_model.geometry.dist_to_next_depth_point,
-            stellar_model.boundary_temps,
+            # stellar_model.boundary_temps,
+            stellar_model.temperatures.value.reshape(-1, 1),
             alphas,
             tracing_nus,
             theta,

@@ -75,17 +75,19 @@ class MARCSModel(object):
 
         for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
             if atom_num < len(atom_data.atom_data):
-                marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = (
+                marcs_chemical_mass_fractions[(atom_num + 1)] = (
                     10 ** marcs_chemical_mass_fractions[col]
                 ) * atom_data.atom_data.mass.iloc[atom_num]
             else:
                 for j in range(atom_num, marcs_chemical_mass_fractions.shape[1]):
-                    marcs_chemical_mass_fractions[f"mass_fraction_{j+1}"] = np.nan
+                    marcs_chemical_mass_fractions[(j + 1)] = np.nan
                 break
 
         # Remove scaled log number columns - leaves only masses
         dropped_cols = [
-            c for c in marcs_chemical_mass_fractions.columns if "scaled_log_number" in c
+            c
+            for c in marcs_chemical_mass_fractions.columns
+            if "scaled_log_number" in str(c)
         ]
         marcs_chemical_mass_fractions.drop(columns=dropped_cols, inplace=True)
 
@@ -98,13 +100,22 @@ class MARCSModel(object):
             : np.min([final_atomic_number, num_of_chemicals_in_model]),
         ]
 
-        marcs_chemical_mass_fractions = marcs_chemical_mass_fractions[::-1]
+        # Convert to atom data format expected by tardis plasma
+        marcs_atom_data = pd.DataFrame(
+            columns=marcs_chemical_mass_fractions.index
+            - 1,  # columns need to start from 0 to avoid tardis plasma crashing
+            index=marcs_chemical_mass_fractions.columns,
+            data=marcs_chemical_mass_fractions.values.T,
+        )
 
-        return marcs_chemical_mass_fractions
+        marcs_atom_data.index.name = "atomic_number"
+
+        return marcs_atom_data
 
     def to_stellar_model(self, atom_data, final_atomic_number=118):
         """
         Produces a stellar model readable by stardis.
+        NOTE: Previously stardis models are flipped from this. The deepest, hottest, densest layer was previously the first entry. Now it is the last entry. This should probably be flipped in a separate PR.
 
         Parameters
         ----------
@@ -122,8 +133,7 @@ class MARCSModel(object):
             atom_data=atom_data, final_atomic_number=final_atomic_number
         )
         temperatures = self.data.t.values * u.K
-        # This is a placeholder to carry temps for now - Needed to pass into plasma and eventual also radiation field.
-        # stellar model should have fv_geometry, abundances, boundary temps, geometry, composition for now
+        # First two none values are old fv_geometry and abundances which are replaced by the new structures.
         return StellarModel(None, None, temperatures, marcs_geometry, marcs_composition)
 
 
