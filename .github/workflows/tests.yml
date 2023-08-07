@@ -74,7 +74,7 @@ jobs:
           pip install -e .[test]
           
       - name: Run tests
-        run: pytest stardis ${{ env.PYTEST_FLAGS }}          
+        run: pytest ${{ env.PYTEST_FLAGS }}          
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
