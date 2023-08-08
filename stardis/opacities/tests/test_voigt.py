@@ -146,30 +146,10 @@ def test_voigt_profile_division_by_zero(
         (0, 1, 0, 1 / sqrt(np.pi)),
         (0, 2, 0, 1 / (sqrt(np.pi) * 2)),
         (
-            np.array(
-                [
-                    0,
-                    0,
-                ]
-            ),
-            np.array(
-                [
-                    1,
-                    2,
-                ]
-            ),
-            np.array(
-                [
-                    0,
-                    0,
-                ]
-            ),
-            np.array(
-                [
-                    1 / sqrt(np.pi),
-                    1 / (sqrt(np.pi) * 2),
-                ]
-            ),
+            np.array([0, 0]),
+            np.array([1, 2]),
+            np.array([0, 0]),
+            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
         ),
     ],
 )
