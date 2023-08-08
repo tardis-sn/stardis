@@ -130,5 +130,5 @@ def voigt_profile(delta_nu, doppler_width, gamma):
         Value of Voigt profile.
     """
     z = (delta_nu + (gamma / (4 * PI)) * 1j) / doppler_width
-    phi = np.real(faddeeva(z)) / (SQRT_PI * doppler_width)
+    phi = faddeeva(z).real / (SQRT_PI * doppler_width)
     return phi
