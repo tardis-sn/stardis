@@ -25,6 +25,7 @@ def _faddeeva(z):
     -------
     w : complex
     """
+    z = complex(z)
     x = float(z.real)
     y = float(z.imag)
     t = y - 1j * x
