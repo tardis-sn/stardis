@@ -164,8 +164,9 @@ def calc_alpha_electron(
 
     if disable_electron_scattering:
         return 0
-
-    geometry = stellar_model.geometry.r
+    geometry = (
+        stellar_model.geometry.r
+    )  # Eventually change when considering other coordinate systems than radial1d.
 
     alpha_electron_by_shell = (
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
@@ -301,7 +302,9 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     """
 
     temperatures = stellar_model.temperatures.value
-    geometry = stellar_model.geometry.r
+    geometry = (
+        stellar_model.geometry.r
+    )  # Will need to change when considering anything other than radial1d.
 
     inv_nu3 = tracing_nus.value ** (-3)
     alpha_ff = np.zeros([len(geometry), len(tracing_nus)])

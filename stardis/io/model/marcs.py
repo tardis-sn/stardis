@@ -49,7 +49,7 @@ class MARCSModel(object):
         ----------
         stardis.model.composition.base.Composition
         """
-        density = self.data.density.values * u.g / u.cm**3
+        density = self.data.density.values[::-1] * u.g / u.cm**3
         atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
             atom_data, final_atomic_number
         )
@@ -115,7 +115,6 @@ class MARCSModel(object):
     def to_stellar_model(self, atom_data, final_atomic_number=118):
         """
         Produces a stellar model readable by stardis.
-        NOTE: Previously stardis models are flipped from this. The deepest, hottest, densest layer was previously the first entry. Now it is the last entry. This should probably be flipped in a separate PR.
 
         Parameters
         ----------
@@ -132,7 +131,7 @@ class MARCSModel(object):
         marcs_composition = self.to_composition(
             atom_data=atom_data, final_atomic_number=final_atomic_number
         )
-        temperatures = self.data.t.values * u.K
+        temperatures = self.data.t.values[::-1] * u.K
         # First two none values are old fv_geometry and abundances which are replaced by the new structures.
         return StellarModel(None, None, temperatures, marcs_geometry, marcs_composition)
 

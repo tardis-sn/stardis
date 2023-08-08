@@ -59,6 +59,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     # )
 
     # adata.prepare_atom_data(stellar_model.abundances.index.tolist())
+    # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
     adata.prepare_atom_data(
         np.arange(
             1,
@@ -153,7 +154,7 @@ class STARDISOutput:
         # TODO: Units
         self.F_nu = F_nu
         self.F_lambda = F_lambda.value
-        self.spectrum_nu = F_nu[length - 1]
-        self.spectrum_lambda = F_lambda[length - 1]
+        self.spectrum_nu = F_nu[length - 1]  # Future PR - change to just [-1]
+        self.spectrum_lambda = F_lambda[length - 1]  # Here too
         self.nus = nus
         self.lambdas = lambdas

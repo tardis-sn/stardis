@@ -64,8 +64,7 @@ def calc_weights(delta_tau):
     return w0, w1
 
 
-# Commented out njit for debugging purposes. Turn back on when things are running.
-# @numba.njit()
+@numba.njit()
 def single_theta_trace(
     geometry_dist_to_next_depth_point,
     boundary_temps,
@@ -104,11 +103,11 @@ def single_theta_trace(
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
     bb = bb_nu(tracing_nus, boundary_temps)
-    source = bb[1:]
+    source = bb
     delta_source = (
         bb[1:] - bb[:-1]
     )  # for cells, not boundary - IS WRONG BUT SHOULD BE FIXED LATER
-    I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * -99
+    I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
@@ -123,7 +122,12 @@ def single_theta_trace(
                 second_term = w1 * delta_source[j, i] / curr_tau
 
             I_nu_theta[j + 1, i] = (
-                (1 - w0) * I_nu_theta[j, i] + w0 * source[j, i] + second_term
+                (1 - w0) * I_nu_theta[j, i]
+                + w0
+                * source[
+                    j + 1, i
+                ]  # Changed to j + 1 b/c van Noort 2001 mentions using Source of future point to update, not current.
+                + second_term
             )  # van Noort 2001 eq 14
 
     return I_nu_theta
