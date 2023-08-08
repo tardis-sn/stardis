@@ -109,7 +109,7 @@ def faddeeva_cuda(z, nthreads=256, ret_np_ndarray=False):
 
 
 @numba.njit
-def voigt_profile(delta_nu, doppler_width, gamma):
+def _voigt_profile(delta_nu, doppler_width, gamma):
     """
     Calculates the Voigt profile, the convolution of a Lorentz profile
     and a Gaussian profile.
@@ -132,3 +132,8 @@ def voigt_profile(delta_nu, doppler_width, gamma):
     z = (delta_nu + (gamma / (4 * PI)) * 1j) / doppler_width
     phi = faddeeva(z).real / (SQRT_PI * doppler_width)
     return phi
+
+
+@numba.vectorize(nopython=True)
+def voigt_profile(delta_nu, doppler_width, gamma):
+    return _voigt_profile(delta_nu, doppler_width, gamma)
