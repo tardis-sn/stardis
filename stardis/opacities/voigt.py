@@ -9,6 +9,7 @@ if GPUs_available:
     import cupy as cp
 
 SQRT_PI = np.sqrt(np.pi, dtype=float)
+PI = float(np.pi)
 
 
 @numba.njit()
@@ -128,6 +129,6 @@ def voigt_profile(delta_nu, doppler_width, gamma):
     phi : float
         Value of Voigt profile.
     """
-    z = (delta_nu + (gamma / (4 * np.pi)) * 1j) / doppler_width
+    z = (delta_nu + (gamma / (4 * PI)) * 1j) / doppler_width
     phi = np.real(faddeeva(z)) / (SQRT_PI * doppler_width)
     return phi
