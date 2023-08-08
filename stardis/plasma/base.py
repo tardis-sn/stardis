@@ -208,12 +208,9 @@ def create_stellar_plasma(stellar_model, atom_data):
     return BasePlasma(
         plasma_properties=plasma_modules,
         t_rad=stellar_model.temperatures.value,
-        # t_rad=stellar_model.fv_geometry.t.values,
-        # abundance=stellar_model.abundances,
         abundance=stellar_model.composition.atomic_mass_fraction,
         atomic_data=atom_data,
         density=stellar_model.composition.density.value,
-        # density=stellar_model.fv_geometry.density.values,
         link_t_rad_t_electron=1.0,
         nlte_ionization_species=[],
         nlte_excitation_species=[],

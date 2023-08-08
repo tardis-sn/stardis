@@ -8,7 +8,6 @@ from tardis.io.config_reader import Configuration
 
 from astropy import units as u
 
-from stardis.model import read_marcs_to_fv
 from stardis.plasma import create_stellar_plasma
 from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
@@ -54,9 +53,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         stellar_model = raw_marcs_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
         )
-    # stellar_model = read_marcs_to_fv(
-    #     config.model.fname, adata, final_atomic_number=config.model.final_atomic_number
-    # )
 
     # adata.prepare_atom_data(stellar_model.abundances.index.tolist())
     # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.

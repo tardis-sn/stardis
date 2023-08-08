@@ -104,9 +104,7 @@ def single_theta_trace(
 
     bb = bb_nu(tracing_nus, boundary_temps)
     source = bb
-    delta_source = (
-        bb[1:] - bb[:-1]
-    )  # for cells, not boundary - IS WRONG BUT SHOULD BE FIXED LATER
+    delta_source = bb[1:] - bb[:-1]
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
 
@@ -166,7 +164,6 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(
             stellar_model.geometry.dist_to_next_depth_point,
-            # stellar_model.boundary_temps,
             stellar_model.temperatures.value.reshape(-1, 1),
             alphas,
             tracing_nus,
