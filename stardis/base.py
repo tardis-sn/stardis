@@ -56,7 +56,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
             adata, final_atomic_number=config.model.final_atomic_number
         )
 
-    # adata.prepare_atom_data(stellar_model.abundances.index.tolist())
     # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
     adata.prepare_atom_data(
         np.arange(
