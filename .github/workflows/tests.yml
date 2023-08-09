@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
+          key: conda-${{ matrix.label }}-${{ hashFiles(format('conda-{0}.lock', matrix.label)) }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
 
       - name: Update Conda Environment
