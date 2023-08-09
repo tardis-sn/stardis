@@ -32,7 +32,9 @@ class MARCSModel(object):
         -------
         stardis.model.geometry.radial1d.Radial1DGeometry
         """
-        r = self.data.depth.values * u.cm
+        r = (
+            -self.data.depth.values[::-1] * u.cm
+        )  # Flip data to move from innermost stellar point to surface
         return Radial1DGeometry(r)
 
     def to_composition(self, atom_data, final_atomic_number):
@@ -49,7 +51,9 @@ class MARCSModel(object):
         ----------
         stardis.model.composition.base.Composition
         """
-        density = self.data.density.values[::-1] * u.g / u.cm**3
+        density = (
+            self.data.density.values[::-1] * u.g / u.cm**3
+        )  # Flip data to move from innermost stellar point to surface
         atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
             atom_data, final_atomic_number
         )
@@ -95,6 +99,7 @@ class MARCSModel(object):
         marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.div(
             marcs_chemical_mass_fractions.sum(axis=1), axis=0
         )
+        # Truncate to final atomic number, if smaller than the number of chemicals in the model
         marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.iloc[
             :,
             : np.min([final_atomic_number, num_of_chemicals_in_model]),
@@ -105,7 +110,9 @@ class MARCSModel(object):
             columns=marcs_chemical_mass_fractions.index
             - 1,  # columns need to start from 0 to avoid tardis plasma crashing
             index=marcs_chemical_mass_fractions.columns,
-            data=marcs_chemical_mass_fractions.values.T,
+            data=np.fliplr(
+                marcs_chemical_mass_fractions.values.T
+            ),  # Flip column order to move from deepest point to surface - Doesn't change data if abundances are uniform
         )
 
         marcs_atom_data.index.name = "atomic_number"
@@ -131,7 +138,9 @@ class MARCSModel(object):
         marcs_composition = self.to_composition(
             atom_data=atom_data, final_atomic_number=final_atomic_number
         )
-        temperatures = self.data.t.values[::-1] * u.K
+        temperatures = (
+            self.data.t.values[::-1] * u.K
+        )  # Flip data to move from innermost stellar point to surface
         # First two none values are old fv_geometry and abundances which are replaced by the new structures.
         return StellarModel(None, None, temperatures, marcs_geometry, marcs_composition)
 
