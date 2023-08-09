@@ -50,7 +50,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
         # FIX THIS BY ADDING AN OPTIONAL GZIPPED ARGUMENT TO THE CONFIG
         raw_marcs_model = read_marcs_model(
-            config.model.fname, gzipped=False
+            config.model.fname, gzipped=config.model.gzipped
         )  # Need to add gzipped to config
         stellar_model = raw_marcs_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
