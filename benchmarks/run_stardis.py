@@ -3,7 +3,6 @@
 import os
 import numpy as np
 from stardis.base import run_stardis
-
 from astropy import units as u
 
 from tardis.io.atom_data import AtomData
@@ -58,6 +57,7 @@ class BenchmarkStardis:
         self.stellar_model = stellar_model
         self.alphas = alphas
         self.tracing_nus = tracing_nus
+        self.tracing_lambdas = tracing_lambdas
         self.config = config
 
     def time_run_stardis(self):
