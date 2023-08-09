@@ -46,7 +46,7 @@ Downloading and Installing STARDIS
 For Non-Developers
 ^^^^^^^^^^^^^^^^^^
 
-STARDIS can be downloaded for non-developers by running
+STARDIS can be downloaded for **non-developers** by running
 
 ::
    
@@ -57,7 +57,7 @@ in the terminal.
 For Developers
 ^^^^^^^^^^^^^^
 
-Developers should fork and clone the STARDIS repository.
+**Developers** should fork and clone the STARDIS repository.
 First, `fork the
 repository <https://github.com/tardis-sn/stardis/fork>`__ and `configure
 GitHub to work with SSH
