@@ -130,11 +130,57 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
         Value of Voigt profile.
     """
     delta_nu, doppler_width, gamma = float(delta_nu), float(doppler_width), float(gamma)
-    z = (delta_nu + (gamma / (4 * PI)) * 1j) / doppler_width
-    phi = faddeeva(z).real / (SQRT_PI * doppler_width)
+
+    z = (delta_nu + (gamma / (4.0 * PI)) * 1j) / doppler_width
+
+    phi = _faddeeva(z).real / (SQRT_PI * doppler_width)
     return phi
 
 
 @numba.vectorize(nopython=True)
 def voigt_profile(delta_nu, doppler_width, gamma):
     return _voigt_profile(delta_nu, doppler_width, gamma)
+
+
+@cuda.jit
+def _voigt_profile_cuda(res, delta_nu, doppler_width, gamma):
+    tid = cuda.grid(1)
+
+    size = min(
+        len(delta_nu),
+        len(doppler_width),
+        len(gamma),
+    )
+
+    if tid < size:
+        res[tid] = _voigt_profile(delta_nu[tid], doppler_width[tid], gamma[tid])
+
+
+def voigt_profile_cuda(
+    delta_nu,
+    doppler_width,
+    gamma,
+    nthreads=256,
+    ret_np_ndarray=True,
+    dtype=float,
+):
+    arg_list = (
+        delta_nu,
+        doppler_width,
+        gamma,
+    )
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _voigt_profile_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res

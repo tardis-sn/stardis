@@ -8,6 +8,8 @@ from stardis.opacities.voigt import (
     _faddeeva_cuda,
     faddeeva_cuda,
     voigt_profile,
+    _voigt_profile_cuda,
+    voigt_profile_cuda,
 )
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
@@ -137,12 +139,13 @@ def test_voigt_profile_division_by_zero(
     voigt_profile_division_by_zero_input_delta_nu,
     voigt_profile_division_by_zero_input_gamma,
 ):
+    arg_list = (
+        voigt_profile_division_by_zero_input_delta_nu,
+        0,
+        voigt_profile_division_by_zero_input_gamma,
+    )
     with pytest.raises(ZeroDivisionError):
-        _ = voigt_profile(
-            voigt_profile_division_by_zero_input_delta_nu,
-            0,
-            voigt_profile_division_by_zero_input_gamma,
-        )
+        _ = voigt_profile(*arg_list)
 
 
 @pytest.mark.parametrize(
@@ -164,11 +167,116 @@ def test_voigt_profile_sample_values_sample_values(
     voigt_profile_sample_values_input_gamma,
     voigt_profile_sample_values_expected_result,
 ):
+    arg_list = (
+        voigt_profile_sample_values_input_delta_nu,
+        voigt_profile_sample_values_input_doppler_width,
+        voigt_profile_sample_values_input_gamma,
+    )
     assert np.allclose(
-        voigt_profile(
-            voigt_profile_sample_values_input_delta_nu,
-            voigt_profile_sample_values_input_doppler_width,
-            voigt_profile_sample_values_input_gamma,
-        ),
+        voigt_profile(*arg_list),
         voigt_profile_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "voigt_profile_cuda_sample_values_input_delta_nu, voigt_profile_cuda_sample_values_input_doppler_width, voigt_profile_cuda_sample_values_input_gamma, voigt_profile_cuda_unwrapped_sample_values_expected_result",
+    [
+        (
+            np.array([0, 0]),
+            np.array([1, 2]),
+            np.array([0, 0]),
+            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+        ),
+    ],
+)
+def test_voigt_profile_cuda_unwrapped_sample_values(
+    voigt_profile_cuda_sample_values_input_delta_nu,
+    voigt_profile_cuda_sample_values_input_doppler_width,
+    voigt_profile_cuda_sample_values_input_gamma,
+    voigt_profile_cuda_unwrapped_sample_values_expected_result,
+):
+    arg_list = (
+        voigt_profile_cuda_sample_values_input_delta_nu,
+        voigt_profile_cuda_sample_values_input_doppler_width,
+        voigt_profile_cuda_sample_values_input_gamma,
+    )
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+    test_values = map(cp.asarray, arg_list)
+    result_values = cp.empty_like(arg_list[shortest_arg_idx], dtype=float)
+
+    nthreads = 256
+    nblocks = 1 + (size // nthreads)
+
+    _voigt_profile_cuda[nblocks, nthreads](result_values, *arg_list)
+
+    assert np.allclose(
+        cp.asnumpy(result_values),
+        voigt_profile_cuda_unwrapped_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "voigt_profile_cuda_sample_values_input_delta_nu, voigt_profile_cuda_sample_values_input_doppler_width, voigt_profile_cuda_sample_values_input_gamma, voigt_profile_cuda_wrapped_sample_numpy_values_expected_result",
+    [
+        (
+            np.array([0, 0]),
+            np.array([1, 2]),
+            np.array([0, 0]),
+            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+        ),
+    ],
+)
+def test_voigt_profile_cuda_wrapped_sample_numpy_values(
+    voigt_profile_cuda_sample_values_input_delta_nu,
+    voigt_profile_cuda_sample_values_input_doppler_width,
+    voigt_profile_cuda_sample_values_input_gamma,
+    voigt_profile_cuda_wrapped_sample_numpy_values_expected_result,
+):
+    arg_list = (
+        voigt_profile_cuda_sample_values_input_delta_nu,
+        voigt_profile_cuda_sample_values_input_doppler_width,
+        voigt_profile_cuda_sample_values_input_gamma,
+    )
+
+    assert np.allclose(
+        voigt_profile_cuda(*arg_list),
+        voigt_profile_cuda_wrapped_sample_numpy_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "voigt_profile_cuda_sample_values_input_delta_nu, voigt_profile_cuda_sample_values_input_doppler_width, voigt_profile_cuda_sample_values_input_gamma, voigt_profile_cuda_wrapped_sample_cuda_values_expected_result",
+    [
+        (
+            np.array([0, 0]),
+            np.array([1, 2]),
+            np.array([0, 0]),
+            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+        ),
+    ],
+)
+def test_voigt_profile_cuda_wrapped_sample_cuda_values(
+    voigt_profile_cuda_sample_values_input_delta_nu,
+    voigt_profile_cuda_sample_values_input_doppler_width,
+    voigt_profile_cuda_sample_values_input_gamma,
+    voigt_profile_cuda_wrapped_sample_cuda_values_expected_result,
+):
+    arg_list = (
+        voigt_profile_cuda_sample_values_input_delta_nu,
+        voigt_profile_cuda_sample_values_input_doppler_width,
+        voigt_profile_cuda_sample_values_input_gamma,
+    )
+    assert np.allclose(
+        voigt_profile_cuda(*map(cp.asarray, arg_list)),
+        voigt_profile_cuda_wrapped_sample_cuda_values_expected_result,
     )
