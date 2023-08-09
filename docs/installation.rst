@@ -40,21 +40,24 @@ If you are using Mamba, the steps are similar:
 Downloading and Installing STARDIS
 ----------------------------------
 
+.. note::
+   Both of the below instructions should be run with your ``stardis`` virtual environment activated. That is, you should run ``$ conda activate stardis`` or ``$ mamba activate stardis`` if you are using conda or mamba, respectively, in the terminal before you continue with the directions below. 
+
 For Non-Developers
 ^^^^^^^^^^^^^^^^^^
 
-STARDIS can be downloaded by **non-developers** by running
+STARDIS can be downloaded for **non-developers** by running
 
 ::
    
    $ pip install git+https://github.com/tardis-sn/stardis.git@main
 
-in the terminal with your STARDIS environment activated.
+in the terminal.
 
 For Developers
 ^^^^^^^^^^^^^^
 
-Developers should fork and clone the STARDIS repository.
+**Developers** should fork and clone the STARDIS repository.
 First, `fork the
 repository <https://github.com/tardis-sn/stardis/fork>`__ and `configure
 GitHub to work with SSH
