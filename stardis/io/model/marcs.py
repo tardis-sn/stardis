@@ -79,12 +79,14 @@ class MARCSModel(object):
 
         for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
             if atom_num < len(atom_data.atom_data):
-                marcs_chemical_mass_fractions[(atom_num + 1)] = (
+                marcs_chemical_mass_fractions[atom_num + 1] = (
                     10 ** marcs_chemical_mass_fractions[col]
                 ) * atom_data.atom_data.mass.iloc[atom_num]
             else:
-                for j in range(atom_num, marcs_chemical_mass_fractions.shape[1]):
-                    marcs_chemical_mass_fractions[(j + 1)] = np.nan
+                for atoms_not_in_atom_data in range(
+                    atom_num, marcs_chemical_mass_fractions.shape[1]
+                ):
+                    marcs_chemical_mass_fractions[atoms_not_in_atom_data + 1] = np.nan
                 break
 
         # Remove scaled log number columns - leaves only masses
