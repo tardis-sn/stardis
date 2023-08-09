@@ -96,16 +96,16 @@ def single_theta_trace(
         Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
         intensity at each shell boundary for each frequency in tracing_nus.
     """
-
-    taus = alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
+    # Messing with this. There's one fewer tau than alpha because you can't calculate optical depth for the first point because no distance to it.
+    # Need to calculate a mean opacity for the traversal between points. Linearly interpolate?
+    mean_alphas = (alphas[1:] + alphas[:-1]) * 0.5
+    taus = mean_alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
     bb = bb_nu(tracing_nus, boundary_temps)
-    source = bb[1:]
-    delta_source = (
-        bb[1:] - bb[:-1]
-    )  # for cells, not boundary - IS WRONG BUT SHOULD BE FIXED LATER
-    I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * -99
+    source = bb
+    delta_source = bb[1:] - bb[:-1]
+    I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
@@ -120,7 +120,12 @@ def single_theta_trace(
                 second_term = w1 * delta_source[j, i] / curr_tau
 
             I_nu_theta[j + 1, i] = (
-                (1 - w0) * I_nu_theta[j, i] + w0 * source[j, i] + second_term
+                (1 - w0) * I_nu_theta[j, i]
+                + w0
+                * source[
+                    j + 1, i
+                ]  # Changed to j + 1 b/c van Noort 2001 mentions using Source of future point to update, not current.
+                + second_term
             )  # van Noort 2001 eq 14
 
     return I_nu_theta
@@ -159,7 +164,7 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
         F_nu += weight * single_theta_trace(
             stellar_model.geometry.dist_to_next_depth_point,
-            stellar_model.boundary_temps,
+            stellar_model.temperatures.value.reshape(-1, 1),
             alphas,
             tracing_nus,
             theta,

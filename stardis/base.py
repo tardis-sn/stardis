@@ -8,7 +8,6 @@ from tardis.io.config_reader import Configuration
 
 from astropy import units as u
 
-from stardis.model import read_marcs_to_fv
 from stardis.plasma import create_stellar_plasma
 from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
@@ -46,11 +45,32 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     adata = AtomData.from_hdf(config.atom_data)
 
     # model
-    stellar_model = read_marcs_to_fv(
-        config.model.fname, adata, final_atomic_number=config.model.final_atomic_number
-    )
-    adata.prepare_atom_data(stellar_model.abundances.index.tolist())
+    if config.model.type == "marcs":
+        from stardis.io.model.marcs import read_marcs_model
 
+        # FIX THIS BY ADDING AN OPTIONAL GZIPPED ARGUMENT TO THE CONFIG
+        raw_marcs_model = read_marcs_model(
+            config.model.fname, gzipped=False
+        )  # Need to add gzipped to config
+        stellar_model = raw_marcs_model.to_stellar_model(
+            adata, final_atomic_number=config.model.final_atomic_number
+        )
+
+    # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
+    adata.prepare_atom_data(
+        np.arange(
+            1,
+            np.min(
+                [
+                    len(
+                        stellar_model.composition.atomic_mass_fraction.columns.tolist()
+                    ),
+                    config.model.final_atomic_number,
+                ]
+            )
+            + 1,
+        )
+    )
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
@@ -131,7 +151,7 @@ class STARDISOutput:
         # TODO: Units
         self.F_nu = F_nu
         self.F_lambda = F_lambda.value
-        self.spectrum_nu = F_nu[length - 1]
-        self.spectrum_lambda = F_lambda[length - 1]
+        self.spectrum_nu = F_nu[length - 1]  # Future PR - change to just [-1]
+        self.spectrum_lambda = F_lambda[length - 1]  # Here too
         self.nus = nus
         self.lambdas = lambdas

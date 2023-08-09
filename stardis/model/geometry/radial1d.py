@@ -20,4 +20,5 @@ class Radial1DGeometry:
 
     @property
     def dist_to_next_depth_point(self):
-        return self.r[1:] - self.r[:-1]
+        # Can't be a quantity for njitting purposes
+        return (self.r[1:] - self.r[:-1]).value

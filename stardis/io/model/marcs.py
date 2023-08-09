@@ -32,7 +32,9 @@ class MARCSModel(object):
         -------
         stardis.model.geometry.radial1d.Radial1DGeometry
         """
-        r = self.data.depth.values * u.cm
+        r = (
+            -self.data.depth.values[::-1] * u.cm
+        )  # Flip data to move from innermost stellar point to surface
         return Radial1DGeometry(r)
 
     def to_composition(self, atom_data, final_atomic_number):
@@ -49,7 +51,9 @@ class MARCSModel(object):
         ----------
         stardis.model.composition.base.Composition
         """
-        density = self.data.density.values * u.g / u.cm**3
+        density = (
+            self.data.density.values[::-1] * u.g / u.cm**3
+        )  # Flip data to move from innermost stellar point to surface
         atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
             atom_data, final_atomic_number
         )
@@ -75,17 +79,21 @@ class MARCSModel(object):
 
         for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
             if atom_num < len(atom_data.atom_data):
-                marcs_chemical_mass_fractions[f"mass_fraction_{atom_num+1}"] = (
+                marcs_chemical_mass_fractions[atom_num + 1] = (
                     10 ** marcs_chemical_mass_fractions[col]
                 ) * atom_data.atom_data.mass.iloc[atom_num]
             else:
-                for j in range(atom_num, marcs_chemical_mass_fractions.shape[1]):
-                    marcs_chemical_mass_fractions[f"mass_fraction_{j+1}"] = np.nan
+                for atoms_not_in_atom_data in range(
+                    atom_num, marcs_chemical_mass_fractions.shape[1]
+                ):
+                    marcs_chemical_mass_fractions[atoms_not_in_atom_data + 1] = np.nan
                 break
 
         # Remove scaled log number columns - leaves only masses
         dropped_cols = [
-            c for c in marcs_chemical_mass_fractions.columns if "scaled_log_number" in c
+            c
+            for c in marcs_chemical_mass_fractions.columns
+            if "scaled_log_number" in str(c)
         ]
         marcs_chemical_mass_fractions.drop(columns=dropped_cols, inplace=True)
 
@@ -93,14 +101,25 @@ class MARCSModel(object):
         marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.div(
             marcs_chemical_mass_fractions.sum(axis=1), axis=0
         )
+        # Truncate to final atomic number, if smaller than the number of chemicals in the model
         marcs_chemical_mass_fractions = marcs_chemical_mass_fractions.iloc[
             :,
             : np.min([final_atomic_number, num_of_chemicals_in_model]),
         ]
 
-        marcs_chemical_mass_fractions = marcs_chemical_mass_fractions[::-1]
+        # Convert to atom data format expected by tardis plasma
+        marcs_atom_data = pd.DataFrame(
+            columns=marcs_chemical_mass_fractions.index
+            - 1,  # columns need to start from 0 to avoid tardis plasma crashing
+            index=marcs_chemical_mass_fractions.columns,
+            data=np.fliplr(
+                marcs_chemical_mass_fractions.values.T
+            ),  # Flip column order to move from deepest point to surface - Doesn't change data if abundances are uniform
+        )
 
-        return marcs_chemical_mass_fractions
+        marcs_atom_data.index.name = "atomic_number"
+
+        return marcs_atom_data
 
     def to_stellar_model(self, atom_data, final_atomic_number=118):
         """
@@ -121,9 +140,10 @@ class MARCSModel(object):
         marcs_composition = self.to_composition(
             atom_data=atom_data, final_atomic_number=final_atomic_number
         )
-        temperatures = self.data.t.values * u.K
-        # This is a placeholder to carry temps for now - Needed to pass into plasma and eventual also radiation field.
-        # stellar model should have fv_geometry, abundances, boundary temps, geometry, composition for now
+        temperatures = (
+            self.data.t.values[::-1] * u.K
+        )  # Flip data to move from innermost stellar point to surface
+        # First two none values are old fv_geometry and abundances which are replaced by the new structures.
         return StellarModel(None, None, temperatures, marcs_geometry, marcs_composition)
 
 

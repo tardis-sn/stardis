@@ -365,7 +365,6 @@ def calculate_broadening(
     h_mass = atomic_masses[0]
 
     for i in range(len(lines_array)):
-
         atomic_number = int(lines_array[i, line_cols["atomic_number"]])
         atomic_mass = atomic_masses[atomic_number - 1]
         ion_number = int(lines_array[i, line_cols["ion_number"]]) + 1
@@ -378,7 +377,6 @@ def calculate_broadening(
         line_nus[i] = line_nu
 
         for j in range(no_shells):
-
             electron_density = electron_densities[j]
             temperature = temperatures[j]
             h_density = h_densities[j]
@@ -400,8 +398,6 @@ def calculate_broadening(
                 radiation=radiation,
             )
 
-            doppler_widths[i, j] = doppler_width = calc_doppler_width(
-                line_nu, temperature, atomic_mass
-            )
+            doppler_widths[i, j] = calc_doppler_width(line_nu, temperature, atomic_mass)
 
     return line_nus, gammas, doppler_widths

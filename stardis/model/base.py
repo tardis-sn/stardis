@@ -20,18 +20,18 @@ class StellarModel:
         Finite volume model DataFrame.
     abundances : pandas.core.frame.DataFrame
         Abundance DataFrame with all included elements and mass abundances.
-    boundary_temps : numpy.ndarray
-        Temperatures in K of all shell boundaries. Note that array is transposed.
+    temperatures : numpy.ndarray
+        Temperatures in K of all depth points. Note that array is transposed.
     geometry : stardis.model.geometry
         Geometry of the model.
     composition : stardis.model.composition.base.Composition
         Composition of the model. Includes density and atomic mass fractions.
     """
 
-    def __init__(self, fv_geometry, abundances, boundary_temps, geometry, composition):
+    def __init__(self, fv_geometry, abundances, temperatures, geometry, composition):
         self.fv_geometry = fv_geometry
         self.abundances = abundances
-        self.boundary_temps = boundary_temps
+        self.temperatures = temperatures
         self.geometry = geometry
         self.composition = composition
 
