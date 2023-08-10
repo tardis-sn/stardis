@@ -2,15 +2,21 @@ import numpy as np
 from astropy import constants as const
 import math
 import numba
+from numba import cuda
 
+GPUs_available = cuda.is_available()
 
-SPEED_OF_LIGHT = const.c.cgs.value
-BOLTZMANN_CONSTANT = const.k_B.cgs.value
-PLANCK_CONSTANT = const.h.cgs.value
-RYDBERG_ENERGY = (const.h.cgs * const.c.cgs * const.Ryd.cgs).value
-ELEMENTARY_CHARGE = const.e.esu.value
-BOHR_RADIUS = const.a0.cgs.value
-VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
+if GPUs_available:
+    import cupy as cp
+
+PI = float(np.pi)
+SPEED_OF_LIGHT = float(const.c.cgs.value)
+BOLTZMANN_CONSTANT = float(const.k_B.cgs.value)
+PLANCK_CONSTANT = float(const.h.cgs.value)
+RYDBERG_ENERGY = float((const.h.cgs * const.c.cgs * const.Ryd.cgs).value)
+ELEMENTARY_CHARGE = float(const.e.esu.value)
+BOHR_RADIUS = float(const.a0.cgs.value)
+VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
 
 
 @numba.njit
@@ -48,6 +54,15 @@ def _calc_doppler_width(nu_line, temperature, atomic_mass):
 @numba.vectorize(nopython=True)
 def calc_doppler_width(nu_line, temperature, atomic_mass):
     return _calc_doppler_width(nu_line, temperature, atomic_mass)
+
+
+@cuda.jit
+def _calc_doppler_width_cuda(res, nu_line, temperature, atomic_mass):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_doppler_width(nu_line[tid], temperature[tid], atomic_mass[tid])
 
 
 @numba.njit
@@ -198,7 +213,7 @@ def calc_gamma_van_der_waals(
 
     gamma_van_der_waals = (
         17
-        * (8 * BOLTZMANN_CONSTANT * temperature / (np.pi * h_mass)) ** 0.3
+        * (8 * BOLTZMANN_CONSTANT * temperature / (PI * h_mass)) ** 0.3
         * c6**0.4
         * h_density
     )

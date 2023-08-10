@@ -1,8 +1,15 @@
 import pytest
 import numpy as np
 from astropy import constants as const
+from numba import cuda
 
-from stardis.opacities.broadening import calc_doppler_width
+from stardis.opacities.broadening import calc_doppler_width, _calc_doppler_width_cuda
+
+GPUs_available = cuda.is_available()
+
+if GPUs_available:
+    import cupy as cp
+
 
 PI = np.pi
 SPEED_OF_LIGHT = const.c.cgs.value
@@ -44,4 +51,45 @@ def test_calc_doppler_width_sample_values(
             calc_doppler_width_sample_values_input_atomic_mass,
         ),
         calc_doppler_width_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "calc_doppler_width_cuda_unwrapped_sample_values_input_nu_line,calc_doppler_width_cuda_unwrapped_sample_values_input_temperature,calc_doppler_width_cuda_unwrapped_sample_values_input_atomic_mass,calc_doppler_width_cuda_unwrapped_sample_values_expected_result",
+    [
+        (
+            np.array(2 * [SPEED_OF_LIGHT]),
+            np.array(2 * [0.5]),
+            np.array(2 * [BOLTZMANN_CONSTANT]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_doppler_width_cuda_unwrapped_sample_values(
+    calc_doppler_width_cuda_unwrapped_sample_values_input_nu_line,
+    calc_doppler_width_cuda_unwrapped_sample_values_input_temperature,
+    calc_doppler_width_cuda_unwrapped_sample_values_input_atomic_mass,
+    calc_doppler_width_cuda_unwrapped_sample_values_expected_result,
+):
+    arg_list = (
+        calc_doppler_width_cuda_unwrapped_sample_values_input_nu_line,
+        calc_doppler_width_cuda_unwrapped_sample_values_input_temperature,
+        calc_doppler_width_cuda_unwrapped_sample_values_input_atomic_mass,
+    )
+
+    arg_list = tuple(map(cp.array, arg_list))
+    result_values = cp.empty_like(arg_list[0])
+
+    nthreads = 256
+    length = len(calc_doppler_width_cuda_unwrapped_sample_values_expected_result)
+    nblocks = 1 + (length // nthreads)
+
+    _calc_doppler_width_cuda[nblocks, nthreads](result_values, *arg_list)
+
+    assert np.allclose(
+        cp.asnumpy(result_values),
+        calc_doppler_width_cuda_unwrapped_sample_values_expected_result,
     )
