@@ -3,7 +3,11 @@ import numpy as np
 from astropy import constants as const
 from numba import cuda
 
-from stardis.opacities.broadening import calc_doppler_width, _calc_doppler_width_cuda
+from stardis.opacities.broadening import (
+    calc_doppler_width,
+    _calc_doppler_width_cuda,
+    calc_doppler_width_cuda,
+)
 
 GPUs_available = cuda.is_available()
 
@@ -92,4 +96,35 @@ def test_calc_doppler_width_cuda_unwrapped_sample_values(
     assert np.allclose(
         cp.asnumpy(result_values),
         calc_doppler_width_cuda_unwrapped_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "calc_doppler_width_cuda_sample_values_input_nu_line, calc_doppler_width_cuda_sample_values_input_temperature, calc_doppler_width_cuda_sample_values_input_atomic_mass, calc_doppler_width_cuda_wrapped_sample_cuda_values_expected_result",
+    [
+        (
+            np.array(2 * [SPEED_OF_LIGHT]),
+            np.array(2 * [0.5]),
+            np.array(2 * [BOLTZMANN_CONSTANT]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_doppler_width_cuda_wrapped_sample_cuda_values(
+    calc_doppler_width_cuda_sample_values_input_nu_line,
+    calc_doppler_width_cuda_sample_values_input_temperature,
+    calc_doppler_width_cuda_sample_values_input_atomic_mass,
+    calc_doppler_width_cuda_wrapped_sample_cuda_values_expected_result,
+):
+    arg_list = (
+        calc_doppler_width_cuda_sample_values_input_nu_line,
+        calc_doppler_width_cuda_sample_values_input_temperature,
+        calc_doppler_width_cuda_sample_values_input_atomic_mass,
+    )
+    assert np.allclose(
+        calc_doppler_width_cuda(*map(cp.asarray, arg_list)),
+        calc_doppler_width_cuda_wrapped_sample_cuda_values_expected_result,
     )
