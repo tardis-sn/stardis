@@ -70,7 +70,7 @@ def calc_doppler_width_cuda(
     temperature,
     atomic_mass,
     nthreads=256,
-    ret_np_ndarray=True,
+    ret_np_ndarray=False,
     dtype=float,
 ):
     arg_list = (
