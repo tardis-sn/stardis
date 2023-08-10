@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing &mdash; stardis 0.1.dev1+ge050378 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="bibliography.html" />
+    <link rel="prev" title="Running the Code" href="running_the_code.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            stardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_the_code.html">Running the Code</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generating-conda-lockfiles">Generating Conda Lockfiles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#without-cuda-support">Without CUDA Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#with-cuda-support">With CUDA Support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">stardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Contributing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contributing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h1>
+<section id="generating-conda-lockfiles">
+<h2>Generating Conda Lockfiles<a class="headerlink" href="#generating-conda-lockfiles" title="Permalink to this heading"></a></h2>
+<p>In the interest of reproducibility, STARDIS uses <a class="reference external" href="https://conda.github.io/conda-lock/">conda-lock</a> files to keep the virtual environment consistent across similar machines and installations. High level specifications of the environments are given in <code class="docutils literal notranslate"><span class="pre">stardis_env3.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">stardis_env3_cuda.yml</span></code>, and then <code class="docutils literal notranslate"><span class="pre">conda-lock</span></code> is used to create the corresponding lockfile. The steps are as follow.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These steps are only tested using <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">miniconda</a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Both sets of steps below assume that all commands are being run from your local STARDIS git repository, which can be obtained using the developer installation instructions.</p>
+</div>
+<section id="without-cuda-support">
+<h3>Without CUDA Support<a class="headerlink" href="#without-cuda-support" title="Permalink to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Activate the Conda virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference external" href="https://conda.github.io/conda-lock/cli/gen/#conda-lock-lock">Create a lockfile</a> using conda-lock’s <a class="reference external" href="https://conda.github.io/conda-lock/output/#unified-lockfile">unified lockfile format</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda-lock<span class="w"> </span>-f<span class="w"> </span>stardis_env3.yml<span class="w"> </span>--conda<span class="w"> </span><span class="k">$(</span>which<span class="w"> </span>conda<span class="k">)</span><span class="w"> </span>--strip-auth
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference external" href="https://conda.github.io/conda-lock/cli/gen/#conda-lock-render">Render</a> platform-specific lockfiles:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda-lock<span class="w"> </span>render<span class="w"> </span>conda-lock.yml
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="with-cuda-support">
+<h3>With CUDA Support<a class="headerlink" href="#with-cuda-support" title="Permalink to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Activate the Conda virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis-cuda
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference external" href="https://conda.github.io/conda-lock/cli/gen/#conda-lock-lock">Create a lockfile</a> using conda-lock’s <a class="reference external" href="https://conda.github.io/conda-lock/output/#unified-lockfile">unified lockfile format</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda-lock<span class="w"> </span>-f<span class="w"> </span>stardis_env3_cuda.yml<span class="w"> </span>--conda<span class="w"> </span><span class="k">$(</span>which<span class="w"> </span>conda<span class="k">)</span><span class="w"> </span>--strip-auth<span class="w"> </span>--lockfile<span class="w"> </span>conda-lock-cuda.yml
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference external" href="https://conda.github.io/conda-lock/cli/gen/#conda-lock-render">Render</a> platform-specific lockfiles:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda-lock<span class="w"> </span>render<span class="w"> </span>--filename-template<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>-cuda.lock<span class="w"> </span>conda-lock-cuda.yml
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="running_the_code.html" class="btn btn-neutral float-left" title="Running the Code" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bibliography.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, TARDIS Collaboration.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

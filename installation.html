@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloading and Installation &mdash; stardis 0.1.dev1+g437e371 documentation</title>
+  <title>Downloading and Installation &mdash; stardis 0.1.dev1+ge050378 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -58,6 +60,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="physics/physics_of_stardis.html">Physics of STARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running_the_code.html">Running the Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -100,19 +103,21 @@
 as using the TARDIS code itself. However, since STARDIS can be sensitive
 to changes in TARDIS, we strongly suggest that users create a separate
 environment for STARDIS that pins the TARDIS version. To do this, run
-the following in the terminal (replacing <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with either
-<code class="docutils literal notranslate"><span class="pre">linux</span></code>, <code class="docutils literal notranslate"><span class="pre">linux-cuda</span></code>, or <code class="docutils literal notranslate"><span class="pre">osx</span></code> as applicable):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd &lt;path-to-stardis-directory&gt;
-$ conda create --name stardis --file conda-{platform}-64.lock
-$ conda activate stardis
+the following in the terminal (replacing <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with
+<code class="docutils literal notranslate"><span class="pre">linux-64</span></code>, <code class="docutils literal notranslate"><span class="pre">linux-64-cuda</span></code>, or <code class="docutils literal notranslate"><span class="pre">osx-64</span></code> as applicable).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
+$<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
+$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
 </pre></div>
 </div>
 <p>The third command (<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">stardis</span></code>) activates the
 environment, which is necessary to correctly install STARDIS using the directions below.</p>
 <p>If you are using Mamba, the steps are similar:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd &lt;path-to-stardis-directory&gt;
-$ mamba create --name stardis --file conda-{platform}-64.lock
-$ mamba activate stardis
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
+$<span class="w"> </span>mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
+$<span class="w"> </span>mamba<span class="w"> </span>activate<span class="w"> </span>stardis
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
 </pre></div>
 </div>
 </section>
@@ -143,7 +148,7 @@ $ cd stardis
 $ git remote add upstream git@github.com:tardis-sn/stardis.git
 $ git fetch upstream
 $ git checkout upstream/main
-$ python setup.py develop
+$ pip install -e .[test,docs]
 </pre></div>
 </div>
 </section>

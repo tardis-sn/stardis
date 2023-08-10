@@ -17,25 +17,27 @@ STARDIS uses exclusively the packages in the TARDIS enviroment, as well
 as using the TARDIS code itself. However, since STARDIS can be sensitive
 to changes in TARDIS, we strongly suggest that users create a separate
 environment for STARDIS that pins the TARDIS version. To do this, run
-the following in the terminal (replacing ``{platform}`` with either
-``linux``, ``linux-cuda``, or ``osx`` as applicable):
+the following in the terminal (replacing ``{platform}`` with
+``linux-64``, ``linux-64-cuda``, or ``osx-64`` as applicable). 
 
-::
+.. code-block:: bash
 
    $ cd <path-to-stardis-directory>
-   $ conda create --name stardis --file conda-{platform}-64.lock
+   $ conda create --name stardis --file conda-{platform}.lock
    $ conda activate stardis
+   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
 
 The third command (``conda activate stardis``) activates the
 environment, which is necessary to correctly install STARDIS using the directions below.
 
 If you are using Mamba, the steps are similar:
 
-::
+.. code-block:: bash
 
    $ cd <path-to-stardis-directory>
-   $ mamba create --name stardis --file conda-{platform}-64.lock
+   $ mamba create --name stardis --file conda-{platform}.lock
    $ mamba activate stardis
+   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
    
 Downloading and Installing STARDIS
 ----------------------------------
@@ -71,4 +73,4 @@ and then run the following in the terminal:
    $ git remote add upstream git@github.com:tardis-sn/stardis.git
    $ git fetch upstream
    $ git checkout upstream/main
-   $ python setup.py develop
+   $ pip install -e .[test,docs]
