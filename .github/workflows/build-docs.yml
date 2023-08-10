@@ -42,11 +42,17 @@ jobs:
           mamba update -n stardis --file conda-linux-64.lock
         if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
         
+      - name: Install TARDIS
+        id: install-tardis
+        # shell: bash -l {0}
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+        
       - name: Install STARDIS
         id: install-stardis
         # shell: bash -l {0}
         run: |
-          python setup.py develop
+          pip install -e .[docs]
 
       - name: Make Sphinx HTML
         id: make-sphinx-html

@@ -25,6 +25,10 @@ jobs:
           label: linux-64
           prefix: /usr/share/miniconda3/envs/stardis
 
+        - os: ubuntu-latest
+          label: linux-64-cuda
+          prefix: /usr/share/miniconda3/envs/stardis
+
         - os: macos-latest
           label: osx-64
           prefix: /Users/runner/miniconda3/envs/stardis
@@ -48,7 +52,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
+          key: conda-${{ matrix.label }}-${{ hashFiles(format('conda-{0}.lock', matrix.label)) }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
 
       - name: Update Conda Environment
@@ -57,14 +61,20 @@ jobs:
           mamba update -n stardis --file conda-${{ matrix.label }}.lock
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
+      - name: Install TARDIS
+        id: install-tardis
+        # shell: bash -l {0}
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+          
       - name: Install STARDIS
         id: install-stardis
         # shell: bash -l {0}
         run: |
-          python setup.py develop
-
+          pip install -e .[test]
+          
       - name: Run tests
-        run: pytest stardis ${{ env.PYTEST_FLAGS }}          
+        run: pytest ${{ env.PYTEST_FLAGS }}          
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
