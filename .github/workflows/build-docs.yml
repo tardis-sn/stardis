@@ -83,7 +83,7 @@ jobs:
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: ./docs/_build/html
           destination_dir: ${{ env.DEST_DIR }}
@@ -103,7 +103,7 @@ jobs:
       - name: Post comment (success)
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token:  ${{ secrets.GITHUB_TOKEN }}
+          token:  ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
@@ -122,7 +122,7 @@ jobs:
       - name: Post comment (failure)
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token:  ${{ secrets.GITHUB_TOKEN }}
+          token:  ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
