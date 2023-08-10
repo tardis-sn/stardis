@@ -9,7 +9,7 @@ from tardis.io.atom_data import AtomData
 from tardis.io.config_validator import validate_yaml
 from tardis.io.config_reader import Configuration
 
-from stardis.model import read_marcs_to_fv
+from stardis.io.model.marcs import read_marcs_model
 from stardis.plasma import create_stellar_plasma
 from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
@@ -37,12 +37,26 @@ class BenchmarkStardis:
 
         adata = AtomData.from_hdf(config.atom_data)
 
-        stellar_model = read_marcs_to_fv(
-            config.model.fname,
-            adata,
-            final_atomic_number=config.model.final_atomic_number,
+        if config.model.type == "marcs":
+            raw_marcs_model = read_marcs_model(config.model.fname, gzipped=False)
+            stellar_model = raw_marcs_model.to_stellar_model(
+                adata, final_atomic_number=config.model.final_atomic_number
+            )
+
+        adata.prepare_atom_data(
+            np.arange(
+                1,
+                np.min(
+                    [
+                        len(
+                            stellar_model.composition.atomic_mass_fraction.columns.tolist()
+                        ),
+                        config.model.final_atomic_number,
+                    ]
+                )
+                + 1,
+            )
         )
-        adata.prepare_atom_data(stellar_model.abundances.index.tolist())
 
         stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
