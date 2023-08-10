@@ -149,7 +149,7 @@ def calc_n_effective_cuda(
     ionization_energy,
     level_energy,
     nthreads=256,
-    ret_np_ndarray=True,
+    ret_np_ndarray=False,
     dtype=float,
 ):
     arg_list = (
