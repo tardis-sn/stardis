@@ -32,10 +32,16 @@ def _calc_doppler_width(nu_line, temperature, atomic_mass):
     -------
     float
     """
+    nu_line, temperature, atomic_mass = (
+        float(nu_line),
+        float(temperature),
+        float(atomic_mass),
+    )
+
     return (
         nu_line
         / SPEED_OF_LIGHT
-        * math.sqrt(2 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
+        * math.sqrt(2.0 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
     )
 
 
