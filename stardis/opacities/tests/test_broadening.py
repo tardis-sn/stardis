@@ -7,6 +7,7 @@ from stardis.opacities.broadening import (
     calc_doppler_width,
     _calc_doppler_width_cuda,
     calc_doppler_width_cuda,
+    calc_n_effective,
 )
 
 GPUs_available = cuda.is_available()
@@ -127,4 +128,37 @@ def test_calc_doppler_width_cuda_wrapped_sample_cuda_values(
     assert np.allclose(
         calc_doppler_width_cuda(*map(cp.asarray, arg_list)),
         calc_doppler_width_cuda_wrapped_sample_cuda_values_expected_result,
+    )
+
+
+@pytest.mark.parametrize(
+    "calc_n_effective_sample_values_input_ion_number,calc_n_effective_sample_values_input_ionization_energy,calc_n_effective_sample_values_input_level_energy, calc_n_effective_sample_values_expected_result",
+    [
+        (
+            1.0,
+            RYDBERG_ENERGY,
+            0,
+            1.0,
+        ),
+        (
+            np.array(2 * [1.0]),
+            np.array(2 * [RYDBERG_ENERGY]),
+            np.array(2 * [0]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_n_effective_sample_values(
+    calc_n_effective_sample_values_input_ion_number,
+    calc_n_effective_sample_values_input_ionization_energy,
+    calc_n_effective_sample_values_input_level_energy,
+    calc_n_effective_sample_values_expected_result,
+):
+    assert np.allclose(
+        calc_n_effective(
+            calc_n_effective_sample_values_input_ion_number,
+            calc_n_effective_sample_values_input_ionization_energy,
+            calc_n_effective_sample_values_input_level_energy,
+        ),
+        calc_n_effective_sample_values_expected_result,
     )
