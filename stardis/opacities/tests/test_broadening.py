@@ -8,6 +8,8 @@ from stardis.opacities.broadening import (
     _calc_doppler_width_cuda,
     calc_doppler_width_cuda,
     calc_n_effective,
+    _calc_n_effective_cuda,
+    calc_n_effective_cuda,
 )
 
 GPUs_available = cuda.is_available()
@@ -161,4 +163,76 @@ def test_calc_n_effective_sample_values(
             calc_n_effective_sample_values_input_level_energy,
         ),
         calc_n_effective_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "calc_n_effective_cuda_unwrapped_sample_values_input_ion_number,calc_n_effective_cuda_unwrapped_sample_values_input_ionization_energy,calc_n_effective_cuda_unwrapped_sample_values_input_level_energy,calc_n_effective_cuda_unwrapped_sample_values_expected_result",
+    [
+        (
+            np.array(2 * [1]),
+            np.array(2 * [RYDBERG_ENERGY]),
+            np.array(2 * [0]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_n_effective_cuda_unwrapped_sample_values(
+    calc_n_effective_cuda_unwrapped_sample_values_input_ion_number,
+    calc_n_effective_cuda_unwrapped_sample_values_input_ionization_energy,
+    calc_n_effective_cuda_unwrapped_sample_values_input_level_energy,
+    calc_n_effective_cuda_unwrapped_sample_values_expected_result,
+):
+    arg_list = (
+        calc_n_effective_cuda_unwrapped_sample_values_input_ion_number,
+        calc_n_effective_cuda_unwrapped_sample_values_input_ionization_energy,
+        calc_n_effective_cuda_unwrapped_sample_values_input_level_energy,
+    )
+
+    arg_list = tuple(map(cp.array, arg_list))
+    result_values = cp.empty_like(arg_list[0])
+
+    nthreads = 256
+    length = len(calc_n_effective_cuda_unwrapped_sample_values_expected_result)
+    nblocks = 1 + (length // nthreads)
+
+    _calc_n_effective_cuda[nblocks, nthreads](result_values, *arg_list)
+
+    assert np.allclose(
+        cp.asnumpy(result_values),
+        calc_n_effective_cuda_unwrapped_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "calc_n_effective_cuda_sample_values_input_ion_number, calc_n_effective_cuda_sample_values_input_ionization_energy, calc_n_effective_cuda_sample_values_input_level_energy, calc_n_effective_cuda_wrapped_sample_cuda_values_expected_result",
+    [
+        (
+            np.array(2 * [1]),
+            np.array(2 * [RYDBERG_ENERGY]),
+            np.array(2 * [0]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_n_effective_cuda_wrapped_sample_cuda_values(
+    calc_n_effective_cuda_sample_values_input_ion_number,
+    calc_n_effective_cuda_sample_values_input_ionization_energy,
+    calc_n_effective_cuda_sample_values_input_level_energy,
+    calc_n_effective_cuda_wrapped_sample_cuda_values_expected_result,
+):
+    arg_list = (
+        calc_n_effective_cuda_sample_values_input_ion_number,
+        calc_n_effective_cuda_sample_values_input_ionization_energy,
+        calc_n_effective_cuda_sample_values_input_level_energy,
+    )
+    assert np.allclose(
+        calc_n_effective_cuda(*map(cp.asarray, arg_list)),
+        calc_n_effective_cuda_wrapped_sample_cuda_values_expected_result,
     )
