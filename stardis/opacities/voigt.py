@@ -161,7 +161,7 @@ def voigt_profile_cuda(
     doppler_width,
     gamma,
     nthreads=256,
-    ret_np_ndarray=True,
+    ret_np_ndarray=False,
     dtype=float,
 ):
     arg_list = (
