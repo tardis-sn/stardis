@@ -97,7 +97,7 @@ def _faddeeva_cuda(res, z):
         res[tid] = _faddeeva(z[tid])
 
 
-def faddeeva_cuda(z, nthreads=256, ret_np_ndarray=True):
+def faddeeva_cuda(z, nthreads=256, ret_np_ndarray=False):
     size = len(z)
     nblocks = 1 + (size // nthreads)
     z = cp.asarray(z, dtype=complex)
