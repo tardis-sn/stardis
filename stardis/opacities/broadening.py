@@ -97,7 +97,7 @@ def calc_doppler_width_cuda(
 
 
 @numba.njit
-def calc_n_effective(ion_number, ionization_energy, level_energy):
+def _calc_n_effective(ion_number, ionization_energy, level_energy):
     """
     Calculates the effective principal quantum number of an energy level.
 
@@ -114,7 +114,17 @@ def calc_n_effective(ion_number, ionization_energy, level_energy):
     -------
     float
     """
-    return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+    ion_number, ionization_energy, level_energy = (
+        int(ion_number),
+        float(ionization_energy),
+        float(level_energy),
+    )
+    return math.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+
+
+@numba.vectorize(nopython=True)
+def calc_n_effective(ion_number, ionization_energy, level_energy):
+    return _calc_n_effective(ion_number, ionization_energy, level_energy)
 
 
 @numba.njit

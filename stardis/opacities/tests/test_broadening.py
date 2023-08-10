@@ -141,7 +141,7 @@ def test_calc_doppler_width_cuda_wrapped_sample_cuda_values(
             1.0,
         ),
         (
-            np.array(2 * [1.0]),
+            np.array(2 * [1]),
             np.array(2 * [RYDBERG_ENERGY]),
             np.array(2 * [0]),
             np.array(2 * [1.0]),
