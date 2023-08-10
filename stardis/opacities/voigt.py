@@ -146,11 +146,7 @@ def voigt_profile(delta_nu, doppler_width, gamma):
 def _voigt_profile_cuda(res, delta_nu, doppler_width, gamma):
     tid = cuda.grid(1)
 
-    size = min(
-        len(delta_nu),
-        len(doppler_width),
-        len(gamma),
-    )
+    size = len(res)
 
     if tid < size:
         res[tid] = _voigt_profile(delta_nu[tid], doppler_width[tid], gamma[tid])
