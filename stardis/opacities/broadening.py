@@ -1,5 +1,6 @@
 import numpy as np
 from astropy import constants as const
+import math
 import numba
 
 
@@ -13,7 +14,7 @@ VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
 
 
 @numba.njit
-def calc_doppler_width(nu_line, temperature, atomic_mass):
+def _calc_doppler_width(nu_line, temperature, atomic_mass):
     """
     Calculates doppler width.
     https://ui.adsabs.harvard.edu/abs/2003rtsa.book.....R/
@@ -34,8 +35,13 @@ def calc_doppler_width(nu_line, temperature, atomic_mass):
     return (
         nu_line
         / SPEED_OF_LIGHT
-        * np.sqrt(2 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
+        * math.sqrt(2 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
     )
+
+
+@numba.vectorize(nopython=True)
+def calc_doppler_width(nu_line, temperature, atomic_mass):
+    return _calc_doppler_width(nu_line, temperature, atomic_mass)
 
 
 @numba.njit

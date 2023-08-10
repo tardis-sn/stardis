@@ -1,10 +1,10 @@
 import pytest
-from numpy import allclose, pi as PI
+import numpy as np
 from astropy import constants as const
 
 from stardis.opacities.broadening import calc_doppler_width
 
-
+PI = np.pi
 SPEED_OF_LIGHT = const.c.cgs.value
 BOLTZMANN_CONSTANT = const.k_B.cgs.value
 PLANCK_CONSTANT = const.h.cgs.value
@@ -17,8 +17,18 @@ VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * PI)
 @pytest.mark.parametrize(
     "calc_doppler_width_sample_values_input_nu_line,calc_doppler_width_sample_values_input_temperature,calc_doppler_width_sample_values_input_atomic_mass, calc_doppler_width_sample_values_expected_result",
     [
-        (SPEED_OF_LIGHT, 0.5, BOLTZMANN_CONSTANT, 1.0),
-        # (0.0, 1.0 + 0.0j),
+        (
+            SPEED_OF_LIGHT,
+            0.5,
+            BOLTZMANN_CONSTANT,
+            1.0,
+        ),
+        (
+            np.array(2 * [SPEED_OF_LIGHT]),
+            np.array(2 * [0.5]),
+            np.array(2 * [BOLTZMANN_CONSTANT]),
+            np.array(2 * [1.0]),
+        ),
     ],
 )
 def test_calc_doppler_width_sample_values(
@@ -27,7 +37,7 @@ def test_calc_doppler_width_sample_values(
     calc_doppler_width_sample_values_input_atomic_mass,
     calc_doppler_width_sample_values_expected_result,
 ):
-    assert allclose(
+    assert np.allclose(
         calc_doppler_width(
             calc_doppler_width_sample_values_input_nu_line,
             calc_doppler_width_sample_values_input_temperature,
