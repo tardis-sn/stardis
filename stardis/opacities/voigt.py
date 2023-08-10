@@ -91,7 +91,7 @@ def faddeeva(z):
 @cuda.jit
 def _faddeeva_cuda(res, z):
     tid = cuda.grid(1)
-    size = len(z)
+    size = len(res)
 
     if tid < size:
         res[tid] = _faddeeva(z[tid])
