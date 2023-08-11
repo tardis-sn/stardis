@@ -219,6 +219,19 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     return _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density)
 
 
+@cuda.jit
+def _calc_gamma_linear_stark_cuda(res, n_eff_upper, n_eff_lower, electron_density):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_linear_stark(
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            electron_density[tid],
+        )
+
+
 @numba.njit
 def calc_gamma_quadratic_stark(
     ion_number, n_eff_upper, n_eff_lower, electron_density, temperature
