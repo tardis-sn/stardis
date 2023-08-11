@@ -10,6 +10,7 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calc_n_effective,
     _calc_n_effective_cuda,
     calc_n_effective_cuda,
+    calc_gamma_linear_stark,
 )
 
 GPUs_available = cuda.is_available()
@@ -235,4 +236,37 @@ def test_calc_n_effective_cuda_wrapped_sample_cuda_values(
     assert np.allclose(
         calc_n_effective_cuda(*map(cp.asarray, arg_list)),
         calc_n_effective_cuda_wrapped_sample_cuda_values_expected_result,
+    )
+
+
+@pytest.mark.parametrize(
+    "calc_gamma_linear_stark_sample_values_input_n_eff_upper,calc_gamma_linear_stark_sample_values_input_n_eff_lower,calc_gamma_linear_stark_sample_values_input_electron_density, calc_gamma_linear_stark_sample_values_expected_result",
+    [
+        (
+            1,
+            0,
+            (0.51 * 0.642) ** (-3 / 2),
+            1.0,
+        ),
+        (
+            np.array(2 * [1]),
+            np.array(2 * [0]),
+            np.array(2 * [(0.51 * 0.642) ** (-3 / 2)]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_gamma_linear_stark_sample_values(
+    calc_gamma_linear_stark_sample_values_input_n_eff_upper,
+    calc_gamma_linear_stark_sample_values_input_n_eff_lower,
+    calc_gamma_linear_stark_sample_values_input_electron_density,
+    calc_gamma_linear_stark_sample_values_expected_result,
+):
+    assert np.allclose(
+        calc_gamma_linear_stark(
+            calc_gamma_linear_stark_sample_values_input_n_eff_upper,
+            calc_gamma_linear_stark_sample_values_input_n_eff_lower,
+            calc_gamma_linear_stark_sample_values_input_electron_density,
+        ),
+        calc_gamma_linear_stark_sample_values_expected_result,
     )
