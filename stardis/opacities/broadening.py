@@ -181,20 +181,34 @@ def calc_gamma_quadratic_stark(
     gamma_quadratic_stark : float
         Broadening parameter for quadratic Stark broadening.
     """
-    c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
-        36 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * ion_number**4
+    ion_number, n_eff_upper, n_eff_lower, electron_density, temperature = (
+        int(ion_number),
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(electron_density),
+        float(temperature),
     )
-    c4 = c4_prefactor * (
-        (n_eff_upper * ((5 * n_eff_upper**2) + 1)) ** 2
-        - (n_eff_lower * ((5 * n_eff_lower**2) + 1)) ** 2
+    c4_prefactor = (
+        ELEMENTARY_CHARGE * ELEMENTARY_CHARGE * BOHR_RADIUS * BOHR_RADIUS * BOHR_RADIUS
+    ) / (
+        36.0
+        * PLANCK_CONSTANT
+        * VACUUM_ELECTRIC_PERMITTIVITY
+        * ion_number
+        * ion_number
+        * ion_number
+        * ion_number
     )
+    c4_term_1 = n_eff_upper * ((5.0 * n_eff_upper * n_eff_upper) + 1)
+    c4_term_2 = n_eff_lower * ((5.0 * n_eff_lower * n_eff_lower) + 1)
+    c4 = c4_prefactor * (c4_term_1 * c4_term_1 - c4_term_2 * c4_term_2)
 
     gamma_quadratic_stark = (
-        10**19
+        1e19
         * BOLTZMANN_CONSTANT
         * electron_density
-        * c4 ** (2 / 3)
-        * temperature ** (1 / 6)
+        * c4 ** (2.0 / 3.0)
+        * temperature ** (1.0 / 6.0)
     )
 
     return gamma_quadratic_stark
