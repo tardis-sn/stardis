@@ -176,7 +176,7 @@ def calc_n_effective_cuda(
 
 
 @numba.njit
-def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
+def _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
     Calculates broadening parameter for linear Stark broadening.
     https://ui.adsabs.harvard.edu/abs/1978JQSRT..20..333S/
@@ -212,6 +212,11 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     )
 
     return gamma_linear_stark
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
+    return _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density)
 
 
 @numba.njit
