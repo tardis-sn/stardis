@@ -196,16 +196,19 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
         Broadening parameter for linear Stark broadening.
     """
 
-    if n_eff_upper - n_eff_lower < 1.5:
-        a1 = 0.642
-    else:
-        a1 = 1
+    n_eff_upper, n_eff_lower, electron_density = (
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(electron_density),
+    )
+
+    a1 = 0.642 if (n_eff_upper - n_eff_lower < 1.5) else 1.0
 
     gamma_linear_stark = (
         0.51
         * a1
         * (n_eff_upper**2 - n_eff_lower**2)
-        * (electron_density ** (2 / 3))
+        * (electron_density ** (2.0 / 3.0))
     )
 
     return gamma_linear_stark
