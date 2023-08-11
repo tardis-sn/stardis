@@ -7,6 +7,7 @@ from stardis.opacities.broadening import (
     calc_doppler_width,
     _calc_doppler_width_cuda,
     calc_doppler_width_cuda,
+    calc_gamma_quadratic_stark,
 )
 
 GPUs_available = cuda.is_available()
@@ -127,4 +128,50 @@ def test_calc_doppler_width_cuda_wrapped_sample_cuda_values(
     assert np.allclose(
         calc_doppler_width_cuda(*map(cp.asarray, arg_list)),
         calc_doppler_width_cuda_wrapped_sample_cuda_values_expected_result,
+    )
+
+
+c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
+    36.0 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY
+)
+
+
+@pytest.mark.parametrize(
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_doppler_width_sample_values_input_electron_density,  calc_doppler_width_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    [
+        (
+            1,  # ion_number
+            1.0,  # n_eff_upper
+            0.0,  # n_eff_lower
+            1.0e-19
+            / BOLTZMANN_CONSTANT
+            * (36 * c4_prefactor) ** (-2.0 / 3.0),  # electron_density
+            1.0,  # temperature
+            1,  # Expected output
+        ),
+        # (
+        #     np.array(2 * [SPEED_OF_LIGHT]),
+        #     np.array(2 * [0.5]),
+        #     np.array(2 * [BOLTZMANN_CONSTANT]),
+        #     np.array(2 * [1.0]),
+        # ),
+    ],
+)
+def test_calc_gamma_quadratic_stark_sample_values(
+    calc_gamma_quadratic_stark_sample_values_input_ion_number,
+    calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
+    calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
+    calc_doppler_width_sample_values_input_electron_density,
+    calc_doppler_width_sample_values_input_temperature,
+    calc_gamma_quadratic_stark_sample_values_expected_result,
+):
+    assert np.allclose(
+        calc_gamma_quadratic_stark(
+            calc_gamma_quadratic_stark_sample_values_input_ion_number,
+            calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
+            calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
+            calc_doppler_width_sample_values_input_electron_density,
+            calc_doppler_width_sample_values_input_temperature,
+        ),
+        calc_gamma_quadratic_stark_sample_values_expected_result,
     )
