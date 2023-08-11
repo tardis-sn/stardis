@@ -49,6 +49,7 @@ def calc_weights(delta_tau):
     -------
     w0 : float
     w1 : float
+    w2: float
     """
 
     if delta_tau < 5e-4:
@@ -61,7 +62,8 @@ def calc_weights(delta_tau):
         exp_delta_tau = np.exp(-delta_tau)
         w0 = 1 - exp_delta_tau
         w1 = w0 - delta_tau * exp_delta_tau
-    return w0, w1
+        w2 = 2 * w1 - delta_tau * delta_tau * exp_delta_tau
+    return w0, w1, w2
 
 
 @numba.njit()
@@ -111,14 +113,25 @@ def single_theta_trace(
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
             curr_tau = taus[i, j]
+            next_tau = taus[i, j + 1]
 
-            w0, w1 = calc_weights(curr_tau)
+            w0, w1, w2 = calc_weights(curr_tau)
 
             if curr_tau == 0:
                 second_term = 0
             else:
                 second_term = w1 * delta_source[j, i] / curr_tau
+            if j < no_of_depth_gaps - 1:
+                third_term = w2 * (
+                    (
+                        (delta_source[j + 1, i] / next_tau)
+                        + (-delta_source[j, i] / curr_tau)
+                    )
+                    / (curr_tau + next_tau)
+                )
 
+            else:
+                third_term = 0
             I_nu_theta[j + 1, i] = (
                 (1 - w0) * I_nu_theta[j, i]
                 + w0
@@ -126,7 +139,8 @@ def single_theta_trace(
                     j + 1, i
                 ]  # Changed to j + 1 b/c van Noort 2001 mentions using Source of future point to update, not current.
                 + second_term
-            )  # van Noort 2001 eq 14
+                + third_term
+            )
 
     return I_nu_theta
 
