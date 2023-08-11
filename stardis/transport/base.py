@@ -92,7 +92,6 @@ def calc_weights_w2(delta_tau):
         w0 = 1 - exp_delta_tau
         w1 = w0 - delta_tau * exp_delta_tau
         w2 = 2 * w1 - delta_tau * delta_tau * exp_delta_tau
-        print(w0, w1, w2)
     return w0, w1, w2
 
 
@@ -143,6 +142,7 @@ def single_theta_trace(
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
             curr_tau = taus[i, j]
+            next_tau = taus[i, j + 1]
 
             w0, w1, w2 = calc_weights_w2(curr_tau)
 
@@ -153,11 +153,14 @@ def single_theta_trace(
             if j < no_of_depth_gaps - 1:
                 third_term = w2 * (
                     (
-                        (source[j + 2, i] - source[j + 1, i] / taus[i, j + 1])
-                        + ((source[j, i] - source[j + 1, i]) / taus[i, j])
+                        # (source[j + 2, i] - source[j + 1, i] / taus[i, j + 1])
+                        # + ((source[j, i] - source[j + 1, i]) / taus[i, j])
+                        (delta_source[j + 1, i] / next_tau)
+                        + (-delta_source[j, i] / curr_tau)
                     )
-                    / (taus[i, j] + taus[i, j + 1])
+                    / (curr_tau + next_tau)
                 )
+
             else:
                 third_term = 0
             I_nu_theta[j + 1, i] = (
