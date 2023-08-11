@@ -16,10 +16,14 @@ properties:
                 - marcs
             fname:
                 type: string
+            gzipped:
+                type: boolean
+                default: false            
             final_atomic_number:
                 type: number
                 multipleOf: 1
                 default: 30
+
         required:
         - type
         - fname
