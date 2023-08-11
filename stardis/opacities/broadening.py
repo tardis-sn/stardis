@@ -154,8 +154,12 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
 
 
 @numba.njit
-def calc_gamma_quadratic_stark(
-    ion_number, n_eff_upper, n_eff_lower, electron_density, temperature
+def _calc_gamma_quadratic_stark(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
 ):
     """
     Calculates broadening parameter for quadratic Stark broadening.
@@ -212,6 +216,23 @@ def calc_gamma_quadratic_stark(
     )
 
     return gamma_quadratic_stark
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_quadratic_stark(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
+):
+    return _calc_gamma_quadratic_stark(
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        electron_density,
+        temperature,
+    )
 
 
 @numba.njit
