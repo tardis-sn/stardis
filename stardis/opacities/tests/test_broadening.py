@@ -149,12 +149,16 @@ c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
             1.0,  # temperature
             1,  # Expected output
         ),
-        # (
-        #     np.array(2 * [SPEED_OF_LIGHT]),
-        #     np.array(2 * [0.5]),
-        #     np.array(2 * [BOLTZMANN_CONSTANT]),
-        #     np.array(2 * [1.0]),
-        # ),
+        (
+            np.array(2 * [1], dtype=int),
+            np.array(2 * [1.0]),
+            np.array(2 * [0.0]),
+            np.array(
+                2 * [1.0e-19 / BOLTZMANN_CONSTANT * (36 * c4_prefactor) ** (-2.0 / 3.0)]
+            ),
+            np.array(2 * [1.0]),
+            np.array(2 * [1.0]),
+        ),
     ],
 )
 def test_calc_gamma_quadratic_stark_sample_values(
