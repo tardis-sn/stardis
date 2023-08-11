@@ -115,7 +115,7 @@ def single_theta_trace(
             curr_tau = taus[i, j]
             next_tau = taus[i, j + 1]
 
-            w0, w1, w2 = calc_weights_w2(curr_tau)
+            w0, w1, w2 = calc_weights(curr_tau)
 
             if curr_tau == 0:
                 second_term = 0
