@@ -8,6 +8,8 @@ from stardis.opacities.broadening import (
     _calc_doppler_width_cuda,
     calc_doppler_width_cuda,
     calc_gamma_quadratic_stark,
+    _calc_gamma_quadratic_stark_cuda,
+    calc_gamma_quadratic_stark_cuda,
 )
 
 GPUs_available = cuda.is_available()
@@ -137,7 +139,7 @@ c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
 
 
 @pytest.mark.parametrize(
-    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_doppler_width_sample_values_input_electron_density,  calc_doppler_width_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
     [
         (
             1,  # ion_number
@@ -165,8 +167,8 @@ def test_calc_gamma_quadratic_stark_sample_values(
     calc_gamma_quadratic_stark_sample_values_input_ion_number,
     calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
     calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
-    calc_doppler_width_sample_values_input_electron_density,
-    calc_doppler_width_sample_values_input_temperature,
+    calc_gamma_quadratic_stark_sample_values_input_electron_density,
+    calc_gamma_quadratic_stark_sample_values_input_temperature,
     calc_gamma_quadratic_stark_sample_values_expected_result,
 ):
     assert np.allclose(
@@ -174,8 +176,96 @@ def test_calc_gamma_quadratic_stark_sample_values(
             calc_gamma_quadratic_stark_sample_values_input_ion_number,
             calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
             calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
-            calc_doppler_width_sample_values_input_electron_density,
-            calc_doppler_width_sample_values_input_temperature,
+            calc_gamma_quadratic_stark_sample_values_input_electron_density,
+            calc_gamma_quadratic_stark_sample_values_input_temperature,
         ),
+        calc_gamma_quadratic_stark_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    [
+        (
+            np.array(2 * [1], dtype=int),
+            np.array(2 * [1.0]),
+            np.array(2 * [0.0]),
+            np.array(
+                2 * [1.0e-19 / BOLTZMANN_CONSTANT * (36 * c4_prefactor) ** (-2.0 / 3.0)]
+            ),
+            np.array(2 * [1.0]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_gamma_quadratic_stark_cuda_unwrapped_sample_values(
+    calc_gamma_quadratic_stark_sample_values_input_ion_number,
+    calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
+    calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
+    calc_gamma_quadratic_stark_sample_values_input_electron_density,
+    calc_gamma_quadratic_stark_sample_values_input_temperature,
+    calc_gamma_quadratic_stark_sample_values_expected_result,
+):
+    arg_list = (
+        calc_gamma_quadratic_stark_sample_values_input_ion_number,
+        calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
+        calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
+        calc_gamma_quadratic_stark_sample_values_input_electron_density,
+        calc_gamma_quadratic_stark_sample_values_input_temperature,
+    )
+
+    arg_list = tuple(map(cp.array, arg_list))
+    result_values = cp.empty_like(arg_list[0])
+
+    nthreads = 256
+    length = len(calc_gamma_quadratic_stark_sample_values_expected_result)
+    nblocks = 1 + (length // nthreads)
+
+    _calc_gamma_quadratic_stark_cuda[nblocks, nthreads](result_values, *arg_list)
+
+    assert np.allclose(
+        cp.asnumpy(result_values),
+        calc_gamma_quadratic_stark_sample_values_expected_result,
+    )
+
+
+@pytest.mark.skipif(
+    not GPUs_available, reason="No GPU is available to test CUDA function"
+)
+@pytest.mark.parametrize(
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    [
+        (
+            np.array(2 * [1], dtype=int),
+            np.array(2 * [1.0]),
+            np.array(2 * [0.0]),
+            np.array(
+                2 * [1.0e-19 / BOLTZMANN_CONSTANT * (36 * c4_prefactor) ** (-2.0 / 3.0)]
+            ),
+            np.array(2 * [1.0]),
+            np.array(2 * [1.0]),
+        ),
+    ],
+)
+def test_calc_gamma_quadratic_stark_cuda_wrapped_sample_cuda_values(
+    calc_gamma_quadratic_stark_sample_values_input_ion_number,
+    calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
+    calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
+    calc_gamma_quadratic_stark_sample_values_input_electron_density,
+    calc_gamma_quadratic_stark_sample_values_input_temperature,
+    calc_gamma_quadratic_stark_sample_values_expected_result,
+):
+    arg_list = (
+        calc_gamma_quadratic_stark_sample_values_input_ion_number,
+        calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,
+        calc_gamma_quadratic_stark_sample_values_input_n_eff_lower,
+        calc_gamma_quadratic_stark_sample_values_input_electron_density,
+        calc_gamma_quadratic_stark_sample_values_input_temperature,
+    )
+    assert np.allclose(
+        calc_gamma_quadratic_stark_cuda(*map(cp.asarray, arg_list)),
         calc_gamma_quadratic_stark_sample_values_expected_result,
     )

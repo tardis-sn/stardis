@@ -230,6 +230,63 @@ def calc_gamma_quadratic_stark(
     )
 
 
+@cuda.jit
+def _calc_gamma_quadratic_stark_cuda(
+    res,
+    n_eff_upper,
+    ion_number,
+    n_eff_lower,
+    electron_density,
+    temperature,
+):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_quadratic_stark(
+            ion_number[tid],
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            electron_density[tid],
+            temperature[tid],
+        )
+
+
+def calc_gamma_quadratic_stark_cuda(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        electron_density,
+        temperature,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_quadratic_stark_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
+
+
 @numba.njit
 def calc_gamma_van_der_waals(
     ion_number,
