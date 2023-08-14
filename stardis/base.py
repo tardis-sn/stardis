@@ -36,7 +36,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         Contains all the key outputs of the STARDIS simulation.
     """
 
-    tracing_lambdas = tracing_lambdas_or_nus.to(u.AA, u.spectral())
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
     config_dict = validate_yaml(config_fname, schemapath=schema)
@@ -109,25 +108,25 @@ class STARDISOutput:
     stellar_plasma : tardis.plasma.base.BasePlasma
     stellar_model : stardis.model.base.StellarModel
     alphas : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
+        each depth point for each frequency in tracing_nus.
     gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Collisional broadening
-        parameter of each line in each shell.
+        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
+        parameter of each line at each depth point.
     doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Doppler width of each
-        line in each shell.
+        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
+        line at each depth point.
     F_nu : numpy.ndarray
-        Array of shape (no_of_shells + 1, no_of_frequencies). Output flux with
-        respect to frequency at each shell boundary for each frequency.
+        Array of shape (no_of_depth points, no_of_frequencies). Output flux with
+        respect to frequency at each depth point for each frequency.
     F_lambda : numpy.ndarray
-        Array of shape (no_of_shells + 1, no_of_frequencies). Output flux with
-        respect to wavelength at each shell boundary for each wavelength.
+        Array of shape (no_of_depth_points, no_of_frequencies). Output flux with
+        respect to wavelength at each depth point for each wavelength.
     spectrum_nu : numpy.ndarray
-        Output flux with respect to frequency at the outer boundary for each
+        Output flux with respect to frequency at the outermost depth point for each
         frequency.
     spectrum_lambda : numpy.ndarray
-        Output flux with respect to wavelength at the outer boundary for each
+        Output flux with respect to wavelength at the outermost depth point for each
         wavelength.
     nus : astropy.units.Quantity
         Numpy array of frequencies used for spectrum with units of Hz.
@@ -150,7 +149,7 @@ class STARDISOutput:
         # TODO: Units
         self.F_nu = F_nu
         self.F_lambda = F_lambda.value
-        self.spectrum_nu = F_nu[length - 1]  # Future PR - change to just [-1]
-        self.spectrum_lambda = F_lambda[length - 1]  # Here too
+        self.spectrum_nu = F_nu[-1]
+        self.spectrum_lambda = F_lambda[-1]
         self.nus = nus
         self.lambdas = lambdas

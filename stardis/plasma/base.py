@@ -44,7 +44,7 @@ class HMinusDensity(ProcessingPlasmaProperty):
     Attributes
     ----------
     h_minus_density : Pandas DataFrame, dtype float
-        Density of H-, indexed by shell.
+        Density of H-, indexed by depth point.
     """
 
     outputs = ("h_minus_density",)
@@ -66,7 +66,7 @@ class H2Density(ProcessingPlasmaProperty):
     Attributes
     ----------
     h2_density : Pandas DataFrame, dtype float
-        Density of H2, indexed by shell.
+        Density of H2, indexed by depth point.
     """
 
     outputs = ("h2_density",)

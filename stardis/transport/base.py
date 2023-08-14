@@ -8,7 +8,7 @@ K_B_CGS = const.k_B.cgs.value
 
 
 @numba.njit
-def bb_nu(tracing_nus, boundary_temps):
+def bb_nu(tracing_nus, temps):
     """
     Planck blackbody intensity distribution w.r.t. frequency.
 
@@ -16,22 +16,20 @@ def bb_nu(tracing_nus, boundary_temps):
     ----------
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    boundary_temps : numpy.ndarray
-        Temperatures in K of all shell boundaries. Note that array must
+    temps : numpy.ndarray
+        Temperatures in K of all depth points. Note that array must
         be transposed.
 
     Returns
     -------
     bb : astropy.unit.quantity.Quantity
-        Numpy array of shape (no_of_shells + 1, no_of_frequencies) with units
-        of erg/(s cm^2 Hz). Blackbody specific intensity at each shell
-        boundary for each frequency in tracing_nus.
+        Numpy array of shape (no_of_depth_points, no_of_frequencies) with units
+        of erg/(s cm^2 Hz). Blackbody specific intensity at each depth point
+        for each frequency in tracing_nus.
     """
 
     bb_prefactor = (2 * H_CGS * tracing_nus**3) / C_CGS**2
-    bb = bb_prefactor / (
-        np.exp(((H_CGS * tracing_nus) / (K_B_CGS * boundary_temps))) - 1
-    )
+    bb = bb_prefactor / (np.exp(((H_CGS * tracing_nus) / (K_B_CGS * temps))) - 1)
     return bb
 
 
@@ -69,7 +67,7 @@ def calc_weights(delta_tau):
 @numba.njit()
 def single_theta_trace(
     geometry_dist_to_next_depth_point,
-    boundary_temps,
+    temps,
     alphas,
     tracing_nus,
     theta,
@@ -81,12 +79,12 @@ def single_theta_trace(
     ----------
     geometry_dist_to_next_depth_point : numpy.ndarray
         Distance to next depth point in geometry column as a numpy array from the finite volume model.
-    boundary_temps : numpy.ndarray
-        Temperatures in K of all shell boundaries. Note that array must
+    temps : numpy.ndarray
+        Temperatures in K of all depth point. Note that array must
         be transposed.
     alphas : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
+        each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
     theta : float
@@ -95,20 +93,19 @@ def single_theta_trace(
     Returns
     -------
     I_nu_theta : numpy.ndarray
-        Array of shape (no_of_shells + 1, no_of_frequencies). Output specific
-        intensity at each shell boundary for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Output specific
+        intensity at each depth point for each frequency in tracing_nus.
     """
-    # Messing with this. There's one fewer tau than alpha because you can't calculate optical depth for the first point because no distance to it.
-    # Need to calculate a mean opacity for the traversal between points. Linearly interpolate?
+    # Need to calculate a mean opacity for the traversal between points. Linearly interporlating, but could have a choice for interpolation scheme here.
     mean_alphas = (alphas[1:] + alphas[:-1]) * 0.5
     taus = mean_alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    bb = bb_nu(tracing_nus, boundary_temps)
+    bb = bb_nu(tracing_nus, temps)
     source = bb
     delta_source = bb[1:] - bb[:-1]
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
-    I_nu_theta[0] = bb[0]  # the innermost boundary is photosphere
+    I_nu_theta[0] = bb[0]  # the innermost depth point is the photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
@@ -154,8 +151,8 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     ----------
     stellar_model : stardis.model.base.StellarModel
     alphas : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
+        each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
     no_of_thetas : int, optional
@@ -164,8 +161,8 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     Returns
     -------
     F_nu : numpy.ndarray
-        Array of shape (no_of_shells + 1, no_of_frequencies). Output flux at
-        each shell boundary for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Output flux at
+        each depth_point for each frequency in tracing_nus.
     """
 
     dtheta = (np.pi / 2) / no_of_thetas
