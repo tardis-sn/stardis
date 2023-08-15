@@ -1,36 +1,6 @@
 import numba
 import numpy as np
-from astropy import units as u, constants as const
-
-H_CGS = const.h.cgs.value
-C_CGS = const.c.cgs.value
-K_B_CGS = const.k_B.cgs.value
-
-
-@numba.njit
-def bb_nu(tracing_nus, temps):
-    """
-    Planck blackbody intensity distribution w.r.t. frequency.
-
-    Parameters
-    ----------
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
-    temps : numpy.ndarray
-        Temperatures in K of all depth points. Note that array must
-        be transposed.
-
-    Returns
-    -------
-    bb : astropy.unit.quantity.Quantity
-        Numpy array of shape (no_of_depth_points, no_of_frequencies) with units
-        of erg/(s cm^2 Hz). Blackbody specific intensity at each depth point
-        for each frequency in tracing_nus.
-    """
-
-    bb_prefactor = (2 * H_CGS * tracing_nus**3) / C_CGS**2
-    bb = bb_prefactor / (np.exp(((H_CGS * tracing_nus) / (K_B_CGS * temps))) - 1)
-    return bb
+from stardis.radiation_field.source_functions.blackbody import bb_nu
 
 
 @numba.njit
@@ -101,11 +71,10 @@ def single_theta_trace(
     taus = mean_alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    bb = bb_nu(tracing_nus, temps)
-    source = bb
-    delta_source = bb[1:] - bb[:-1]
+    source = bb_nu(tracing_nus, temps)
+    delta_source = source[1:] - source[:-1]
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
-    I_nu_theta[0] = bb[0]  # the innermost depth point is the photosphere
+    I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)

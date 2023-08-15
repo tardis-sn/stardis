@@ -16,6 +16,7 @@ class Opacities:
 
     def __init__(self, frequencies):
         self.total_alphas = np.zeros_like(frequencies)
+        self.opacities = {}
 
     def get_total_opacities(self):
         pass

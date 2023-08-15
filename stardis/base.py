@@ -78,7 +78,9 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
             black_body_source_function,
         )
 
-        radiation_field = RadiationField(tracing_nus, black_body_source_function)
+        stellar_radiation_field = RadiationField(
+            tracing_nus, black_body_source_function
+        )
 
     # Below becomes radiation field
     alphas, gammas, doppler_widths = calc_alphas(

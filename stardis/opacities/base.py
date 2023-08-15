@@ -3,8 +3,6 @@ import numpy as np
 
 import numba
 
-from tardis.io.config_reader import ConfigurationNameSpace
-
 from astropy import units as u, constants as const
 
 from stardis.opacities.broadening import calculate_broadening
