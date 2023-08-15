@@ -11,6 +11,7 @@ from astropy import units as u
 from stardis.plasma import create_stellar_plasma
 from stardis.opacities import calc_alphas
 from stardis.transport import raytrace
+from stardis.radiation_field import RadiationField
 
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -71,6 +72,13 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     )
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
+
+    if True:  # change to checking source function from config
+        from stardis.radiation_field.source_functions.base import (
+            black_body_source_function,
+        )
+
+        radiation_field = RadiationField(tracing_nus, black_body_source_function)
 
     # Below becomes radiation field
     alphas, gammas, doppler_widths = calc_alphas(
