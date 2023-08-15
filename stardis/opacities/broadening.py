@@ -23,7 +23,7 @@ def calc_doppler_width(nu_line, temperature, atomic_mass):
     nu_line : float
         Frequency of line being considered.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth point being considered.
     atomic_mass : float
         Atomic mass of element being considered in grams.
 
@@ -72,7 +72,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     electron_density : float
-        Electron density in shell being considered.
+        Electron density in depth point being considered.
 
     Returns
     -------
@@ -114,9 +114,9 @@ def calc_gamma_quadratic_stark(
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     electron_density : float
-        Electron density in shell being considered.
+        Electron density at depth point being considered.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth point being considered.
 
     Returns
     -------
@@ -164,9 +164,9 @@ def calc_gamma_van_der_waals(
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth point being considered.
     h_density : float
-        Number density of Hydrogen in shell being considered.
+        Number density of Hydrogen at depth point being considered.
     h_mass : float
         Atomic mass of Hydrogen in grams.
 
@@ -213,7 +213,7 @@ def calc_gamma(
 ):
     """
     Calculates total collision broadening parameter for a specific line
-    and shell.
+    and depth point.
 
     Parameters
     ----------
@@ -230,11 +230,11 @@ def calc_gamma(
     A_ul : float
         Einstein A coefficient for the line being considered.
     electron_density : float
-        Electron density in shell being considered.
+        Electron density at depth point being considered.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth point being considered.
     h_density : float
-        Number density of Hydrogen in shell being considered.
+        Number density of Hydrogen at depth point being considered.
     h_mass : float
         Atomic mass of Hydrogen in grams.
     linear_stark : bool, optional
@@ -304,7 +304,7 @@ def calc_gamma(
 def calculate_broadening(
     lines_array,
     line_cols,
-    no_shells,
+    no_depth_points,
     atomic_masses,
     electron_densities,
     temperatures,
@@ -315,7 +315,7 @@ def calculate_broadening(
     radiation=True,
 ):
     """
-    Calculates broadening information for each line in each shell.
+    Calculates broadening information for each line at each depth point.
 
     Parameters
     ----------
@@ -323,16 +323,16 @@ def calculate_broadening(
         Array containing each line and properties of the line.
     line_cols : dict
         Matches the name of a quantity to its column index in lines_array.
-    no_shells : int
-        Number of shells.
+    no_depth_points : int
+        Number of depth points.
     atomic_masses : numpy.ndarray
         Atomic mass of all elements included in the simulation.
     electron_densities : numpy.ndarray
-        Electron density in each shell.
+        Electron density at each depth point.
     temperatures : numpy.ndarray
-        Temperature in each shell.
+        Temperature at each depth point.
     h_densities : numpy.ndarray
-        Number density of hydrogen in each shell.
+        Number density of hydrogen at each depth point.
     linear_stark : bool, optional
         True if linear Stark broadening is to be considered, otherwise False.
         By default True.
@@ -351,16 +351,16 @@ def calculate_broadening(
     line_nus : numpy.ndarray
         Frequency of each line.
     gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Collisional broadening
-        parameter of each line in each shell.
+        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
+        parameter of each line at each depth point.
     doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Doppler width of each
-        line in each shell.
+        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
+        line at each depth point.
     """
 
     line_nus = np.zeros(len(lines_array))
-    gammas = np.zeros((len(lines_array), no_shells))
-    doppler_widths = np.zeros((len(lines_array), no_shells))
+    gammas = np.zeros((len(lines_array), no_depth_points))
+    doppler_widths = np.zeros((len(lines_array), no_depth_points))
 
     h_mass = atomic_masses[0]
 
@@ -376,7 +376,7 @@ def calculate_broadening(
 
         line_nus[i] = line_nu
 
-        for j in range(no_shells):
+        for j in range(no_depth_points):
             electron_density = electron_densities[j]
             temperature = temperatures[j]
             h_density = h_densities[j]
