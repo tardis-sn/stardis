@@ -532,6 +532,7 @@ def calc_alan_entries(
 def calc_alphas(
     stellar_plasma,
     stellar_model,
+    stellar_radiation_field,
     tracing_nus,
     opacity_config,
 ):
@@ -542,6 +543,7 @@ def calc_alphas(
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
     stellar_model : stardis.model.base.StellarModel
+    stellar_radiation_field stardis.radiation_field.base.RadiationField
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
     opacity_config : tardis.io.config_reader.Configuration
@@ -566,36 +568,49 @@ def calc_alphas(
         tracing_nus,
         opacity_config.file,
     )
+    stellar_radiation_field["alpha_file"] = alpha_file
+
     alpha_bf = calc_alpha_bf(
         stellar_plasma,
         stellar_model,
         tracing_nus,
         opacity_config.bf,
     )
+    stellar_radiation_field["alpha_bf"] = alpha_bf
+
     alpha_ff = calc_alpha_ff(
         stellar_plasma,
         stellar_model,
         tracing_nus,
         opacity_config.ff,
     )
+    stellar_radiation_field["alpha_ff"] = alpha_ff
+
     alpha_rayleigh = calc_alpha_rayleigh(
         stellar_plasma,
         stellar_model,
         tracing_nus,
         opacity_config.rayleigh,
     )
+    stellar_radiation_field["alpha_rayleigh"] = alpha_rayleigh
+
     alpha_electron = calc_alpha_electron(
         stellar_plasma,
         stellar_model,
         tracing_nus,
         opacity_config.disable_electron_scattering,
     )
+    stellar_radiation_field["alpha_electron"] = alpha_electron
+
     alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
         stellar_plasma,
         stellar_model,
         tracing_nus,
         opacity_config.line,
     )
+    stellar_radiation_field["alpha_line_at_nu"] = alpha_line_at_nu
+    stellar_radiation_field["alpha_line_at_nu_gammas"] = gammas
+    stellar_radiation_field["alpha_line_at_nu_doppler_widths"] = doppler_widths
 
     alphas = (
         alpha_file

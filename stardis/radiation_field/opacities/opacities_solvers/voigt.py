@@ -46,7 +46,7 @@ def faddeeva(z):
             )
 
         else:
-            # Rßegion IV
+            # Region IV
             u = t * t
             numerator = t * (
                 36183.31
