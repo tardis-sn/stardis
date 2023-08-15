@@ -116,18 +116,18 @@ class STARDISOutput:
     doppler_widths : numpy.ndarray
         Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
         line at each depth point.
-    F_nu : numpy.ndarray
+    F_nu : astropy.units.Quantity
         Array of shape (no_of_depth points, no_of_frequencies). Output flux with
-        respect to frequency at each depth point for each frequency.
-    F_lambda : numpy.ndarray
+        respect to frequency at each depth point for each frequency. Units of erg/s/cm^2/Hz.
+    F_lambda : astropy.units.Quantity
         Array of shape (no_of_depth_points, no_of_frequencies). Output flux with
-        respect to wavelength at each depth point for each wavelength.
-    spectrum_nu : numpy.ndarray
+        respect to wavelength at each depth point for each wavelength. Units of erg/s/cm^2/Angstrom.
+    spectrum_nu : astropy.units.Quantity
         Output flux with respect to frequency at the outermost depth point for each
-        frequency.
-    spectrum_lambda : numpy.ndarray
+        frequency. Units of erg/s/cm^2/Hz.
+    spectrum_lambda : astropy.units.Quantity
         Output flux with respect to wavelength at the outermost depth point for each
-        wavelength.
+        wavelength. Units of erg/s/cm^2/Angstrom.
     nus : astropy.units.Quantity
         Numpy array of frequencies used for spectrum with units of Hz.
     lambdas : astropy.units.Quantity
@@ -143,13 +143,11 @@ class STARDISOutput:
         self.gammas = gammas
         self.doppler_widths = doppler_widths
 
-        length = len(F_nu)
-        lambdas = nus.to(u.AA, u.spectral())
-        F_lambda = F_nu * nus / lambdas
-        # TODO: Units
-        self.F_nu = F_nu
-        self.F_lambda = F_lambda.value
-        self.spectrum_nu = F_nu[-1]
-        self.spectrum_lambda = F_lambda[-1]
         self.nus = nus
-        self.lambdas = lambdas
+        self.lambdas = nus.to(u.AA, u.spectral())
+
+        self.F_nu = F_nu * u.erg / u.s / u.cm**2 / u.Hz
+        self.F_lambda = self.F_nu * nus / self.lambdas
+
+        self.spectrum_nu = self.F_nu[-1]
+        self.spectrum_lambda = self.F_lambda[-1]
