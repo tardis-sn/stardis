@@ -147,7 +147,9 @@ class STARDISOutput:
         self.lambdas = nus.to(u.AA, u.spectral())
 
         self.F_nu = F_nu * u.erg / u.s / u.cm**2 / u.Hz
-        self.F_lambda = self.F_nu * nus / self.lambdas
+        self.F_lambda = (self.F_nu * nus / self.lambdas).to(
+            u.erg / u.s / u.cm**2 / u.AA
+        )
 
         self.spectrum_nu = self.F_nu[-1]
         self.spectrum_lambda = self.F_lambda[-1]
