@@ -81,11 +81,10 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         stellar_radiation_field = RadiationField(tracing_nus, bb_nu, stellar_model)
 
     # Below becomes radiation field
-    alphas, gammas, doppler_widths = calc_alphas(
+    alphas = calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
         stellar_radiation_field=stellar_radiation_field,
-        tracing_nus=tracing_nus,
         opacity_config=config.opacity,
     )
 
@@ -95,8 +94,8 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         stellar_plasma,
         stellar_model,
         alphas,
-        gammas,
-        doppler_widths,
+        stellar_radiation_field.opacities.opacities["alpha_line_at_nu_gammas"],
+        stellar_radiation_field.opacities.opacities["alpha_line_at_nu_doppler_widths"],
         stellar_radiation_field.F_nu,
         tracing_nus,
     )
