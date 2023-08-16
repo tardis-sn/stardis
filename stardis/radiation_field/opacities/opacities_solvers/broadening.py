@@ -1,19 +1,26 @@
 import numpy as np
 from astropy import constants as const
+import math
 import numba
+from numba import cuda
 
+GPUs_available = cuda.is_available()
 
-SPEED_OF_LIGHT = const.c.cgs.value
-BOLTZMANN_CONSTANT = const.k_B.cgs.value
-PLANCK_CONSTANT = const.h.cgs.value
-RYDBERG_ENERGY = (const.h.cgs * const.c.cgs * const.Ryd.cgs).value
-ELEMENTARY_CHARGE = const.e.esu.value
-BOHR_RADIUS = const.a0.cgs.value
-VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
+if GPUs_available:
+    import cupy as cp
+
+PI = float(np.pi)
+SPEED_OF_LIGHT = float(const.c.cgs.value)
+BOLTZMANN_CONSTANT = float(const.k_B.cgs.value)
+PLANCK_CONSTANT = float(const.h.cgs.value)
+RYDBERG_ENERGY = float((const.h.cgs * const.c.cgs * const.Ryd.cgs).value)
+ELEMENTARY_CHARGE = float(const.e.esu.value)
+BOHR_RADIUS = float(const.a0.cgs.value)
+VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
 
 
 @numba.njit
-def calc_doppler_width(nu_line, temperature, atomic_mass):
+def _calc_doppler_width(nu_line, temperature, atomic_mass):
     """
     Calculates doppler width.
     https://ui.adsabs.harvard.edu/abs/2003rtsa.book.....R/
@@ -31,11 +38,62 @@ def calc_doppler_width(nu_line, temperature, atomic_mass):
     -------
     float
     """
+    nu_line, temperature, atomic_mass = (
+        float(nu_line),
+        float(temperature),
+        float(atomic_mass),
+    )
+
     return (
         nu_line
         / SPEED_OF_LIGHT
-        * np.sqrt(2 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
+        * math.sqrt(2.0 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
     )
+
+
+@numba.vectorize(nopython=True)
+def calc_doppler_width(nu_line, temperature, atomic_mass):
+    return _calc_doppler_width(nu_line, temperature, atomic_mass)
+
+
+@cuda.jit
+def _calc_doppler_width_cuda(res, nu_line, temperature, atomic_mass):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_doppler_width(nu_line[tid], temperature[tid], atomic_mass[tid])
+
+
+def calc_doppler_width_cuda(
+    nu_line,
+    temperature,
+    atomic_mass,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        nu_line,
+        temperature,
+        atomic_mass,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_doppler_width_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
@@ -72,7 +130,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     electron_density : float
-        Electron density in depth point being considered.
+        Electron density at depth point being considered.
 
     Returns
     -------
@@ -143,7 +201,7 @@ def calc_gamma_quadratic_stark(
 
 
 @numba.njit
-def calc_gamma_van_der_waals(
+def _calc_gamma_van_der_waals(
     ion_number,
     n_eff_upper,
     n_eff_lower,
@@ -175,23 +233,111 @@ def calc_gamma_van_der_waals(
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
+    ion_number, n_eff_upper, n_eff_lower, temperature, h_density, h_mass = (
+        int(ion_number),
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(temperature),
+        float(h_density),
+        float(h_mass),
+    )
+    n_eff_upper = n_eff_upper * n_eff_upper
+    n_eff_lower = n_eff_lower * n_eff_lower
+    ion_number = ion_number * ion_number
     c6 = (
         6.46e-34
-        * (
-            n_eff_upper**2 * (5 * n_eff_upper**2 + 1)
-            - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)
-        )
-        / (2 * ion_number**2)
+        * ((5 * n_eff_upper**2 + n_eff_upper) - (5 * n_eff_lower**2 + n_eff_lower))
+        / (2 * ion_number)
     )
 
     gamma_van_der_waals = (
         17
-        * (8 * BOLTZMANN_CONSTANT * temperature / (np.pi * h_mass)) ** 0.3
+        * (8 * BOLTZMANN_CONSTANT * temperature / (PI * h_mass)) ** 0.3
         * c6**0.4
         * h_density
     )
 
     return gamma_van_der_waals
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_van_der_waals(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+):
+    return _calc_gamma_van_der_waals(
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        h_density,
+        h_mass,
+    )
+
+
+@cuda.jit
+def _calc_gamma_van_der_waals_cuda(
+    res,
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_van_der_waals(
+            ion_number[tid],
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            temperature[tid],
+            h_density[tid],
+            h_mass[tid],
+        )
+
+
+def calc_gamma_van_der_waals_cuda(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        h_density,
+        h_mass,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_van_der_waals_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
@@ -351,10 +497,10 @@ def calculate_broadening(
     line_nus : numpy.ndarray
         Frequency of each line.
     gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
+        Array of shape (no_of_lines, no_depth_points). Collisional broadening
         parameter of each line at each depth point.
     doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
+        Array of shape (no_of_lines, no_depth_points). Doppler width of each
         line at each depth point.
     """
 
