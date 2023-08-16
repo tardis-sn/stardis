@@ -533,7 +533,6 @@ def calc_alphas(
     stellar_plasma,
     stellar_model,
     stellar_radiation_field,
-    tracing_nus,
     opacity_config,
 ):
     """
@@ -565,7 +564,7 @@ def calc_alphas(
     alpha_file = calc_alpha_file(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.file,
     )
     stellar_radiation_field.opacities.opacities["alpha_file"] = alpha_file
@@ -573,7 +572,7 @@ def calc_alphas(
     alpha_bf = calc_alpha_bf(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.bf,
     )
     stellar_radiation_field.opacities.opacities["alpha_bf"] = alpha_bf
@@ -581,7 +580,7 @@ def calc_alphas(
     alpha_ff = calc_alpha_ff(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.ff,
     )
     stellar_radiation_field.opacities.opacities["alpha_ff"] = alpha_ff
@@ -589,7 +588,7 @@ def calc_alphas(
     alpha_rayleigh = calc_alpha_rayleigh(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.rayleigh,
     )
     stellar_radiation_field.opacities.opacities["alpha_rayleigh"] = alpha_rayleigh
@@ -597,7 +596,7 @@ def calc_alphas(
     alpha_electron = calc_alpha_electron(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.disable_electron_scattering,
     )
     stellar_radiation_field.opacities.opacities["alpha_electron"] = alpha_electron
@@ -605,7 +604,7 @@ def calc_alphas(
     alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.line,
     )
     stellar_radiation_field.opacities.opacities["alpha_line_at_nu"] = alpha_line_at_nu
