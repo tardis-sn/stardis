@@ -1,4 +1,5 @@
 from stardis.radiation_field.opacities import Opacities
+import numpy as np
 
 
 class RadiationField:
@@ -22,7 +23,8 @@ class RadiationField:
         Composition of the model. Includes density and atomic mass fractions.
     """
 
-    def __init__(self, frequencies, source_function):
+    def __init__(self, frequencies, source_function, stellar_model):
         self.frequencies = frequencies
         self.source_function = source_function
-        self.opacities = Opacities(frequencies)
+        self.opacities = Opacities()
+        self.F_nu = np.zeros((len(stellar_model.geometry.r), len(frequencies)))

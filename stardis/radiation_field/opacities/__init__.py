@@ -1,1 +1,1 @@
-from stardis.radiation_field.opacities import Opacities
+from stardis.radiation_field.opacities.base import Opacities
