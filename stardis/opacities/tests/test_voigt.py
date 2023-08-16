@@ -151,13 +151,13 @@ def test_voigt_profile_division_by_zero(
 @pytest.mark.parametrize(
     "voigt_profile_sample_values_input_delta_nu, voigt_profile_sample_values_input_doppler_width, voigt_profile_sample_values_input_gamma, voigt_profile_sample_values_expected_result",
     [
-        (0, 1, 0, 1 / sqrt(np.pi)),
-        (0, 2, 0, 1 / (sqrt(np.pi) * 2)),
+        (0, 1, 0, 1 / sqrt(np.pi) / sqrt(2)),
+        (0, 2, 0, 1 / (sqrt(np.pi) * 2 * sqrt(2))),
         (
             np.array([0, 0]),
             np.array([1, 2]),
             np.array([0, 0]),
-            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+            np.array([1 / sqrt(2) / sqrt(np.pi), 1 / (sqrt(2) * sqrt(np.pi) * 2)]),
         ),
     ],
 )
@@ -188,7 +188,7 @@ def test_voigt_profile_sample_values_sample_values(
             np.array([0, 0]),
             np.array([1, 2]),
             np.array([0, 0]),
-            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+            np.array([1 / sqrt(2) / sqrt(np.pi), 1 / (sqrt(np.pi) * 2 * sqrt(2))]),
         ),
     ],
 )
@@ -229,7 +229,7 @@ def test_voigt_profile_cuda_unwrapped_sample_values(
             np.array([0, 0]),
             np.array([1, 2]),
             np.array([0, 0]),
-            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+            np.array([1 / sqrt(2) / sqrt(np.pi), 1 / (sqrt(2) * sqrt(np.pi) * 2)]),
         ),
     ],
 )
@@ -261,7 +261,7 @@ def test_voigt_profile_cuda_wrapped_sample_numpy_values(
             np.array([0, 0]),
             np.array([1, 2]),
             np.array([0, 0]),
-            np.array([1 / sqrt(np.pi), 1 / (sqrt(np.pi) * 2)]),
+            np.array([1 / sqrt(np.pi) / sqrt(2), 1 / (sqrt(np.pi) * 2 * sqrt(2))]),
         ),
     ],
 )
