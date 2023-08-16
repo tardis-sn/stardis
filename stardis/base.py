@@ -145,6 +145,9 @@ class STARDISOutput:
         Numpy array of wavelengths used for spectrum with units of Angstroms.
     """
 
+    ###TODO: Instead of returning all these various quantities of the radiation, simply return
+    # the radiation field with class properties that return useful quantities such as spectrum lambda and lambdas.
+
     def __init__(
         self, stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, nus
     ):

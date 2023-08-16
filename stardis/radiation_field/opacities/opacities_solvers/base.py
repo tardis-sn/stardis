@@ -536,15 +536,14 @@ def calc_alphas(
     opacity_config,
 ):
     """
-    Calculates total opacity.
+    Calculates each opacity and adds it to the opacity dictionary contained in the radiation field.
 
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
     stellar_model : stardis.model.base.StellarModel
     stellar_radiation_field stardis.radiation_field.base.RadiationField
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
+        Contains the frequencies at which opacities are calculated. Also holds the resulting opacity information.
     opacity_config : tardis.io.config_reader.Configuration
         Opacity section of the STARDIS configuration.
 
@@ -553,12 +552,6 @@ def calc_alphas(
     alphas : numpy.ndarray
         Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
         each depth point for each frequency in tracing_nus.
-    gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
-        parameter of each line at each depth point.
-    doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
-        line at each depth point.
     """
 
     alpha_file = calc_alpha_file(
