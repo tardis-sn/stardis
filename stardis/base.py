@@ -9,8 +9,8 @@ from tardis.io.config_reader import Configuration
 from astropy import units as u
 
 from stardis.plasma import create_stellar_plasma
-from stardis.opacities import calc_alphas
-from stardis.transport import raytrace
+from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
+from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
 
 
@@ -74,28 +74,31 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
     if True:  # change to checking source function from config
-        from stardis.radiation_field.source_functions.base import (
-            black_body_source_function,
+        from stardis.radiation_field.source_functions.blackbody import (
+            bb_nu,
         )
 
-        stellar_radiation_field = RadiationField(
-            tracing_nus, black_body_source_function
-        )
+        stellar_radiation_field = RadiationField(tracing_nus, bb_nu, stellar_model)
 
     # Below becomes radiation field
     alphas, gammas, doppler_widths = calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
+        stellar_radiation_field=stellar_radiation_field,
         tracing_nus=tracing_nus,
         opacity_config=config.opacity,
     )
 
-    F_nu = raytrace(
-        stellar_model, alphas, tracing_nus, no_of_thetas=config.no_of_thetas
-    )
+    raytrace(stellar_model, stellar_radiation_field, no_of_thetas=config.no_of_thetas)
 
     return STARDISOutput(
-        stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, tracing_nus
+        stellar_plasma,
+        stellar_model,
+        alphas,
+        gammas,
+        doppler_widths,
+        stellar_radiation_field.F_nu,
+        tracing_nus,
     )
 
 

@@ -568,7 +568,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.file,
     )
-    stellar_radiation_field["alpha_file"] = alpha_file
+    stellar_radiation_field.opacities.opacities["alpha_file"] = alpha_file
 
     alpha_bf = calc_alpha_bf(
         stellar_plasma,
@@ -576,7 +576,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.bf,
     )
-    stellar_radiation_field["alpha_bf"] = alpha_bf
+    stellar_radiation_field.opacities.opacities["alpha_bf"] = alpha_bf
 
     alpha_ff = calc_alpha_ff(
         stellar_plasma,
@@ -584,7 +584,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.ff,
     )
-    stellar_radiation_field["alpha_ff"] = alpha_ff
+    stellar_radiation_field.opacities.opacities["alpha_ff"] = alpha_ff
 
     alpha_rayleigh = calc_alpha_rayleigh(
         stellar_plasma,
@@ -592,7 +592,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.rayleigh,
     )
-    stellar_radiation_field["alpha_rayleigh"] = alpha_rayleigh
+    stellar_radiation_field.opacities.opacities["alpha_rayleigh"] = alpha_rayleigh
 
     alpha_electron = calc_alpha_electron(
         stellar_plasma,
@@ -600,7 +600,7 @@ def calc_alphas(
         tracing_nus,
         opacity_config.disable_electron_scattering,
     )
-    stellar_radiation_field["alpha_electron"] = alpha_electron
+    stellar_radiation_field.opacities.opacities["alpha_electron"] = alpha_electron
 
     alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
         stellar_plasma,
@@ -608,18 +608,11 @@ def calc_alphas(
         tracing_nus,
         opacity_config.line,
     )
-    stellar_radiation_field["alpha_line_at_nu"] = alpha_line_at_nu
-    stellar_radiation_field["alpha_line_at_nu_gammas"] = gammas
-    stellar_radiation_field["alpha_line_at_nu_doppler_widths"] = doppler_widths
+    stellar_radiation_field.opacities.opacities["alpha_line_at_nu"] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities["alpha_line_at_nu_gammas"] = gammas
+    stellar_radiation_field.opacities.opacities[
+        "alpha_line_at_nu_doppler_widths"
+    ] = doppler_widths
+    alphas = stellar_radiation_field.opacities.calc_total_alphas()
 
-    alphas = (
-        alpha_file
-        + alpha_bf
-        + alpha_ff
-        + alpha_rayleigh
-        + alpha_electron
-        + alpha_line_at_nu
-    )
-
-    ### TODO create opacity_dict to return
-    return alphas, gammas, doppler_widths
+    return alphas

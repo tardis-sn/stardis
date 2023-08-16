@@ -79,7 +79,6 @@ def single_theta_trace(
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
             curr_tau = taus[i, j]
-            next_tau = taus[i, j + 1]
 
             w0, w1, w2 = calc_weights(curr_tau)
 
@@ -88,6 +87,7 @@ def single_theta_trace(
             else:
                 second_term = w1 * delta_source[j, i] / curr_tau
             if j < no_of_depth_gaps - 1:
+                next_tau = taus[i, j + 1]
                 third_term = w2 * (
                     (
                         (delta_source[j + 1, i] / next_tau)
@@ -111,7 +111,7 @@ def single_theta_trace(
     return I_nu_theta
 
 
-def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
+def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
     rule.
@@ -138,16 +138,16 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
-    F_nu = np.zeros((len(stellar_model.geometry.r), len(tracing_nus)))
 
+    ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
-        F_nu += weight * single_theta_trace(
+        stellar_radiation_field.F_nu += weight * single_theta_trace(
             stellar_model.geometry.dist_to_next_depth_point,
             stellar_model.temperatures.value.reshape(-1, 1),
-            alphas,
-            tracing_nus,
+            stellar_radiation_field.opacities.total_alphas,
+            stellar_radiation_field.frequencies,
             theta,
         )
 
-    return F_nu
+    return stellar_radiation_field.F_nu

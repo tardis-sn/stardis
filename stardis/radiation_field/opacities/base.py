@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Opacities:
     """
     Holds opacity information.
@@ -14,9 +11,16 @@ class Opacities:
 
     """
 
-    def __init__(self, frequencies):
-        self.total_alphas = np.zeros_like(frequencies)
+    def __init__(self):
         self.opacities = {}
+        self.total_alphas = None
 
-    def get_total_opacities(self):
-        pass
+    ###TODO: Better implementation for this
+    def calc_total_alphas(self):
+        for i, item in enumerate(self.opacities.items()):
+            if "gammas" not in item[0] and "doppler" not in item[0]:
+                if i == 0:
+                    self.total_alphas = item[1]
+                else:
+                    self.total_alphas += item[1]
+        return self.total_alphas
