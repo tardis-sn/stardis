@@ -5,15 +5,15 @@ class Opacities:
     ###TODO: Change to dict that holds each of the sources of opacity separately. Then have a method that combines them all to return the total opacity.
     Paramaters
     ----------
-    alphas : numpy.ndarray
-        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
-        each depth point for each frequency in tracing_nus.
-
+    opacities : dict
+        Python dictionary to contain each of the sources of opacity by name as well as their contribution at each frequency specified in the radiation field.
+    total_alphas : numpy.ndarray
+        Array of the total opacity at each frequency specified in the radiation field at each depth points.
+        Added as an attribute when calc_total_alphas() is called.
     """
 
     def __init__(self):
         self.opacities = {}
-        self.total_alphas = None
 
     ###TODO: Better implementation for this
     def calc_total_alphas(self):

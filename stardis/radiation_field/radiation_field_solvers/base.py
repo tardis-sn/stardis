@@ -119,11 +119,8 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20):
     Parameters
     ----------
     stellar_model : stardis.model.base.StellarModel
-    alphas : numpy.ndarray
-        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
-        each depth point for each frequency in tracing_nus.
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
+    stellar_radiation_field : stardis.radiation_field.base.StellarRadiationField
+        Contains temperatures, frequencies, and opacities needed to calculate F_nu.
     no_of_thetas : int, optional
         Number of angles to sample for ray tracing, by default 20.
 
