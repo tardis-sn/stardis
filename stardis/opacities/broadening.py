@@ -279,6 +279,67 @@ def calc_gamma_van_der_waals(
     )
 
 
+@cuda.jit
+def _calc_gamma_van_der_waals_cuda(
+    res,
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_van_der_waals(
+            ion_number[tid],
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            temperature[tid],
+            h_density[tid],
+            h_mass[tid],
+        )
+
+
+def calc_gamma_van_der_waals_cuda(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        h_density,
+        h_mass,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_van_der_waals_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
+
+
 @numba.njit
 def calc_gamma(
     atomic_number,
