@@ -233,6 +233,14 @@ def calc_gamma_van_der_waals(
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
+    ion_number, n_eff_upper, n_eff_lower, temperature, h_density, h_mass = (
+        int(ion_number),
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(temperature),
+        float(h_density),
+        float(h_mass),
+    )
     c6 = (
         6.46e-34
         * (
