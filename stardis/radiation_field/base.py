@@ -6,6 +6,7 @@ class RadiationField:
     """
     Class containing information about the radiation field.
     ###TODO Radiation field temperature should be a separate attribute, for the case of differing gas and radiation.
+    ###TODO Implement a source function class. Doesn't need to be done until we have another source function than just blackbody. 
 
     Parameters
     ----------

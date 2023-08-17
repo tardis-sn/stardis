@@ -75,10 +75,10 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     if True:  # change to checking source function from config
         from stardis.radiation_field.source_functions.blackbody import (
-            bb_nu,
+            blackbody_flux_at_nu,
         )
 
-        stellar_radiation_field = RadiationField(tracing_nus, bb_nu, stellar_model)
+        stellar_radiation_field = RadiationField(tracing_nus, blackbody_flux_at_nu, stellar_model)
 
     calc_alphas(
         stellar_plasma=stellar_plasma,
@@ -92,9 +92,9 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     return STARDISOutput(
         stellar_plasma,
         stellar_model,
-        stellar_radiation_field.opacities.opacities,
-        stellar_radiation_field.opacities.opacities["alpha_line_at_nu_gammas"],
-        stellar_radiation_field.opacities.opacities["alpha_line_at_nu_doppler_widths"],
+        stellar_radiation_field.opacities.opacities_dict,
+        stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"],
+        stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_doppler_widths"],
         stellar_radiation_field.F_nu,
         stellar_radiation_field.frequencies,
     )
