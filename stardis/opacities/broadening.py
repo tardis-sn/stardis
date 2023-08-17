@@ -201,7 +201,7 @@ def calc_gamma_quadratic_stark(
 
 
 @numba.njit
-def calc_gamma_van_der_waals(
+def _calc_gamma_van_der_waals(
     ion_number,
     n_eff_upper,
     n_eff_lower,
@@ -258,6 +258,25 @@ def calc_gamma_van_der_waals(
     )
 
     return gamma_van_der_waals
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_van_der_waals(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+):
+    return _calc_gamma_van_der_waals(
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        h_density,
+        h_mass,
+    )
 
 
 @numba.njit
