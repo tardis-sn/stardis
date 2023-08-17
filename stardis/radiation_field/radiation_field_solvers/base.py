@@ -1,6 +1,6 @@
 import numba
 import numpy as np
-from stardis.radiation_field.source_functions.blackbody import bb_nu
+# from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 
 @numba.njit
@@ -41,6 +41,7 @@ def single_theta_trace(
     alphas,
     tracing_nus,
     theta,
+    source_function
 ):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
@@ -71,7 +72,8 @@ def single_theta_trace(
     taus = mean_alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    source = bb_nu(tracing_nus, temps)
+    ###TODO: Generalize this for source functions other than blackbody that may require args other than frequency and temperature
+    source = source_function(tracing_nus, temps)
     delta_source = source[1:] - source[:-1]
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
@@ -145,6 +147,7 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20):
             stellar_radiation_field.opacities.total_alphas,
             stellar_radiation_field.frequencies,
             theta,
+            stellar_radiation_field.source_function
         )
 
     return stellar_radiation_field.F_nu

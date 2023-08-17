@@ -8,7 +8,7 @@ K_B_CGS = const.k_B.cgs.value
 
 
 @numba.njit
-def bb_nu(tracing_nus, temps):
+def blackbody_flux_at_nu(tracing_nus, temps):
     """
     Planck blackbody intensity distribution w.r.t. frequency.
 
