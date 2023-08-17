@@ -241,13 +241,13 @@ def calc_gamma_van_der_waals(
         float(h_density),
         float(h_mass),
     )
+    n_eff_upper = n_eff_upper * n_eff_upper
+    n_eff_lower = n_eff_lower * n_eff_lower
+    ion_number = ion_number * ion_number
     c6 = (
         6.46e-34
-        * (
-            n_eff_upper**2 * (5 * n_eff_upper**2 + 1)
-            - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)
-        )
-        / (2 * ion_number**2)
+        * ((5 * n_eff_upper**2 + n_eff_upper) - (5 * n_eff_lower**2 + n_eff_lower))
+        / (2 * ion_number)
     )
 
     gamma_van_der_waals = (
