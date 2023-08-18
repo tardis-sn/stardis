@@ -26,13 +26,13 @@ class BenchmarkStardis:
     def setup(self):
         base_dir = os.path.abspath(os.path.dirname(__file__))
         schema = os.path.join(base_dir, "config_schema.yml")
-        config = os.path.join(base_dir, "benchmark_config.yml")
+        config_file = os.path.join(base_dir, "benchmark_config.yml")
         tracing_lambdas = np.arange(6540, 6590, 0.01) * u.Angstrom
         os.chdir(base_dir)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
 
-        config_dict = validate_yaml(config, schemapath=schema)
+        config_dict = validate_yaml(config_file, schemapath=schema)
         config = Configuration(config_dict)
 
         adata = AtomData.from_hdf(config.atom_data)
@@ -73,9 +73,10 @@ class BenchmarkStardis:
         self.tracing_nus = tracing_nus
         self.tracing_lambdas = tracing_lambdas
         self.config = config
+        self.config_file = config_file
 
     def time_run_stardis(self):
-        run_stardis(self.config, self.tracing_lambdas)
+        run_stardis(self.config_file, self.tracing_lambdas)
 
     def time_raytrace(self):
         raytrace(
