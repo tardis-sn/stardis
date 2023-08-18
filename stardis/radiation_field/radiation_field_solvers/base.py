@@ -1,5 +1,6 @@
 import numba
 import numpy as np
+
 # from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 
@@ -23,9 +24,11 @@ def calc_weights(delta_tau):
     if delta_tau < 5e-4:
         w0 = delta_tau * (1 - delta_tau / 2)
         w1 = delta_tau**2 * (0.5 - delta_tau / 3)
+        w2 = delta_tau**3 * (1 / 3 - delta_tau / 4)
     elif delta_tau > 50:
         w0 = 1.0
         w1 = 1.0
+        w2 = 2.0
     else:
         exp_delta_tau = np.exp(-delta_tau)
         w0 = 1 - exp_delta_tau
@@ -41,7 +44,7 @@ def single_theta_trace(
     alphas,
     tracing_nus,
     theta,
-    source_function
+    source_function,
 ):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
@@ -147,7 +150,7 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20):
             stellar_radiation_field.opacities.total_alphas,
             stellar_radiation_field.frequencies,
             theta,
-            stellar_radiation_field.source_function
+            stellar_radiation_field.source_function,
         )
 
     return stellar_radiation_field.F_nu
