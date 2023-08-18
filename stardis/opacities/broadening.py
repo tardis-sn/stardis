@@ -1,19 +1,26 @@
 import numpy as np
 from astropy import constants as const
+import math
 import numba
+from numba import cuda
 
+GPUs_available = cuda.is_available()
 
-SPEED_OF_LIGHT = const.c.cgs.value
-BOLTZMANN_CONSTANT = const.k_B.cgs.value
-PLANCK_CONSTANT = const.h.cgs.value
-RYDBERG_ENERGY = (const.h.cgs * const.c.cgs * const.Ryd.cgs).value
-ELEMENTARY_CHARGE = const.e.esu.value
-BOHR_RADIUS = const.a0.cgs.value
-VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
+if GPUs_available:
+    import cupy as cp
+
+PI = float(np.pi)
+SPEED_OF_LIGHT = float(const.c.cgs.value)
+BOLTZMANN_CONSTANT = float(const.k_B.cgs.value)
+PLANCK_CONSTANT = float(const.h.cgs.value)
+RYDBERG_ENERGY = float((const.h.cgs * const.c.cgs * const.Ryd.cgs).value)
+ELEMENTARY_CHARGE = float(const.e.esu.value)
+BOHR_RADIUS = float(const.a0.cgs.value)
+VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
 
 
 @numba.njit
-def calc_doppler_width(nu_line, temperature, atomic_mass):
+def _calc_doppler_width(nu_line, temperature, atomic_mass):
     """
     Calculates doppler width.
     https://ui.adsabs.harvard.edu/abs/2003rtsa.book.....R/
@@ -31,15 +38,66 @@ def calc_doppler_width(nu_line, temperature, atomic_mass):
     -------
     float
     """
+    nu_line, temperature, atomic_mass = (
+        float(nu_line),
+        float(temperature),
+        float(atomic_mass),
+    )
+
     return (
         nu_line
         / SPEED_OF_LIGHT
-        * np.sqrt(2 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
+        * math.sqrt(2.0 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
     )
 
 
+@numba.vectorize(nopython=True)
+def calc_doppler_width(nu_line, temperature, atomic_mass):
+    return _calc_doppler_width(nu_line, temperature, atomic_mass)
+
+
+@cuda.jit
+def _calc_doppler_width_cuda(res, nu_line, temperature, atomic_mass):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_doppler_width(nu_line[tid], temperature[tid], atomic_mass[tid])
+
+
+def calc_doppler_width_cuda(
+    nu_line,
+    temperature,
+    atomic_mass,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        nu_line,
+        temperature,
+        atomic_mass,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_doppler_width_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
+
+
 @numba.njit
-def calc_n_effective(ion_number, ionization_energy, level_energy):
+def _calc_n_effective(ion_number, ionization_energy, level_energy):
     """
     Calculates the effective principal quantum number of an energy level.
 
@@ -56,7 +114,65 @@ def calc_n_effective(ion_number, ionization_energy, level_energy):
     -------
     float
     """
-    return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+    ion_number, ionization_energy, level_energy = (
+        int(ion_number),
+        float(ionization_energy),
+        float(level_energy),
+    )
+    return math.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+
+
+@numba.vectorize(nopython=True)
+def calc_n_effective(ion_number, ionization_energy, level_energy):
+    return _calc_n_effective(
+        ion_number,
+        ionization_energy,
+        level_energy,
+    )
+
+
+@cuda.jit
+def _calc_n_effective_cuda(res, ion_number, ionization_energy, level_energy):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_n_effective(
+            ion_number[tid],
+            ionization_energy[tid],
+            level_energy[tid],
+        )
+
+
+def calc_n_effective_cuda(
+    ion_number,
+    ionization_energy,
+    level_energy,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        ionization_energy,
+        level_energy,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_n_effective_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
@@ -186,7 +302,7 @@ def calc_gamma_van_der_waals(
 
     gamma_van_der_waals = (
         17
-        * (8 * BOLTZMANN_CONSTANT * temperature / (np.pi * h_mass)) ** 0.3
+        * (8 * BOLTZMANN_CONSTANT * temperature / (PI * h_mass)) ** 0.3
         * c6**0.4
         * h_density
     )
