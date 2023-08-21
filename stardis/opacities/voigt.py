@@ -132,8 +132,8 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     """
     delta_nu, doppler_width, gamma = float(delta_nu), float(doppler_width), float(gamma)
 
-    z = complex(delta_nu, gamma) / (SQRT_2 * doppler_width)
-    phi = _faddeeva(z).real / (SQRT_2 * SQRT_PI * doppler_width)
+    z = complex(delta_nu, gamma / (4 * PI)) / doppler_width
+    phi = _faddeeva(z).real / (SQRT_PI * doppler_width)
     return phi
 
 
