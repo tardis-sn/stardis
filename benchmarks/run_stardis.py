@@ -11,9 +11,9 @@ from tardis.io.config_reader import Configuration
 
 from stardis.io.model.marcs import read_marcs_model
 from stardis.plasma import create_stellar_plasma
-from stardis.opacities import calc_alphas
-from stardis.transport import raytrace
-from stardis.opacities import calc_alpha_line_at_nu
+from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
+from stardis.radiation_field.radiation_field_solvers import raytrace
+from stardis.radiation_field.opacities.opacities_solvers import calc_alpha_line_at_nu
 
 
 class BenchmarkStardis:
