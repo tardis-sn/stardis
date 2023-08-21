@@ -30,7 +30,7 @@ def _calc_doppler_width(nu_line, temperature, atomic_mass):
     nu_line : float
         Frequency of line being considered.
     temperature : float
-        Temperature of depth point being considered.
+        Temperature of depth points being considered.
     atomic_mass : float
         Atomic mass of element being considered in grams.
 
@@ -97,7 +97,7 @@ def calc_doppler_width_cuda(
 
 
 @numba.njit
-def calc_n_effective(ion_number, ionization_energy, level_energy):
+def _calc_n_effective(ion_number, ionization_energy, level_energy):
     """
     Calculates the effective principal quantum number of an energy level.
 
@@ -114,7 +114,65 @@ def calc_n_effective(ion_number, ionization_energy, level_energy):
     -------
     float
     """
-    return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+    ion_number, ionization_energy, level_energy = (
+        int(ion_number),
+        float(ionization_energy),
+        float(level_energy),
+    )
+    return math.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+
+
+@numba.vectorize(nopython=True)
+def calc_n_effective(ion_number, ionization_energy, level_energy):
+    return _calc_n_effective(
+        ion_number,
+        ionization_energy,
+        level_energy,
+    )
+
+
+@cuda.jit
+def _calc_n_effective_cuda(res, ion_number, ionization_energy, level_energy):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_n_effective(
+            ion_number[tid],
+            ionization_energy[tid],
+            level_energy[tid],
+        )
+
+
+def calc_n_effective_cuda(
+    ion_number,
+    ionization_energy,
+    level_energy,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        ionization_energy,
+        level_energy,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_n_effective_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
@@ -174,7 +232,7 @@ def calc_gamma_quadratic_stark(
     electron_density : float
         Electron density at depth point being considered.
     temperature : float
-        Temperature of depth point being considered.
+        Temperature of depth points being considered.
 
     Returns
     -------
@@ -201,7 +259,7 @@ def calc_gamma_quadratic_stark(
 
 
 @numba.njit
-def _calc_gamma_van_der_waals(
+def calc_gamma_van_der_waals(
     ion_number,
     n_eff_upper,
     n_eff_lower,
@@ -222,7 +280,7 @@ def _calc_gamma_van_der_waals(
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     temperature : float
-        Temperature of depth point being considered.
+        Temperature of depth points being considered.
     h_density : float
         Number density of Hydrogen at depth point being considered.
     h_mass : float
@@ -233,21 +291,13 @@ def _calc_gamma_van_der_waals(
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
-    ion_number, n_eff_upper, n_eff_lower, temperature, h_density, h_mass = (
-        int(ion_number),
-        float(n_eff_upper),
-        float(n_eff_lower),
-        float(temperature),
-        float(h_density),
-        float(h_mass),
-    )
-    n_eff_upper = n_eff_upper * n_eff_upper
-    n_eff_lower = n_eff_lower * n_eff_lower
-    ion_number = ion_number * ion_number
     c6 = (
         6.46e-34
-        * ((5 * n_eff_upper**2 + n_eff_upper) - (5 * n_eff_lower**2 + n_eff_lower))
-        / (2 * ion_number)
+        * (
+            n_eff_upper**2 * (5 * n_eff_upper**2 + 1)
+            - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)
+        )
+        / (2 * ion_number**2)
     )
 
     gamma_van_der_waals = (
@@ -258,86 +308,6 @@ def _calc_gamma_van_der_waals(
     )
 
     return gamma_van_der_waals
-
-
-@numba.vectorize(nopython=True)
-def calc_gamma_van_der_waals(
-    ion_number,
-    n_eff_upper,
-    n_eff_lower,
-    temperature,
-    h_density,
-    h_mass,
-):
-    return _calc_gamma_van_der_waals(
-        ion_number,
-        n_eff_upper,
-        n_eff_lower,
-        temperature,
-        h_density,
-        h_mass,
-    )
-
-
-@cuda.jit
-def _calc_gamma_van_der_waals_cuda(
-    res,
-    ion_number,
-    n_eff_upper,
-    n_eff_lower,
-    temperature,
-    h_density,
-    h_mass,
-):
-    tid = cuda.grid(1)
-    size = len(res)
-
-    if tid < size:
-        res[tid] = _calc_gamma_van_der_waals(
-            ion_number[tid],
-            n_eff_upper[tid],
-            n_eff_lower[tid],
-            temperature[tid],
-            h_density[tid],
-            h_mass[tid],
-        )
-
-
-def calc_gamma_van_der_waals_cuda(
-    ion_number,
-    n_eff_upper,
-    n_eff_lower,
-    temperature,
-    h_density,
-    h_mass,
-    nthreads=256,
-    ret_np_ndarray=False,
-    dtype=float,
-):
-    arg_list = (
-        ion_number,
-        n_eff_upper,
-        n_eff_lower,
-        temperature,
-        h_density,
-        h_mass,
-    )
-
-    shortest_arg_idx = np.argmin(map(len, arg_list))
-    size = len(arg_list[shortest_arg_idx])
-
-    nblocks = 1 + (size // nthreads)
-
-    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
-
-    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
-
-    _calc_gamma_van_der_waals_cuda[nblocks, nthreads](
-        res,
-        *arg_list,
-    )
-
-    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
@@ -359,7 +329,7 @@ def calc_gamma(
 ):
     """
     Calculates total collision broadening parameter for a specific line
-    and depth point.
+    and depth points.
 
     Parameters
     ----------
@@ -378,7 +348,7 @@ def calc_gamma(
     electron_density : float
         Electron density at depth point being considered.
     temperature : float
-        Temperature of depth point being considered.
+        Temperature of depth points being considered.
     h_density : float
         Number density of Hydrogen at depth point being considered.
     h_mass : float
@@ -470,7 +440,7 @@ def calculate_broadening(
     line_cols : dict
         Matches the name of a quantity to its column index in lines_array.
     no_depth_points : int
-        Number of depth points.
+        Number of depth pointss.
     atomic_masses : numpy.ndarray
         Atomic mass of all elements included in the simulation.
     electron_densities : numpy.ndarray
