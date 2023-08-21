@@ -30,7 +30,7 @@ def _calc_doppler_width(nu_line, temperature, atomic_mass):
     nu_line : float
         Frequency of line being considered.
     temperature : float
-        Temperature of depth points being considered.
+        Temperature of depth point being considered.
     atomic_mass : float
         Atomic mass of element being considered in grams.
 
@@ -188,7 +188,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     electron_density : float
-        Electron density at depth point being considered.
+        Electron density in depth point being considered.
 
     Returns
     -------
@@ -232,7 +232,7 @@ def calc_gamma_quadratic_stark(
     electron_density : float
         Electron density at depth point being considered.
     temperature : float
-        Temperature of depth points being considered.
+        Temperature of depth point being considered.
 
     Returns
     -------
@@ -280,7 +280,7 @@ def calc_gamma_van_der_waals(
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     temperature : float
-        Temperature of depth points being considered.
+        Temperature of depth point being considered.
     h_density : float
         Number density of Hydrogen at depth point being considered.
     h_mass : float
@@ -329,7 +329,7 @@ def calc_gamma(
 ):
     """
     Calculates total collision broadening parameter for a specific line
-    and depth points.
+    and depth point.
 
     Parameters
     ----------
@@ -348,7 +348,7 @@ def calc_gamma(
     electron_density : float
         Electron density at depth point being considered.
     temperature : float
-        Temperature of depth points being considered.
+        Temperature of depth point being considered.
     h_density : float
         Number density of Hydrogen at depth point being considered.
     h_mass : float
@@ -440,7 +440,7 @@ def calculate_broadening(
     line_cols : dict
         Matches the name of a quantity to its column index in lines_array.
     no_depth_points : int
-        Number of depth pointss.
+        Number of depth points.
     atomic_masses : numpy.ndarray
         Atomic mass of all elements included in the simulation.
     electron_densities : numpy.ndarray
@@ -467,10 +467,10 @@ def calculate_broadening(
     line_nus : numpy.ndarray
         Frequency of each line.
     gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_depth_points). Collisional broadening
+        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
         parameter of each line at each depth point.
     doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_depth_points). Doppler width of each
+        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
         line at each depth point.
     """
 

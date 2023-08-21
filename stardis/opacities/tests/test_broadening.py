@@ -3,7 +3,7 @@ import numpy as np
 from astropy import constants as const
 from numba import cuda
 
-from stardis.radiation_field.opacities.opacities_solvers.broadening import (
+from stardis.opacities.broadening import (
     calc_doppler_width,
     _calc_doppler_width_cuda,
     calc_doppler_width_cuda,

@@ -9,9 +9,8 @@ from tardis.io.config_reader import Configuration
 from astropy import units as u
 
 from stardis.plasma import create_stellar_plasma
-from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
-from stardis.radiation_field.radiation_field_solvers import raytrace
-from stardis.radiation_field import RadiationField
+from stardis.opacities import calc_alphas
+from stardis.transport import raytrace
 
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -73,34 +72,20 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
-    if True:  # change to checking source function from config
-        from stardis.radiation_field.source_functions.blackbody import (
-            blackbody_flux_at_nu,
-        )
-
-        stellar_radiation_field = RadiationField(
-            tracing_nus, blackbody_flux_at_nu, stellar_model
-        )
-
-    calc_alphas(
+    # Below becomes radiation field
+    alphas, gammas, doppler_widths = calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
-        stellar_radiation_field=stellar_radiation_field,
+        tracing_nus=tracing_nus,
         opacity_config=config.opacity,
     )
 
-    raytrace(stellar_model, stellar_radiation_field, no_of_thetas=config.no_of_thetas)
+    F_nu = raytrace(
+        stellar_model, alphas, tracing_nus, no_of_thetas=config.no_of_thetas
+    )
 
     return STARDISOutput(
-        stellar_plasma,
-        stellar_model,
-        stellar_radiation_field.opacities.opacities_dict,
-        stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"],
-        stellar_radiation_field.opacities.opacities_dict[
-            "alpha_line_at_nu_doppler_widths"
-        ],
-        stellar_radiation_field.F_nu,
-        stellar_radiation_field.frequencies,
+        stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, tracing_nus
     )
 
 
@@ -148,9 +133,6 @@ class STARDISOutput:
     lambdas : astropy.units.Quantity
         Numpy array of wavelengths used for spectrum with units of Angstroms.
     """
-
-    ###TODO: Instead of returning all these various quantities of the radiation, simply return
-    # the radiation field with class properties that return useful quantities such as spectrum lambda and lambdas.
 
     def __init__(
         self, stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, nus
