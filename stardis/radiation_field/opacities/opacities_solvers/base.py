@@ -73,7 +73,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
 
     return alpha_file
 
-    
+
 # rayleigh opacity
 def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     """
@@ -600,7 +600,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu"
+    ] = alpha_line_at_nu
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"

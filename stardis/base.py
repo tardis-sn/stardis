@@ -78,7 +78,9 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
             blackbody_flux_at_nu,
         )
 
-        stellar_radiation_field = RadiationField(tracing_nus, blackbody_flux_at_nu, stellar_model)
+        stellar_radiation_field = RadiationField(
+            tracing_nus, blackbody_flux_at_nu, stellar_model
+        )
 
     calc_alphas(
         stellar_plasma=stellar_plasma,
@@ -94,7 +96,9 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         stellar_model,
         stellar_radiation_field.opacities.opacities_dict,
         stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"],
-        stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_doppler_widths"],
+        stellar_radiation_field.opacities.opacities_dict[
+            "alpha_line_at_nu_doppler_widths"
+        ],
         stellar_radiation_field.F_nu,
         stellar_radiation_field.frequencies,
     )
