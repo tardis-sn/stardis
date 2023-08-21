@@ -73,7 +73,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
 
     return alpha_file
 
-
+    
 # rayleigh opacity
 def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     """
