@@ -109,6 +109,7 @@ jobs:
         with:
           source-directory: ".asv"
           destination-github-username: "tardis-sn"
+          destination-repository-name: "stardis-benchmarks"
           user.email: tardis.sn.bot@gmail.com
           target-branch: main
 
