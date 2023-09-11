@@ -3,7 +3,7 @@ import numpy as np
 from math import sqrt
 from numba import cuda
 
-from stardis.opacities.voigt import (
+from stardis.radiation_field.opacities.opacities_solvers.voigt import (
     faddeeva,
     _faddeeva_cuda,
     faddeeva_cuda,

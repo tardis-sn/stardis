@@ -1,36 +1,5 @@
 import numba
 import numpy as np
-from astropy import units as u, constants as const
-
-H_CGS = const.h.cgs.value
-C_CGS = const.c.cgs.value
-K_B_CGS = const.k_B.cgs.value
-
-
-@numba.njit
-def bb_nu(tracing_nus, temps):
-    """
-    Planck blackbody intensity distribution w.r.t. frequency.
-
-    Parameters
-    ----------
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
-    temps : numpy.ndarray
-        Temperatures in K of all depth points. Note that array must
-        be transposed.
-
-    Returns
-    -------
-    bb : astropy.unit.quantity.Quantity
-        Numpy array of shape (no_of_depth_points, no_of_frequencies) with units
-        of erg/(s cm^2 Hz). Blackbody specific intensity at each depth point
-        for each frequency in tracing_nus.
-    """
-
-    bb_prefactor = (2 * H_CGS * tracing_nus**3) / C_CGS**2
-    bb = bb_prefactor / (np.exp(((H_CGS * tracing_nus) / (K_B_CGS * temps))) - 1)
-    return bb
 
 
 @numba.njit
@@ -71,6 +40,7 @@ def single_theta_trace(
     alphas,
     tracing_nus,
     theta,
+    source_function,
 ):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
@@ -101,16 +71,15 @@ def single_theta_trace(
     taus = mean_alphas.T * geometry_dist_to_next_depth_point / np.cos(theta)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    bb = bb_nu(tracing_nus, temps)
-    source = bb
-    delta_source = bb[1:] - bb[:-1]
+    ###TODO: Generalize this for source functions other than blackbody that may require args other than frequency and temperature
+    source = source_function(tracing_nus, temps)
+    delta_source = source[1:] - source[:-1]
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
-    I_nu_theta[0] = bb[0]  # the innermost depth point is the photosphere
+    I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
             curr_tau = taus[i, j]
-            next_tau = taus[i, j + 1]
 
             w0, w1, w2 = calc_weights(curr_tau)
 
@@ -119,6 +88,7 @@ def single_theta_trace(
             else:
                 second_term = w1 * delta_source[j, i] / curr_tau
             if j < no_of_depth_gaps - 1:
+                next_tau = taus[i, j + 1]
                 third_term = w2 * (
                     (
                         (delta_source[j + 1, i] / next_tau)
@@ -142,7 +112,7 @@ def single_theta_trace(
     return I_nu_theta
 
 
-def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
+def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
     rule.
@@ -150,11 +120,8 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     Parameters
     ----------
     stellar_model : stardis.model.base.StellarModel
-    alphas : numpy.ndarray
-        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
-        each depth point for each frequency in tracing_nus.
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
+    stellar_radiation_field : stardis.radiation_field.base.StellarRadiationField
+        Contains temperatures, frequencies, and opacities needed to calculate F_nu.
     no_of_thetas : int, optional
         Number of angles to sample for ray tracing, by default 20.
 
@@ -169,16 +136,17 @@ def raytrace(stellar_model, alphas, tracing_nus, no_of_thetas=20):
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
-    F_nu = np.zeros((len(stellar_model.geometry.r), len(tracing_nus)))
 
+    ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     for theta in thetas:
         weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
-        F_nu += weight * single_theta_trace(
+        stellar_radiation_field.F_nu += weight * single_theta_trace(
             stellar_model.geometry.dist_to_next_depth_point,
             stellar_model.temperatures.value.reshape(-1, 1),
-            alphas,
-            tracing_nus,
+            stellar_radiation_field.opacities.total_alphas,
+            stellar_radiation_field.frequencies,
             theta,
+            stellar_radiation_field.source_function,
         )
 
-    return F_nu
+    return stellar_radiation_field.F_nu
