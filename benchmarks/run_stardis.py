@@ -14,6 +14,8 @@ from stardis.plasma import create_stellar_plasma
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field.opacities.opacities_solvers import calc_alpha_line_at_nu
+from stardis.radiation_field import RadiationField
+from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 
 class BenchmarkStardis:
@@ -60,18 +62,20 @@ class BenchmarkStardis:
 
         stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
-        alphas, gammas, doppler_widths = calc_alphas(
+        stellar_radiation_field = RadiationField(
+            tracing_nus, blackbody_flux_at_nu, stellar_model
+        )
+
+        calc_alphas(
             stellar_plasma=stellar_plasma,
             stellar_model=stellar_model,
-            tracing_nus=tracing_nus,
+            stellar_radiation_field=stellar_radiation_field,
             opacity_config=config.opacity,
         )
 
         self.stellar_plasma = stellar_plasma
         self.stellar_model = stellar_model
-        self.alphas = alphas
-        self.tracing_nus = tracing_nus
-        self.tracing_lambdas = tracing_lambdas
+        self.stellar_radiation_field = stellar_radiation_field
         self.config = config
         self.config_file = config_file
 
@@ -81,8 +85,7 @@ class BenchmarkStardis:
     def time_raytrace(self):
         raytrace(
             self.stellar_model,
-            self.alphas,
-            self.tracing_nus,
+            self.stellar_radiation_field,
             no_of_thetas=self.config.no_of_thetas,
         )
 
@@ -90,6 +93,6 @@ class BenchmarkStardis:
         calc_alpha_line_at_nu(
             self.stellar_plasma,
             self.stellar_model,
-            self.tracing_nus,
+            self.stellar_radiation_field,
             self.config.opacity.line,
         )
