@@ -76,6 +76,7 @@ class BenchmarkStardis:
         self.stellar_plasma = stellar_plasma
         self.stellar_model = stellar_model
         self.stellar_radiation_field = stellar_radiation_field
+        self.tracing_lambdas = tracing_lambdas
         self.config = config
         self.config_file = config_file
 
@@ -93,6 +94,6 @@ class BenchmarkStardis:
         calc_alpha_line_at_nu(
             self.stellar_plasma,
             self.stellar_model,
-            self.stellar_radiation_field,
+            self.stellar_radiation_field.frequencies,
             self.config.opacity.line,
         )
