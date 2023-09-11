@@ -1,8 +1,6 @@
 import numba
 import numpy as np
 
-# from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
-
 
 @numba.njit
 def calc_weights(delta_tau):
