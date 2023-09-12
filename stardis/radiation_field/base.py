@@ -21,7 +21,8 @@ class RadiationField:
     source_function : stardis.radiation_field.source_function
         Source function of the radiation field.
     opacities : stardis.radiation_field.opacities
-        Composition of the model. Includes density and atomic mass fractions.
+        Opacities object. Contains a dictionary of opacities contributed from different sources and the calc_total_alphas() method to
+        calculate the total opacity at each frequency at each depth point.
     F_nu : numpy.ndarray
         Radiation field fluxes at each frequency at each depth point. Initialized as zeros and calculated by a solver.
     """
