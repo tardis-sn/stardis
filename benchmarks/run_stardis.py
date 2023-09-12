@@ -29,7 +29,7 @@ class BenchmarkStardis:
         base_dir = os.path.abspath(os.path.dirname(__file__))
         schema = os.path.join(base_dir, "config_schema.yml")
         config_file = os.path.join(base_dir, "benchmark_config.yml")
-        tracing_lambdas = np.arange(6540, 6590, 0.01) * u.Angstrom
+        tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
         os.chdir(base_dir)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
@@ -40,7 +40,7 @@ class BenchmarkStardis:
         adata = AtomData.from_hdf(config.atom_data)
 
         if config.model.type == "marcs":
-            raw_marcs_model = read_marcs_model(config.model.fname, gzipped=False)
+            raw_marcs_model = read_marcs_model(config.model.fname)
             stellar_model = raw_marcs_model.to_stellar_model(
                 adata, final_atomic_number=config.model.final_atomic_number
             )
@@ -73,10 +73,11 @@ class BenchmarkStardis:
             opacity_config=config.opacity,
         )
 
-        self.stellar_plasma = stellar_plasma
-        self.stellar_model = stellar_model
-        self.stellar_radiation_field = stellar_radiation_field
         self.tracing_lambdas = tracing_lambdas
+
+        self.stellar_model = stellar_model
+        self.stellar_plasma = stellar_plasma
+        self.stellar_radiation_field = stellar_radiation_field
         self.config = config
         self.config_file = config_file
 
