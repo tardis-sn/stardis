@@ -40,7 +40,9 @@ class BenchmarkStardis:
         adata = AtomData.from_hdf(config.atom_data)
 
         if config.model.type == "marcs":
-            raw_marcs_model = read_marcs_model(config.model.fname)
+            raw_marcs_model = read_marcs_model(
+                config.model.fname, gzipped=config.model.gzipped
+            )
             stellar_model = raw_marcs_model.to_stellar_model(
                 adata, final_atomic_number=config.model.final_atomic_number
             )
