@@ -139,11 +139,11 @@ class STARDISOutput:
         stellar_plasma,
         stellar_radiation_field,
     ):
-        if result_options.return_model == True:
+        if result_options.return_model:
             self.stellar_model = stellar_model
-        if result_options.return_plasma == True:
+        if result_options.return_plasma:
             self.stellar_plasma = stellar_plasma
-        if result_options.return_radiation_field == True:
+        if result_options.return_radiation_field:
             self.stellar_radiation_field = stellar_radiation_field
 
         self.nus = stellar_radiation_field.frequencies
