@@ -73,14 +73,14 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
 
-    if True:  # change to checking source function from config
+    if True:  ###TODO change to checking source function from config
         from stardis.radiation_field.source_functions.blackbody import (
             blackbody_flux_at_nu,
         )
 
-        stellar_radiation_field = RadiationField(
-            tracing_nus, blackbody_flux_at_nu, stellar_model
-        )
+    stellar_radiation_field = RadiationField(
+        tracing_nus, blackbody_flux_at_nu, stellar_model
+    )
 
     calc_alphas(
         stellar_plasma=stellar_plasma,
@@ -92,15 +92,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     raytrace(stellar_model, stellar_radiation_field, no_of_thetas=config.no_of_thetas)
 
     return STARDISOutput(
-        stellar_plasma,
-        stellar_model,
-        stellar_radiation_field.opacities.opacities_dict,
-        stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"],
-        stellar_radiation_field.opacities.opacities_dict[
-            "alpha_line_at_nu_doppler_widths"
-        ],
-        stellar_radiation_field.F_nu,
-        stellar_radiation_field.frequencies,
+        config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
     )
 
 
@@ -110,64 +102,55 @@ class STARDISOutput:
 
     Parameters
     ----------
+    result_options : dict
     stellar_plasma : tardis.plasma.base.BasePlasma
     stellar_model : stardis.model.base.StellarModel
-    alphas : numpy.ndarray
-    gammas : numpy.ndarray
-    doppler_widths : numpy.ndarray
-    F_nu : numpy.ndarray
-    nus: astropy.units.Quantity
+    stellar_radiation_field : stardis.radiation_field.radiation_field.RadiationField
 
     Attributes
     ----------
-    stellar_plasma : tardis.plasma.base.BasePlasma
     stellar_model : stardis.model.base.StellarModel
-    alphas : numpy.ndarray
-        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
-        each depth point for each frequency in tracing_nus.
-    gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
-        parameter of each line at each depth point.
-    doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
-        line at each depth point.
-    F_nu : astropy.units.Quantity
-        Array of shape (no_of_depth points, no_of_frequencies). Output flux with
-        respect to frequency at each depth point for each frequency. Units of erg/s/cm^2/Hz.
-    F_lambda : astropy.units.Quantity
-        Array of shape (no_of_depth_points, no_of_frequencies). Output flux with
-        respect to wavelength at each depth point for each wavelength. Units of erg/s/cm^2/Angstrom.
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    stellar_radiation_field : stardis.radiation_field.radiation_field.RadiationField
+        contains the following attributes:
+            frequencies : astropy.units.Quantity
+                Frequencies of the radiation field.
+            source_function : stardis.radiation_field.source_function
+            opacities : stardis.radiation_field.opacities
+                Stardis opacities object. Contains the opacities contributed by the stellar atmosphere.
+            F_nu : numpy.ndarray
+                Radiation field fluxes at each frequency at each depth point.
+    nus : astropy.units.Quantity
+        Numpy array of frequencies used for spectrum with units of Hz.
+    lambdas : astropy.units.Quantity
+        Numpy array of wavelengths used for spectrum with units of Angstroms.
     spectrum_nu : astropy.units.Quantity
         Output flux with respect to frequency at the outermost depth point for each
         frequency. Units of erg/s/cm^2/Hz.
     spectrum_lambda : astropy.units.Quantity
         Output flux with respect to wavelength at the outermost depth point for each
         wavelength. Units of erg/s/cm^2/Angstrom.
-    nus : astropy.units.Quantity
-        Numpy array of frequencies used for spectrum with units of Hz.
-    lambdas : astropy.units.Quantity
-        Numpy array of wavelengths used for spectrum with units of Angstroms.
     """
 
-    ###TODO: Instead of returning all these various quantities of the radiation, simply return
-    # the radiation field with class properties that return useful quantities such as spectrum lambda and lambdas.
-
     def __init__(
-        self, stellar_plasma, stellar_model, alphas, gammas, doppler_widths, F_nu, nus
+        self,
+        result_options,
+        stellar_model,
+        stellar_plasma,
+        stellar_radiation_field,
     ):
-        self.stellar_plasma = stellar_plasma
-        self.stellar_model = stellar_model
-        self.alphas = alphas
-        self.gammas = gammas
-        self.doppler_widths = doppler_widths
+        if result_options.return_model:
+            self.stellar_model = stellar_model
+        if result_options.return_plasma:
+            self.stellar_plasma = stellar_plasma
+        if result_options.return_radiation_field:
+            self.stellar_radiation_field = stellar_radiation_field
 
-        self.nus = nus
-        self.lambdas = nus.to(u.AA, u.spectral())
+        self.nus = stellar_radiation_field.frequencies
+        self.lambdas = self.nus.to(u.AA, u.spectral())
 
-        self.F_nu = F_nu * u.erg / u.s / u.cm**2 / u.Hz
-        self.F_lambda = (self.F_nu * nus / self.lambdas).to(
-            u.erg / u.s / u.cm**2 / u.AA
-        )
+        F_nu = stellar_radiation_field.F_nu * u.erg / u.s / u.cm**2 / u.Hz
+        F_lambda = (F_nu * self.nus / self.lambdas).to(u.erg / u.s / u.cm**2 / u.AA)
 
-        self.spectrum_nu = self.F_nu[-1]
-        self.spectrum_lambda = self.F_lambda[-1]
+        self.spectrum_nu = F_nu[-1]
+        self.spectrum_lambda = F_lambda[-1]

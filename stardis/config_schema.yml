@@ -108,6 +108,20 @@ properties:
         type: number
         multipleOf: 1
         default: 10
+    result_options:
+        type: object
+        additionalProperties: False
+        default: {}
+        properties:
+            return_model:
+                type: boolean
+                default: false
+            return_plasma:
+                type: boolean
+                default: false
+            return_radiation_field:
+                type: boolean
+                default: True
     required:
     - stardis_config_version
     - atom_data
