@@ -528,7 +528,7 @@ def calc_alan_entries(
         gamma,
     )
 
-    return np.sum(phis * alphas_at_depth_point)
+    return phis @ alphas_at_depth_point
 
 
 def calc_alphas(
