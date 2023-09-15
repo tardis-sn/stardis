@@ -8,7 +8,9 @@ from astropy import units as u, constants as const
 from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calculate_broadening,
 )
-from stardis.radiation_field.opacities.opacities_solvers.voigt import voigt_profile
+from stardis.radiation_field.opacities.opacities_solvers.voigt import (
+    voigt_profile,
+)
 from stardis.radiation_field.opacities.opacities_solvers.util import (
     sigma_file,
     map_items_to_indices,
@@ -516,15 +518,15 @@ def calc_alan_entries(
     float
         Line opacity.
     """
+    delta_nu = np.abs(delta_nus)
+    doppler_width = doppler_widths_at_depth_point
+    gamma = gammas_at_depth_point
 
-    phis = np.zeros(len(delta_nus))
-
-    for k in range(len(delta_nus)):
-        delta_nu = np.abs(delta_nus[k])
-        doppler_width = doppler_widths_at_depth_point[k]
-        gamma = gammas_at_depth_point[k]
-
-        phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
+    phis = voigt_profile(
+        delta_nu,
+        doppler_width,
+        gamma,
+    )
 
     return np.sum(phis * alphas_at_depth_point)
 
