@@ -308,7 +308,7 @@ def test_calc_gamma_linear_stark_cuda_unwrapped_sample_values(
     nblocks = 1 + (length // nthreads)
 
     _calc_gamma_linear_stark_cuda[nblocks, nthreads](result_values, *arg_list)
-    print(result_values)
+
     assert np.allclose(
         cp.asnumpy(result_values),
         calc_gamma_linear_stark_cuda_unwrapped_sample_values_expected_result,
