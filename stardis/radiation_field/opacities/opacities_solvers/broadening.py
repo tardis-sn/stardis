@@ -264,8 +264,12 @@ def calc_gamma_linear_stark_cuda(
 
 
 @numba.njit
-def calc_gamma_quadratic_stark(
-    ion_number, n_eff_upper, n_eff_lower, electron_density, temperature
+def _calc_gamma_quadratic_stark(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
 ):
     """
     Calculates broadening parameter for quadratic Stark broadening.
@@ -284,30 +288,118 @@ def calc_gamma_quadratic_stark(
     electron_density : float
         Electron density at depth point being considered.
     temperature : float
-        Temperature of depth points being considered.
+        Temperature at depth point being considered.
 
     Returns
     -------
     gamma_quadratic_stark : float
         Broadening parameter for quadratic Stark broadening.
     """
-    c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
-        36 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * ion_number**4
+    ion_number, n_eff_upper, n_eff_lower, electron_density, temperature = (
+        int(ion_number),
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(electron_density),
+        float(temperature),
     )
-    c4 = c4_prefactor * (
-        (n_eff_upper * ((5 * n_eff_upper**2) + 1)) ** 2
-        - (n_eff_lower * ((5 * n_eff_lower**2) + 1)) ** 2
+    c4_prefactor = (
+        ELEMENTARY_CHARGE * ELEMENTARY_CHARGE * BOHR_RADIUS * BOHR_RADIUS * BOHR_RADIUS
+    ) / (
+        36.0
+        * PLANCK_CONSTANT
+        * VACUUM_ELECTRIC_PERMITTIVITY
+        * ion_number
+        * ion_number
+        * ion_number
+        * ion_number
     )
+    c4_term_1 = n_eff_upper * ((5.0 * n_eff_upper * n_eff_upper) + 1)
+    c4_term_2 = n_eff_lower * ((5.0 * n_eff_lower * n_eff_lower) + 1)
+    c4 = c4_prefactor * (c4_term_1 * c4_term_1 - c4_term_2 * c4_term_2)
 
     gamma_quadratic_stark = (
-        10**19
+        1e19
         * BOLTZMANN_CONSTANT
         * electron_density
-        * c4 ** (2 / 3)
-        * temperature ** (1 / 6)
+        * c4 ** (2.0 / 3.0)
+        * temperature ** (1.0 / 6.0)
     )
 
     return gamma_quadratic_stark
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_quadratic_stark(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
+):
+    return _calc_gamma_quadratic_stark(
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        electron_density,
+        temperature,
+    )
+
+
+@cuda.jit
+def _calc_gamma_quadratic_stark_cuda(
+    res,
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
+):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_quadratic_stark(
+            ion_number[tid],
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            electron_density[tid],
+            temperature[tid],
+        )
+
+
+def calc_gamma_quadratic_stark_cuda(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    temperature,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        electron_density,
+        temperature,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_quadratic_stark_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
