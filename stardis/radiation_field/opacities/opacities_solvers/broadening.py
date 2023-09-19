@@ -302,11 +302,16 @@ def _calc_gamma_quadratic_stark(
         float(electron_density),
         float(temperature),
     )
-    ion_number = ion_number * ion_number
     c4_prefactor = (
         ELEMENTARY_CHARGE * ELEMENTARY_CHARGE * BOHR_RADIUS * BOHR_RADIUS * BOHR_RADIUS
     ) / (
-        36.0 * PLANCK_CONSTANT * VACUUM_ELECTRIC_PERMITTIVITY * ion_number * ion_number
+        36.0
+        * PLANCK_CONSTANT
+        * VACUUM_ELECTRIC_PERMITTIVITY
+        * ion_number
+        * ion_number
+        * ion_number
+        * ion_number
     )
     c4_term_1 = n_eff_upper * ((5.0 * n_eff_upper * n_eff_upper) + 1)
     c4_term_2 = n_eff_lower * ((5.0 * n_eff_lower * n_eff_lower) + 1)
@@ -343,8 +348,8 @@ def calc_gamma_quadratic_stark(
 @cuda.jit
 def _calc_gamma_quadratic_stark_cuda(
     res,
-    n_eff_upper,
     ion_number,
+    n_eff_upper,
     n_eff_lower,
     electron_density,
     temperature,
