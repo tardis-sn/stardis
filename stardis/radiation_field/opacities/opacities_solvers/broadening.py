@@ -445,11 +445,10 @@ def _calc_gamma_van_der_waals(
     )
     n_eff_upper = n_eff_upper * n_eff_upper
     n_eff_lower = n_eff_lower * n_eff_lower
-    ion_number = ion_number * ion_number
     c6 = (
         6.46e-34
         * ((5 * n_eff_upper**2 + n_eff_upper) - (5 * n_eff_lower**2 + n_eff_lower))
-        / (2 * ion_number)
+        / (2 * ion_number * ion_number)
     )
 
     gamma_van_der_waals = (
