@@ -30,7 +30,7 @@ def _calc_doppler_width(nu_line, temperature, atomic_mass):
     nu_line : float
         Frequency of line being considered.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth points being considered.
     atomic_mass : float
         Atomic mass of element being considered in grams.
 
@@ -97,7 +97,7 @@ def calc_doppler_width_cuda(
 
 
 @numba.njit
-def calc_n_effective(ion_number, ionization_energy, level_energy):
+def _calc_n_effective(ion_number, ionization_energy, level_energy):
     """
     Calculates the effective principal quantum number of an energy level.
 
@@ -114,11 +114,69 @@ def calc_n_effective(ion_number, ionization_energy, level_energy):
     -------
     float
     """
-    return np.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+    ion_number, ionization_energy, level_energy = (
+        int(ion_number),
+        float(ionization_energy),
+        float(level_energy),
+    )
+    return math.sqrt(RYDBERG_ENERGY / (ionization_energy - level_energy)) * ion_number
+
+
+@numba.vectorize(nopython=True)
+def calc_n_effective(ion_number, ionization_energy, level_energy):
+    return _calc_n_effective(
+        ion_number,
+        ionization_energy,
+        level_energy,
+    )
+
+
+@cuda.jit
+def _calc_n_effective_cuda(res, ion_number, ionization_energy, level_energy):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_n_effective(
+            ion_number[tid],
+            ionization_energy[tid],
+            level_energy[tid],
+        )
+
+
+def calc_n_effective_cuda(
+    ion_number,
+    ionization_energy,
+    level_energy,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        ionization_energy,
+        level_energy,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_n_effective_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
-def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
+def _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
     Calculates broadening parameter for linear Stark broadening.
     https://ui.adsabs.harvard.edu/abs/1978JQSRT..20..333S/
@@ -130,7 +188,7 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     electron_density : float
-        Electron density in shell being considered.
+        Electron density at depth point being considered.
 
     Returns
     -------
@@ -138,19 +196,71 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
         Broadening parameter for linear Stark broadening.
     """
 
-    if n_eff_upper - n_eff_lower < 1.5:
-        a1 = 0.642
-    else:
-        a1 = 1
+    n_eff_upper, n_eff_lower, electron_density = (
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(electron_density),
+    )
+
+    a1 = 0.642 if (n_eff_upper - n_eff_lower < 1.5) else 1.0
 
     gamma_linear_stark = (
         0.51
         * a1
         * (n_eff_upper**2 - n_eff_lower**2)
-        * (electron_density ** (2 / 3))
+        * (electron_density ** (2.0 / 3.0))
     )
 
     return gamma_linear_stark
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
+    return _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density)
+
+
+@cuda.jit
+def _calc_gamma_linear_stark_cuda(res, n_eff_upper, n_eff_lower, electron_density):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_linear_stark(
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            electron_density[tid],
+        )
+
+
+def calc_gamma_linear_stark_cuda(
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        n_eff_upper,
+        n_eff_lower,
+        electron_density,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_linear_stark_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
@@ -176,9 +286,9 @@ def _calc_gamma_quadratic_stark(
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     electron_density : float
-        Electron density in shell being considered.
+        Electron density at depth point being considered.
     temperature : float
-        Temperature of shell being considered.
+        Temperature at depth point being considered.
 
     Returns
     -------
@@ -309,9 +419,9 @@ def calc_gamma_van_der_waals(
     n_eff_lower : float
         Effective principal quantum number of lower level of transition.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth points being considered.
     h_density : float
-        Number density of Hydrogen in shell being considered.
+        Number density of Hydrogen at depth point being considered.
     h_mass : float
         Atomic mass of Hydrogen in grams.
 
@@ -358,7 +468,7 @@ def calc_gamma(
 ):
     """
     Calculates total collision broadening parameter for a specific line
-    and shell.
+    and depth points.
 
     Parameters
     ----------
@@ -375,11 +485,11 @@ def calc_gamma(
     A_ul : float
         Einstein A coefficient for the line being considered.
     electron_density : float
-        Electron density in shell being considered.
+        Electron density at depth point being considered.
     temperature : float
-        Temperature of shell being considered.
+        Temperature of depth points being considered.
     h_density : float
-        Number density of Hydrogen in shell being considered.
+        Number density of Hydrogen at depth point being considered.
     h_mass : float
         Atomic mass of Hydrogen in grams.
     linear_stark : bool, optional
@@ -449,7 +559,7 @@ def calc_gamma(
 def calculate_broadening(
     lines_array,
     line_cols,
-    no_shells,
+    no_depth_points,
     atomic_masses,
     electron_densities,
     temperatures,
@@ -460,7 +570,7 @@ def calculate_broadening(
     radiation=True,
 ):
     """
-    Calculates broadening information for each line in each shell.
+    Calculates broadening information for each line at each depth point.
 
     Parameters
     ----------
@@ -468,16 +578,16 @@ def calculate_broadening(
         Array containing each line and properties of the line.
     line_cols : dict
         Matches the name of a quantity to its column index in lines_array.
-    no_shells : int
-        Number of shells.
+    no_depth_points : int
+        Number of depth pointss.
     atomic_masses : numpy.ndarray
         Atomic mass of all elements included in the simulation.
     electron_densities : numpy.ndarray
-        Electron density in each shell.
+        Electron density at each depth point.
     temperatures : numpy.ndarray
-        Temperature in each shell.
+        Temperature at each depth point.
     h_densities : numpy.ndarray
-        Number density of hydrogen in each shell.
+        Number density of hydrogen at each depth point.
     linear_stark : bool, optional
         True if linear Stark broadening is to be considered, otherwise False.
         By default True.
@@ -496,16 +606,16 @@ def calculate_broadening(
     line_nus : numpy.ndarray
         Frequency of each line.
     gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Collisional broadening
-        parameter of each line in each shell.
+        Array of shape (no_of_lines, no_depth_points). Collisional broadening
+        parameter of each line at each depth point.
     doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Doppler width of each
-        line in each shell.
+        Array of shape (no_of_lines, no_depth_points). Doppler width of each
+        line at each depth point.
     """
 
     line_nus = np.zeros(len(lines_array))
-    gammas = np.zeros((len(lines_array), no_shells))
-    doppler_widths = np.zeros((len(lines_array), no_shells))
+    gammas = np.zeros((len(lines_array), no_depth_points))
+    doppler_widths = np.zeros((len(lines_array), no_depth_points))
 
     h_mass = atomic_masses[0]
 
@@ -521,7 +631,7 @@ def calculate_broadening(
 
         line_nus[i] = line_nu
 
-        for j in range(no_shells):
+        for j in range(no_depth_points):
             electron_density = electron_densities[j]
             temperature = temperatures[j]
             h_density = h_densities[j]
