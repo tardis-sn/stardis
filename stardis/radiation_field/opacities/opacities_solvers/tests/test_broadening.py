@@ -13,6 +13,9 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calc_gamma_linear_stark,
     _calc_gamma_linear_stark_cuda,
     calc_gamma_linear_stark_cuda,
+    calc_gamma_quadratic_stark,
+    _calc_gamma_quadratic_stark_cuda,
+    calc_gamma_quadratic_stark_cuda,
 )
 
 GPUs_available = cuda.is_available()
