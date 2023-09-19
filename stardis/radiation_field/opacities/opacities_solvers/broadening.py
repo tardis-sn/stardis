@@ -176,7 +176,7 @@ def calc_n_effective_cuda(
 
 
 @numba.njit
-def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
+def _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     """
     Calculates broadening parameter for linear Stark broadening.
     https://ui.adsabs.harvard.edu/abs/1978JQSRT..20..333S/
@@ -196,19 +196,71 @@ def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
         Broadening parameter for linear Stark broadening.
     """
 
-    if n_eff_upper - n_eff_lower < 1.5:
-        a1 = 0.642
-    else:
-        a1 = 1
+    n_eff_upper, n_eff_lower, electron_density = (
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(electron_density),
+    )
+
+    a1 = 0.642 if (n_eff_upper - n_eff_lower < 1.5) else 1.0
 
     gamma_linear_stark = (
         0.51
         * a1
         * (n_eff_upper**2 - n_eff_lower**2)
-        * (electron_density ** (2 / 3))
+        * (electron_density ** (2.0 / 3.0))
     )
 
     return gamma_linear_stark
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
+    return _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density)
+
+
+@cuda.jit
+def _calc_gamma_linear_stark_cuda(res, n_eff_upper, n_eff_lower, electron_density):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_linear_stark(
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            electron_density[tid],
+        )
+
+
+def calc_gamma_linear_stark_cuda(
+    n_eff_upper,
+    n_eff_lower,
+    electron_density,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        n_eff_upper,
+        n_eff_lower,
+        electron_density,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_linear_stark_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
