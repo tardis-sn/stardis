@@ -3,15 +3,19 @@ import numpy as np
 
 import numba
 
-from tardis.io.config_reader import ConfigurationNameSpace
-
 from astropy import units as u, constants as const
 
-from stardis.opacities.broadening import calculate_broadening
-from stardis.opacities.voigt import voigt_profile
-from stardis.opacities.util import sigma_file, map_items_to_indices, get_number_density
+from stardis.radiation_field.opacities.opacities_solvers.broadening import (
+    calculate_broadening,
+)
+from stardis.radiation_field.opacities.opacities_solvers.voigt import voigt_profile
+from stardis.radiation_field.opacities.opacities_solvers.util import (
+    sigma_file,
+    map_items_to_indices,
+    get_number_density,
+)
 
-
+# constants
 VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * np.pi)
 BF_CONSTANT = (
     64
@@ -48,8 +52,8 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     Returns
     -------
     alpha_file : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). File opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). File opacity in
+        each depth point for each frequency in tracing_nus.
     """
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
@@ -90,8 +94,8 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     Returns
     -------
     alpha_rayleigh : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Rayleigh scattering
-        opacity in each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Rayleigh scattering
+        opacity at each depth point for each frequency in tracing_nus.
     """
 
     temperatures = stellar_model.temperatures.value
@@ -158,8 +162,8 @@ def calc_alpha_electron(
     Returns
     -------
     alpha_electron : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Electron scattering
-        opacity in each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Electron scattering
+        opacity at each depth point for each frequency in tracing_nus.
     """
 
     if disable_electron_scattering:
@@ -168,13 +172,13 @@ def calc_alpha_electron(
         stellar_model.geometry.r
     )  # Eventually change when considering other coordinate systems than radial1d.
 
-    alpha_electron_by_shell = (
+    alpha_electron_by_depth_point = (
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
     )
 
     alpha_electron = np.zeros([len(geometry), len(tracing_nus)])
     for j in range(len(geometry)):
-        alpha_electron[j] = alpha_electron_by_shell[j]
+        alpha_electron[j] = alpha_electron_by_depth_point[j]
 
     return alpha_electron
 
@@ -198,8 +202,8 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
     Returns
     -------
     alpha_bf : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Bound-free opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Bound-free opacity at
+        each depth_point for each frequency in tracing_nus.
     """
     # This implementation will only work with 1D.
     geometry = (
@@ -251,7 +255,7 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
 def calc_contribution_bf(nu, cutoff_frequency, number_density, ion_number):
     """
     Calculates the contribution of a single level to the bound-free opacity
-    coefficient of a single frequency in each shell.
+    coefficient of a single frequency at each depth point.
 
     Parameters
     ----------
@@ -297,8 +301,8 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     Returns
     -------
     alpha_ff : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Free-free opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Free-free opacity at
+        each depth point for each frequency in tracing_nus.
     """
 
     temperatures = stellar_model.temperatures.value
@@ -356,14 +360,14 @@ def calc_alpha_line_at_nu(
     Returns
     -------
     alpha_line_at_nu : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Line opacity in
-        each shell for each frequency in tracing_nus.
+        Array of shape (no_of_depth_points, no_of_frequencies). Line opacity at
+        each depth_point for each frequency in tracing_nus.
     gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Collisional broadening
-        parameter of each line in each shell.
+        Array of shape (no_of_lines, no_of_depth_points). Collisional broadening
+        parameter of each line at each depth_point.
     doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Doppler width of each
-        line in each shell.
+        Array of shape (no_of_lines, no_of_depth_points). Doppler width of each
+        line at each depth_point.
     """
 
     if line_opacity_config.disable:
@@ -429,12 +433,12 @@ def calc_alpha_line_at_nu(
     alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
     alphas_array = alphas.to_numpy()
 
-    no_shells = len(stellar_model.geometry.r)
+    no_depth_points = len(stellar_model.geometry.r)
 
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
         line_cols,
-        no_shells,
+        no_depth_points,
         atomic_masses,
         electron_densities,
         temperatures,
@@ -445,23 +449,23 @@ def calc_alpha_line_at_nu(
         radiation=radiation,
     )
 
-    alpha_line_at_nu = np.zeros((no_shells, len(tracing_nus)))
+    alpha_line_at_nu = np.zeros((no_depth_points, len(tracing_nus)))
 
     for i in range(len(tracing_nus)):
         nu = tracing_nus[i].value
         delta_nus = nu - line_nus
 
-        for j in range(no_shells):
-            gammas_in_shell = gammas[:, j]
-            doppler_widths_in_shell = doppler_widths[:, j]
-            alphas_in_shell = alphas_array[:, j]
+        for j in range(no_depth_points):
+            gammas_at_depth_point = gammas[:, j]
+            doppler_widths_at_depth_point = doppler_widths[:, j]
+            alphas_at_depth_point = alphas_array[:, j]
 
             if line_range is None:
                 alpha_line_at_nu[j, i] = calc_alan_entries(
                     delta_nus,
-                    doppler_widths_in_shell,
-                    gammas_in_shell,
-                    alphas_in_shell,
+                    doppler_widths_at_depth_point,
+                    gammas_at_depth_point,
+                    alphas_at_depth_point,
                 )
 
             else:
@@ -469,9 +473,11 @@ def calc_alpha_line_at_nu(
                 line_start = line_nus.searchsorted(nu - line_range_value) + 1
                 line_end = line_nus.searchsorted(nu + line_range_value) + 1
                 delta_nus_considered = delta_nus[line_start:line_end]
-                gammas_considered = gammas_in_shell[line_start:line_end]
-                doppler_widths_considered = doppler_widths_in_shell[line_start:line_end]
-                alphas_considered = alphas_in_shell[line_start:line_end]
+                gammas_considered = gammas_at_depth_point[line_start:line_end]
+                doppler_widths_considered = doppler_widths_at_depth_point[
+                    line_start:line_end
+                ]
+                alphas_considered = alphas_at_depth_point[line_start:line_end]
                 alpha_line_at_nu[j, i] = calc_alan_entries(
                     delta_nus_considered,
                     doppler_widths_considered,
@@ -485,25 +491,25 @@ def calc_alpha_line_at_nu(
 @numba.njit
 def calc_alan_entries(
     delta_nus,
-    doppler_widths_in_shell,
-    gammas_in_shell,
-    alphas_in_shell,
+    doppler_widths_at_depth_point,
+    gammas_at_depth_point,
+    alphas_at_depth_point,
 ):
     """
-    Calculates the line opacity at a single frequency in a single shell.
+    Calculates the line opacity at a single frequency at a single depth point.
 
     Parameters
     ----------
     delta_nus : numpy.ndarray
         Difference between the frequency considered and the frequency of each
         line considered.
-    doppler_widths_in_shell : numpy.ndarray
-        The doppler width of each line considered in the shell considered.
-    gammas_in_shell : numpy.ndarray
-        The broadening parameter of each line considered in the shell
+    doppler_widths_at_depth_point : numpy.ndarray
+        The doppler width of each line considered in the at_depth_point considered.
+    gammas_at_depth_point : numpy.ndarray
+        The broadening parameter of each line considered at the depth point
         considered.
-    alphas_in_shell : numpy.ndarray
-        The total opacity of each line considered in the shell considered.
+    alphas_at_depth_point : numpy.ndarray
+        The total opacity of each line considered at the depth point considered.
 
     Returns
     -------
@@ -515,90 +521,92 @@ def calc_alan_entries(
 
     for k in range(len(delta_nus)):
         delta_nu = np.abs(delta_nus[k])
-        doppler_width = doppler_widths_in_shell[k]
-        gamma = gammas_in_shell[k]
+        doppler_width = doppler_widths_at_depth_point[k]
+        gamma = gammas_at_depth_point[k]
 
         phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
 
-    return np.sum(phis * alphas_in_shell)
+    return np.sum(phis * alphas_at_depth_point)
 
 
 def calc_alphas(
     stellar_plasma,
     stellar_model,
-    tracing_nus,
+    stellar_radiation_field,
     opacity_config,
 ):
     """
-    Calculates total opacity.
+    Calculates each opacity and adds it to the opacity dictionary contained in the radiation field.
 
     Parameters
     ----------
     stellar_plasma : tardis.plasma.base.BasePlasma
     stellar_model : stardis.model.base.StellarModel
-    tracing_nus : astropy.unit.quantity.Quantity
-        Numpy array of frequencies used for ray tracing with units of Hz.
+    stellar_radiation_field stardis.radiation_field.base.RadiationField
+        Contains the frequencies at which opacities are calculated. Also holds the resulting opacity information.
     opacity_config : tardis.io.config_reader.Configuration
         Opacity section of the STARDIS configuration.
 
     Returns
     -------
     alphas : numpy.ndarray
-        Array of shape (no_of_shells, no_of_frequencies). Total opacity in
-        each shell for each frequency in tracing_nus.
-    gammas : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Collisional broadening
-        parameter of each line in each shell.
-    doppler_widths : numpy.ndarray
-        Array of shape (no_of_lines, no_of_shells). Doppler width of each
-        line in each shell.
+        Array of shape (no_of_depth_points, no_of_frequencies). Total opacity at
+        each depth point for each frequency in tracing_nus.
     """
 
     alpha_file = calc_alpha_file(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.file,
     )
+    stellar_radiation_field.opacities.opacities_dict["alpha_file"] = alpha_file
+
     alpha_bf = calc_alpha_bf(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.bf,
     )
+    stellar_radiation_field.opacities.opacities_dict["alpha_bf"] = alpha_bf
+
     alpha_ff = calc_alpha_ff(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.ff,
     )
+    stellar_radiation_field.opacities.opacities_dict["alpha_ff"] = alpha_ff
+
     alpha_rayleigh = calc_alpha_rayleigh(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.rayleigh,
     )
+    stellar_radiation_field.opacities.opacities_dict["alpha_rayleigh"] = alpha_rayleigh
+
     alpha_electron = calc_alpha_electron(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.disable_electron_scattering,
     )
+    stellar_radiation_field.opacities.opacities_dict["alpha_electron"] = alpha_electron
+
     alpha_line_at_nu, gammas, doppler_widths = calc_alpha_line_at_nu(
         stellar_plasma,
         stellar_model,
-        tracing_nus,
+        stellar_radiation_field.frequencies,
         opacity_config.line,
     )
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu"
+    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu_doppler_widths"
+    ] = doppler_widths
+    alphas = stellar_radiation_field.opacities.calc_total_alphas()
 
-    alphas = (
-        alpha_file
-        + alpha_bf
-        + alpha_ff
-        + alpha_rayleigh
-        + alpha_electron
-        + alpha_line_at_nu
-    )
-
-    ### TODO create opacity_dict to return
-    return alphas, gammas, doppler_widths
+    return alphas
