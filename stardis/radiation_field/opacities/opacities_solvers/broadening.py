@@ -403,7 +403,7 @@ def calc_gamma_quadratic_stark_cuda(
 
 
 @numba.njit
-def calc_gamma_van_der_waals(
+def _calc_gamma_van_der_waals(
     ion_number,
     n_eff_upper,
     n_eff_lower,
@@ -435,13 +435,21 @@ def calc_gamma_van_der_waals(
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
+    ion_number, n_eff_upper, n_eff_lower, temperature, h_density, h_mass = (
+        int(ion_number),
+        float(n_eff_upper),
+        float(n_eff_lower),
+        float(temperature),
+        float(h_density),
+        float(h_mass),
+    )
     c6 = (
         6.46e-34
         * (
-            n_eff_upper**2 * (5 * n_eff_upper**2 + 1)
-            - n_eff_lower**2 * (5 * n_eff_lower**2 + 1)
+            (5 * n_eff_upper**4 + n_eff_upper**2)
+            - (5 * n_eff_lower**4 + n_eff_lower**2)
         )
-        / (2 * ion_number**2)
+        / (2 * ion_number * ion_number)
     )
 
     gamma_van_der_waals = (
@@ -452,6 +460,86 @@ def calc_gamma_van_der_waals(
     )
 
     return gamma_van_der_waals
+
+
+@numba.vectorize(nopython=True)
+def calc_gamma_van_der_waals(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+):
+    return _calc_gamma_van_der_waals(
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        h_density,
+        h_mass,
+    )
+
+
+@cuda.jit
+def _calc_gamma_van_der_waals_cuda(
+    res,
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+):
+    tid = cuda.grid(1)
+    size = len(res)
+
+    if tid < size:
+        res[tid] = _calc_gamma_van_der_waals(
+            ion_number[tid],
+            n_eff_upper[tid],
+            n_eff_lower[tid],
+            temperature[tid],
+            h_density[tid],
+            h_mass[tid],
+        )
+
+
+def calc_gamma_van_der_waals_cuda(
+    ion_number,
+    n_eff_upper,
+    n_eff_lower,
+    temperature,
+    h_density,
+    h_mass,
+    nthreads=256,
+    ret_np_ndarray=False,
+    dtype=float,
+):
+    arg_list = (
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        h_density,
+        h_mass,
+    )
+
+    shortest_arg_idx = np.argmin(map(len, arg_list))
+    size = len(arg_list[shortest_arg_idx])
+
+    nblocks = 1 + (size // nthreads)
+
+    arg_list = tuple(map(lambda v: cp.array(v, dtype=dtype), arg_list))
+
+    res = cp.empty_like(arg_list[shortest_arg_idx], dtype=dtype)
+
+    _calc_gamma_van_der_waals_cuda[nblocks, nthreads](
+        res,
+        *arg_list,
+    )
+
+    return cp.asnumpy(res) if ret_np_ndarray else res
 
 
 @numba.njit
