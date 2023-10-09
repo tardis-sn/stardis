@@ -5,8 +5,9 @@ import cmath
 
 GPUs_available = cuda.is_available()
 
-if GPUs_available:
-    import cupy as cp
+# Commenting out cupy import for now
+# if GPUs_available:
+#     import cupy as cp
 
 SQRT_PI = np.sqrt(np.pi, dtype=float)
 SQRT_2 = np.sqrt(2, dtype=float)
