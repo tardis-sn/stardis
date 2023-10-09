@@ -387,7 +387,9 @@ def calc_alpha_line_at_nu(
     van_der_waals = "van_der_waals" in broadening_methods
     radiation = "radiation" in broadening_methods
 
-    lines = stellar_plasma.lines.reset_index()  # bring lines in ascending order of nu
+    lines = (
+        stellar_plasma.lines.reset_index()
+    )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
 
     # add ionization energy to lines
     ionization_data = stellar_plasma.ionization_data.reset_index()
@@ -398,7 +400,7 @@ def calc_alpha_line_at_nu(
 
     # add level energy (lower and upper) to lines
     levels_energy = stellar_plasma.atomic_data.levels.energy
-    levels_g = stellar_plasma.atomic_data.levels.g
+    levels_g = stellar_plasma.atomic_data.levels.g  ###TODO: remove in cleanup pr
     lines = pd.merge(
         lines,
         levels_energy,
@@ -414,7 +416,9 @@ def calc_alpha_line_at_nu(
         right_on=["atomic_number", "ion_number", "level_number"],
     ).rename(columns={"energy": "level_energy_upper"})
 
-    line_cols = map_items_to_indices(lines.columns.to_list())
+    line_cols = map_items_to_indices(
+        lines.columns.to_list()
+    )  ###TODO: Fix this map_items_to_indices stuff. Hacky and not needed.
 
     lines_sorted = lines.sort_values("nu").reset_index(drop=True)
     lines_sorted_in_range = lines_sorted[

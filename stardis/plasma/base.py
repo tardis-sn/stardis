@@ -148,11 +148,10 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     )
 
     def calculate(self, atomic_data, ion_number_density, t_electrons, g):
-        # Sudocode
         # solve n_lower - n * g_i / g_0 * e ^ (E_i/kT)
         # get f_lu - have loggf - multiply by g (which is 2j+1)
-        # prefactor * n_lower * f_lu - Think return this prefactor per point
-        # Then go to the point by the following
+        # prefactor * n_lower * f_lu
+        # Then go to the point by the following:
         # (1-e^(-h nu / kT))
 
         points = len(t_electrons)
