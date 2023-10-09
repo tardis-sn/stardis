@@ -129,6 +129,110 @@ class AlphaLine(ProcessingPlasmaProperty):
         return df
 
 
+class AlphaLineVald(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    alpha_line : Pandas DataFrame, dtype float
+        Sobolev optical depth for each line. Indexed by line.
+        Columns as zones.
+    """
+
+    outputs = ("alpha_line_from_linelist",)
+    latex_name = (r"\alpha_{\textrm{line, vald}}",)
+    latex_formula = (
+        r"\dfrac{\pi e^{2} n_{lower} f_{lu}}{m_{e} c}\
+        \Big(1-exp(-h \nu / k T) \phi(\nu)\Big)",
+    )
+
+    def calculate(self, atomic_data, ion_number_density, t_electrons, g):
+        ### CHANGE
+        # f_lu = f_lu.values[np.newaxis].T
+
+        # Sudocode
+        # solve n_lower - n * g_i / g_0 * e ^ (E_i/kT)
+        # get f_lu - have loggf - multiply by g (which is 2j+1)
+        # prefactor * n_lower * f_lu - Think return this prefactor per shell
+        # Then go to shell by the following
+        # (1-e^(-h nu / kT))
+
+        points = len(t_electrons)
+
+        linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
+            [
+                "atomic_number",
+                "ion_number",
+                "wavelength",
+                "log_gf",
+                "e_low",
+                "j_lo",
+                "j_up",
+                "rad",
+                "stark",
+                "waals",
+            ]
+        ].merge(
+            g.loc[:, :, 0].rename("g_0"),
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        linelist["g_lo"] = linelist.j_lo * 2 + 1
+        linelist["g_up"] = linelist.j_up * 2 + 1
+        linelist["g"] = linelist.g_lo / linelist.g_0
+
+        exponent_by_point = np.exp(
+            np.outer(
+                -linelist.e_low.values * u.eV, 1 / (t_electrons * u.K * const.k_B)
+            ).to(1)
+        )
+
+        linelist_with_densities = linelist.merge(
+            ion_number_density,
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        n_lower = (
+            exponent_by_point * linelist_with_densities[np.arange(0, points)]
+        ).values.T * linelist_with_densities.g.values
+
+        linelist["f_lu"] = 10**linelist.log_gf * linelist.g_up / linelist.g_lo
+
+        line_nus = (linelist.wavelength.values * u.AA).to(
+            u.Hz, equivalencies=u.spectral()
+        )
+
+        emission_correction = 1 - np.exp(
+            (
+                -const.h
+                / const.k_B
+                * np.outer(
+                    line_nus,
+                    1 / (t_electrons * u.K),
+                )
+            ).to(1)
+        )
+
+        alpha = (
+            ALPHA_COEFFICIENT * n_lower * linelist.f_lu.values * emission_correction.T
+        )
+
+        ###TODO - include warning for missing values.
+        # if np.any(np.isnan(alpha)) or np.any(np.isinf(np.abs(alpha))):
+        #     raise ValueError(
+        #         "Some alpha_line are nan, inf, -inf " " Something went wrong!"
+        #     )
+
+        df = pd.DataFrame(
+            alpha.T,
+        )
+
+        df["nu"] = line_nus.value
+
+        return df.join(linelist[["rad", "stark", "waals"]])
+
+
 # Properties that haven't been used in creating stellar plasma yet,
 # might be useful in future ----------------------------------------------------
 
@@ -200,6 +304,7 @@ def create_stellar_plasma(stellar_model, atom_data):
 
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
+    plasma_modules.append(AlphaLineVald)
 
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
