@@ -3,8 +3,8 @@ import os
 import numpy as np
 
 from tardis.io.atom_data import AtomData
-from tardis.io.config_validator import validate_yaml, validate_dict
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_yaml
+from tardis.io.configuration.config_reader import Configuration
 
 from astropy import units as u
 
@@ -56,6 +56,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
 
     # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
+    # This does not yet truncate vald linelists. TODO - also truncate vald
     adata.prepare_atom_data(
         np.arange(
             1,
