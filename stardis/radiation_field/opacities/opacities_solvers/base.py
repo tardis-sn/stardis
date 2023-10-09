@@ -373,6 +373,8 @@ def calc_alpha_line_at_nu(
     if line_opacity_config.disable:
         return 0, 0, 0
 
+    no_depth_points = len(stellar_model.geometry.r)
+
     broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
     _nu_max = line_opacity_config.max.to(u.Hz, u.spectral())
@@ -426,14 +428,25 @@ def calc_alpha_line_at_nu(
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
-    alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(drop=True)
-    alphas_and_nu_in_range = alphas_and_nu[
-        alphas_and_nu.nu.between(line_nu_min, line_nu_max)
-    ]
-    alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
+    ###TODO - Set flag in config for linelist to be used
+    vald = False
+    if vald == True:
+        alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values(
+            "nu"
+        ).reset_index(drop=True)
+        alphas_and_nu_in_range = alphas_and_nu[
+            alphas_and_nu.nu.between(line_nu_min, line_nu_max)
+        ]
+        alphas = alphas_and_nu_in_range[np.arange(no_depth_points)]
+    else:
+        alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(
+            drop=True
+        )
+        alphas_and_nu_in_range = alphas_and_nu[
+            alphas_and_nu.nu.between(line_nu_min, line_nu_max)
+        ]
+        alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
     alphas_array = alphas.to_numpy()
-
-    no_depth_points = len(stellar_model.geometry.r)
 
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
