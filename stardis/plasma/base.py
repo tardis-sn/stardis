@@ -134,8 +134,10 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     Attributes
     ----------
     alpha_line : Pandas DataFrame, dtype float
-        Sobolev optical depth for each line. Indexed by line.
-        Columns as zones.
+        Alpha calculation for each line from Vald at each depth point.
+        See Rybicki and Lightman eq. 1.80. Voigt profiles are calculated later, and
+        B_12 is substituted appropriately out for f_lu.
+        Assumes LTE.
     """
 
     outputs = ("alpha_line_from_linelist",)
@@ -146,14 +148,11 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     )
 
     def calculate(self, atomic_data, ion_number_density, t_electrons, g):
-        ### CHANGE
-        # f_lu = f_lu.values[np.newaxis].T
-
         # Sudocode
         # solve n_lower - n * g_i / g_0 * e ^ (E_i/kT)
         # get f_lu - have loggf - multiply by g (which is 2j+1)
-        # prefactor * n_lower * f_lu - Think return this prefactor per shell
-        # Then go to shell by the following
+        # prefactor * n_lower * f_lu - Think return this prefactor per point
+        # Then go to the point by the following
         # (1-e^(-h nu / kT))
 
         points = len(t_electrons)
@@ -194,7 +193,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         )
 
         n_lower = (
-            exponent_by_point * linelist_with_densities[np.arange(0, points)]
+            exponent_by_point * linelist_with_densities[np.arange(points)]
         ).values.T * linelist_with_densities.g.values
 
         linelist["f_lu"] = 10**linelist.log_gf * linelist.g_up / linelist.g_lo
@@ -304,7 +303,10 @@ def create_stellar_plasma(stellar_model, atom_data):
 
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
-    plasma_modules.append(AlphaLineVald)
+
+    ###TODO - add flag for vald line to be used
+    if True:
+        plasma_modules.append(AlphaLineVald)
 
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
