@@ -133,21 +133,23 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    alpha_line : Pandas DataFrame, dtype float
+    alpha_line_from_linelist : Pandas DataFrame, dtype float
         Alpha calculation for each line from Vald at each depth point.
         See Rybicki and Lightman eq. 1.80. Voigt profiles are calculated later, and
         B_12 is substituted appropriately out for f_lu.
         Assumes LTE.
     """
 
-    outputs = ("alpha_line_from_linelist",)
+    outputs = ("alpha_line_from_linelist", "lines_from_linelist")
     latex_name = (r"\alpha_{\textrm{line, vald}}",)
     latex_formula = (
         r"\dfrac{\pi e^{2} n_{lower} f_{lu}}{m_{e} c}\
         \Big(1-exp(-h \nu / k T) \phi(\nu)\Big)",
     )
 
-    def calculate(self, atomic_data, ion_number_density, t_electrons, g):
+    def calculate(
+        self, atomic_data, ion_number_density, t_electrons, g, ionization_data
+    ):
         # solve n_lower - n * g_i / g_0 * e ^ (E_i/kT)
         # get f_lu - have loggf - multiply by g (which is 2j+1)
         # prefactor * n_lower * f_lu
@@ -163,6 +165,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
                 "wavelength",
                 "log_gf",
                 "e_low",
+                "e_up",
                 "j_lo",
                 "j_up",
                 "rad",
@@ -228,7 +231,26 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         df["nu"] = line_nus.value
 
-        return df.join(linelist[["rad", "stark", "waals"]])
+        # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
+        ionization_energies = ionization_data.reset_index()
+        ionization_energies["ion_number"] -= 1
+        linelist = pd.merge(
+            linelist,
+            ionization_energies,
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        linelist.rename(
+            columns={
+                "e_low": "level_energy_lower",
+                "e_up": "level_energy_upper",
+                "rad": "A_ul",
+            },
+            inplace=True,
+        )
+
+        return df, linelist
 
 
 # Properties that haven't been used in creating stellar plasma yet,
