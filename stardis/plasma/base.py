@@ -150,14 +150,14 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     def calculate(
         self, atomic_data, ion_number_density, t_electrons, g, ionization_data
     ):
-        # solve n_lower - n * g_i / g_0 * e ^ (E_i/kT)
-        # get f_lu - have loggf - multiply by g (which is 2j+1)
-        # prefactor * n_lower * f_lu
-        # Then go to the point by the following:
-        # (1-e^(-h nu / kT))
+        # solve n_lower : n * g_i / g_0 * e ^ (E_i/kT)
+        # get f_lu : loggf -> use g = 2j+1
+        # emission_correction = (1-e^(-h nu / kT))
+        # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
 
         points = len(t_electrons)
 
+        # Need degeneracy of ground state of the ion to calcualte n_lower
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
             [
                 "atomic_number",
@@ -178,6 +178,12 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             on=["atomic_number", "ion_number"],
         )
 
+        # Truncate to final atomic number
+        linelist = linelist[
+            linelist.atomic_number < (atomic_data.selected_atomic_numbers.max() + 1)
+        ]
+
+        # Calculate degeneracies
         linelist["g_lo"] = linelist.j_lo * 2 + 1
         linelist["g_up"] = linelist.j_up * 2 + 1
         linelist["g"] = linelist.g_lo / linelist.g_0
@@ -188,6 +194,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             ).to(1)
         )
 
+        # grab densities for n_lower - need to use linelist as the index
         linelist_with_densities = linelist.merge(
             ion_number_density,
             how="left",
@@ -230,6 +237,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         )
 
         df["nu"] = line_nus.value
+        linelist["nu"] = line_nus.value
 
         # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
         ionization_energies = ionization_data.reset_index()
@@ -241,14 +249,19 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             on=["atomic_number", "ion_number"],
         )
 
-        linelist.rename(
-            columns={
-                "e_low": "level_energy_lower",
-                "e_up": "level_energy_upper",
-                "rad": "A_ul",
-            },
-            inplace=True,
+        linelist["level_energy_lower"] = ((linelist["e_low"].values * u.eV).cgs).value
+        linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
+        ###TODO THIS IS WRONG - Fix this later
+        linelist["A_ul"] = linelist["rad"]
+
+        # this might be improperly named - it's actually the indices of everything that aren't autoionizing
+        autoionization_indices = (
+            linelist.level_energy_upper < linelist.ionization_energy
         )
+
+        # Cut out autoionizing levels - can't handle with current broadening treatment because can't calculate effective principal quantum number
+        linelist = linelist[autoionization_indices]
+        df = df[autoionization_indices]
 
         return df, linelist
 

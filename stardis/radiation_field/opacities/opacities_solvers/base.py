@@ -387,34 +387,39 @@ def calc_alpha_line_at_nu(
     van_der_waals = "van_der_waals" in broadening_methods
     radiation = "radiation" in broadening_methods
 
-    lines = (
-        stellar_plasma.lines.reset_index()
-    )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
+    use_vald = line_opacity_config.use_vald_linelist
+    if use_vald:
+        lines = stellar_plasma.lines_from_linelist
+    else:
+        lines = (
+            stellar_plasma.lines.reset_index()
+        )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
+        # This actually gets sorted again about 20 lines down.
 
-    # add ionization energy to lines
-    ionization_data = stellar_plasma.ionization_data.reset_index()
-    ionization_data["ion_number"] -= 1
-    lines = pd.merge(
-        lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
-    )
+        # add ionization energy to lines
+        ionization_data = stellar_plasma.ionization_data.reset_index()
+        ionization_data["ion_number"] -= 1
+        lines = pd.merge(
+            lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
+        )
 
-    # add level energy (lower and upper) to lines
-    levels_energy = stellar_plasma.atomic_data.levels.energy
-    levels_g = stellar_plasma.atomic_data.levels.g  ###TODO: remove in cleanup pr
-    lines = pd.merge(
-        lines,
-        levels_energy,
-        how="left",
-        left_on=["atomic_number", "ion_number", "level_number_lower"],
-        right_on=["atomic_number", "ion_number", "level_number"],
-    ).rename(columns={"energy": "level_energy_lower"})
-    lines = pd.merge(
-        lines,
-        levels_energy,
-        how="left",
-        left_on=["atomic_number", "ion_number", "level_number_upper"],
-        right_on=["atomic_number", "ion_number", "level_number"],
-    ).rename(columns={"energy": "level_energy_upper"})
+        # add level energy (lower and upper) to lines
+        levels_energy = stellar_plasma.atomic_data.levels.energy
+        levels_g = stellar_plasma.atomic_data.levels.g  ###TODO: remove in cleanup pr
+        lines = pd.merge(
+            lines,
+            levels_energy,
+            how="left",
+            left_on=["atomic_number", "ion_number", "level_number_lower"],
+            right_on=["atomic_number", "ion_number", "level_number"],
+        ).rename(columns={"energy": "level_energy_lower"})
+        lines = pd.merge(
+            lines,
+            levels_energy,
+            how="left",
+            left_on=["atomic_number", "ion_number", "level_number_upper"],
+            right_on=["atomic_number", "ion_number", "level_number"],
+        ).rename(columns={"energy": "level_energy_upper"})
 
     line_cols = map_items_to_indices(
         lines.columns.to_list()
@@ -432,25 +437,22 @@ def calc_alpha_line_at_nu(
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
-    ###TODO - Set flag in config for linelist to be used
-    vald = False
-    if vald == True:
+    if use_vald:
         alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values(
             "nu"
         ).reset_index(drop=True)
-        alphas_and_nu_in_range = alphas_and_nu[
-            alphas_and_nu.nu.between(line_nu_min, line_nu_max)
-        ]
-        alphas = alphas_and_nu_in_range[np.arange(no_depth_points)]
     else:
         alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(
             drop=True
         )
-        alphas_and_nu_in_range = alphas_and_nu[
-            alphas_and_nu.nu.between(line_nu_min, line_nu_max)
-        ]
-        alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
+    alphas_and_nu_in_range = alphas_and_nu[
+        alphas_and_nu.nu.between(line_nu_min, line_nu_max)
+    ]
+    alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
     alphas_array = alphas.to_numpy()
+
+    # this doesn't work yet because the vald lines array is not set up correctly for below.
+    # start with something hacky that just writes names in the same way expected as a first pass
 
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
