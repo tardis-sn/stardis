@@ -312,7 +312,8 @@ def read_marcs_data(fpath, gzipped=True):
     for i, abundance in enumerate(marcs_abundance_scale_str.split()):
         marcs_model_data[f"scaled_log_number_fraction_{i+1}"] = float(abundance)
 
-    marcs_model_data.replace({-99.00: np.nan}, inplace=True)
+    # NOTE: Should this be nan or 0? Nan crashes the plasma when requested ion density is nan.
+    marcs_model_data.replace({-99.00: 0.0}, inplace=True)
 
     return marcs_model_data
 
