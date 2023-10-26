@@ -1,7 +1,7 @@
 name: benchmarks
 
 env:
-  TARDIS_VER: release-2023.06.18
+  TARDIS_VER: release-2023.10.20
 
 on:
   push:
