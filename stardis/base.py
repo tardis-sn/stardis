@@ -56,7 +56,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
 
     # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
-    # This does not yet truncate vald linelists. TODO - also truncate vald
     adata.prepare_atom_data(
         np.arange(
             1,
