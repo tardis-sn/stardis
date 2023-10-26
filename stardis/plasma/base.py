@@ -252,7 +252,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         linelist["level_energy_lower"] = ((linelist["e_low"].values * u.eV).cgs).value
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
         ###TODO THIS IS WRONG - Fix this later
-        linelist["A_ul"] = linelist["rad"]
+        linelist["A_ul"] = 10 ** (
+            linelist["rad"]
+        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
 
         # this might be improperly named - it's actually the indices of everything that aren't autoionizing
         autoionization_indices = (
