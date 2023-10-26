@@ -23,8 +23,8 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
 
 GPUs_available = cuda.is_available()
 
-if GPUs_available:
-    import cupy as cp
+# if GPUs_available:
+#     import cupy as cp
 
 
 PI = np.pi

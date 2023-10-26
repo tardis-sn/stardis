@@ -72,7 +72,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
     )
     # plasma
-    stellar_plasma = create_stellar_plasma(stellar_model, adata)
+    stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
     if True:  ###TODO change to checking source function from config
         from stardis.radiation_field.source_functions.blackbody import (

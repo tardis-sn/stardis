@@ -15,8 +15,8 @@ from stardis.radiation_field.opacities.opacities_solvers.voigt import (
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
 
-if GPUs_available:
-    import cupy as cp
+# if GPUs_available:
+#     import cupy as cp
 
 
 @pytest.mark.parametrize(

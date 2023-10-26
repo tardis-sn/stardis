@@ -301,7 +301,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 # Creating stellar plasma ------------------------------------------------------
 
 
-def create_stellar_plasma(stellar_model, atom_data):
+def create_stellar_plasma(stellar_model, atom_data, config):
     """
     Creates stellar plasma.
 
@@ -341,7 +341,7 @@ def create_stellar_plasma(stellar_model, atom_data):
     plasma_modules.append(H2Density)
 
     ###TODO - add flag for vald line to be used
-    if True:
+    if config.opacity.line.use_vald_linelist:
         plasma_modules.append(AlphaLineVald)
 
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
