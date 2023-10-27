@@ -74,12 +74,12 @@ jobs:
 
       - name: Download TARDIS dependencies
         run: |
-          LOCK_URL="https://github.com/tardis-sn/tardis/raw/${{ env.TARDIS_VER }}/tardis_env3.yml"
+          LOCK_URL="https://github.com/tardis-sn/tardis/blob/master/conda-linux-64.lock" # Changing from https://github.com/tardis-sn/tardis/raw/${{ env.TARDIS_VER }}/tardis_env3.yml to the lock file
           wget -q "$LOCK_URL"
 
       - name: Add TARDIS install command to asv config file
         run: |
-          TARDIS_INSTALL_CMD="pip install git+https://github.com/tardis-sn/tardis.git@${{ env.TARDIS_VER }}"
+          TARDIS_INSTALL_CMD="pip install git+https://github.com/tardis-sn/tardis.git" # Removing @${{ env.TARDIS_VER }} at the end of this line
           cat <<< $(jq '.build_command |= [$TARDIS_INSTALL_CMD] + .' --arg TARDIS_INSTALL_CMD "${TARDIS_INSTALL_CMD}" asv.conf.json) > asv.conf.json
 
       - name: Run benchmarks for last 5 commits if not PR
