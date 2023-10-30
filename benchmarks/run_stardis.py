@@ -7,7 +7,7 @@ from astropy import units as u
 
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_validator import validate_yaml
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 
 from stardis.io.model.marcs import read_marcs_model
 from stardis.plasma import create_stellar_plasma
