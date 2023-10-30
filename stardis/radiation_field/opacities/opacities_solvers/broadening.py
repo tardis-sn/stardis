@@ -6,7 +6,7 @@ from numba import cuda
 
 GPUs_available = cuda.is_available()
 
-# Commenting out until we can get cupy working
+# Commenting out until cupy is hooked up
 # if GPUs_available:
 #     import cupy as cp
 

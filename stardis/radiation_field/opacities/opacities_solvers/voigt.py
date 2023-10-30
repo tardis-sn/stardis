@@ -5,7 +5,7 @@ import cmath
 
 GPUs_available = cuda.is_available()
 
-# Commenting out cupy import for now
+# Commenting out until cupy is hooked up
 # if GPUs_available:
 #     import cupy as cp
 

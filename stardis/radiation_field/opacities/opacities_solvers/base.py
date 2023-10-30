@@ -394,7 +394,6 @@ def calc_alpha_line_at_nu(
         lines = (
             stellar_plasma.lines.reset_index()
         )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
-        # This actually gets sorted again about 20 lines down.
 
         # add ionization energy to lines
         ionization_data = stellar_plasma.ionization_data.reset_index()
@@ -423,7 +422,7 @@ def calc_alpha_line_at_nu(
 
     line_cols = map_items_to_indices(
         lines.columns.to_list()
-    )  ###TODO: Fix this map_items_to_indices stuff. Hacky and not needed.
+    )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
 
     lines_sorted = lines.sort_values("nu").reset_index(drop=True)
     lines_sorted_in_range = lines_sorted[
@@ -450,9 +449,6 @@ def calc_alpha_line_at_nu(
     ]
     alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
     alphas_array = alphas.to_numpy()
-
-    # this doesn't work yet because the vald lines array is not set up correctly for below.
-    # start with something hacky that just writes names in the same way expected as a first pass
 
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
