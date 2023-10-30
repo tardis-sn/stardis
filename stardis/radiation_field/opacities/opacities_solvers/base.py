@@ -44,7 +44,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    species : tardis.io.config_reader.Configuration
+    species : tardis.io.configuration.config_reader.Configuration
         Dictionary (in the form of a Configuration object) containing all
         species and the cross-section files for which opacity is to be
         calculated.
@@ -195,7 +195,7 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
     stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    species : tardis.io.config_reader.Configuration
+    species : tardis.io.configuration.config_reader.Configuration
         Dictionary (in the form of a Configuration object) containing all
         species for which bound-free opacity is to be calculated.
 
@@ -294,7 +294,7 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    species : tardis.io.config_reader.Configuration
+    species : tardis.io.configuration.config_reader.Configuration
         Dictionary (in the form of a Configuration object) containing all
         species for which free-free opacity is to be calculated.
 
@@ -354,7 +354,7 @@ def calc_alpha_line_at_nu(
     stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    line_opacity_config : tardis.io.config_reader.Configuration
+    line_opacity_config : tardis.io.configuration.config_reader.Configuration
         Line opacity section of the STARDIS configuration.
 
     Returns
@@ -544,7 +544,7 @@ def calc_alphas(
     stellar_model : stardis.model.base.StellarModel
     stellar_radiation_field stardis.radiation_field.base.RadiationField
         Contains the frequencies at which opacities are calculated. Also holds the resulting opacity information.
-    opacity_config : tardis.io.config_reader.Configuration
+    opacity_config : tardis.io.configuration.config_reader.Configuration
         Opacity section of the STARDIS configuration.
 
     Returns

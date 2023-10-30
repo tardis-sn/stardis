@@ -3,8 +3,8 @@ import os
 import numpy as np
 
 from tardis.io.atom_data import AtomData
-from tardis.io.config_validator import validate_yaml, validate_dict
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_yaml, validate_dict
+from tardis.io.configuration.config_reader import Configuration
 
 from astropy import units as u
 
