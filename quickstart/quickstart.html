@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STARDIS &mdash; stardis 0.1.dev1+ga20f718 documentation</title>
+  <title>STARDIS &mdash; stardis 0.1.dev1+gfebe678 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=92f7dcb1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -91,9 +91,9 @@
            <div itemprop="articleBody">
              
   <section id="STARDIS">
-<h1>STARDIS<a class="headerlink" href="#STARDIS" title="Permalink to this heading"></a></h1>
+<h1>STARDIS<a class="headerlink" href="#STARDIS" title="Link to this heading"></a></h1>
 <section id="Import-Necessary-Code">
-<h2>Import Necessary Code<a class="headerlink" href="#Import-Necessary-Code" title="Permalink to this heading"></a></h2>
+<h2>Import Necessary Code<a class="headerlink" href="#Import-Necessary-Code" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -123,7 +123,7 @@
 </div>
 </section>
 <section id="Download-Atomic-Data">
-<h2>Download Atomic Data<a class="headerlink" href="#Download-Atomic-Data" title="Permalink to this heading"></a></h2>
+<h2>Download Atomic Data<a class="headerlink" href="#Download-Atomic-Data" title="Link to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -134,7 +134,7 @@
 </div>
 </section>
 <section id="The-STARDIS-Configuration">
-<h2>The STARDIS Configuration<a class="headerlink" href="#The-STARDIS-Configuration" title="Permalink to this heading"></a></h2>
+<h2>The STARDIS Configuration<a class="headerlink" href="#The-STARDIS-Configuration" title="Link to this heading"></a></h2>
 <p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration. The configuration file called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code> used here can be found <a class="reference external" href="https://github.com/tardis-sn/stardis/tree/main/docs/quickstart">here</a>, along with any other files from this Quickstart. Below, we present an example for instructions for customizing the configuration for your needs.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 <span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to atomic data file&gt;</span>
@@ -177,7 +177,7 @@
 </ul>
 </section>
 <section id="Opacity-File-Format">
-<h2>Opacity File Format<a class="headerlink" href="#Opacity-File-Format" title="Permalink to this heading"></a></h2>
+<h2>Opacity File Format<a class="headerlink" href="#Opacity-File-Format" title="Link to this heading"></a></h2>
 <p>STARDIS can read and interpolate continuum opacity cross-section files for bound-free or free-free absorption (technically, for free-free absorption the files would provide the cross-section per electron density). The files must be one of the following formats:</p>
 <div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>wavelength_1, cross-section_1
 wavelength_2, cross-section_2
@@ -196,7 +196,7 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 <p>Note the leading comma in the latter format. Temperatures must be in Kelvin, wavelengths in Angstroms, and cross-sections in cm² for bound-free or cm⁵ for free-free (once again because free-free opacity files provide the cross-section per electron density).</p>
 </section>
 <section id="Create-Array-of-Wavelengths-and-Run-STARDIS">
-<h2>Create Array of Wavelengths and Run STARDIS<a class="headerlink" href="#Create-Array-of-Wavelengths-and-Run-STARDIS" title="Permalink to this heading"></a></h2>
+<h2>Create Array of Wavelengths and Run STARDIS<a class="headerlink" href="#Create-Array-of-Wavelengths-and-Run-STARDIS" title="Link to this heading"></a></h2>
 <p>The main function, <code class="docutils literal notranslate"><span class="pre">run_stardis()</span></code>, requires as its first argument the name of a configuration file, which will be described below. The second argument is an array of the frequencies or wavelengths for which you are requesting the flux density, times an appropriate astropy quantity (such as Hertz or Angstroms). Note that this must be an array times a quantity, <strong>not</strong> an array of astropy quantities.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -210,7 +210,7 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 </div>
 </section>
 <section id="Plot-spectra">
-<h2>Plot spectra<a class="headerlink" href="#Plot-spectra" title="Permalink to this heading"></a></h2>
+<h2>Plot spectra<a class="headerlink" href="#Plot-spectra" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>

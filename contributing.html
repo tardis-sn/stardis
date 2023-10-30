@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contributing &mdash; stardis 0.1.dev1+ga20f718 documentation</title>
+  <title>Contributing &mdash; stardis 0.1.dev1+gfebe678 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -13,11 +13,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=92f7dcb1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -87,9 +87,9 @@
            <div itemprop="articleBody">
              
   <section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h1>
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h1>
 <section id="generating-conda-lockfiles">
-<h2>Generating Conda Lockfiles<a class="headerlink" href="#generating-conda-lockfiles" title="Permalink to this heading"></a></h2>
+<h2>Generating Conda Lockfiles<a class="headerlink" href="#generating-conda-lockfiles" title="Link to this heading"></a></h2>
 <p>In the interest of reproducibility, STARDIS uses <a class="reference external" href="https://conda.github.io/conda-lock/">conda-lock</a> files to keep the virtual environment consistent across similar machines and installations. High level specifications of the environments are given in <code class="docutils literal notranslate"><span class="pre">stardis_env3.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">stardis_env3_cuda.yml</span></code>, and then <code class="docutils literal notranslate"><span class="pre">conda-lock</span></code> is used to create the corresponding lockfile. The steps are as follow.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -100,7 +100,7 @@
 <p>Both sets of steps below assume that all commands are being run from your local STARDIS git repository, which can be obtained using the developer installation instructions.</p>
 </div>
 <section id="without-cuda-support">
-<h3>Without CUDA Support<a class="headerlink" href="#without-cuda-support" title="Permalink to this heading"></a></h3>
+<h3>Without CUDA Support<a class="headerlink" href="#without-cuda-support" title="Link to this heading"></a></h3>
 <ol class="arabic">
 <li><p>Activate the Conda virtual environment:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
@@ -120,7 +120,7 @@
 </ol>
 </section>
 <section id="with-cuda-support">
-<h3>With CUDA Support<a class="headerlink" href="#with-cuda-support" title="Permalink to this heading"></a></h3>
+<h3>With CUDA Support<a class="headerlink" href="#with-cuda-support" title="Link to this heading"></a></h3>
 <ol class="arabic">
 <li><p>Activate the Conda virtual environment:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis-cuda

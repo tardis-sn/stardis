@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloading and Installation &mdash; stardis 0.1.dev1+ga20f718 documentation</title>
+  <title>Downloading and Installation &mdash; stardis 0.1.dev1+gfebe678 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -13,11 +13,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=92f7dcb1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -88,9 +88,9 @@
            <div itemprop="articleBody">
              
   <section id="downloading-and-installation">
-<h1>Downloading and Installation<a class="headerlink" href="#downloading-and-installation" title="Permalink to this heading"></a></h1>
+<h1>Downloading and Installation<a class="headerlink" href="#downloading-and-installation" title="Link to this heading"></a></h1>
 <section id="setting-up-the-environment">
-<h2>Setting Up the Environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this heading"></a></h2>
+<h2>Setting Up the Environment<a class="headerlink" href="#setting-up-the-environment" title="Link to this heading"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
@@ -107,7 +107,7 @@ the following in the terminal (replacing <code class="docutils literal notransla
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
 $<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
-$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git
 </pre></div>
 </div>
 <p>The third command (<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">stardis</span></code>) activates the
@@ -116,18 +116,18 @@ environment, which is necessary to correctly install STARDIS using the direction
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
 $<span class="w"> </span>mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>activate<span class="w"> </span>stardis
-$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git
 </pre></div>
 </div>
 </section>
 <section id="downloading-and-installing-stardis">
-<h2>Downloading and Installing STARDIS<a class="headerlink" href="#downloading-and-installing-stardis" title="Permalink to this heading"></a></h2>
+<h2>Downloading and Installing STARDIS<a class="headerlink" href="#downloading-and-installing-stardis" title="Link to this heading"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Both of the below instructions should be run with your <code class="docutils literal notranslate"><span class="pre">stardis</span></code> virtual environment activated. That is, you should run <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">stardis</span></code> or <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">mamba</span> <span class="pre">activate</span> <span class="pre">stardis</span></code> if you are using conda or mamba, respectively, in the terminal before you continue with the directions below.</p>
 </div>
 <section id="for-non-developers">
-<h3>For Non-Developers<a class="headerlink" href="#for-non-developers" title="Permalink to this heading"></a></h3>
+<h3>For Non-Developers<a class="headerlink" href="#for-non-developers" title="Link to this heading"></a></h3>
 <p>STARDIS can be downloaded for <strong>non-developers</strong> by running</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://github.com/tardis-sn/stardis.git@main
 </pre></div>
@@ -135,7 +135,7 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 <p>in the terminal.</p>
 </section>
 <section id="for-developers">
-<h3>For Developers<a class="headerlink" href="#for-developers" title="Permalink to this heading"></a></h3>
+<h3>For Developers<a class="headerlink" href="#for-developers" title="Link to this heading"></a></h3>
 <p><strong>Developers</strong> should fork and clone the STARDIS repository.
 First, <a class="reference external" href="https://github.com/tardis-sn/stardis/fork">fork the
 repository</a> and <a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">configure
