@@ -373,7 +373,7 @@ def calc_alpha_line_at_nu(
     if line_opacity_config.disable:
         return 0, 0, 0
 
-    no_depth_points = len(stellar_model.geometry.r)
+    no_of_depth_points = len(stellar_model.geometry.r)
 
     broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
@@ -453,7 +453,7 @@ def calc_alpha_line_at_nu(
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
         line_cols,
-        no_depth_points,
+        no_of_depth_points,
         atomic_masses,
         electron_densities,
         temperatures,
@@ -464,13 +464,13 @@ def calc_alpha_line_at_nu(
         radiation=radiation,
     )
 
-    alpha_line_at_nu = np.zeros((no_depth_points, len(tracing_nus)))
+    alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus)))
 
     for i in range(len(tracing_nus)):
         nu = tracing_nus[i].value
         delta_nus = nu - line_nus
 
-        for j in range(no_depth_points):
+        for j in range(no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
             doppler_widths_at_depth_point = doppler_widths[:, j]
             alphas_at_depth_point = alphas_array[:, j]
