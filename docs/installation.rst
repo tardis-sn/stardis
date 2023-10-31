@@ -74,4 +74,3 @@ and then run the following in the terminal:
    $ git fetch upstream
    $ git checkout upstream/main
    $ pip install -e .[test,docs]
-   
