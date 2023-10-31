@@ -257,16 +257,10 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             linelist["rad"]
         )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
 
-        # this might be improperly named - it's actually the indices of everything that aren't autoionizing
-        autoionization_indices = (
-            linelist.level_energy_upper < linelist.ionization_energy
-        )
+        # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
+        valid_indices = linelist.level_energy_upper < linelist.ionization_energy
 
-        # Cut out autoionizing levels - can't handle with current broadening treatment because can't calculate effective principal quantum number
-        linelist = linelist[autoionization_indices]
-        df = df[autoionization_indices]
-
-        return df, linelist
+        return df[valid_indices], linelist[valid_indices]
 
 
 # Properties that haven't been used in creating stellar plasma yet,
