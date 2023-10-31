@@ -157,7 +157,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         points = len(t_electrons)
 
-        # Need degeneracy of ground state of the ion to calcualte n_lower
+        # Need degeneracy of ground state of the ion to calculate n_lower
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
             [
                 "atomic_number",
@@ -251,7 +251,8 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         linelist["level_energy_lower"] = ((linelist["e_low"].values * u.eV).cgs).value
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
-        ###TODO THIS IS WRONG - Fix this later
+
+        # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
         linelist["A_ul"] = 10 ** (
             linelist["rad"]
         )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
