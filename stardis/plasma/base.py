@@ -137,7 +137,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         Alpha calculation for each line from Vald at each depth point.
         See Rybicki and Lightman eq. 1.80. Voigt profiles are calculated later, and
         B_12 is substituted appropriately out for f_lu.
-        Assumes LTE.
+        Assumes LTE for lower level population.
     """
 
     outputs = ("alpha_line_from_linelist", "lines_from_linelist")
