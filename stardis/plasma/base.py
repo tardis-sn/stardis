@@ -148,7 +148,12 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     )
 
     def calculate(
-        self, atomic_data, ion_number_density, t_electrons, g, ionization_data
+        self,
+        atomic_data,
+        ion_number_density,
+        t_electrons,
+        g,
+        ionization_data,
     ):
         # solve n_lower : n * g_i / g_0 * e ^ (E_i/kT)
         # get f_lu : loggf -> use g = 2j+1
@@ -186,7 +191,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         # Calculate degeneracies
         linelist["g_lo"] = linelist.j_lo * 2 + 1
         linelist["g_up"] = linelist.j_up * 2 + 1
-        linelist["g"] = linelist.g_lo / linelist.g_0
 
         exponent_by_point = np.exp(
             np.outer(
@@ -202,10 +206,12 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         )
 
         n_lower = (
-            exponent_by_point * linelist_with_densities[np.arange(points)]
-        ).values.T * linelist_with_densities.g.values
+            (exponent_by_point * linelist_with_densities[np.arange(points)]).values.T
+            * linelist_with_densities.g_lo.values
+            / linelist_with_densities.g_0.values
+        )
 
-        linelist["f_lu"] = 10**linelist.log_gf * linelist.g_up / linelist.g_lo
+        linelist["f_lu"] = 10**linelist.log_gf * linelist.g_lo / linelist.g_up
 
         line_nus = (linelist.wavelength.values * u.AA).to(
             u.Hz, equivalencies=u.spectral()
@@ -304,6 +310,7 @@ def create_stellar_plasma(stellar_model, atom_data, config):
     ----------
     stellar_model : stardis.model.base.StellarModel
     atom_data : tardis.io.atom_data.base.AtomData
+    config : stardis.config_reader.Configuration
 
     Returns
     -------
@@ -330,14 +337,13 @@ def create_stellar_plasma(stellar_model, atom_data, config):
     )
     plasma_modules += helium_lte_properties
 
-    plasma_modules.append(AlphaLine)
-
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
 
-    ###TODO - add flag for vald line to be used
     if config.opacity.line.use_vald_linelist:
         plasma_modules.append(AlphaLineVald)
+    else:
+        plasma_modules.append(AlphaLine)
 
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
