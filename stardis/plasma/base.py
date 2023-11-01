@@ -232,11 +232,10 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             ALPHA_COEFFICIENT * n_lower * linelist.f_lu.values * emission_correction.T
         )
 
-        ###TODO - include warning for missing values.
-        # if np.any(np.isnan(alpha)) or np.any(np.isinf(np.abs(alpha))):
-        #     raise ValueError(
-        #         "Some alpha_line are nan, inf, -inf " " Something went wrong!"
-        #     )
+        if np.any(np.isnan(alpha)) or np.any(np.isinf(np.abs(alpha))):
+            raise ValueError(
+                "Some alpha_line from vald are nan, inf, -inf " " Something went wrong!"
+            )
 
         df = pd.DataFrame(
             alpha.T,
