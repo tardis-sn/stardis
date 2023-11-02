@@ -155,9 +155,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         g,
         ionization_data,
     ):
-        # solve n_lower : n * g_i / g_0 * e ^ (E_i/kT)
+        # solve n_lower : n * g_i / g_0 * e ^ (-E_i/kT)
         # get f_lu : loggf -> use g = 2j+1
-        # emission_correction = (1-e^(-h nu / kT))
+        # emission_correction = (1-e^(-h*nu / kT))
         # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
 
         points = len(t_electrons)
@@ -197,6 +197,11 @@ class AlphaLineVald(ProcessingPlasmaProperty):
                 -linelist.e_low.values * u.eV, 1 / (t_electrons * u.K * const.k_B)
             ).to(1)
         )
+        # -np.exp(
+        #     np.outer(-linelist.e_up.values * u.eV, 1 / (t_electrons * u.K * const.k_B))
+        # ).to(
+        #     1
+        # )  # This reduction appears in Korg - I'm guessing it's due to spontaneous emission from the upper level - reduces opacity by ~1-3%
 
         # grab densities for n_lower - need to use linelist as the index
         linelist_with_densities = linelist.merge(
@@ -206,7 +211,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         )
 
         n_lower = (
-            (exponent_by_point * linelist_with_densities[np.arange(points)]).values.T
+            (
+                exponent_by_point * linelist_with_densities[np.arange(points)]
+            ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
             * linelist_with_densities.g_lo.values
             / linelist_with_densities.g_0.values
         )
