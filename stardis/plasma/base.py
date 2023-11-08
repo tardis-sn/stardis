@@ -185,7 +185,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         # Truncate to final atomic number
         linelist = linelist[
-            linelist.atomic_number < (atomic_data.selected_atomic_numbers.max() + 1)
+            linelist.atomic_number <= (atomic_data.selected_atomic_numbers.max())
         ]
 
         # Calculate degeneracies
@@ -197,11 +197,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
                 -linelist.e_low.values * u.eV, 1 / (t_electrons * u.K * const.k_B)
             ).to(1)
         )
-        # -np.exp(
-        #     np.outer(-linelist.e_up.values * u.eV, 1 / (t_electrons * u.K * const.k_B))
-        # ).to(
-        #     1
-        # )  # This reduction appears in Korg - I'm guessing it's due to spontaneous emission from the upper level - reduces opacity by ~1-3%
 
         # grab densities for n_lower - need to use linelist as the index
         linelist_with_densities = linelist.merge(
@@ -218,7 +213,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             / linelist_with_densities.g_0.values
         )
 
-        linelist["f_lu"] = 10**linelist.log_gf * linelist.g_lo / linelist.g_up
+        linelist["f_lu"] = (
+            10**linelist.log_gf / linelist.g_lo
+        )  # vald log gf is "oscillator strength f times the statistical weight g of the parent level"  see 1995A&AS..112..525P
 
         line_nus = (linelist.wavelength.values * u.AA).to(
             u.Hz, equivalencies=u.spectral()
