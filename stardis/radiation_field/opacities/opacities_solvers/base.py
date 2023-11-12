@@ -526,7 +526,7 @@ def calc_alan_entries(
 
         phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
 
-    return np.sum(phis * alphas_at_depth_point)
+    return phis @ alphas_at_depth_point
 
 
 def calc_alphas(
