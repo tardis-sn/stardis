@@ -32,6 +32,9 @@ FF_CONSTANT = (
 ).value
 RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
 
+INV_SQRT_2 = np.sqrt(0.5, dtype=float)
+INV_4_PI = 1.0 / (4.0 * np.pi)
+
 
 # H minus opacity
 def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
@@ -520,10 +523,12 @@ def calc_alan_entries(
     delta_nus = np.abs(delta_nus)
     # The above line can be removed if absolute value is not physical
 
+    std_dev = doppler_widths_at_depth_point * INV_SQRT_2
+    hwhm = gammas_at_depth_point * INV_4_PI
     phis = voigt_profile(
         delta_nus,
-        doppler_widths_at_depth_point,
-        gammas_at_depth_point,
+        std_dev,
+        hwhm,
     )
 
     return phis @ alphas_at_depth_point
