@@ -18,7 +18,7 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 schema = os.path.join(base_dir, "config_schema.yml")
 
 
-def run_stardis(config_fname, tracing_lambdas_or_nus):
+def run_stardis(config_fname, tracing_lambdas_or_nus, atom_data=None):
     """
     Runs a STARDIS simulation.
 
@@ -69,6 +69,8 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
             )
             + 1,
         )
+        if atom_data == None
+        else atom_data
     )
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata)
