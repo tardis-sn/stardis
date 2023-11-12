@@ -518,6 +518,7 @@ def calc_alan_entries(
     """
 
     delta_nus = np.abs(delta_nus)
+    # The above line can be removed if absolute value is not physical
 
     phis = voigt_profile(
         delta_nus,
