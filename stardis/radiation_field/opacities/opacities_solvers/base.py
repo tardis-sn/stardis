@@ -517,14 +517,13 @@ def calc_alan_entries(
         Line opacity.
     """
 
-    phis = np.zeros(len(delta_nus))
+    phis = np.zeros_like(delta_nus)
 
-    for k in range(len(delta_nus)):
-        delta_nu = np.abs(delta_nus[k])
-        doppler_width = doppler_widths_at_depth_point[k]
-        gamma = gammas_at_depth_point[k]
+    delta_nu = np.abs(delta_nus)
+    doppler_width = doppler_widths_at_depth_point
+    gamma = gammas_at_depth_point
 
-        phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
+    phis = voigt_profile(delta_nu, doppler_width, gamma)
 
     return phis @ alphas_at_depth_point
 
