@@ -69,7 +69,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus, atom_data=None):
             )
             + 1,
         )
-        if atom_data == None
+        if atom_data is None
         else atom_data
     )
     # plasma
