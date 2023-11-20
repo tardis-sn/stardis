@@ -247,14 +247,11 @@ class AlphaLineVald(ProcessingPlasmaProperty):
                 "Some alpha_line from vald are nan, inf, -inf " " Something went wrong!"
             )
 
-        # alphas = pd.DataFrame(
-        #     alpha.T,
-        # )
-
         alphas["nu"] = line_nus.value
         linelist["nu"] = line_nus.value
 
         # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
+        # Necessary for correct handling of ion numbers using charge instead of astronomy convention (i.e., 0 is neutral, 1 is singly ionized, etc.)
         ionization_energies = ionization_data.reset_index()
         ionization_energies["ion_number"] -= 1
         linelist = pd.merge(
