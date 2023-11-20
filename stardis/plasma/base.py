@@ -133,11 +133,11 @@ class AlphaLineVald(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    alpha_line_from_linelist : Pandas DataFrame, dtype float
-        Alpha calculation for each line from Vald at each depth point.
-        See Rybicki and Lightman eq. 1.80. Voigt profiles are calculated later, and
-        B_12 is substituted appropriately out for f_lu.
-        Assumes LTE for lower level population.
+    alpha_line_from_linelist : DataFrame
+            A pandas DataFrame with dtype float. This represents the alpha calculation
+            for each line from Vald at each depth point. Refer to Rybicki and Lightman
+            equation 1.80. Voigt profiles are calculated later, and B_12 is substituted
+            appropriately out for f_lu. This assumes LTE for lower level population.
     """
 
     outputs = ("alpha_line_from_linelist", "lines_from_linelist")
@@ -232,20 +232,25 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        alpha = (
-            ALPHA_COEFFICIENT * n_lower * linelist.f_lu.values * emission_correction.T
+        alphas = pd.DataFrame(
+            (
+                ALPHA_COEFFICIENT
+                * n_lower
+                * linelist.f_lu.values
+                * emission_correction.T
+            ).T
         )
 
-        if np.any(np.isnan(alpha)) or np.any(np.isinf(np.abs(alpha))):
+        if np.any(np.isnan(alphas)) or np.any(np.isinf(np.abs(alphas))):
             raise ValueError(
                 "Some alpha_line from vald are nan, inf, -inf " " Something went wrong!"
             )
 
-        df = pd.DataFrame(
-            alpha.T,
-        )
+        # alphas = pd.DataFrame(
+        #     alpha.T,
+        # )
 
-        df["nu"] = line_nus.value
+        alphas["nu"] = line_nus.value
         linelist["nu"] = line_nus.value
 
         # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
@@ -269,7 +274,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
         valid_indices = linelist.level_energy_upper < linelist.ionization_energy
 
-        return df[valid_indices], linelist[valid_indices]
+        return alphas[valid_indices], linelist[valid_indices]
 
 
 # Properties that haven't been used in creating stellar plasma yet,
