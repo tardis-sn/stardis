@@ -163,6 +163,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         points = len(t_electrons)
 
         # Need degeneracy of ground state of the ion to calculate n_lower
+        # So set up the initial dataframe with all of the necessary information, and then merge it with the matching g_0
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
             [
                 "atomic_number",
@@ -215,7 +216,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         linelist["f_lu"] = (
             10**linelist.log_gf / linelist.g_lo
-        )  # vald log gf is "oscillator strength f times the statistical weight g of the parent level"  see 1995A&AS..112..525P
+        )  # vald log gf is "oscillator strength f times the statistical weight g of the parent level"  see 1995A&AS..112..525P, section 2. Structure of VALD
 
         line_nus = (linelist.wavelength.values * u.AA).to(
             u.Hz, equivalencies=u.spectral()
