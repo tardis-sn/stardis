@@ -373,6 +373,8 @@ def calc_alpha_line_at_nu(
     if line_opacity_config.disable:
         return 0, 0, 0
 
+    no_of_depth_points = len(stellar_model.geometry.r)
+
     broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
     _nu_max = line_opacity_config.max.to(u.Hz, u.spectral())
@@ -385,34 +387,42 @@ def calc_alpha_line_at_nu(
     van_der_waals = "van_der_waals" in broadening_methods
     radiation = "radiation" in broadening_methods
 
-    lines = stellar_plasma.lines.reset_index()  # bring lines in ascending order of nu
+    use_vald = line_opacity_config.use_vald_linelist
+    if use_vald:
+        lines = stellar_plasma.lines_from_linelist
+    else:
+        lines = (
+            stellar_plasma.lines.reset_index()
+        )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
 
-    # add ionization energy to lines
-    ionization_data = stellar_plasma.ionization_data.reset_index()
-    ionization_data["ion_number"] -= 1
-    lines = pd.merge(
-        lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
-    )
+        # add ionization energy to lines
+        ionization_data = stellar_plasma.ionization_data.reset_index()
+        ionization_data["ion_number"] -= 1
+        lines = pd.merge(
+            lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
+        )
 
-    # add level energy (lower and upper) to lines
-    levels_energy = stellar_plasma.atomic_data.levels.energy
-    levels_g = stellar_plasma.atomic_data.levels.g
-    lines = pd.merge(
-        lines,
-        levels_energy,
-        how="left",
-        left_on=["atomic_number", "ion_number", "level_number_lower"],
-        right_on=["atomic_number", "ion_number", "level_number"],
-    ).rename(columns={"energy": "level_energy_lower"})
-    lines = pd.merge(
-        lines,
-        levels_energy,
-        how="left",
-        left_on=["atomic_number", "ion_number", "level_number_upper"],
-        right_on=["atomic_number", "ion_number", "level_number"],
-    ).rename(columns={"energy": "level_energy_upper"})
+        # add level energy (lower and upper) to lines
+        levels_energy = stellar_plasma.atomic_data.levels.energy
+        levels_g = stellar_plasma.atomic_data.levels.g  ###TODO: remove in cleanup pr
+        lines = pd.merge(
+            lines,
+            levels_energy,
+            how="left",
+            left_on=["atomic_number", "ion_number", "level_number_lower"],
+            right_on=["atomic_number", "ion_number", "level_number"],
+        ).rename(columns={"energy": "level_energy_lower"})
+        lines = pd.merge(
+            lines,
+            levels_energy,
+            how="left",
+            left_on=["atomic_number", "ion_number", "level_number_upper"],
+            right_on=["atomic_number", "ion_number", "level_number"],
+        ).rename(columns={"energy": "level_energy_upper"})
 
-    line_cols = map_items_to_indices(lines.columns.to_list())
+    line_cols = map_items_to_indices(
+        lines.columns.to_list()
+    )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
 
     lines_sorted = lines.sort_values("nu").reset_index(drop=True)
     lines_sorted_in_range = lines_sorted[
@@ -426,19 +436,24 @@ def calc_alpha_line_at_nu(
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
-    alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(drop=True)
+    if use_vald:
+        alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values(
+            "nu"
+        ).reset_index(drop=True)
+    else:
+        alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(
+            drop=True
+        )
     alphas_and_nu_in_range = alphas_and_nu[
         alphas_and_nu.nu.between(line_nu_min, line_nu_max)
     ]
     alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
     alphas_array = alphas.to_numpy()
 
-    no_depth_points = len(stellar_model.geometry.r)
-
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
         line_cols,
-        no_depth_points,
+        no_of_depth_points,
         atomic_masses,
         electron_densities,
         temperatures,
@@ -449,13 +464,13 @@ def calc_alpha_line_at_nu(
         radiation=radiation,
     )
 
-    alpha_line_at_nu = np.zeros((no_depth_points, len(tracing_nus)))
+    alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus)))
 
     for i in range(len(tracing_nus)):
         nu = tracing_nus[i].value
         delta_nus = nu - line_nus
 
-        for j in range(no_depth_points):
+        for j in range(no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
             doppler_widths_at_depth_point = doppler_widths[:, j]
             alphas_at_depth_point = alphas_array[:, j]

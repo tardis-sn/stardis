@@ -6,8 +6,9 @@ from numba import cuda
 
 GPUs_available = cuda.is_available()
 
-if GPUs_available:
-    import cupy as cp
+# Commenting out until cupy is hooked up
+# if GPUs_available:
+#     import cupy as cp
 
 PI = float(np.pi)
 SPEED_OF_LIGHT = float(const.c.cgs.value)

@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from tardis.io.atom_data import AtomData
-from tardis.io.configuration.config_validator import validate_yaml, validate_dict
+from tardis.io.configuration.config_validator import validate_yaml
 from tardis.io.configuration.config_reader import Configuration
 
 from astropy import units as u
@@ -18,6 +18,7 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 schema = os.path.join(base_dir, "config_schema.yml")
 
 
+###TODO: Make a function that parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python
 def run_stardis(config_fname, tracing_lambdas_or_nus):
     """
     Runs a STARDIS simulation.
@@ -71,7 +72,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
     )
     # plasma
-    stellar_plasma = create_stellar_plasma(stellar_model, adata)
+    stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
     if True:  ###TODO change to checking source function from config
         from stardis.radiation_field.source_functions.blackbody import (
