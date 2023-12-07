@@ -4,11 +4,13 @@ from dataclasses import dataclass
 from astropy import units as u
 import numpy as np
 import logging
+from pathlib import Path
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.composition.base import Composition
 
 from stardis.model.base import StellarModel
+from stardis.io.model.util import create_scaled_solar_profile
 
 
 @dataclass
@@ -38,11 +40,45 @@ class MESAModel(object):
         stardis.model.geometry.radial1d.Radial1DGeometry
         """
         r = (
-            np.exp(self.data.lnR[::-1]) * u.cm
+            np.exp(self.data.lnR.values[::-1]) * u.cm
         )  # Flip the order of the shells to move from innermost point to surface
         return Radial1DGeometry(r)
 
-    def to_composition(self, atom_data, final_atomic_number):
+    def to_uniform_composition_from_solar(self, atom_data, Y=2.492280e-01, Z=0.01337):
+        """
+        Creates a uniform composition profile based on the given atom data, Y, and Z.
+
+        Args:
+            atom_data: The atom data used to create the composition profile.
+            Y: The helium abundance.
+            Z: The metallicity.
+
+        Returns:
+            tuple: A tuple containing the density profile and atomic mass fraction profile.
+        """
+        density = (
+            10 ** self.data.lnd.values[::-1] * u.g / u.cm**3
+        )  # flip data to move from innermost point to surface
+        solar_profile = create_scaled_solar_profile(atom_data, Y, Z)
+
+        atomic_mass_fraction = pd.DataFrame(
+            columns=range(len(self.data)),
+            index=solar_profile.index,
+            data=np.repeat(solar_profile.values, len(self.data), axis=1),
+        )
+
+        atomic_mass_fraction.index.name = "atomic_number"
+        return Composition(density, atomic_mass_fraction)
+
+    def to_stellar_model(self, atom_data, truncate_to_shell_number=None):
+        if truncate_to_shell_number is not None:
+            self.truncate_model(truncate_to_shell_number)
+        mesa_geometry = self.to_geometry()
+        mesa_composition = self.to_uniform_composition_from_solar(atom_data)
+        temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
+
+        return StellarModel(temperatures, mesa_geometry, mesa_composition)
+
 
 def read_mesa_metadata(fpath):
     """
