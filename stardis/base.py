@@ -56,6 +56,17 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
             adata, final_atomic_number=config.model.final_atomic_number
         )
 
+    elif config.model.type == "mesa":
+        from stardis.io.model.mesa import read_mesa_model
+
+        raw_mesa_model = read_mesa_model(config.model.fname)
+        stellar_model = raw_mesa_model.to_stellar_model(
+            adata, truncate_to_shell_number=config.model.truncate_to_shell
+        )
+
+    else:
+        raise ValueError("Model type not recognized. Must be either 'marcs' or 'mesa'")
+
     # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
     adata.prepare_atom_data(
         np.arange(

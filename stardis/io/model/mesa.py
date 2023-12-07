@@ -70,11 +70,13 @@ class MESAModel(object):
         atomic_mass_fraction.index.name = "atomic_number"
         return Composition(density, atomic_mass_fraction)
 
-    def to_stellar_model(self, atom_data, truncate_to_shell_number=None):
+    def to_stellar_model(
+        self, atom_data, truncate_to_shell_number=None, Y=2.492280e-01, Z=0.01337
+    ):
         if truncate_to_shell_number is not None:
             self.truncate_model(truncate_to_shell_number)
         mesa_geometry = self.to_geometry()
-        mesa_composition = self.to_uniform_composition_from_solar(atom_data)
+        mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
         temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
 
         return StellarModel(temperatures, mesa_geometry, mesa_composition)
