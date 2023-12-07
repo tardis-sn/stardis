@@ -62,8 +62,8 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         raw_mesa_model = read_mesa_model(config.model.fname)
         if config.model.truncate_to_shell is not -99:
             raw_mesa_model.truncate_model(config.model.truncate_to_shell)
-        else:
-            stellar_model = raw_mesa_model.to_stellar_model(adata)
+
+        stellar_model = raw_mesa_model.to_stellar_model(adata)
 
     else:
         raise ValueError("Model type not recognized. Must be either 'marcs' or 'mesa'")
