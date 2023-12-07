@@ -71,15 +71,27 @@ class MESAModel(object):
         return Composition(density, atomic_mass_fraction)
 
     def to_stellar_model(
-        self, atom_data, truncate_to_shell_number=None, Y=2.492280e-01, Z=0.01337
-    ):
-        if truncate_to_shell_number is not None:
-            self.truncate_model(truncate_to_shell_number)
-        mesa_geometry = self.to_geometry()
-        mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
-        temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
+            self, atom_data, truncate_to_shell_number=None, Y=2.492280e-01, Z=0.01337
+        ):
+            """
+            Convert the MESA model to a StellarModel object.
 
-        return StellarModel(temperatures, mesa_geometry, mesa_composition)
+            Args:
+                atom_data (AtomData): AtomData object containing atomic data.
+                truncate_to_shell_number (int, optional): Number of shells to truncate the model to. Defaults to None.
+                Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
+                Z (float, optional): Metallicity. Defaults to 0.01337.
+
+            Returns:
+                StellarModel: StellarModel object representing the MESA model.
+            """
+            if truncate_to_shell_number is not None:
+                self.truncate_model(truncate_to_shell_number)
+            mesa_geometry = self.to_geometry()
+            mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
+            temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
+
+            return StellarModel(temperatures, mesa_geometry, mesa_composition)
 
 
 def read_mesa_metadata(fpath):
@@ -146,16 +158,20 @@ def read_mesa_metadata(fpath):
 
 def read_mesa_data(fpath, mesa_shells):
     """
+    Read MESA model data from a file.
+
     Parameters
     ----------
     fpath : str
-            Path to model file
+        Path to the MESA model file.
 
+    mesa_shells : int
+        Number of shells to read from the file.
 
     Returns
     -------
     data : pd.DataFrame
-        data contents of the mesa model file
+        Data contents of the MESA model file.
     """
 
     ROWS_TO_SKIP = 23
