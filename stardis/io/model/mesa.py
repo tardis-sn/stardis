@@ -61,7 +61,7 @@ class MESAModel(object):
             np.exp(self.data.lnd.values[::-1]) * u.g / u.cm**3
         )  # flip data to move from innermost point to surface
         logging.warning(
-            r"Atomic dataset only includes the first {len(atom_data.atom_data)} elements."
+            f"Atomic dataset only includes the first {len(atom_data.atom_data)} elements. Solar composition Z will only be scaled for the elements provided."
         )
         solar_profile = create_scaled_solar_profile(
             atom_data,
@@ -103,7 +103,7 @@ class MESAModel(object):
             self.truncate_model(truncate_to_shell_number)
         mesa_geometry = self.to_geometry()
         logging.info(
-            r"Creating uniform composition profile from MESA model with Y = {Y} and Z = {Z}"
+            f"Creating uniform composition profile from MESA model with Y = {Y} and Z = {Z}."
         )
         mesa_composition = self.to_uniform_composition_from_solar(
             atom_data, Y, Z, final_atomic_number=final_atomic_number
