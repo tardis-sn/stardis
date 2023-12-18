@@ -215,7 +215,7 @@ def read_mesa_model(fpath):
     """
     Parameters
     ----------
-    fpath : str
+    fpath : str or Path
             Path to model file
 
     Returns
