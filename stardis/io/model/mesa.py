@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from astropy import units as u
 import numpy as np
 import logging
-from pathlib import Path
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.composition.base import Composition
@@ -88,6 +87,9 @@ class MESAModel(object):
         if truncate_to_shell_number is not None:
             self.truncate_model(truncate_to_shell_number)
         mesa_geometry = self.to_geometry()
+        logging.info(
+            r"Creating uniform composition profile from MESA model with Y = {Y} and Z = {Z}"
+        )
         mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
         temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
 
