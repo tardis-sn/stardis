@@ -39,8 +39,8 @@ def mesa_model():
 
 
 @pytest.fixture(scope="session")
-def mesa_stellar_model(mesa_model, example_atomic_data):
-    return mesa_model.to_stellar_model(atom_data=example_atomic_data)
+def mesa_stellar_model(mesa_model, example_kurucz_atomic_data):
+    return mesa_model.to_stellar_model(atom_data=example_kurucz_atomic_data)
 
 
 def test_mesa_model_ingestion(mesa_model):
@@ -54,7 +54,6 @@ def test_mesa_stellar_model(mesa_stellar_model):
     assert np.all(mesa_stellar_model.geometry.r.diff() > 0)
 
 
-@pytest.fixture
 def test_read_marcs_model_scaled_log_number_fraction(marcs_model_test_data_file_path):
     """
     Test reading a MARCS model file

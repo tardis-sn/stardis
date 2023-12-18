@@ -43,7 +43,9 @@ class MESAModel(object):
         )  # Flip the order of the shells to move from innermost point to surface
         return Radial1DGeometry(r)
 
-    def to_uniform_composition_from_solar(self, atom_data, Y=2.492280e-01, Z=0.01337):
+    def to_uniform_composition_from_solar(
+        self, atom_data, Y=2.492280e-01, Z=0.01337, final_atomic_number=138
+    ):
         """
         Creates a uniform composition profile based on the given atom data, Y, and Z.
 
@@ -58,7 +60,15 @@ class MESAModel(object):
         density = (
             np.exp(self.data.lnd.values[::-1]) * u.g / u.cm**3
         )  # flip data to move from innermost point to surface
-        solar_profile = create_scaled_solar_profile(atom_data, Y, Z)
+        logging.warning(
+            r"Atomic dataset only includes the first {len(atom_data.atom_data)} elements."
+        )
+        solar_profile = create_scaled_solar_profile(
+            atom_data,
+            Y,
+            Z,
+            final_atomic_number=np.min([final_atomic_number, len(atom_data.atom_data)]),
+        )
 
         atomic_mass_fraction = pd.DataFrame(
             columns=range(len(self.data)),
@@ -70,7 +80,12 @@ class MESAModel(object):
         return Composition(density, atomic_mass_fraction)
 
     def to_stellar_model(
-        self, atom_data, truncate_to_shell_number=None, Y=2.492280e-01, Z=0.01337
+        self,
+        atom_data,
+        truncate_to_shell_number=None,
+        Y=2.492280e-01,
+        Z=0.01337,
+        final_atomic_number=138,
     ):
         """
         Convert the MESA model to a StellarModel object.
@@ -90,7 +105,9 @@ class MESAModel(object):
         logging.info(
             r"Creating uniform composition profile from MESA model with Y = {Y} and Z = {Z}"
         )
-        mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
+        mesa_composition = self.to_uniform_composition_from_solar(
+            atom_data, Y, Z, final_atomic_number=final_atomic_number
+        )
         temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
 
         return StellarModel(temperatures, mesa_geometry, mesa_composition)

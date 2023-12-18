@@ -5,7 +5,9 @@ import pandas as pd
 PATH_TO_ASPLUND_2009 = Path(__file__).parent / "data" / "asplund_2009_processed.csv"
 
 
-def create_scaled_solar_profile(atom_data, Y=2.492280e-01, Z=0.01337):
+def create_scaled_solar_profile(
+    atom_data, Y=2.492280e-01, Z=0.01337, final_atomic_number=None
+):
     """
     Scales the solar mass fractions based on the given atom data, Y, and Z, using the photospheric composition from Asplund 2009.
     Default Y and Z are calculated using Asplund 2009 and NIST atomic weights, i.e., if you use their default values you will get
@@ -21,6 +23,8 @@ def create_scaled_solar_profile(atom_data, Y=2.492280e-01, Z=0.01337):
 
     """
     solar_values = pd.read_csv(PATH_TO_ASPLUND_2009)
+    if final_atomic_number is not None:
+        solar_values = solar_values[solar_values.Atom_num <= final_atomic_number]
 
     solar_values["mass_fractions"] = (
         atom_data.atom_data.mass.loc[solar_values.Atom_num.values]
