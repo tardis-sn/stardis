@@ -57,7 +57,7 @@ class MESAModel(object):
             tuple: A tuple containing the density profile and atomic mass fraction profile.
         """
         density = (
-            10 ** self.data.lnd.values[::-1] * u.g / u.cm**3
+            np.exp(self.data.lnd.values[::-1]) * u.g / u.cm**3
         )  # flip data to move from innermost point to surface
         solar_profile = create_scaled_solar_profile(atom_data, Y, Z)
 
@@ -71,27 +71,27 @@ class MESAModel(object):
         return Composition(density, atomic_mass_fraction)
 
     def to_stellar_model(
-            self, atom_data, truncate_to_shell_number=None, Y=2.492280e-01, Z=0.01337
-        ):
-            """
-            Convert the MESA model to a StellarModel object.
+        self, atom_data, truncate_to_shell_number=None, Y=2.492280e-01, Z=0.01337
+    ):
+        """
+        Convert the MESA model to a StellarModel object.
 
-            Args:
-                atom_data (AtomData): AtomData object containing atomic data.
-                truncate_to_shell_number (int, optional): Number of shells to truncate the model to. Defaults to None.
-                Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
-                Z (float, optional): Metallicity. Defaults to 0.01337.
+        Args:
+            atom_data (AtomData): AtomData object containing atomic data.
+            truncate_to_shell_number (int, optional): Number of shells to truncate the model to. Defaults to None.
+            Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
+            Z (float, optional): Metallicity. Defaults to 0.01337.
 
-            Returns:
-                StellarModel: StellarModel object representing the MESA model.
-            """
-            if truncate_to_shell_number is not None:
-                self.truncate_model(truncate_to_shell_number)
-            mesa_geometry = self.to_geometry()
-            mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
-            temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
+        Returns:
+            StellarModel: StellarModel object representing the MESA model.
+        """
+        if truncate_to_shell_number is not None:
+            self.truncate_model(truncate_to_shell_number)
+        mesa_geometry = self.to_geometry()
+        mesa_composition = self.to_uniform_composition_from_solar(atom_data, Y, Z)
+        temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
 
-            return StellarModel(temperatures, mesa_geometry, mesa_composition)
+        return StellarModel(temperatures, mesa_geometry, mesa_composition)
 
 
 def read_mesa_metadata(fpath):
