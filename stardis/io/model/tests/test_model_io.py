@@ -54,6 +54,12 @@ def test_mesa_stellar_model(mesa_stellar_model):
     assert np.all(mesa_stellar_model.geometry.r.diff() > 0)
 
 
+def test_mesa_truncation(mesa_model):
+    len_before_truncation = len(mesa_model.data)
+    mesa_model.truncate_model(len_before_truncation - 1)
+    assert len(mesa_model.data) == len_before_truncation - 1
+
+
 def test_read_marcs_model_scaled_log_number_fraction(marcs_model_test_data_file_path):
     """
     Test reading a MARCS model file
