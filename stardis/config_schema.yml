@@ -103,6 +103,8 @@ properties:
                         type: [quantity, "null"]
                         default: null
                     vald_linelist:
+                        type: object
+                        default: {}
                         properties:
                             use_linelist:
                                 type: boolean
