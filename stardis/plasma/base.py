@@ -138,6 +138,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             for each line from Vald at each depth point. Refer to Rybicki and Lightman
             equation 1.80. Voigt profiles are calculated later, and B_12 is substituted
             appropriately out for f_lu. This assumes LTE for lower level population.
+    lines_from_linelist: DataFrame
+            A pandas dataframe containing the lines and information about the lines in
+            the same form and shape as alpha_line_from_linelist.
     """
 
     outputs = ("alpha_line_from_linelist", "lines_from_linelist")
@@ -275,10 +278,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         return alphas[valid_indices], linelist[valid_indices]
 
 
-# Properties that haven't been used in creating stellar plasma yet,
-# might be useful in future ----------------------------------------------------
-
-
 class AlphaLineShortlistVald(ProcessingPlasmaProperty):
     """
     Attributes
@@ -287,8 +286,10 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
             A pandas DataFrame with dtype float. This represents the alpha calculation
             for each line from Vald at each depth point. This is adapted from the AlphaLineVald calculation
             because shortlists do not contain js or an upper energy level. This works because the degeneracies
-            cancel out in the final calaculation anyway.
-
+            cancel between the n_lower recalculation and in calculating f_lu from g*f given by the linelist.
+    lines_from_linelist: DataFrame
+            A pandas dataframe containing the lines and information about the lines in
+            the same form and shape as alpha_line_from_linelist.
     """
 
     outputs = ("alpha_line_from_linelist", "lines_from_linelist")
@@ -418,6 +419,10 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         valid_indices = linelist.level_energy_upper < linelist.ionization_energy
 
         return alphas[valid_indices], linelist[valid_indices]
+
+
+# Properties that haven't been used in creating stellar plasma yet,
+# might be useful in future ----------------------------------------------------
 
 
 class InputNumberDensity(DataFrameInput):
