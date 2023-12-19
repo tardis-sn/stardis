@@ -278,17 +278,17 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 # Properties that haven't been used in creating stellar plasma yet,
 # might be useful in future ----------------------------------------------------
 
+
 class AlphaLineShortlistVald(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
     alpha_line_from_linelist : DataFrame
             A pandas DataFrame with dtype float. This represents the alpha calculation
-            for each line from Vald at each depth point. Refer to Rybicki and Lightman
-            equation 1.80. Voigt profiles are calculated later, and B_12 is substituted
-            appropriately out for f_lu. This assumes LTE for lower level population.
-            
-    This is the same as AlphaLineVald, but does not recalculate the lower level population because degeneracies are not available for the shortlist.
+            for each line from Vald at each depth point. This is adapted from the AlphaLineVald calculation
+            because shortlists do not contain js or an upper energy level. This works because the degeneracies
+            cancel out in the final calaculation anyway.
+
     """
 
     outputs = ("alpha_line_from_linelist", "lines_from_linelist")
@@ -306,14 +306,9 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         g,
         ionization_data,
     ):
-        # solve n_lower : n * g_i / g_0 * e ^ (-E_i/kT)
-        # get f_lu : loggf -> use g = 2j+1
-        # emission_correction = (1-e^(-h*nu / kT))
-        # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
-
         points = len(t_electrons)
 
-        # Need degeneracy of ground state of the ion to calculate n_lower
+        # Need degeneracy of ground state of the ion
         # So set up the initial dataframe with all of the necessary information, and then merge it with the matching g_0
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
             [
@@ -322,9 +317,6 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
                 "wavelength",
                 "log_gf",
                 "e_low",
-                "e_up",
-                "j_lo",
-                "j_up",
                 "rad",
                 "stark",
                 "waals",
@@ -340,9 +332,15 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
             linelist.atomic_number <= (atomic_data.selected_atomic_numbers.max())
         ]
 
-        # Calculate degeneracies
-        linelist["g_lo"] = linelist.j_lo * 2 + 1
-        linelist["g_up"] = linelist.j_up * 2 + 1
+        # Calculate energy of upper level
+        linelist["e_up"] = (
+            (
+                linelist.e_low.values * u.eV
+                + (const.h * const.c / (linelist.wavelength.values * u.AA))
+            )
+            .to(u.eV)
+            .value
+        )
 
         exponent_by_point = np.exp(
             np.outer(
@@ -350,24 +348,20 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        # grab densities for n_lower - need to use linelist as the index
         linelist_with_densities = linelist.merge(
             ion_number_density,
             how="left",
             on=["atomic_number", "ion_number"],
         )
 
-        n_lower = (
+        prefactor = (
             (
                 exponent_by_point * linelist_with_densities[np.arange(points)]
             ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
-            * linelist_with_densities.g_lo.values
             / linelist_with_densities.g_0.values
         )
 
-        linelist["f_lu"] = (
-            10**linelist.log_gf / linelist.g_lo
-        )  # vald log gf is "oscillator strength f times the statistical weight g of the parent level"  see 1995A&AS..112..525P, section 2. Structure of VALD
+        linelist["gf"] = 10**linelist.log_gf
 
         line_nus = (linelist.wavelength.values * u.AA).to(
             u.Hz, equivalencies=u.spectral()
@@ -387,8 +381,8 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         alphas = pd.DataFrame(
             (
                 ALPHA_COEFFICIENT
-                * n_lower
-                * linelist.f_lu.values
+                * prefactor
+                * linelist.gf.values
                 * emission_correction.T
             ).T
         )
@@ -493,8 +487,11 @@ def create_stellar_plasma(stellar_model, atom_data, config):
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
 
-    if config.opacity.line.use_vald_linelist:
-        plasma_modules.append(AlphaLineVald)
+    if config.opacity.line.vald_linelist.use_linelist:
+        if config.opacity.line.vald_linelist.shortlist:
+            plasma_modules.append(AlphaLineShortlistVald)
+        else:
+            plasma_modules.append(AlphaLineVald)
     else:
         plasma_modules.append(AlphaLine)
 

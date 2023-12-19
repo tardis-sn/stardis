@@ -102,9 +102,15 @@ properties:
                     broadening_range:
                         type: [quantity, "null"]
                         default: null
-                    use_vald_linelist:
-                        type: boolean
-                        default: false
+                    vald_linelist:
+                        properties:
+                            use_linelist:
+                                type: boolean
+                                default: false
+                            type: boolean
+                            shortlist:
+                                type: boolean
+                                default: false
         #required:
         #- line
     no_of_thetas:
