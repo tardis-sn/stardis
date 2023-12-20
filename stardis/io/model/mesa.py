@@ -9,11 +9,15 @@ from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.composition.base import Composition
 
 from stardis.model.base import StellarModel
-from stardis.io.model.util import create_scaled_solar_profile
+from stardis.io.model.util import (
+    create_scaled_solar_profile,
+    ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
+    ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
+)
 
 
 @dataclass
-class MESAModel(object):
+class MESAModel:
     """
     Class to hold a MESA model. Holds a dict of the metadata information and a pandas dataframe of the contents.
     """
@@ -44,7 +48,11 @@ class MESAModel(object):
         return Radial1DGeometry(r)
 
     def to_uniform_composition_from_solar(
-        self, atom_data, Y=2.492280e-01, Z=0.01337, final_atomic_number=138
+        self,
+        atom_data,
+        Y=ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
+        Z=ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
+        final_atomic_number=138,
     ):
         """
         Creates a uniform composition profile based on the given atom data, Y, and Z.
@@ -83,8 +91,8 @@ class MESAModel(object):
         self,
         atom_data,
         truncate_to_shell_number=None,
-        Y=2.492280e-01,
-        Z=0.01337,
+        Y=ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
+        Z=ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
         final_atomic_number=138,
     ):
         """
@@ -94,7 +102,7 @@ class MESAModel(object):
             atom_data (AtomData): AtomData object containing atomic data.
             truncate_to_shell_number (int, optional): Number of shells to truncate the model to. Defaults to None.
             Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
-            Z (float, optional): Metallicity. Defaults to 0.01337.
+            Z (float, optional): Heavy metal mass fraction. Defaults to 0.01337.
 
         Returns:
             StellarModel: StellarModel object representing the MESA model.
@@ -103,7 +111,7 @@ class MESAModel(object):
             self.truncate_model(truncate_to_shell_number)
         mesa_geometry = self.to_geometry()
         logging.info(
-            f"Creating uniform composition profile from MESA model with Y = {Y} and Z = {Z}."
+            f"Creating uniform composition profile from MESA model with helium and metal mass fractions Y = {Y} and Z = {Z}."
         )
         mesa_composition = self.to_uniform_composition_from_solar(
             atom_data, Y, Z, final_atomic_number=final_atomic_number
@@ -128,15 +136,15 @@ def read_mesa_metadata(fpath):
     """
     # The regular expression pattern
     METADATA_RE_STR = [
-        ("\s*version_number\s+(\S+)\s*\n", "Version number"),
-        ("\s*M/Msun\s+(\S+)\s*\n", "Mass"),
-        ("\s*model\_number\s+(\S+)\s*\n", "Model Number"),
-        ("\s*star_age\s+(\S+)\s*\n", "Star Age"),
-        ("\s*initial_z\s+(\S+)\s*\n", "Initial Z"),
-        ("\s*n_shells\s+(\S+)\s*\n", "Number of Shells"),
-        ("\s*net_name\s+(\S+)\s*\n", "Net Name"),
-        ("\s*species\s+(\S+)\s*\n", "Number of Species"),
-        ("\s*Teff\s+(\S+)\s*\n", "Effective Temperature"),
+        (r"\s*version_number\s+(\S+)\s*", "Version number"),
+        (r"\s*M/Msun\s+(\S+)\s*", "Mass"),
+        (r"\s*model\_number\s+(\S+)\s*", "Model Number"),
+        (r"\s*star_age\s+(\S+)\s*", "Star Age"),
+        (r"\s*initial_z\s+(\S+)\s*", "Initial Z"),
+        (r"\s*n_shells\s+(\S+)\s*", "Number of Shells"),
+        (r"\s*net_name\s+(\S+)\s*", "Net Name"),
+        (r"\s*species\s+(\S+)\s*", "Number of Species"),
+        (r"\s*Teff\s+(\S+)\s*", "Effective Temperature"),
     ]
 
     metadata_re = [re.compile(re_str[0]) for re_str in METADATA_RE_STR]
@@ -148,12 +156,12 @@ def read_mesa_metadata(fpath):
     lines = list(contents)
 
     for line_number, line in enumerate(lines):
-        match = metadata_re[0].match(line)
+        match = metadata_re[0].match(line.strip())
         if match is not None:
-            STARTING_OF_METADATA = line_number
+            starting_of_metadata = line_number
             for i, line in enumerate(
                 lines[
-                    STARTING_OF_METADATA : STARTING_OF_METADATA + len(METADATA_RE_STR)
+                    starting_of_metadata : starting_of_metadata + len(METADATA_RE_STR)
                 ]
             ):
                 metadata_re_match = metadata_re[i].match(line)

@@ -13,6 +13,8 @@ from stardis.plasma import create_stellar_plasma
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
+from stardis.io.model.marcs import read_marcs_model
+from stardis.io.model.mesa import read_mesa_model
 
 
 BASE_DIR = Path(__file__).parent
@@ -48,8 +50,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     # model
     if config.model.type == "marcs":
-        from stardis.io.model.marcs import read_marcs_model
-
         raw_marcs_model = read_marcs_model(
             Path(config.model.fname), gzipped=config.model.gzipped
         )
@@ -58,11 +58,13 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
 
     elif config.model.type == "mesa":
-        from stardis.io.model.mesa import read_mesa_model
-
         raw_mesa_model = read_mesa_model(Path(config.model.fname))
         if config.model.truncate_to_shell != -99:
             raw_mesa_model.truncate_model(config.model.truncate_to_shell)
+        elif config.model.truncate_to_mass < 0:
+            raise ValueError(
+                "Negative shells requested for mesa model truncation. -99 is default for no truncation."
+            )
 
         stellar_model = raw_mesa_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
