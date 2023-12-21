@@ -50,17 +50,18 @@ class MESAModel:
     def to_uniform_composition_from_solar(
         self,
         atom_data,
-        Y=ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
-        Z=ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
+        helium_mass_frac_Y=ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
+        heavy_metal_mass_frac_Z=ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
         final_atomic_number=138,
     ):
         """
-        Creates a uniform composition profile based on the given atom data, Y, and Z.
+        Creates a uniform composition profile based on the given atom data,
+        helium_mass_frac_Y, and heavy_metal_mass_frac_Z.
 
         Args:
             atom_data: The atom data used to create the composition profile.
-            Y: The helium abundance.
-            Z: The metallicity.
+            helium_mass_frac_Y: The helium abundance.
+            heavy_metal_mass_frac_Z: The metallicity.
 
         Returns:
             tuple: A tuple containing the density profile and atomic mass fraction profile.
@@ -69,12 +70,12 @@ class MESAModel:
             np.exp(self.data.lnd.values[::-1]) * u.g / u.cm**3
         )  # flip data to move from innermost point to surface
         logging.warning(
-            f"Atomic dataset only includes the first {len(atom_data.atom_data)} elements. Solar composition Z will only be scaled for the elements provided."
+            f"Atomic dataset only includes the first {len(atom_data.atom_data)} elements. Solar composition heavy metal mass fraction Z will only be scaled for the elements provided."
         )
         solar_profile = create_scaled_solar_profile(
             atom_data,
-            Y,
-            Z,
+            helium_mass_frac_Y,
+            heavy_metal_mass_frac_Z,
             final_atomic_number=np.min([final_atomic_number, len(atom_data.atom_data)]),
         )
 
@@ -91,8 +92,8 @@ class MESAModel:
         self,
         atom_data,
         truncate_to_shell_number=None,
-        Y=ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
-        Z=ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
+        helium_mass_frac_Y=ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
+        heavy_metal_mass_frac_Z=ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
         final_atomic_number=138,
     ):
         """
@@ -101,8 +102,8 @@ class MESAModel:
         Args:
             atom_data (AtomData): AtomData object containing atomic data.
             truncate_to_shell_number (int, optional): Number of shells to truncate the model to. Defaults to None.
-            Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
-            Z (float, optional): Heavy metal mass fraction. Defaults to 0.01337.
+            helium_mass_frac_Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
+            heavy_metal_mass_frac_Z (float, optional): Heavy metal mass fraction. Defaults to 0.01337.
 
         Returns:
             StellarModel: StellarModel object representing the MESA model.
@@ -111,10 +112,13 @@ class MESAModel:
             self.truncate_model(truncate_to_shell_number)
         mesa_geometry = self.to_geometry()
         logging.info(
-            f"Creating uniform composition profile from MESA model with helium and metal mass fractions Y = {Y} and Z = {Z}."
+            f"Creating uniform composition profile from MESA model with helium and metal mass fractions Y = {helium_mass_frac_Y} and Z = {heavy_metal_mass_frac_Z}."
         )
         mesa_composition = self.to_uniform_composition_from_solar(
-            atom_data, Y, Z, final_atomic_number=final_atomic_number
+            atom_data,
+            helium_mass_frac_Y,
+            heavy_metal_mass_frac_Z,
+            final_atomic_number=final_atomic_number,
         )
         temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
 
