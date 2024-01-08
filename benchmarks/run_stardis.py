@@ -62,7 +62,7 @@ class BenchmarkStardis:
             )
         )
 
-        stellar_plasma = create_stellar_plasma(stellar_model, adata)
+        stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
         stellar_radiation_field = RadiationField(
             tracing_nus, blackbody_flux_at_nu, stellar_model
