@@ -155,7 +155,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         atomic_data,
         ion_number_density,
         t_electrons,
-        g,
         ionization_data,
         partition_function,
     ):
@@ -163,6 +162,8 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         # get f_lu : loggf -> use g = 2j+1
         # emission_correction = (1-e^(-h*nu / kT))
         # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
+
+        ###TODO: handle other broadening parameters
 
         points = len(t_electrons)
 
@@ -298,10 +299,10 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         atomic_data,
         ion_number_density,
         t_electrons,
-        g,
         ionization_data,
         partition_function,
     ):
+        ###TODO: handle other broadening parameters
         points = len(t_electrons)
 
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
@@ -348,8 +349,6 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
             exponent_by_point * linelist_with_densities[np.arange(points)]
         ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
 
-        linelist["gf"] = 10**linelist.log_gf
-
         line_nus = (linelist.wavelength.values * u.AA).to(
             u.Hz, equivalencies=u.spectral()
         )
@@ -369,7 +368,7 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
             (
                 ALPHA_COEFFICIENT
                 * prefactor
-                * linelist.gf.values
+                * 10**linelist.log_gf.values
                 * emission_correction.T
             ).T
         )
