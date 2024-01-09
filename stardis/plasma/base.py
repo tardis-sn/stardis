@@ -157,8 +157,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         t_electrons,
         g,
         ionization_data,
+        partition_function,
     ):
-        # solve n_lower : n * g_i / g_0 * e ^ (-E_i/kT)
+        # solve n_lower : n_i = N * g_i / U * e ^ (-E_i/kT)
         # get f_lu : loggf -> use g = 2j+1
         # emission_correction = (1-e^(-h*nu / kT))
         # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
@@ -202,9 +203,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        # grab densities for n_lower - need to use linelist as the index
+        # grab densities for n_lower - need to use linelist as the index and normalize by dviding by the partition function
         linelist_with_densities = linelist.merge(
-            ion_number_density,
+            ion_number_density / partition_function,
             how="left",
             on=["atomic_number", "ion_number"],
         )
@@ -214,7 +215,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
                 exponent_by_point * linelist_with_densities[np.arange(points)]
             ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
             * linelist_with_densities.g_lo.values
-            / linelist_with_densities.g_0.values
         )
 
         linelist["f_lu"] = (
@@ -306,6 +306,7 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         t_electrons,
         g,
         ionization_data,
+        partition_function,
     ):
         points = len(t_electrons)
 
@@ -350,17 +351,14 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         )
 
         linelist_with_densities = linelist.merge(
-            ion_number_density,
+            ion_number_density / partition_function,
             how="left",
             on=["atomic_number", "ion_number"],
         )
 
         prefactor = (
-            (
-                exponent_by_point * linelist_with_densities[np.arange(points)]
-            ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
-            / linelist_with_densities.g_0.values
-        )
+            exponent_by_point * linelist_with_densities[np.arange(points)]
+        ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
 
         linelist["gf"] = 10**linelist.log_gf
 
