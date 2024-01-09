@@ -166,8 +166,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         points = len(t_electrons)
 
-        # Need degeneracy of ground state of the ion to calculate n_lower
-        # So set up the initial dataframe with all of the necessary information, and then merge it with the matching g_0
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
             [
                 "atomic_number",
@@ -182,11 +180,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
                 "stark",
                 "waals",
             ]
-        ].merge(
-            g.loc[:, :, 0].rename("g_0"),
-            how="left",
-            on=["atomic_number", "ion_number"],
-        )
+        ]
 
         # Truncate to final atomic number
         linelist = linelist[
@@ -203,7 +197,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        # grab densities for n_lower - need to use linelist as the index and normalize by dviding by the partition function
+        # grab densities for n_lower - need to use linelist as the index and normalize by dividing by the partition function
         linelist_with_densities = linelist.merge(
             ion_number_density / partition_function,
             how="left",
@@ -310,8 +304,6 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
     ):
         points = len(t_electrons)
 
-        # Need degeneracy of ground state of the ion
-        # So set up the initial dataframe with all of the necessary information, and then merge it with the matching g_0
         linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
             [
                 "atomic_number",
@@ -323,11 +315,7 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
                 "stark",
                 "waals",
             ]
-        ].merge(
-            g.loc[:, :, 0].rename("g_0"),
-            how="left",
-            on=["atomic_number", "ion_number"],
-        )
+        ]
 
         # Truncate to final atomic number
         linelist = linelist[
