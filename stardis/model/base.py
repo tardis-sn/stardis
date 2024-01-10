@@ -22,3 +22,7 @@ class StellarModel:
         self.temperatures = temperatures
         self.geometry = geometry
         self.composition = composition
+
+    @property
+    def no_of_depth_points(self):
+        return self.temperatures.shape[0]
