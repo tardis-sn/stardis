@@ -386,8 +386,7 @@ def calc_alpha_line_at_nu(
     quadratic_stark = "quadratic_stark" in broadening_methods
     van_der_waals = "van_der_waals" in broadening_methods
     radiation = "radiation" in broadening_methods
-
-    use_vald = line_opacity_config.use_vald_linelist
+    use_vald = line_opacity_config.vald_linelist.use_linelist
     if use_vald:
         lines = stellar_plasma.lines_from_linelist
     else:
