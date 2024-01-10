@@ -57,11 +57,10 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     """
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
-    temperatures = stellar_model.temperatures.value
-    alpha_file = np.zeros((len(temperatures), len(tracing_lambdas)))
+    alpha_file = np.zeros((stellar_model.no_of_depth_points, len(tracing_lambdas)))
 
     for spec, fpath in species.items():
-        sigmas = sigma_file(tracing_lambdas, temperatures, fpath)
+        sigmas = sigma_file(tracing_lambdas, stellar_model.temperatures.value, fpath)
 
         number_density, atomic_number, ion_number = get_number_density(
             stellar_plasma, spec
@@ -98,7 +97,6 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
         opacity at each depth point for each frequency in tracing_nus.
     """
 
-    temperatures = stellar_model.temperatures.value
     nu_H = const.c.cgs * const.Ryd.cgs
     upper_bound = 2.3e15 * u.Hz
     tracing_nus[tracing_nus > upper_bound] = 0
@@ -109,9 +107,9 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     nu8 = relative_nus**8
 
     # This seems super hacky. We initialize arrays in many places using the shape of temperatures or geometry. Revisit later to standardize.
-    coefficient4 = np.zeros(len(temperatures))
-    coefficient6 = np.zeros(len(temperatures))
-    coefficient8 = np.zeros(len(temperatures))
+    coefficient4 = np.zeros(stellar_model.no_of_depth_points)
+    coefficient6 = np.zeros(stellar_model.no_of_depth_points)
+    coefficient8 = np.zeros(stellar_model.no_of_depth_points)
 
     if "H" in species:
         density = np.array(stellar_plasma.ion_number_density.loc[1, 0])
@@ -168,16 +166,12 @@ def calc_alpha_electron(
 
     if disable_electron_scattering:
         return 0
-    geometry = (
-        stellar_model.geometry.r
-    )  # Eventually change when considering other coordinate systems than radial1d.
-
     alpha_electron_by_depth_point = (
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
     )
 
-    alpha_electron = np.zeros([len(geometry), len(tracing_nus)])
-    for j in range(len(geometry)):
+    alpha_electron = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
+    for j in range(stellar_model.no_of_depth_points):
         alpha_electron[j] = alpha_electron_by_depth_point[j]
 
     return alpha_electron
