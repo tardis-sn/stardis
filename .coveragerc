@@ -1,0 +1,18 @@
+# .coveragerc to control coverage.py
+
+[report]
+
+
+omit =
+    *__init__*
+    *_astropy_init*
+    *version*
+    *tests*
+    *conftest*
+    *setup_package*
+
+   
+ignore_errors = True
+
+[html]
+directory = coverage_html_report
