@@ -15,6 +15,7 @@ from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
 from stardis.io.model.marcs import read_marcs_model
 from stardis.io.model.mesa import read_mesa_model
+from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 
 BASE_DIR = Path(__file__).parent
@@ -90,11 +91,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     )
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
-
-    if True:  ###TODO change to checking source function from config
-        from stardis.radiation_field.source_functions.blackbody import (
-            blackbody_flux_at_nu,
-        )
 
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
