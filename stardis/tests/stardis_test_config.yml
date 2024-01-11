@@ -2,11 +2,11 @@ stardis_config_version: 1.0
 atom_data: kurucz_cd23_chianti_H_He.h5
 model:
     type: marcs
-    fname: ../docs/quickstart/sun.mod
+    fname: docs/quickstart/sun.mod
     final_atomic_number: 5
 opacity:
     file:
-        Hminus_bf: ../docs/quickstart/h_minus_cross_section_wbr.dat
+        Hminus_bf: docs/quickstart/h_minus_cross_section_wbr.dat
     bf:
         H_I: {}
     ff:
