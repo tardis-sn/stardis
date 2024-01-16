@@ -57,11 +57,10 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     """
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
-    temperatures = stellar_model.temperatures.value
-    alpha_file = np.zeros((len(temperatures), len(tracing_lambdas)))
+    alpha_file = np.zeros((stellar_model.no_of_depth_points, len(tracing_lambdas)))
 
     for spec, fpath in species.items():
-        sigmas = sigma_file(tracing_lambdas, temperatures, fpath)
+        sigmas = sigma_file(tracing_lambdas, stellar_model.temperatures.value, fpath)
 
         number_density, atomic_number, ion_number = get_number_density(
             stellar_plasma, spec
@@ -98,7 +97,6 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
         opacity at each depth point for each frequency in tracing_nus.
     """
 
-    temperatures = stellar_model.temperatures.value
     nu_H = const.c.cgs * const.Ryd.cgs
     upper_bound = 2.3e15 * u.Hz
     tracing_nus[tracing_nus > upper_bound] = 0
@@ -109,9 +107,9 @@ def calc_alpha_rayleigh(stellar_plasma, stellar_model, tracing_nus, species):
     nu8 = relative_nus**8
 
     # This seems super hacky. We initialize arrays in many places using the shape of temperatures or geometry. Revisit later to standardize.
-    coefficient4 = np.zeros(len(temperatures))
-    coefficient6 = np.zeros(len(temperatures))
-    coefficient8 = np.zeros(len(temperatures))
+    coefficient4 = np.zeros(stellar_model.no_of_depth_points)
+    coefficient6 = np.zeros(stellar_model.no_of_depth_points)
+    coefficient8 = np.zeros(stellar_model.no_of_depth_points)
 
     if "H" in species:
         density = np.array(stellar_plasma.ion_number_density.loc[1, 0])
@@ -168,16 +166,12 @@ def calc_alpha_electron(
 
     if disable_electron_scattering:
         return 0
-    geometry = (
-        stellar_model.geometry.r
-    )  # Eventually change when considering other coordinate systems than radial1d.
-
     alpha_electron_by_depth_point = (
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
     )
 
-    alpha_electron = np.zeros([len(geometry), len(tracing_nus)])
-    for j in range(len(geometry)):
+    alpha_electron = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
+    for j in range(stellar_model.no_of_depth_points):
         alpha_electron[j] = alpha_electron_by_depth_point[j]
 
     return alpha_electron
@@ -206,12 +200,9 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
         each depth_point for each frequency in tracing_nus.
     """
     # This implementation will only work with 1D.
-    geometry = (
-        stellar_model.geometry.r
-    )  # This is just used to initialize the opacitiy array. There might be a better place to grab the shape from?
 
     inv_nu3 = tracing_nus.value ** (-3)
-    alpha_bf = np.zeros((len(geometry), len(tracing_nus)))
+    alpha_bf = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
     for spec, dct in species.items():
         # just for reading atomic number and ion number
@@ -223,7 +214,7 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
             (atomic_number, ion_number + 1)
         ]
 
-        alpha_spec = np.zeros((len(geometry), len(tracing_nus)))
+        alpha_spec = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
         levels = [
             (i, j, k)
@@ -231,7 +222,7 @@ def calc_alpha_bf(stellar_plasma, stellar_model, tracing_nus, species):
             if (i == atomic_number and j == ion_number)
         ]
         for level in levels:
-            alpha_level = np.zeros((len(geometry), len(tracing_nus)))
+            alpha_level = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
             cutoff_frequency = (
                 ionization_energy - stellar_plasma.excitation_energy.loc[level]
             ) / const.h.cgs.value
@@ -306,20 +297,18 @@ def calc_alpha_ff(stellar_plasma, stellar_model, tracing_nus, species):
     """
 
     temperatures = stellar_model.temperatures.value
-    geometry = (
-        stellar_model.geometry.r
-    )  # Will need to change when considering anything other than radial1d.
 
     inv_nu3 = tracing_nus.value ** (-3)
-    alpha_ff = np.zeros([len(geometry), len(tracing_nus)])
+    alpha_ff = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
     for spec, dct in species.items():
-        alpha_spec = np.zeros([len(geometry), len(tracing_nus)])
+        alpha_spec = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
         number_density, atomic_number, ion_number = get_number_density(
             stellar_plasma, spec + "_ff"
         )
 
+        ###TODO: optimize this loop
         for j in range(len(number_density)):
             alpha_spec[j] = number_density[j] / np.sqrt(temperatures[j])
 
@@ -373,8 +362,6 @@ def calc_alpha_line_at_nu(
     if line_opacity_config.disable:
         return 0, 0, 0
 
-    no_of_depth_points = len(stellar_model.geometry.r)
-
     broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
     _nu_max = line_opacity_config.max.to(u.Hz, u.spectral())
@@ -403,7 +390,6 @@ def calc_alpha_line_at_nu(
 
         # add level energy (lower and upper) to lines
         levels_energy = stellar_plasma.atomic_data.levels.energy
-        levels_g = stellar_plasma.atomic_data.levels.g  ###TODO: remove in cleanup pr
         lines = pd.merge(
             lines,
             levels_energy,
@@ -452,7 +438,7 @@ def calc_alpha_line_at_nu(
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
         line_cols,
-        no_of_depth_points,
+        stellar_model.no_of_depth_points,
         atomic_masses,
         electron_densities,
         temperatures,
@@ -463,13 +449,13 @@ def calc_alpha_line_at_nu(
         radiation=radiation,
     )
 
-    alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus)))
+    alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
     for i in range(len(tracing_nus)):
         nu = tracing_nus[i].value
         delta_nus = nu - line_nus
 
-        for j in range(no_of_depth_points):
+        for j in range(stellar_model.no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
             doppler_widths_at_depth_point = doppler_widths[:, j]
             alphas_at_depth_point = alphas_array[:, j]
