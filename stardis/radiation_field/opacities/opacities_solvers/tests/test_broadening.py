@@ -253,13 +253,13 @@ def test_calc_n_effective_cuda_wrapped_sample_cuda_values(
         (
             1,
             0,
-            (0.51 * 0.642) ** (-3 / 2),
+            (0.60 * 0.642) ** (-3 / 2),
             1.0,
         ),
         (
             np.array(2 * [1]),
             np.array(2 * [0]),
-            np.array(2 * [(0.51 * 0.642) ** (-3 / 2)]),
+            np.array(2 * [(0.60 * 0.642) ** (-3 / 2)]),
             np.array(2 * [1.0]),
         ),
     ],
@@ -289,7 +289,7 @@ def test_calc_gamma_linear_stark_sample_values(
         (
             np.array(2 * [1]),
             np.array(2 * [0]),
-            np.array(2 * [(0.51 * 0.642) ** (-3 / 2)]),
+            np.array(2 * [(0.60 * 0.642) ** (-3 / 2)]),
             np.array(2 * [1.0]),
         ),
     ],
@@ -330,7 +330,7 @@ def test_calc_gamma_linear_stark_cuda_unwrapped_sample_values(
         (
             np.array(2 * [1]),
             np.array(2 * [0]),
-            np.array(2 * [(0.51 * 0.642) ** (-3 / 2)]),
+            np.array(2 * [(0.60 * 0.642) ** (-3 / 2)]),
             np.array(2 * [1.0]),
         ),
     ],
