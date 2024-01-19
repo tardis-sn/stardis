@@ -451,9 +451,19 @@ def calc_alpha_line_at_nu(
 
     alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
-    for i in range(len(tracing_nus)):
-        nu = tracing_nus[i].value
-        delta_nus = nu - line_nus
+    if line_range is not None:
+        if line_range.unit.physical_type == "length":
+            lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
+            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
+            nus_plus_broadening_range = lambdas_plus_broadening_range.to(
+                u.Hz, equivalencies=u.spectral()
+            )
+            line_range_value = (nus_plus_broadening_range - tracing_nus).value
+        elif line_range.unit.physical_type == "frequency":
+            line_range_value = line_range.to(u.Hz).value
+
+    for i, nu in enumerate(tracing_nus):
+        delta_nus = nu.value - line_nus
 
         for j in range(stellar_model.no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
@@ -469,9 +479,10 @@ def calc_alpha_line_at_nu(
                 )
 
             else:
-                line_range_value = line_range.to(u.Hz).value
-                line_start = line_nus.searchsorted(nu - line_range_value) + 1
-                line_end = line_nus.searchsorted(nu + line_range_value) + 1
+                # line_range_value = line_range.to(u.Hz, equivalencies=u.spectral()).value
+                line_start = line_nus.searchsorted(nu - line_range_value[i]) + 1
+                line_end = line_nus.searchsorted(nu + line_range_value[i]) + 1
+                print(line_start, line_end)
                 delta_nus_considered = delta_nus[line_start:line_end]
                 gammas_considered = gammas_at_depth_point[line_start:line_end]
                 doppler_widths_considered = doppler_widths_at_depth_point[
