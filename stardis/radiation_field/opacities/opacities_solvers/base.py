@@ -415,10 +415,6 @@ def calc_alpha_line_at_nu(
     ]
     lines_array = lines_sorted_in_range.to_numpy()
 
-    atomic_masses = stellar_plasma.atomic_mass.values
-    temperatures = stellar_model.temperatures.value
-    electron_densities = stellar_plasma.electron_densities.values
-
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
     if use_vald:
@@ -439,9 +435,9 @@ def calc_alpha_line_at_nu(
         lines_array,
         line_cols,
         stellar_model.no_of_depth_points,
-        atomic_masses,
-        electron_densities,
-        temperatures,
+        stellar_plasma.atomic_mass.values,
+        stellar_plasma.electron_densities.values,
+        stellar_model.temperatures.value,
         h_densities,
         linear_stark=linear_stark,
         quadratic_stark=quadratic_stark,
@@ -458,7 +454,7 @@ def calc_alpha_line_at_nu(
             nus_plus_broadening_range = lambdas_plus_broadening_range.to(
                 u.Hz, equivalencies=u.spectral()
             )
-            line_range_value = (nus_plus_broadening_range - tracing_nus).value
+            line_range_value = (tracing_nus - nus_plus_broadening_range).value
         elif line_range.unit.physical_type == "frequency":
             line_range_value = line_range.to(u.Hz).value
 
@@ -478,11 +474,10 @@ def calc_alpha_line_at_nu(
                     alphas_at_depth_point,
                 )
 
-            else:
+            else:  # Probably this else should actually just check if delta_nus is less than line_range_value.
                 # line_range_value = line_range.to(u.Hz, equivalencies=u.spectral()).value
-                line_start = line_nus.searchsorted(nu - line_range_value[i]) + 1
-                line_end = line_nus.searchsorted(nu + line_range_value[i]) + 1
-                print(line_start, line_end)
+                line_start = line_nus.searchsorted(nu.value - line_range_value[i]) + 1
+                line_end = line_nus.searchsorted(nu.value + line_range_value[i]) + 1
                 delta_nus_considered = delta_nus[line_start:line_end]
                 gammas_considered = gammas_at_depth_point[line_start:line_end]
                 doppler_widths_considered = doppler_widths_at_depth_point[
