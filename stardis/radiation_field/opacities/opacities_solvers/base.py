@@ -460,6 +460,7 @@ def calc_alpha_line_at_nu(
 
     for i, nu in enumerate(tracing_nus):
         delta_nus = nu.value - line_nus
+        broadening_mask = np.abs(delta_nus) < line_range_value[i]
 
         for j in range(stellar_model.no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
@@ -474,16 +475,13 @@ def calc_alpha_line_at_nu(
                     alphas_at_depth_point,
                 )
 
-            else:  # Probably this else should actually just check if delta_nus is less than line_range_value.
-                # line_range_value = line_range.to(u.Hz, equivalencies=u.spectral()).value
-                line_start = line_nus.searchsorted(nu.value - line_range_value[i]) + 1
-                line_end = line_nus.searchsorted(nu.value + line_range_value[i]) + 1
-                delta_nus_considered = delta_nus[line_start:line_end]
-                gammas_considered = gammas_at_depth_point[line_start:line_end]
+            else:
+                delta_nus_considered = delta_nus[broadening_mask]
+                gammas_considered = gammas_at_depth_point[broadening_mask]
                 doppler_widths_considered = doppler_widths_at_depth_point[
-                    line_start:line_end
+                    broadening_mask
                 ]
-                alphas_considered = alphas_at_depth_point[line_start:line_end]
+                alphas_considered = alphas_at_depth_point[broadening_mask]
                 alpha_line_at_nu[j, i] = calc_alan_entries(
                     delta_nus_considered,
                     doppler_widths_considered,
