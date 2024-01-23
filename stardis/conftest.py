@@ -15,6 +15,11 @@ from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 from stardis import SCHEMA_PATH, STARDISOutput
 
+EXAMPLE_CONF_PATH = Path(__file__).parent / "tests" / "stardis_test_config.yml"
+EXAMPLE_CONF_PATH_BROADENING = (
+    Path(__file__).parent / "tests" / "stardis_test_config_broadening.yml"
+)
+
 
 @pytest.fixture(scope="session")
 def example_tracing_nus():
@@ -30,13 +35,14 @@ def example_kurucz_atomic_data():
 
 
 @pytest.fixture(scope="session")
-def example_conf_path():
-    return Path(__file__).parent / "tests" / "stardis_test_config.yml"
+def example_config():
+    config_dict = validate_yaml(EXAMPLE_CONF_PATH, schemapath=SCHEMA_PATH)
+    return Configuration(config_dict)
 
 
 @pytest.fixture(scope="session")
-def example_config(example_conf_path):
-    config_dict = validate_yaml(example_conf_path, schemapath=SCHEMA_PATH)
+def example_config_broadening():
+    config_dict = validate_yaml(EXAMPLE_CONF_PATH_BROADENING, schemapath=SCHEMA_PATH)
     return Configuration(config_dict)
 
 
