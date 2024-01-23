@@ -407,27 +407,23 @@ def calc_alpha_line_at_nu(
         lines.columns.to_list()
     )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
 
-    lines_sorted = lines.sort_values("nu").reset_index(drop=True)
-    lines_sorted_in_range = lines_sorted[
+    lines_sorted = lines.sort_values("nu")
+    lines_array = lines_sorted[
         lines_sorted.nu.between(line_nu_min, line_nu_max)
-    ]
-    lines_array = lines_sorted_in_range.to_numpy()
+    ].to_numpy()
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
     if use_vald:
-        alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values(
-            "nu"
-        ).reset_index(drop=True)
+        alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values("nu")
     else:
-        alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(
-            drop=True
-        )
-    alphas_and_nu_in_range = alphas_and_nu[
-        alphas_and_nu.nu.between(line_nu_min, line_nu_max)
-    ]
-    alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
-    alphas_array = alphas.to_numpy()
+        alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu")
+
+    alphas_array = (
+        alphas_and_nu[alphas_and_nu.nu.between(line_nu_min, line_nu_max)]
+        .drop(labels="nu", axis=1)
+        .to_numpy()
+    )
 
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
