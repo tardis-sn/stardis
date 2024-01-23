@@ -4,8 +4,6 @@ import numpy as np
 
 # from astropy import units as u
 
-from importlib_resources import files
-
 from pathlib import Path
 
 from stardis.io.model.marcs import read_marcs_model
