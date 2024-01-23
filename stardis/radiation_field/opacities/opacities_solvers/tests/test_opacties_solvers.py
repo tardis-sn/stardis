@@ -1,7 +1,7 @@
 from stardis.radiation_field.opacities.opacities_solvers import calc_alpha_line_at_nu
 
 
-def test_calc_alpha_line_at_nu(
+def test_calc_alpha_line_at_nu_with_broadening(
     example_stellar_plasma,
     example_stellar_model,
     example_tracing_nus,
