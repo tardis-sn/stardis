@@ -8,3 +8,8 @@ coverage:
         target: auto
         threshold: 0.5%
     #patch: off
+
+ignore:
+  - "**/coverage"
+  - "**/tests*"
+  - "**/conftest.py"

@@ -14,6 +14,7 @@ properties:
             type:
                 enum:
                 - marcs
+                - mesa
             fname:
                 type: string
             gzipped:
@@ -23,6 +24,10 @@ properties:
                 type: number
                 multipleOf: 1
                 default: 30
+            truncate_to_shell:
+                type: number
+                multipleOf: 1
+                default: -99
 
         required:
         - type
@@ -102,6 +107,17 @@ properties:
                     broadening_range:
                         type: [quantity, "null"]
                         default: null
+                    vald_linelist:
+                        type: object
+                        default: {}
+                        properties:
+                            use_linelist:
+                                type: boolean
+                                default: false
+                            type: boolean
+                            shortlist:
+                                type: boolean
+                                default: false
         #required:
         #- line
     no_of_thetas:

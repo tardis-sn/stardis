@@ -6,8 +6,9 @@ from numba import cuda
 
 GPUs_available = cuda.is_available()
 
-if GPUs_available:
-    import cupy as cp
+# Commenting out until cupy is hooked up
+# if GPUs_available:
+#     import cupy as cp
 
 PI = float(np.pi)
 SPEED_OF_LIGHT = float(const.c.cgs.value)
@@ -205,7 +206,7 @@ def _calc_gamma_linear_stark(n_eff_upper, n_eff_lower, electron_density):
     a1 = 0.642 if (n_eff_upper - n_eff_lower < 1.5) else 1.0
 
     gamma_linear_stark = (
-        0.51
+        0.60
         * a1
         * (n_eff_upper**2 - n_eff_lower**2)
         * (electron_density ** (2.0 / 3.0))

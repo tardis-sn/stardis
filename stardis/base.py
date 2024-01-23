@@ -3,21 +3,26 @@ import os
 import numpy as np
 
 from tardis.io.atom_data import AtomData
-from tardis.io.config_validator import validate_yaml, validate_dict
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_yaml
+from tardis.io.configuration.config_reader import Configuration
 
 from astropy import units as u
+from pathlib import Path
 
 from stardis.plasma import create_stellar_plasma
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
+from stardis.io.model.marcs import read_marcs_model
+from stardis.io.model.mesa import read_mesa_model
+from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
-schema = os.path.join(base_dir, "config_schema.yml")
+BASE_DIR = Path(__file__).parent
+SCHEMA_PATH = BASE_DIR / "config_schema.yml"
 
 
+###TODO: Make a function that parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python
 def run_stardis(config_fname, tracing_lambdas_or_nus):
     """
     Runs a STARDIS simulation.
@@ -39,21 +44,35 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
-    config_dict = validate_yaml(config_fname, schemapath=schema)
+    config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
     config = Configuration(config_dict)
 
     adata = AtomData.from_hdf(config.atom_data)
 
     # model
     if config.model.type == "marcs":
-        from stardis.io.model.marcs import read_marcs_model
-
         raw_marcs_model = read_marcs_model(
-            config.model.fname, gzipped=config.model.gzipped
+            Path(config.model.fname), gzipped=config.model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
         )
+
+    elif config.model.type == "mesa":
+        raw_mesa_model = read_mesa_model(Path(config.model.fname))
+        if config.model.truncate_to_shell != -99:
+            raw_mesa_model.truncate_model(config.model.truncate_to_shell)
+        elif config.model.truncate_to_shell < 0:
+            raise ValueError(
+                f"{config.model.truncate_to_shell} shells were requested for mesa model truncation. -99 is default for no truncation."
+            )
+
+        stellar_model = raw_mesa_model.to_stellar_model(
+            adata, final_atomic_number=config.model.final_atomic_number
+        )
+
+    else:
+        raise ValueError("Model type not recognized. Must be either 'marcs' or 'mesa'")
 
     # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
     adata.prepare_atom_data(
@@ -71,12 +90,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
     )
     # plasma
-    stellar_plasma = create_stellar_plasma(stellar_model, adata)
-
-    if True:  ###TODO change to checking source function from config
-        from stardis.radiation_field.source_functions.blackbody import (
-            blackbody_flux_at_nu,
-        )
+    stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model

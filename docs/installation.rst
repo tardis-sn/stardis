@@ -25,7 +25,7 @@ the following in the terminal (replacing ``{platform}`` with
    $ cd <path-to-stardis-directory>
    $ conda create --name stardis --file conda-{platform}.lock
    $ conda activate stardis
-   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+   $ pip install git+https://github.com/tardis-sn/tardis.git
 
 The third command (``conda activate stardis``) activates the
 environment, which is necessary to correctly install STARDIS using the directions below.
@@ -37,7 +37,7 @@ If you are using Mamba, the steps are similar:
    $ cd <path-to-stardis-directory>
    $ mamba create --name stardis --file conda-{platform}.lock
    $ mamba activate stardis
-   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.04.16
+   $ pip install git+https://github.com/tardis-sn/tardis.git
    
 Downloading and Installing STARDIS
 ----------------------------------

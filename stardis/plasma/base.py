@@ -129,6 +129,283 @@ class AlphaLine(ProcessingPlasmaProperty):
         return df
 
 
+class AlphaLineVald(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    alpha_line_from_linelist : DataFrame
+            A pandas DataFrame with dtype float. This represents the alpha calculation
+            for each line from Vald at each depth point. Refer to Rybicki and Lightman
+            equation 1.80. Voigt profiles are calculated later, and B_12 is substituted
+            appropriately out for f_lu. This assumes LTE for lower level population.
+    lines_from_linelist: DataFrame
+            A pandas dataframe containing the lines and information about the lines in
+            the same form and shape as alpha_line_from_linelist.
+    """
+
+    outputs = ("alpha_line_from_linelist", "lines_from_linelist")
+    latex_name = (r"\alpha_{\textrm{line, vald}}",)
+    latex_formula = (
+        r"\dfrac{\pi e^{2} n_{lower} f_{lu}}{m_{e} c}\
+        \Big(1-exp(-h \nu / k T) \phi(\nu)\Big)",
+    )
+
+    def calculate(
+        self,
+        atomic_data,
+        ion_number_density,
+        t_electrons,
+        ionization_data,
+        partition_function,
+    ):
+        # solve n_lower : n_i = N * g_i / U * e ^ (-E_i/kT)
+        # get f_lu : loggf -> use g = 2j+1
+        # emission_correction = (1-e^(-h*nu / kT))
+        # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
+
+        ###TODO: handle other broadening parameters
+
+        points = len(t_electrons)
+
+        linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
+            [
+                "atomic_number",
+                "ion_number",
+                "wavelength",
+                "log_gf",
+                "e_low",
+                "e_up",
+                "j_lo",
+                "j_up",
+                "rad",
+                "stark",
+                "waals",
+            ]
+        ]
+
+        # Truncate to final atomic number
+        linelist = linelist[
+            linelist.atomic_number <= (atomic_data.selected_atomic_numbers.max())
+        ]
+
+        # Calculate degeneracies
+        linelist["g_lo"] = linelist.j_lo * 2 + 1
+        linelist["g_up"] = linelist.j_up * 2 + 1
+
+        exponent_by_point = np.exp(
+            np.outer(
+                -linelist.e_low.values * u.eV, 1 / (t_electrons * u.K * const.k_B)
+            ).to(1)
+        )
+
+        # grab densities for n_lower - need to use linelist as the index and normalize by dividing by the partition function
+        linelist_with_densities = linelist.merge(
+            ion_number_density / partition_function,
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        n_lower = (
+            (
+                exponent_by_point * linelist_with_densities[np.arange(points)]
+            ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
+            * linelist_with_densities.g_lo.values
+        )
+
+        linelist["f_lu"] = (
+            10**linelist.log_gf / linelist.g_lo
+        )  # vald log gf is "oscillator strength f times the statistical weight g of the parent level"  see 1995A&AS..112..525P, section 2. Structure of VALD
+
+        line_nus = (linelist.wavelength.values * u.AA).to(
+            u.Hz, equivalencies=u.spectral()
+        )
+
+        emission_correction = 1 - np.exp(
+            (
+                -const.h
+                / const.k_B
+                * np.outer(
+                    line_nus,
+                    1 / (t_electrons * u.K),
+                )
+            ).to(1)
+        )
+
+        alphas = pd.DataFrame(
+            (
+                ALPHA_COEFFICIENT
+                * n_lower
+                * linelist.f_lu.values
+                * emission_correction.T
+            ).T
+        )
+
+        if np.any(np.isnan(alphas)) or np.any(np.isinf(np.abs(alphas))):
+            raise ValueError(
+                "Some alpha_line from vald are nan, inf, -inf " " Something went wrong!"
+            )
+
+        alphas["nu"] = line_nus.value
+        linelist["nu"] = line_nus.value
+
+        # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
+        # Necessary for correct handling of ion numbers using charge instead of astronomy convention (i.e., 0 is neutral, 1 is singly ionized, etc.)
+        ionization_energies = ionization_data.reset_index()
+        ionization_energies["ion_number"] -= 1
+        linelist = pd.merge(
+            linelist,
+            ionization_energies,
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        linelist["level_energy_lower"] = ((linelist["e_low"].values * u.eV).cgs).value
+        linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
+
+        # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
+        linelist["A_ul"] = 10 ** (
+            linelist["rad"]
+        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
+
+        # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
+        valid_indices = linelist.level_energy_upper < linelist.ionization_energy
+
+        return alphas[valid_indices], linelist[valid_indices]
+
+
+class AlphaLineShortlistVald(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    alpha_line_from_linelist : DataFrame
+            A pandas DataFrame with dtype float. This represents the alpha calculation
+            for each line from Vald at each depth point. This is adapted from the AlphaLineVald calculation
+            because shortlists do not contain js or an upper energy level. This works because the degeneracies
+            cancel between the n_lower recalculation and in calculating f_lu from g*f given by the linelist.
+    lines_from_linelist: DataFrame
+            A pandas dataframe containing the lines and information about the lines in
+            the same form and shape as alpha_line_from_linelist.
+    """
+
+    outputs = ("alpha_line_from_linelist", "lines_from_linelist")
+    latex_name = (r"\alpha_{\textrm{line, vald}}",)
+    latex_formula = (
+        r"\dfrac{\pi e^{2} n_{lower} f_{lu}}{m_{e} c}\
+        \Big(1-exp(-h \nu / k T) \phi(\nu)\Big)",
+    )
+
+    def calculate(
+        self,
+        atomic_data,
+        ion_number_density,
+        t_electrons,
+        ionization_data,
+        partition_function,
+    ):
+        ###TODO: handle other broadening parameters
+        points = len(t_electrons)
+
+        linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
+            [
+                "atomic_number",
+                "ion_number",
+                "wavelength",
+                "log_gf",
+                "e_low",
+                "rad",
+                "stark",
+                "waals",
+            ]
+        ]
+
+        # Truncate to final atomic number
+        linelist = linelist[
+            linelist.atomic_number <= (atomic_data.selected_atomic_numbers.max())
+        ]
+
+        # Calculate energy of upper level
+        linelist["e_up"] = (
+            (
+                linelist.e_low.values * u.eV
+                + (const.h * const.c / (linelist.wavelength.values * u.AA))
+            )
+            .to(u.eV)
+            .value
+        )
+
+        exponent_by_point = np.exp(
+            np.outer(
+                -linelist.e_low.values * u.eV, 1 / (t_electrons * u.K * const.k_B)
+            ).to(1)
+        )
+
+        linelist_with_densities = linelist.merge(
+            ion_number_density / partition_function,
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        prefactor = (
+            exponent_by_point * linelist_with_densities[np.arange(points)]
+        ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
+
+        line_nus = (linelist.wavelength.values * u.AA).to(
+            u.Hz, equivalencies=u.spectral()
+        )
+
+        emission_correction = 1 - np.exp(
+            (
+                -const.h
+                / const.k_B
+                * np.outer(
+                    line_nus,
+                    1 / (t_electrons * u.K),
+                )
+            ).to(1)
+        )
+
+        alphas = pd.DataFrame(
+            (
+                ALPHA_COEFFICIENT
+                * prefactor
+                * 10**linelist.log_gf.values
+                * emission_correction.T
+            ).T
+        )
+
+        if np.any(np.isnan(alphas)) or np.any(np.isinf(np.abs(alphas))):
+            raise ValueError(
+                "Some alpha_line from vald are nan, inf, -inf " " Something went wrong!"
+            )
+
+        alphas["nu"] = line_nus.value
+        linelist["nu"] = line_nus.value
+
+        # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
+        # Necessary for correct handling of ion numbers using charge instead of astronomy convention (i.e., 0 is neutral, 1 is singly ionized, etc.)
+        ionization_energies = ionization_data.reset_index()
+        ionization_energies["ion_number"] -= 1
+        linelist = pd.merge(
+            linelist,
+            ionization_energies,
+            how="left",
+            on=["atomic_number", "ion_number"],
+        )
+
+        linelist["level_energy_lower"] = ((linelist["e_low"].values * u.eV).cgs).value
+        linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
+
+        # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
+        linelist["A_ul"] = 10 ** (linelist["rad"]) / (
+            4 * np.pi
+        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
+
+        # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
+        valid_indices = linelist.level_energy_upper < linelist.ionization_energy
+
+        return alphas[valid_indices], linelist[valid_indices]
+
+
 # Properties that haven't been used in creating stellar plasma yet,
 # might be useful in future ----------------------------------------------------
 
@@ -162,7 +439,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 # Creating stellar plasma ------------------------------------------------------
 
 
-def create_stellar_plasma(stellar_model, atom_data):
+def create_stellar_plasma(stellar_model, atom_data, config):
     """
     Creates stellar plasma.
 
@@ -170,6 +447,7 @@ def create_stellar_plasma(stellar_model, atom_data):
     ----------
     stellar_model : stardis.model.base.StellarModel
     atom_data : tardis.io.atom_data.base.AtomData
+    config : stardis.config_reader.Configuration
 
     Returns
     -------
@@ -196,10 +474,16 @@ def create_stellar_plasma(stellar_model, atom_data):
     )
     plasma_modules += helium_lte_properties
 
-    plasma_modules.append(AlphaLine)
-
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
+
+    if config.opacity.line.vald_linelist.use_linelist:
+        if config.opacity.line.vald_linelist.shortlist:
+            plasma_modules.append(AlphaLineShortlistVald)
+        else:
+            plasma_modules.append(AlphaLineVald)
+    else:
+        plasma_modules.append(AlphaLine)
 
     # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)

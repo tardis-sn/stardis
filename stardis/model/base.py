@@ -16,9 +16,15 @@ class StellarModel:
         Geometry of the model.
     composition : stardis.model.composition.base.Composition
         Composition of the model. Includes density and atomic mass fractions.
+    no_of_depth_points : int
+        Class attribute to be easily accessible for initializing arrays that need to match the shape of the model.
     """
 
     def __init__(self, temperatures, geometry, composition):
         self.temperatures = temperatures
         self.geometry = geometry
         self.composition = composition
+
+    @property
+    def no_of_depth_points(self):
+        return self.temperatures.shape[0]

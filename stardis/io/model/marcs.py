@@ -68,26 +68,18 @@ class MARCSModel(object):
 
         num_of_chemicals_in_model = len(marcs_chemical_mass_fractions.columns)
 
-        if atom_data.atom_data.index.max() < final_atomic_number:
-            if (
-                len(marcs_chemical_mass_fractions.columns)
-                > atom_data.atom_data.index.max()
-            ):
-                logging.warning(
-                    f"Final model chemical number is {num_of_chemicals_in_model} while final atom data chemical number is {atom_data.atom_data.index.max()} and final atomic number requested is {final_atomic_number}."
-                )
+        if atom_data.atom_data.index.max() < final_atomic_number and (
+            len(marcs_chemical_mass_fractions.columns) > atom_data.atom_data.index.max()
+        ):
+            logging.warning(
+                f"Final model chemical number is {num_of_chemicals_in_model} while final atom data chemical number is {atom_data.atom_data.index.max()} and final atomic number requested is {final_atomic_number}."
+            )
 
         for atom_num, col in enumerate(marcs_chemical_mass_fractions.columns):
             if atom_num < len(atom_data.atom_data):
                 marcs_chemical_mass_fractions[atom_num + 1] = (
                     10 ** marcs_chemical_mass_fractions[col]
                 ) * atom_data.atom_data.mass.iloc[atom_num]
-            else:
-                for atoms_not_in_atom_data in range(
-                    atom_num, marcs_chemical_mass_fractions.shape[1]
-                ):
-                    marcs_chemical_mass_fractions[atoms_not_in_atom_data + 1] = np.nan
-                break
 
         # Remove scaled log number columns - leaves only masses
         dropped_cols = [
@@ -225,7 +217,7 @@ def read_marcs_metadata(fpath, gzipped=True):
         with open(fpath, "rt") as file:
             contents = file.readlines(BYTES_THROUGH_METADATA)
 
-    lines = [line for line in contents]
+    lines = list(contents)
 
     for i, line in enumerate(lines):
         metadata_re_match = metadata_re[i].match(line)
@@ -235,14 +227,12 @@ def read_marcs_metadata(fpath, gzipped=True):
 
     # clean up metadata dictionary by changing strings of numbers to floats and attaching parsed units where appropriate
     keys_to_remove = []
-    for i, key in enumerate(metadata.keys()):
+    for key in metadata:
         if "_units" in key:
             quantity_to_add_unit = key.split("_units")[0]
             metadata[quantity_to_add_unit] *= u.Unit(metadata[key])
             keys_to_remove.append(key)
-        elif key == "fname":
-            pass
-        else:
+        elif key != "fname":
             metadata[key] = float(metadata[key])
     metadata = {key: metadata[key] for key in metadata if key not in keys_to_remove}
 
@@ -312,7 +302,8 @@ def read_marcs_data(fpath, gzipped=True):
     for i, abundance in enumerate(marcs_abundance_scale_str.split()):
         marcs_model_data[f"scaled_log_number_fraction_{i+1}"] = float(abundance)
 
-    marcs_model_data.replace({-99.00: np.nan}, inplace=True)
+    # NOTE: Replace empty values with 0.0 to avoid issues with tardis plasma.
+    marcs_model_data.replace({-99.00: 0.0}, inplace=True)
 
     return marcs_model_data
 
