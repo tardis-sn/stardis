@@ -377,9 +377,7 @@ def calc_alpha_line_at_nu(
     if use_vald:
         lines = stellar_plasma.lines_from_linelist
     else:
-        lines = (
-            stellar_plasma.lines.reset_index()
-        )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
+        lines = stellar_plasma.lines.reset_index()
 
         # add ionization energy to lines
         ionization_data = stellar_plasma.ionization_data.reset_index()
@@ -409,39 +407,31 @@ def calc_alpha_line_at_nu(
         lines.columns.to_list()
     )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
 
-    lines_sorted = lines.sort_values("nu").reset_index(drop=True)
-    lines_sorted_in_range = lines_sorted[
+    lines_sorted = lines.sort_values("nu")
+    lines_array = lines_sorted[
         lines_sorted.nu.between(line_nu_min, line_nu_max)
-    ]
-    lines_array = lines_sorted_in_range.to_numpy()
-
-    atomic_masses = stellar_plasma.atomic_mass.values
-    temperatures = stellar_model.temperatures.value
-    electron_densities = stellar_plasma.electron_densities.values
+    ].to_numpy()
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
     if use_vald:
-        alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values(
-            "nu"
-        ).reset_index(drop=True)
+        alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values("nu")
     else:
-        alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu").reset_index(
-            drop=True
-        )
-    alphas_and_nu_in_range = alphas_and_nu[
-        alphas_and_nu.nu.between(line_nu_min, line_nu_max)
-    ]
-    alphas = alphas_and_nu_in_range.drop(labels="nu", axis=1)
-    alphas_array = alphas.to_numpy()
+        alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu")
+
+    alphas_array = (
+        alphas_and_nu[alphas_and_nu.nu.between(line_nu_min, line_nu_max)]
+        .drop(labels="nu", axis=1)
+        .to_numpy()
+    )
 
     line_nus, gammas, doppler_widths = calculate_broadening(
         lines_array,
         line_cols,
         stellar_model.no_of_depth_points,
-        atomic_masses,
-        electron_densities,
-        temperatures,
+        stellar_plasma.atomic_mass.values,
+        stellar_plasma.electron_densities.values,
+        stellar_model.temperatures.value,
         h_densities,
         linear_stark=linear_stark,
         quadratic_stark=quadratic_stark,
@@ -451,9 +441,28 @@ def calc_alpha_line_at_nu(
 
     alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
-    for i in range(len(tracing_nus)):
-        nu = tracing_nus[i].value
-        delta_nus = nu - line_nus
+    if (
+        line_range is not None
+    ):  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
+        if line_range.unit.physical_type == "length":
+            lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
+            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
+            nus_plus_broadening_range = lambdas_plus_broadening_range.to(
+                u.Hz, equivalencies=u.spectral()
+            )
+            line_range_value = (tracing_nus - nus_plus_broadening_range).value
+        elif line_range.unit.physical_type == "frequency":
+            line_range_value = line_range.to(u.Hz).value
+        else:
+            raise ValueError(
+                "Broadening range must be in units of length or frequency."
+            )
+
+    for i, nu in enumerate(tracing_nus):
+        delta_nus = nu.value - line_nus
+
+        if line_range is not None:
+            broadening_mask = np.abs(delta_nus) < line_range_value[i]
 
         for j in range(stellar_model.no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
@@ -469,15 +478,12 @@ def calc_alpha_line_at_nu(
                 )
 
             else:
-                line_range_value = line_range.to(u.Hz).value
-                line_start = line_nus.searchsorted(nu - line_range_value) + 1
-                line_end = line_nus.searchsorted(nu + line_range_value) + 1
-                delta_nus_considered = delta_nus[line_start:line_end]
-                gammas_considered = gammas_at_depth_point[line_start:line_end]
+                delta_nus_considered = delta_nus[broadening_mask]
+                gammas_considered = gammas_at_depth_point[broadening_mask]
                 doppler_widths_considered = doppler_widths_at_depth_point[
-                    line_start:line_end
+                    broadening_mask
                 ]
-                alphas_considered = alphas_at_depth_point[line_start:line_end]
+                alphas_considered = alphas_at_depth_point[broadening_mask]
                 alpha_line_at_nu[j, i] = calc_alan_entries(
                     delta_nus_considered,
                     doppler_widths_considered,

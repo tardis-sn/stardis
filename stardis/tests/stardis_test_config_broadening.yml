@@ -1,0 +1,22 @@
+stardis_config_version: 1.0
+atom_data: kurucz_cd23_chianti_H_He.h5
+model:
+    type: marcs
+    fname: docs/quickstart/sun.mod
+    final_atomic_number: 5
+opacity:
+    bf:
+        H_I: {}
+    ff:
+        H_I: {}
+    disable_electron_scattering: False
+    line:
+        disable: False
+        broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
+        min: 6560 AA
+        max: 6570 AA
+        vald_linelist: 
+            use_linelist: False
+            shortlist: False
+        broadening_range: 1 AA         
+no_of_thetas: 1
