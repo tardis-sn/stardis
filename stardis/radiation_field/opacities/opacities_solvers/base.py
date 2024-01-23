@@ -377,7 +377,7 @@ def calc_alpha_line_at_nu(
     if use_vald:
         lines = stellar_plasma.lines_from_linelist
     else:
-        lines = stellar_plasma.lines.reset_index(drop=True)
+        lines = stellar_plasma.lines.reset_index()
 
         # add ionization energy to lines
         ionization_data = stellar_plasma.ionization_data.reset_index()
