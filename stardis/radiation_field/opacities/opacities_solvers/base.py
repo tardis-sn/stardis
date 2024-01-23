@@ -377,10 +377,10 @@ def calc_alpha_line_at_nu(
     if use_vald:
         lines = stellar_plasma.lines_from_linelist
     else:
-        lines = stellar_plasma.lines.reset_index()
+        lines = stellar_plasma.lines
 
         # add ionization energy to lines
-        ionization_data = stellar_plasma.ionization_data.reset_index()
+        ionization_data = stellar_plasma.ionization_data
         ionization_data["ion_number"] -= 1
         lines = pd.merge(
             lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
