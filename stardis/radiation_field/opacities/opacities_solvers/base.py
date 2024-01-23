@@ -377,9 +377,7 @@ def calc_alpha_line_at_nu(
     if use_vald:
         lines = stellar_plasma.lines_from_linelist
     else:
-        lines = (
-            stellar_plasma.lines.reset_index()
-        )  # bring lines in ascending order of nu TODO: this doesn't actually do this - they are ascending wavelengths not frequencies - cleanup in future
+        lines = stellar_plasma.lines
 
         # add ionization energy to lines
         ionization_data = stellar_plasma.ionization_data.reset_index()
@@ -459,10 +457,16 @@ def calc_alpha_line_at_nu(
             line_range_value = (tracing_nus - nus_plus_broadening_range).value
         elif line_range.unit.physical_type == "frequency":
             line_range_value = line_range.to(u.Hz).value
+        else:
+            raise ValueError(
+                "Broadening range must be in units of length or frequency."
+            )
 
     for i, nu in enumerate(tracing_nus):
         delta_nus = nu.value - line_nus
-        broadening_mask = np.abs(delta_nus) < line_range_value[i]
+
+        if line_range is not None:
+            broadening_mask = np.abs(delta_nus) < line_range_value[i]
 
         for j in range(stellar_model.no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
