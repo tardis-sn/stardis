@@ -6,7 +6,6 @@ class RadiationField:
     """
     Class containing information about the radiation field.
     ###TODO Radiation field temperature should be a separate attribute, for the case of differing gas and radiation.
-    ###TODO Implement a source function class. Doesn't need to be done until we have another source function than just blackbody.
 
     Parameters
     ----------
@@ -30,5 +29,5 @@ class RadiationField:
     def __init__(self, frequencies, source_function, stellar_model):
         self.frequencies = frequencies
         self.source_function = source_function
-        self.opacities = Opacities()
-        self.F_nu = np.zeros((len(stellar_model.geometry.r), len(frequencies)))
+        self.opacities = Opacities(frequencies, stellar_model)
+        self.F_nu = np.zeros((stellar_model.no_of_depth_points, len(frequencies)))
