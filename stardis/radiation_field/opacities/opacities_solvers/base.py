@@ -170,9 +170,9 @@ def calc_alpha_electron(
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
     )
 
-    alpha_electron = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
-    for j in range(stellar_model.no_of_depth_points):
-        alpha_electron[j] = alpha_electron_by_depth_point[j]
+    alpha_electron = np.repeat(
+        alpha_electron_by_depth_point[:, np.newaxis], len(tracing_nus), axis=1
+    )
 
     return alpha_electron
 
