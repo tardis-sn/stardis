@@ -444,6 +444,7 @@ def calc_alpha_line_at_nu(
     if (
         line_range is not None
     ):  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
+        h_lines_indicies = (lines.atomic_number == 1).to_numpy()
         if line_range.unit.physical_type == "length":
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
             lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
@@ -463,6 +464,7 @@ def calc_alpha_line_at_nu(
 
         if line_range is not None:
             broadening_mask = np.abs(delta_nus) < line_range_value[i]
+            broadening_mask = np.logical_or(broadening_mask, h_lines_indicies)
 
         for j in range(stellar_model.no_of_depth_points):
             gammas_at_depth_point = gammas[:, j]
