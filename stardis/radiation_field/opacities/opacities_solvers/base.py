@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from tqdm.notebook import tqdm
 
 import numba
 
@@ -464,32 +465,24 @@ def calc_alpha_line_at_nu(
         if line_range is not None:
             broadening_mask = np.abs(delta_nus) < line_range_value[i]
 
-        for j in range(stellar_model.no_of_depth_points):
-            gammas_at_depth_point = gammas[:, j]
-            doppler_widths_at_depth_point = doppler_widths[:, j]
-            alphas_at_depth_point = alphas_array[:, j]
-
-            if line_range is None:
-                alpha_line_at_nu[j, i] = calc_alan_entries(
-                    delta_nus,
-                    doppler_widths_at_depth_point,
-                    gammas_at_depth_point,
-                    alphas_at_depth_point,
-                )
-
-            else:
-                delta_nus_considered = delta_nus[broadening_mask]
-                gammas_considered = gammas_at_depth_point[broadening_mask]
-                doppler_widths_considered = doppler_widths_at_depth_point[
-                    broadening_mask
-                ]
-                alphas_considered = alphas_at_depth_point[broadening_mask]
-                alpha_line_at_nu[j, i] = calc_alan_entries(
-                    delta_nus_considered,
-                    doppler_widths_considered,
-                    gammas_considered,
-                    alphas_considered,
-                )
+        if line_range is None:
+            alpha_line_at_nu[:, i] = calc_alan_entries(
+                delta_nus[:, np.newaxis],
+                doppler_widths,
+                gammas,
+                alphas_array,
+            )
+        else:
+            delta_nus_considered = delta_nus[broadening_mask]
+            gammas_considered = gammas[broadening_mask, :]
+            doppler_widths_considered = doppler_widths[broadening_mask, :]
+            alphas_considered = alphas_array[broadening_mask, :]
+            alpha_line_at_nu[:, i] = calc_alan_entries(
+                delta_nus_considered[:, np.newaxis],
+                doppler_widths_considered,
+                gammas_considered,
+                alphas_considered,
+            )
 
     return alpha_line_at_nu, gammas, doppler_widths
 
@@ -523,14 +516,9 @@ def calc_alan_entries(
         Line opacity.
     """
 
-    phis = np.zeros(len(delta_nus))
-
-    for k in range(len(delta_nus)):
-        delta_nu = np.abs(delta_nus[k])
-        doppler_width = doppler_widths_at_depth_point[k]
-        gamma = gammas_at_depth_point[k]
-
-        phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
+    phis = voigt_profile(
+        np.abs(delta_nus), doppler_widths_at_depth_point, gammas_at_depth_point
+    )
 
     return np.sum(phis * alphas_at_depth_point)
 
@@ -606,9 +594,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
