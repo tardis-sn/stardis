@@ -519,7 +519,7 @@ def calc_alan_entries(
         np.abs(delta_nus), doppler_widths_at_depth_point, gammas_at_depth_point
     )
 
-    return np.sum(phis * alphas_at_depth_point)
+    return np.sum(phis * alphas_at_depth_point, axis=0)
 
 
 def calc_alphas(
@@ -593,9 +593,7 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = alpha_line_at_nu
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
