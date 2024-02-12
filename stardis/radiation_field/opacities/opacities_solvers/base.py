@@ -455,7 +455,6 @@ def calc_alpha_line_at_nu(
                 )        
                 
     #If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range. 
-    
     else: # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
         h_lines_indicies = (lines_sorted.atomic_number == 1).to_numpy() #Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
         if line_range.unit.physical_type == "length":
@@ -471,7 +470,8 @@ def calc_alpha_line_at_nu(
             raise ValueError(
                 "Broadening range must be in units of length or frequency."
             )
-
+            
+        #Iterate through each frequency to calculate the contribution of each line within the broadening range.
         for i, nu in enumerate(tracing_nus):
             delta_nus = nu.value - line_nus
 
