@@ -1,5 +1,5 @@
 # Import necessary code
-
+import os
 from pathlib import Path
 import numpy as np
 from stardis.base import run_stardis
@@ -31,6 +31,7 @@ class BenchmarkStardis:
     def setup(self):
         
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
+        os.chdir(BASE_DIR)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
 
