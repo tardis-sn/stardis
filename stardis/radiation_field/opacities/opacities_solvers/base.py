@@ -441,7 +441,7 @@ def calc_alpha_line_at_nu(
 
     alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
-    #If no broadening range, compute the contribution of every line at every frequency.
+    # If no broadening range, compute the contribution of every line at every frequency.
     if line_range is None:
         for i, nu in enumerate(tracing_nus):
             delta_nus = nu.value - line_nus
@@ -451,11 +451,13 @@ def calc_alpha_line_at_nu(
                 doppler_widths,
                 gammas,
                 alphas_array,
-            )        
-                
-    #If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range. 
-    else: # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
-        h_lines_indicies = (lines_sorted_in_range.atomic_number == 1).to_numpy() #Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
+            )
+
+    # If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range.
+    else:  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
+        h_lines_indicies = (
+            lines_sorted_in_range.atomic_number == 1
+        ).to_numpy()  # Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
         if line_range.unit.physical_type == "length":
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
             lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
@@ -469,14 +471,14 @@ def calc_alpha_line_at_nu(
             raise ValueError(
                 "Broadening range must be in units of length or frequency."
             )
-            
-        #Iterate through each frequency to calculate the contribution of each line within the broadening range.
+
+        # Iterate through each frequency to calculate the contribution of each line within the broadening range.
         for i, nu in enumerate(tracing_nus):
             delta_nus = nu.value - line_nus
 
             broadening_mask = np.abs(delta_nus) < line_range_value[i]
             broadening_mask = np.logical_or(broadening_mask, h_lines_indicies)
-            
+
             delta_nus_considered = delta_nus[broadening_mask]
             gammas_considered = gammas[broadening_mask, :]
             doppler_widths_considered = doppler_widths[broadening_mask, :]
