@@ -87,7 +87,10 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
                 ]
             )
             + 1,
-        )
+        ),
+        line_interaction_type="macroatom",
+        nlte_species=[],
+        continuum_interaction_species=[],
     )
     # plasma
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
