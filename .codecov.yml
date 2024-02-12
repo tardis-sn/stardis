@@ -13,3 +13,4 @@ ignore:
   - "**/coverage"
   - "**/tests*"
   - "**/conftest.py"
+  - "**/benchmarks*"
