@@ -30,7 +30,6 @@ class BenchmarkStardis:
 
     def setup(self):
         
-        self.base_dir = Path(__file__).resolve().parent
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
@@ -42,7 +41,7 @@ class BenchmarkStardis:
 
         if config.model.type == "marcs":
             raw_marcs_model = read_marcs_model(
-                BENCHMARK_PATH / config.model.fname, gzipped=config.model.gzipped
+                Path(config.model.fname), gzipped=config.model.gzipped
             )
             stellar_model = raw_marcs_model.to_stellar_model(
                 adata, final_atomic_number=config.model.final_atomic_number
