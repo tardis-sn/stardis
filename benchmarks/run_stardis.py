@@ -62,9 +62,11 @@ class BenchmarkStardis:
                 + 1,
             )
         )
+        self.adata = adata
 
         stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
-
+        self.stellar_plasma = stellar_plasma
+        
         stellar_radiation_field = RadiationField(
             tracing_nus, blackbody_flux_at_nu, stellar_model
         )
@@ -82,7 +84,7 @@ class BenchmarkStardis:
         self.stellar_plasma = stellar_plasma
         self.stellar_radiation_field = stellar_radiation_field
         self.config = config
-        self.config_file = config_file
+        self.config_file = CONFIG_PATH
 
     def time_run_stardis(self):
         run_stardis(self.config_file, self.tracing_lambdas)
@@ -102,14 +104,6 @@ class BenchmarkStardis:
             self.config.opacity.line,
         )
         
-        
-    def time_ingest_marcs(self, adata, config):
-        raw_marcs_model = read_marcs_model(
-            self.base_dir / self.config.model.fname, gzipped=config.model.gzipped
-        )
-        raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
-        )
         
     def time_create_plasma(self):
         create_stellar_plasma(self.stellar_model, self.adata, self.config)
