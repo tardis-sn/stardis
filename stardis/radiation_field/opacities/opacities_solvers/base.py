@@ -446,13 +446,12 @@ def calc_alpha_line_at_nu(
         for i, nu in enumerate(tracing_nus):
             delta_nus = nu.value - line_nus
 
-            if line_range is None:
-                alpha_line_at_nu[:, i] = calc_alan_entries(
-                    delta_nus[:, np.newaxis],
-                    doppler_widths,
-                    gammas,
-                    alphas_array,
-                )        
+            alpha_line_at_nu[:, i] = calc_alan_entries(
+                delta_nus[:, np.newaxis],
+                doppler_widths,
+                gammas,
+                alphas_array,
+            )        
                 
     #If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range. 
     else: # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
