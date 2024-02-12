@@ -86,7 +86,7 @@ class BenchmarkStardis:
         self.config = config
 
     def time_run_stardis(self):
-        run_stardis(self.config_file, self.tracing_lambdas)
+        run_stardis(CONFIG_PATH, self.tracing_lambdas)
 
     def time_raytrace(self):
         raytrace(
