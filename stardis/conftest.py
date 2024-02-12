@@ -73,7 +73,10 @@ def example_stellar_plasma(
                 ]
             )
             + 1,
-        )
+        ),
+        line_interaction_type="macroatom",
+        nlte_species=[],
+        continuum_interaction_species=[],
     )
     return create_stellar_plasma(
         example_stellar_model, example_kurucz_atomic_data, example_config

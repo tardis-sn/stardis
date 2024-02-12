@@ -75,38 +75,42 @@ def single_theta_trace(
 
     ###TODO: Generalize this for source functions other than blackbody that may require args other than frequency and temperature
     source = source_function(tracing_nus, temps)
-    delta_source = source[1:] - source[:-1]
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
 
     for i in range(len(tracing_nus)):  # iterating over nus (columns)
         for j in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
-            curr_tau = taus[i, j]
 
-            w0, w1, w2 = calc_weights(curr_tau)
+            w0, w1, w2 = calc_weights(taus[i, j])
 
-            if curr_tau == 0:
-                second_term = 0
-            else:
-                second_term = w1 * delta_source[j, i] / curr_tau
             if j < no_of_depth_gaps - 1:
-                next_tau = taus[i, j + 1]
+                second_term = (
+                    w1
+                    * (
+                        (source[j + 1, i] - source[j + 2, i])
+                        * (taus[i, j] / taus[i, j + 1])
+                        - (source[j + 1, i] - source[j, i])
+                        * (taus[i, j + 1] / taus[i, j])
+                    )
+                    / (taus[i, j] + taus[i, j + 1])
+                )
                 third_term = w2 * (
                     (
-                        (delta_source[j + 1, i] / next_tau)
-                        + (-delta_source[j, i] / curr_tau)
+                        ((source[j + 2, i] - source[j + 1, i]) / taus[i, j + 1])
+                        + ((source[j, i] - source[j + 1, i]) / taus[i, j])
                     )
-                    / (curr_tau + next_tau)
+                    / (taus[i, j] + taus[i, j + 1])
                 )
+            if j == no_of_depth_gaps - 1:
+                second_term = 0
+                third_term = w2 * (source[j, i] - source[j + 1, i])
 
             else:
+                second_term = 0
                 third_term = 0
             I_nu_theta[j + 1, i] = (
                 (1 - w0) * I_nu_theta[j, i]
-                + w0
-                * source[
-                    j + 1, i
-                ]  # Changed to j + 1 b/c van Noort 2001 mentions using Source of future point to update, not current.
+                + w0 * source[j + 1, i]
                 + second_term
                 + third_term
             )

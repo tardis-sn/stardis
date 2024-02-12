@@ -112,7 +112,8 @@ jobs:
           destination-repository-name: "stardis-benchmarks"
           user.email: tardis.sn.bot@gmail.com
           target-branch: main
-
+          target-directory: .asv
+          
       - name: Compare HEAD with main if PR
         if: github.event_name == 'pull_request_target'
         continue-on-error: true # TODO: step failed sporadically while testing

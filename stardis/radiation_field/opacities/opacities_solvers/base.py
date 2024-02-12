@@ -170,9 +170,9 @@ def calc_alpha_electron(
         const.sigma_T.cgs.value * stellar_plasma.electron_densities.values
     )
 
-    alpha_electron = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
-    for j in range(stellar_model.no_of_depth_points):
-        alpha_electron[j] = alpha_electron_by_depth_point[j]
+    alpha_electron = np.repeat(
+        alpha_electron_by_depth_point[:, np.newaxis], len(tracing_nus), axis=1
+    )
 
     return alpha_electron
 
@@ -466,32 +466,24 @@ def calc_alpha_line_at_nu(
             broadening_mask = np.abs(delta_nus) < line_range_value[i]
             broadening_mask = np.logical_or(broadening_mask, h_lines_indicies)
 
-        for j in range(stellar_model.no_of_depth_points):
-            gammas_at_depth_point = gammas[:, j]
-            doppler_widths_at_depth_point = doppler_widths[:, j]
-            alphas_at_depth_point = alphas_array[:, j]
-
-            if line_range is None:
-                alpha_line_at_nu[j, i] = calc_alan_entries(
-                    delta_nus,
-                    doppler_widths_at_depth_point,
-                    gammas_at_depth_point,
-                    alphas_at_depth_point,
-                )
-
-            else:
-                delta_nus_considered = delta_nus[broadening_mask]
-                gammas_considered = gammas_at_depth_point[broadening_mask]
-                doppler_widths_considered = doppler_widths_at_depth_point[
-                    broadening_mask
-                ]
-                alphas_considered = alphas_at_depth_point[broadening_mask]
-                alpha_line_at_nu[j, i] = calc_alan_entries(
-                    delta_nus_considered,
-                    doppler_widths_considered,
-                    gammas_considered,
-                    alphas_considered,
-                )
+        if line_range is None:
+            alpha_line_at_nu[:, i] = calc_alan_entries(
+                delta_nus[:, np.newaxis],
+                doppler_widths,
+                gammas,
+                alphas_array,
+            )
+        else:
+            delta_nus_considered = delta_nus[broadening_mask]
+            gammas_considered = gammas[broadening_mask, :]
+            doppler_widths_considered = doppler_widths[broadening_mask, :]
+            alphas_considered = alphas_array[broadening_mask, :]
+            alpha_line_at_nu[:, i] = calc_alan_entries(
+                delta_nus_considered[:, np.newaxis],
+                doppler_widths_considered,
+                gammas_considered,
+                alphas_considered,
+            )
 
     return alpha_line_at_nu, gammas, doppler_widths
 
@@ -525,16 +517,11 @@ def calc_alan_entries(
         Line opacity.
     """
 
-    phis = np.zeros(len(delta_nus))
+    phis = voigt_profile(
+        np.abs(delta_nus), doppler_widths_at_depth_point, gammas_at_depth_point
+    )
 
-    for k in range(len(delta_nus)):
-        delta_nu = np.abs(delta_nus[k])
-        doppler_width = doppler_widths_at_depth_point[k]
-        gamma = gammas_at_depth_point[k]
-
-        phis[k] = voigt_profile(delta_nu, doppler_width, gamma)
-
-    return np.sum(phis * alphas_at_depth_point)
+    return np.sum(phis * alphas_at_depth_point, axis=0)
 
 
 def calc_alphas(
