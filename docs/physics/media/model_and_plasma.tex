@@ -1,14 +1,14 @@
-\documentclass[convert,tikz]{standalone}
+\documentclass[convert,margin=5mm,tikz]{standalone}
 \usepackage{tikz-feynman}
 \usepackage{tikz}
 \begin{document}
 \begin{tikzpicture}
-  \draw[ultra thick] (0,0) circle (200px);
-  \draw[ultra thick] (0,0) circle (175px);
-  \draw[ultra thick] (0,0) circle (150px);
-  \draw[ultra thick] (0,0) circle (125px);
-  \filldraw[fill=orange!50!white, draw=orange, ultra thick] (0,0) circle (100px);
+  \draw[] (0,0) circle (115px);
+  \draw[] (0,0) circle (105px);
+  \draw[] (0,0) circle (95px);
+  \draw[] (0,0) circle (85px);
+  \filldraw[fill=orange!50!white, draw=orange, ultra thick] (0,0) circle (75px);
   \node[] (inner) {Inner boundary of atmosphere} (0, 0);
-  \node[] at (8, -5) (outer) {Outer boundary of atmosphere};
+  \node[] at (5.5, -3) (outer) {Outer boundary of atmosphere};
 \end{tikzpicture}
 \end{document}
