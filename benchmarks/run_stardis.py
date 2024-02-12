@@ -11,7 +11,7 @@ from tardis.io.configuration.config_reader import Configuration
 
 from stardis.io.model.marcs import read_marcs_model
 from stardis.plasma import create_stellar_plasma
-from stardis.radiation_field.opacities.opacities_solvers import calc_alphas, calc_alpha_line_at_nu
+from stardis.radiation_field.opacities.opacities_solvers import calc_alphas, calc_alpha_line_at_nu, calc_alpha_file, calc_alpha_rayleigh, calc_alpha_electron
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
@@ -29,22 +29,21 @@ class BenchmarkStardis:
 
     def setup(self):
         
-        tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
+        tracing_lambdas = np.arange(6550, 6600, 0.01) * u.Angstrom
         os.chdir(BASE_DIR)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
         config_dict = validate_yaml(CONFIG_PATH, schemapath=SCHEMA_PATH)
         config = Configuration(config_dict)
-
+        
         adata = AtomData.from_hdf(config.atom_data)
 
-        if config.model.type == "marcs":
-            raw_marcs_model = read_marcs_model(
-                Path(config.model.fname), gzipped=config.model.gzipped
-            )
-            stellar_model = raw_marcs_model.to_stellar_model(
-                adata, final_atomic_number=config.model.final_atomic_number
-            )
+        raw_marcs_model = read_marcs_model(
+            Path(config.model.fname), gzipped=config.model.gzipped
+        )
+        stellar_model = raw_marcs_model.to_stellar_model(
+            adata, final_atomic_number=config.model.final_atomic_number
+        )
 
         adata.prepare_atom_data(
             np.arange(
@@ -64,9 +63,8 @@ class BenchmarkStardis:
             continuum_interaction_species=[],
         )
         self.adata = adata
-
+        
         stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
-        self.stellar_plasma = stellar_plasma
         
         stellar_radiation_field = RadiationField(
             tracing_nus, blackbody_flux_at_nu, stellar_model
@@ -96,7 +94,7 @@ class BenchmarkStardis:
             no_of_thetas=self.config.no_of_thetas,
         )
 
-    def time_calc_alpha(self):
+    def time_calc_alpha_line_at_nu(self):
         calc_alpha_line_at_nu(
             self.stellar_plasma,
             self.stellar_model,
@@ -104,6 +102,29 @@ class BenchmarkStardis:
             self.config.opacity.line,
         )
         
+    def time_calc_alpha_file(self):
+        calc_alpha_file(
+            self.stellar_plasma,
+            self.stellar_model,
+            self.stellar_radiation_field.frequencies,
+            self.config.opacity.file,
+        )
+        
+    def calc_alpha_rayleigh(self):
+        calc_alpha_rayleigh(
+            self.stellar_plasma,
+            self.stellar_model,
+            self.stellar_radiation_field.frequencies,
+            self.config.opacity.rayleigh,
+        )
+        
+    def calc_alpha_electron(self):
+        calc_alpha_electron(
+            self.stellar_plasma,
+            self.stellar_model,
+            self.stellar_radiation_field.frequencies,
+            self.config.opacity.electron,
+        )   
         
     def time_create_plasma(self):
         create_stellar_plasma(self.stellar_model, self.adata, self.config)
