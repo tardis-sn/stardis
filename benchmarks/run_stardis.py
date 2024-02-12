@@ -1,5 +1,4 @@
 # Import necessary code
-import os
 from pathlib import Path
 import numpy as np
 from stardis.base import run_stardis
@@ -17,8 +16,7 @@ from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 BASE_DIR = Path(__file__).resolve().parent
-SCHEMA_PATH = BASE_DIR.parent / "config_schema.yml"
-
+SCHEMA_PATH = BASE_DIR.parent / "stardis" / "config_schema.yml"
 CONFIG_PATH = BASE_DIR / "benchmark_config.yml"
 
 class BenchmarkStardis:
@@ -31,7 +29,6 @@ class BenchmarkStardis:
     def setup(self):
         
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
-        os.chdir(BASE_DIR)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
 
@@ -60,7 +57,10 @@ class BenchmarkStardis:
                     ]
                 )
                 + 1,
-            )
+            ),
+            line_interaction_type="macroatom",
+            nlte_species=[],
+            continuum_interaction_species=[],
         )
         self.adata = adata
 
@@ -84,7 +84,6 @@ class BenchmarkStardis:
         self.stellar_plasma = stellar_plasma
         self.stellar_radiation_field = stellar_radiation_field
         self.config = config
-        self.config_file = CONFIG_PATH
 
     def time_run_stardis(self):
         run_stardis(self.config_file, self.tracing_lambdas)
