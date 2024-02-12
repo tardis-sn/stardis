@@ -17,8 +17,9 @@ from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 BASE_DIR = Path(__file__).parent
+SCHEMA_PATH = BASE_DIR / "config_schema.yml"
+
 BENCHMARK_PATH = BASE_DIR / "benchmarks"
-SCHEMA_PATH = BENCHMARK_PATH / "config_schema.yml"
 CONFIG_PATH = BENCHMARK_PATH / "benchmark_config.yml"
 
 class BenchmarkStardis:
