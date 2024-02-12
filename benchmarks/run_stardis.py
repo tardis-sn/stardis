@@ -16,7 +16,10 @@ from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
-
+BASE_DIR = Path(__file__).parent
+BENCHMARK_PATH = BASE_DIR / "benchmarks"
+SCHEMA_PATH = BENCHMARK_PATH / "config_schema.yml"
+CONFIG_PATH = BENCHMARK_PATH / "benchmark_config.yml"
 
 class BenchmarkStardis:
     """
@@ -27,21 +30,19 @@ class BenchmarkStardis:
 
     def setup(self):
         
-        base_dir = Path(__file__).resolve().parent
-        schema = base_dir / "config_schema.yml"
-        config_file = base_dir / "benchmark_config.yml"
+        self.base_dir = Path(__file__).resolve().parent
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
 
-        config_dict = validate_yaml(config_file, schemapath=schema)
+        config_dict = validate_yaml(CONFIG_PATH, schemapath=SCHEMA_PATH)
         config = Configuration(config_dict)
 
         adata = AtomData.from_hdf(config.atom_data)
 
         if config.model.type == "marcs":
             raw_marcs_model = read_marcs_model(
-                base_dir / config.model.fname, gzipped=config.model.gzipped
+                BENCHMARK_PATH / config.model.fname, gzipped=config.model.gzipped
             )
             stellar_model = raw_marcs_model.to_stellar_model(
                 adata, final_atomic_number=config.model.final_atomic_number
@@ -104,8 +105,11 @@ class BenchmarkStardis:
         
     def time_ingest_marcs(self, adata, config):
         raw_marcs_model = read_marcs_model(
-            config.model.fname, gzipped=config.model.gzipped
+            self.base_dir / self.config.model.fname, gzipped=config.model.gzipped
         )
         raw_marcs_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
         )
+        
+    def time_create_plasma(self):
+        create_stellar_plasma(self.stellar_model, self.adata, self.config)
