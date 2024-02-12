@@ -1,4 +1,5 @@
 # Import necessary code
+import os
 from pathlib import Path
 import numpy as np
 from stardis.base import run_stardis
@@ -29,6 +30,7 @@ class BenchmarkStardis:
     def setup(self):
         
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
+        os.chdir(BASE_DIR)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
         config_dict = validate_yaml(CONFIG_PATH, schemapath=SCHEMA_PATH)
@@ -106,3 +108,9 @@ class BenchmarkStardis:
     def time_create_plasma(self):
         create_stellar_plasma(self.stellar_model, self.adata, self.config)
         
+bench = BenchmarkStardis()
+bench.setup()
+bench.time_run_stardis()
+bench.time_calc_alpha()
+bench.time_raytrace()
+bench.time_create_plasma()
