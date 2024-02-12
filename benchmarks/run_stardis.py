@@ -31,7 +31,6 @@ class BenchmarkStardis:
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
-
         config_dict = validate_yaml(CONFIG_PATH, schemapath=SCHEMA_PATH)
         config = Configuration(config_dict)
 
@@ -106,3 +105,4 @@ class BenchmarkStardis:
         
     def time_create_plasma(self):
         create_stellar_plasma(self.stellar_model, self.adata, self.config)
+        
