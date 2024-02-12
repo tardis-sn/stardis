@@ -1,6 +1,6 @@
 # Import necessary code
 
-import os
+from pathlib import Path
 import numpy as np
 from stardis.base import run_stardis
 from astropy import units as u
@@ -11,11 +11,11 @@ from tardis.io.configuration.config_reader import Configuration
 
 from stardis.io.model.marcs import read_marcs_model
 from stardis.plasma import create_stellar_plasma
-from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
+from stardis.radiation_field.opacities.opacities_solvers import calc_alphas, calc_alpha_line_at_nu
 from stardis.radiation_field.radiation_field_solvers import raytrace
-from stardis.radiation_field.opacities.opacities_solvers import calc_alpha_line_at_nu
 from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
+
 
 
 class BenchmarkStardis:
@@ -26,11 +26,11 @@ class BenchmarkStardis:
     timeout = 1800  # Worst case timeout of 30 mins
 
     def setup(self):
-        base_dir = os.path.abspath(os.path.dirname(__file__))
-        schema = os.path.join(base_dir, "config_schema.yml")
-        config_file = os.path.join(base_dir, "benchmark_config.yml")
+        
+        base_dir = Path(__file__).resolve().parent
+        schema = base_dir / "config_schema.yml"
+        config_file = base_dir / "benchmark_config.yml"
         tracing_lambdas = np.arange(6550, 6575, 0.05) * u.Angstrom
-        os.chdir(base_dir)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
 
@@ -41,7 +41,7 @@ class BenchmarkStardis:
 
         if config.model.type == "marcs":
             raw_marcs_model = read_marcs_model(
-                config.model.fname, gzipped=config.model.gzipped
+                base_dir / config.model.fname, gzipped=config.model.gzipped
             )
             stellar_model = raw_marcs_model.to_stellar_model(
                 adata, final_atomic_number=config.model.final_atomic_number
@@ -99,4 +99,13 @@ class BenchmarkStardis:
             self.stellar_model,
             self.stellar_radiation_field.frequencies,
             self.config.opacity.line,
+        )
+        
+        
+    def time_ingest_marcs(self, adata, config):
+        raw_marcs_model = read_marcs_model(
+            config.model.fname, gzipped=config.model.gzipped
+        )
+        raw_marcs_model.to_stellar_model(
+            adata, final_atomic_number=config.model.final_atomic_number
         )
