@@ -16,11 +16,10 @@ from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
-BASE_DIR = Path(__file__).parent
-SCHEMA_PATH = BASE_DIR / "config_schema.yml"
+BASE_DIR = Path(__file__).resolve().parent
+SCHEMA_PATH = BASE_DIR.parent / "config_schema.yml"
 
-BENCHMARK_PATH = BASE_DIR / "benchmarks"
-CONFIG_PATH = BENCHMARK_PATH / "benchmark_config.yml"
+CONFIG_PATH = BASE_DIR / "benchmark_config.yml"
 
 class BenchmarkStardis:
     """
