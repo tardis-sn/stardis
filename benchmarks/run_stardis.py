@@ -108,9 +108,3 @@ class BenchmarkStardis:
     def time_create_plasma(self):
         create_stellar_plasma(self.stellar_model, self.adata, self.config)
         
-bench = BenchmarkStardis()
-bench.setup()
-bench.time_run_stardis()
-bench.time_calc_alpha()
-bench.time_raytrace()
-bench.time_create_plasma()
