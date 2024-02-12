@@ -408,9 +408,9 @@ def calc_alpha_line_at_nu(
     )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
 
     lines_sorted = lines.sort_values("nu")
-    lines_array = lines_sorted[
+    lines_sorted_in_range = lines_sorted[
         lines_sorted.nu.between(line_nu_min, line_nu_max)
-    ].to_numpy()
+    ]
 
     h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
 
@@ -426,7 +426,7 @@ def calc_alpha_line_at_nu(
     )
 
     line_nus, gammas, doppler_widths = calculate_broadening(
-        lines_array,
+        lines_sorted_in_range.to_numpy(),
         line_cols,
         stellar_model.no_of_depth_points,
         stellar_plasma.atomic_mass.values,
@@ -455,7 +455,7 @@ def calc_alpha_line_at_nu(
                 
     #If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range. 
     else: # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
-        h_lines_indicies = (lines_sorted.atomic_number == 1).to_numpy() #Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
+        h_lines_indicies = (lines_sorted_in_range.atomic_number == 1).to_numpy() #Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
         if line_range.unit.physical_type == "length":
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
             lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
