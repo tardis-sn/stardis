@@ -543,7 +543,7 @@ def calc_gamma_van_der_waals_cuda(
     return cp.asnumpy(res) if ret_np_ndarray else res
 
 
-# @numba.njit
+@numba.njit
 def calc_gamma(
     atomic_number,
     ion_number,
@@ -607,7 +607,9 @@ def calc_gamma(
     n_eff_upper = calc_n_effective(ion_number, ionization_energy, upper_level_energy)
     n_eff_lower = calc_n_effective(ion_number, ionization_energy, lower_level_energy)
 
-    gamma_linear_stark = np.zeros((len(atomic_number), len(electron_density)))
+    gamma_linear_stark = np.zeros(
+        (len(atomic_number), len(electron_density)), dtype=float
+    )
     h_indices = np.where(atomic_number == 1)[0]
     if linear_stark:  # only for hydrogen # why not all hydrogenic?
         gamma_linear_stark[h_indices, :] = calc_gamma_linear_stark(
@@ -625,7 +627,7 @@ def calc_gamma(
             temperature,
         )
     else:
-        gamma_quadratic_stark = 0
+        gamma_quadratic_stark = np.zeros_like(gamma_linear_stark)
 
     if van_der_waals:
         gamma_van_der_waals = calc_gamma_van_der_waals(
@@ -637,12 +639,12 @@ def calc_gamma(
             h_mass,
         )
     else:
-        gamma_van_der_waals = 0
+        gamma_van_der_waals = np.zeros_like(gamma_linear_stark)
 
     if radiation:
         gamma_radiation = A_ul
     else:
-        gamma_radiation = 0
+        gamma_radiation = np.zeros_like(gamma_linear_stark)
 
     gamma = (
         gamma_linear_stark
@@ -703,7 +705,6 @@ def calculate_broadening(
         Array of shape (no_of_lines, no_depth_points). Doppler width of each
         line at each depth point.
     """
-
     linear_stark = "linear_stark" in broadening_line_opacity_config
     quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
