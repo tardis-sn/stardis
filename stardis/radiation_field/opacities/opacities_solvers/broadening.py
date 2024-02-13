@@ -710,11 +710,6 @@ def calculate_broadening(
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
     radiation = "radiation" in broadening_line_opacity_config
 
-    h_mass = stellar_plasma.atomic_mass.loc[1]
-    temperatures = stellar_model.temperatures.value
-    h_densities = stellar_plasma.ion_number_density.loc[1, 0]
-    electron_densities = stellar_plasma.electron_densities
-
     gammas = calc_gamma(
         atomic_number=lines.atomic_number.values[:, np.newaxis],
         ion_number=lines.ion_number.values[:, np.newaxis] + 1,
@@ -722,10 +717,10 @@ def calculate_broadening(
         upper_level_energy=lines.level_energy_upper.values[:, np.newaxis],
         lower_level_energy=lines.level_energy_lower.values[:, np.newaxis],
         A_ul=lines.A_ul.values[:, np.newaxis],
-        electron_density=electron_densities.values,
-        temperature=temperatures,
-        h_density=h_densities.values,
-        h_mass=h_mass,
+        electron_density=stellar_plasma.electron_densities.values,
+        temperature=stellar_model.temperatures.value,
+        h_density=stellar_plasma.ion_number_density.loc[1, 0].values,
+        h_mass=stellar_plasma.atomic_mass.loc[1],
         linear_stark=linear_stark,
         quadratic_stark=quadratic_stark,
         van_der_waals=van_der_waals,
@@ -734,7 +729,7 @@ def calculate_broadening(
 
     doppler_widths = calc_doppler_width(
         lines.nu.values[:, np.newaxis],
-        temperatures,
+        stellar_model.temperatures.value,
         stellar_plasma.atomic_mass.values[
             lines.atomic_number.values - 1,
             np.newaxis,
