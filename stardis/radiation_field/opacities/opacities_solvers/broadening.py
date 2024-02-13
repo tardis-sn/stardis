@@ -651,8 +651,7 @@ def calc_gamma(
 
 
 def calculate_broadening(
-    lines_array,
-    line_cols,
+    lines,
     stellar_model,
     stellar_plasma,
     broadening_line_opacity_config,
@@ -701,45 +700,33 @@ def calculate_broadening(
         line at each depth point.
     """
 
-    line_nus = np.zeros(len(lines_array))
-    gammas = np.zeros((len(lines_array), stellar_model.no_of_depth_points))
-    doppler_widths = np.zeros((len(lines_array), stellar_model.no_of_depth_points))
+    gammas = np.zeros((len(lines), stellar_model.no_of_depth_points))
+    doppler_widths = np.zeros((len(lines), stellar_model.no_of_depth_points))
 
     linear_stark = "linear_stark" in broadening_line_opacity_config
     quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
     radiation = "radiation" in broadening_line_opacity_config
 
-    h_mass = stellar_plasma.atomic_mass.values[0]
+    h_mass = stellar_plasma.atomic_mass.loc[1]
+    temperatures = stellar_model.temperatures.value
+    h_densities = stellar_plasma.ion_number_density.loc[1, 0]
+    atomic_masses = stellar_plasma.atomic_mass
+    electron_densities = stellar_plasma.electron_densities
 
-    for i in range(len(lines_array)):
-        atomic_number = int(lines_array[i, line_cols["atomic_number"]])
-        atomic_mass = stellar_plasma.atomic_mass.values[atomic_number - 1]
-        ion_number = int(lines_array[i, line_cols["ion_number"]]) + 1
-        ionization_energy = lines_array[i, line_cols["ionization_energy"]]
-        upper_level_energy = lines_array[i, line_cols["level_energy_upper"]]
-        lower_level_energy = lines_array[i, line_cols["level_energy_lower"]]
-        A_ul = lines_array[i, line_cols["A_ul"]]
-        line_nu = lines_array[i, line_cols["nu"]]
-
-        line_nus[i] = line_nu
-
+    for i in range(len(lines)):
         for j in range(stellar_model.no_of_depth_points):
-            #these calls are slow. Clean it up
-            electron_density = stellar_plasma.electron_densities.values[j]
-            temperature = stellar_model.temperatures.value[j]
-            h_density = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()[j]
 
             gammas[i, j] = calc_gamma(
-                atomic_number=atomic_number,
-                ion_number=ion_number,
-                ionization_energy=ionization_energy,
-                upper_level_energy=upper_level_energy,
-                lower_level_energy=lower_level_energy,
-                A_ul=A_ul,
-                electron_density=electron_density,
-                temperature=temperature,
-                h_density=h_density,
+                atomic_number=lines.atomic_number.iloc[i],
+                ion_number=lines.ion_number.iloc[i] + 1,
+                ionization_energy=lines.ionization_energy.iloc[i],
+                upper_level_energy=lines.level_energy_upper.iloc[i],
+                lower_level_energy=lines.level_energy_lower.iloc[i],
+                A_ul=lines.A_ul.iloc[i],
+                electron_density=electron_densities.loc[j],
+                temperature=temperatures[j],
+                h_density=h_densities[j],
                 h_mass=h_mass,
                 linear_stark=linear_stark,
                 quadratic_stark=quadratic_stark,
@@ -747,6 +734,10 @@ def calculate_broadening(
                 radiation=radiation,
             )
 
-            doppler_widths[i, j] = calc_doppler_width(line_nu, temperature, atomic_mass)
+            doppler_widths[i, j] = calc_doppler_width(
+                lines.nu.iloc[i],
+                temperatures[j],
+                atomic_masses.iloc[lines.atomic_number.iloc[i] - 1],
+            )
 
-    return line_nus, gammas, doppler_widths
+    return lines.nu.values, gammas, doppler_widths

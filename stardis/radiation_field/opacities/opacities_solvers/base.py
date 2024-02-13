@@ -11,7 +11,6 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
 from stardis.radiation_field.opacities.opacities_solvers.voigt import voigt_profile
 from stardis.radiation_field.opacities.opacities_solvers.util import (
     sigma_file,
-    map_items_to_indices,
     get_number_density,
 )
 
@@ -398,10 +397,6 @@ def calc_alpha_line_at_nu(
             right_on=["atomic_number", "ion_number", "level_number"],
         ).rename(columns={"energy": "level_energy_upper"})
 
-    line_cols = map_items_to_indices(
-        lines.columns.to_list()
-    )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
-
     lines_sorted = lines.sort_values("nu")
     lines_sorted_in_range = lines_sorted[
         lines_sorted.nu.between(line_nu_min, line_nu_max)
@@ -419,8 +414,7 @@ def calc_alpha_line_at_nu(
     )
 
     line_nus, gammas, doppler_widths = calculate_broadening(
-        lines_sorted_in_range.to_numpy(),
-        line_cols,
+        lines_sorted_in_range,
         stellar_model,
         stellar_plasma,
         line_opacity_config.broadening,
