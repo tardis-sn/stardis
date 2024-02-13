@@ -653,15 +653,9 @@ def calc_gamma(
 def calculate_broadening(
     lines_array,
     line_cols,
-    no_depth_points,
-    atomic_masses,
-    electron_densities,
-    temperatures,
-    h_densities,
-    linear_stark=True,
-    quadratic_stark=True,
-    van_der_waals=True,
-    radiation=True,
+    stellar_model,
+    stellar_plasma,
+    broadening_line_opacity_config,
 ):
     """
     Calculates broadening information for each line at each depth point.
@@ -708,14 +702,19 @@ def calculate_broadening(
     """
 
     line_nus = np.zeros(len(lines_array))
-    gammas = np.zeros((len(lines_array), no_depth_points))
-    doppler_widths = np.zeros((len(lines_array), no_depth_points))
+    gammas = np.zeros((len(lines_array), stellar_model.no_of_depth_points))
+    doppler_widths = np.zeros((len(lines_array), stellar_model.no_of_depth_points))
 
-    h_mass = atomic_masses[0]
+    linear_stark = "linear_stark" in broadening_line_opacity_config
+    quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
+    van_der_waals = "van_der_waals" in broadening_line_opacity_config
+    radiation = "radiation" in broadening_line_opacity_config
+
+    h_mass = stellar_plasma.atomic_mass.values[0]
 
     for i in range(len(lines_array)):
         atomic_number = int(lines_array[i, line_cols["atomic_number"]])
-        atomic_mass = atomic_masses[atomic_number - 1]
+        atomic_mass = stellar_plasma.atomic_mass.values[atomic_number - 1]
         ion_number = int(lines_array[i, line_cols["ion_number"]]) + 1
         ionization_energy = lines_array[i, line_cols["ionization_energy"]]
         upper_level_energy = lines_array[i, line_cols["level_energy_upper"]]
@@ -725,10 +724,11 @@ def calculate_broadening(
 
         line_nus[i] = line_nu
 
-        for j in range(no_depth_points):
-            electron_density = electron_densities[j]
-            temperature = temperatures[j]
-            h_density = h_densities[j]
+        for j in range(stellar_model.no_of_depth_points):
+            #these calls are slow. Clean it up
+            electron_density = stellar_plasma.electron_densities.values[j]
+            temperature = stellar_model.temperatures.value[j]
+            h_density = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()[j]
 
             gammas[i, j] = calc_gamma(
                 atomic_number=atomic_number,
