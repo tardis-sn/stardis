@@ -543,7 +543,7 @@ def calc_gamma_van_der_waals_cuda(
     return cp.asnumpy(res) if ret_np_ndarray else res
 
 
-@numba.njit
+# @numba.njit
 def calc_gamma(
     atomic_number,
     ion_number,
@@ -607,18 +607,22 @@ def calc_gamma(
     n_eff_upper = calc_n_effective(ion_number, ionization_energy, upper_level_energy)
     n_eff_lower = calc_n_effective(ion_number, ionization_energy, lower_level_energy)
 
-    if (
-        atomic_number == 1
-    ) and linear_stark:  # only for hydrogen # why not all hydrogenic?
-        gamma_linear_stark = calc_gamma_linear_stark(
-            n_eff_upper, n_eff_lower, electron_density
+    gamma_linear_stark = np.zeros((len(atomic_number), len(electron_density)))
+    h_indices = np.where(atomic_number == 1)[0]
+    if linear_stark:  # only for hydrogen # why not all hydrogenic?
+        gamma_linear_stark[h_indices, :] = calc_gamma_linear_stark(
+            n_eff_upper[h_indices],
+            n_eff_lower[h_indices],
+            electron_density,
         )
-    else:
-        gamma_linear_stark = 0
 
     if quadratic_stark:
         gamma_quadratic_stark = calc_gamma_quadratic_stark(
-            ion_number, n_eff_upper, n_eff_lower, electron_density, temperature
+            ion_number,
+            n_eff_upper,
+            n_eff_lower,
+            electron_density,
+            temperature,
         )
     else:
         gamma_quadratic_stark = 0
@@ -700,9 +704,6 @@ def calculate_broadening(
         line at each depth point.
     """
 
-    gammas = np.zeros((len(lines), stellar_model.no_of_depth_points))
-    doppler_widths = np.zeros((len(lines), stellar_model.no_of_depth_points))
-
     linear_stark = "linear_stark" in broadening_line_opacity_config
     quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
@@ -713,25 +714,22 @@ def calculate_broadening(
     h_densities = stellar_plasma.ion_number_density.loc[1, 0]
     electron_densities = stellar_plasma.electron_densities
 
-    for i in range(len(lines)):
-        for j in range(stellar_model.no_of_depth_points):
-
-            gammas[i, j] = calc_gamma(
-                atomic_number=lines.atomic_number.iloc[i],
-                ion_number=lines.ion_number.iloc[i] + 1,
-                ionization_energy=lines.ionization_energy.iloc[i],
-                upper_level_energy=lines.level_energy_upper.iloc[i],
-                lower_level_energy=lines.level_energy_lower.iloc[i],
-                A_ul=lines.A_ul.iloc[i],
-                electron_density=electron_densities.loc[j],
-                temperature=temperatures[j],
-                h_density=h_densities[j],
-                h_mass=h_mass,
-                linear_stark=linear_stark,
-                quadratic_stark=quadratic_stark,
-                van_der_waals=van_der_waals,
-                radiation=radiation,
-            )
+    gammas = calc_gamma(
+        atomic_number=lines.atomic_number.values[:, np.newaxis],
+        ion_number=lines.ion_number.values[:, np.newaxis] + 1,
+        ionization_energy=lines.ionization_energy.values[:, np.newaxis],
+        upper_level_energy=lines.level_energy_upper.values[:, np.newaxis],
+        lower_level_energy=lines.level_energy_lower.values[:, np.newaxis],
+        A_ul=lines.A_ul.values[:, np.newaxis],
+        electron_density=electron_densities.values,
+        temperature=temperatures,
+        h_density=h_densities.values,
+        h_mass=h_mass,
+        linear_stark=linear_stark,
+        quadratic_stark=quadratic_stark,
+        van_der_waals=van_der_waals,
+        radiation=radiation,
+    )
 
     doppler_widths = calc_doppler_width(
         lines.nu.values[:, np.newaxis],
