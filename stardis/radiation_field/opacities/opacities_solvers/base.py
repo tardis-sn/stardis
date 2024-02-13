@@ -455,7 +455,7 @@ def calc_alpha_line_at_nu(
 
     # If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range.
     else:  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
-        h_lines_indicies = (
+        h_lines_indices = (
             lines_sorted_in_range.atomic_number == 1
         ).to_numpy()  # Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
         if line_range.unit.physical_type == "length":
@@ -477,7 +477,7 @@ def calc_alpha_line_at_nu(
             delta_nus = nu.value - line_nus
 
             broadening_mask = np.abs(delta_nus) < line_range_value[i]
-            broadening_mask = np.logical_or(broadening_mask, h_lines_indicies)
+            broadening_mask = np.logical_or(broadening_mask, h_lines_indices)
 
             delta_nus_considered = delta_nus[broadening_mask]
             gammas_considered = gammas[broadening_mask, :]
