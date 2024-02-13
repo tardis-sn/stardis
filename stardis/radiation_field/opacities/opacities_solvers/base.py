@@ -401,6 +401,7 @@ def calc_alpha_line_at_nu(
     lines_sorted_in_range = lines_sorted[
         lines_sorted.nu.between(line_nu_min, line_nu_max)
     ]
+    line_nus = lines_sorted_in_range.nu.to_numpy()
 
     if use_vald:
         alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values("nu")
@@ -413,7 +414,7 @@ def calc_alpha_line_at_nu(
         .to_numpy()
     )
 
-    line_nus, gammas, doppler_widths = calculate_broadening(
+    gammas, doppler_widths = calculate_broadening(
         lines_sorted_in_range,
         stellar_model,
         stellar_plasma,

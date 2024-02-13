@@ -740,4 +740,4 @@ def calculate_broadening(
                 atomic_masses.iloc[lines.atomic_number.iloc[i] - 1],
             )
 
-    return lines.nu.values, gammas, doppler_widths
+    return gammas, doppler_widths
