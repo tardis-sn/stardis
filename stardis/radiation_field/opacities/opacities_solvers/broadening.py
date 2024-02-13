@@ -667,37 +667,15 @@ def calculate_broadening(
 
     Parameters
     ----------
-    lines_array :
-        Array containing each line and properties of the line.
-    line_cols : dict
-        Matches the name of a quantity to its column index in lines_array.
-    no_depth_points : int
-        Number of depth pointss.
-    atomic_masses : numpy.ndarray
-        Atomic mass of all elements included in the simulation.
-    electron_densities : numpy.ndarray
-        Electron density at each depth point.
-    temperatures : numpy.ndarray
-        Temperature at each depth point.
-    h_densities : numpy.ndarray
-        Number density of hydrogen at each depth point.
-    linear_stark : bool, optional
-        True if linear Stark broadening is to be considered, otherwise False.
-        By default True.
-    quadratic_stark : bool, optional
-        True if quadratic Stark broadening is to be considered, otherwise
-        False. By default True.
-    van_der_waals : bool, optional
-        True if Van Der Waals broadening is to be considered, otherwise False.
-        By default True.
-    radiation : bool, optional
-        True if radiation broadening is to be considered, otherwise False.
-        By default True.
+    lines : DataFrame
+        Dataframe of the lines to calculate broadening for.
+    stellar_model : stardis.model.base.StellarModel
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    broadening_line_opacity_config : tardis.io.configuration.config_reader.Configuration
+        Broadening methods section of the line opacity section of the STARDIS configuration.
 
     Returns
     -------
-    line_nus : numpy.ndarray
-        Frequency of each line.
     gammas : numpy.ndarray
         Array of shape (no_of_lines, no_depth_points). Collisional broadening
         parameter of each line at each depth point.
