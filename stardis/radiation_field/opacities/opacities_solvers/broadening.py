@@ -711,7 +711,6 @@ def calculate_broadening(
     h_mass = stellar_plasma.atomic_mass.loc[1]
     temperatures = stellar_model.temperatures.value
     h_densities = stellar_plasma.ion_number_density.loc[1, 0]
-    atomic_masses = stellar_plasma.atomic_mass
     electron_densities = stellar_plasma.electron_densities
 
     for i in range(len(lines)):
@@ -734,10 +733,13 @@ def calculate_broadening(
                 radiation=radiation,
             )
 
-            doppler_widths[i, j] = calc_doppler_width(
-                lines.nu.iloc[i],
-                temperatures[j],
-                atomic_masses.iloc[lines.atomic_number.iloc[i] - 1],
-            )
+    doppler_widths = calc_doppler_width(
+        lines.nu.values[:, np.newaxis],
+        temperatures,
+        stellar_plasma.atomic_mass.values[
+            lines.atomic_number.values - 1,
+            np.newaxis,
+        ],
+    )
 
     return gammas, doppler_widths
