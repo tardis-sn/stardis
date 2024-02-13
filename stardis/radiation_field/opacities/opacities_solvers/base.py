@@ -419,7 +419,7 @@ def calc_alpha_line_at_nu(
         stellar_model,
         stellar_plasma,
         line_opacity_config.broadening,
-    )
+    )  # This can be further improved by only calculating the broadening for the lines that are within the range.
 
     alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 
