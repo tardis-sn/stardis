@@ -101,13 +101,21 @@ def single_theta_trace(
                     )
                     / (taus[i, j] + taus[i, j + 1])
                 )
-            if j == no_of_depth_gaps - 1:
-                second_term = 0
-                third_term = w2 * (source[j, i] - source[j + 1, i])
 
-            else:
-                second_term = 0
-                third_term = 0
+            else:  # handle the last depth point
+                second_term = (
+                    w1
+                    * (
+                        -(source[j + 1, i] - source[j, i])
+                        * (taus[i, j + 1] / taus[i, j])
+                    )
+                    / (taus[i, j] + taus[i, j + 1])
+                )
+                third_term = w2 * (
+                    (((source[j, i] - source[j + 1, i]) / taus[i, j]))
+                    / (taus[i, j] + taus[i, j + 1])
+                )
+
             I_nu_theta[j + 1, i] = (
                 (1 - w0) * I_nu_theta[j, i]
                 + w0 * source[j + 1, i]
