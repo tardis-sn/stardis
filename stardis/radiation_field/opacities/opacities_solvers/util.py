@@ -51,30 +51,6 @@ def sigma_file(tracing_lambdas, temperatures, fpath):
     return sigmas
 
 
-def map_items_to_indices(items):
-    """
-    Creates dictionary matching quantities in lines dataframe to their indices.
-
-    Parameters
-    ----------
-    items : list
-        List of column names.
-
-    Returns
-    -------
-    items_dict : dict
-    """
-    items_dict = Dict.empty(
-        key_type=types.unicode_type,
-        value_type=types.int64,
-    )
-
-    for i, item in enumerate(items):
-        items_dict[item] = i
-
-    return items_dict
-
-
 def get_number_density(stellar_plasma, spec):
     """
     Computes number density, atomic number, and ion number for an opacity

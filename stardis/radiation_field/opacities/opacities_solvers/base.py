@@ -11,7 +11,6 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
 from stardis.radiation_field.opacities.opacities_solvers.voigt import voigt_profile
 from stardis.radiation_field.opacities.opacities_solvers.util import (
     sigma_file,
-    map_items_to_indices,
     get_number_density,
 )
 
@@ -362,17 +361,12 @@ def calc_alpha_line_at_nu(
     if line_opacity_config.disable:
         return 0, 0, 0
 
-    broadening_methods = line_opacity_config.broadening
     _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
     _nu_max = line_opacity_config.max.to(u.Hz, u.spectral())
     line_nu_min = min(_nu_min, _nu_max)
     line_nu_max = max(_nu_min, _nu_max)
     line_range = line_opacity_config.broadening_range
 
-    linear_stark = "linear_stark" in broadening_methods
-    quadratic_stark = "quadratic_stark" in broadening_methods
-    van_der_waals = "van_der_waals" in broadening_methods
-    radiation = "radiation" in broadening_methods
     use_vald = line_opacity_config.vald_linelist.use_linelist
     if use_vald:
         lines = stellar_plasma.lines_from_linelist
@@ -403,16 +397,11 @@ def calc_alpha_line_at_nu(
             right_on=["atomic_number", "ion_number", "level_number"],
         ).rename(columns={"energy": "level_energy_upper"})
 
-    line_cols = map_items_to_indices(
-        lines.columns.to_list()
-    )  ###TODO: Fix this map_items_to_indices. Probably remove the function.
-
     lines_sorted = lines.sort_values("nu")
     lines_sorted_in_range = lines_sorted[
         lines_sorted.nu.between(line_nu_min, line_nu_max)
     ]
-
-    h_densities = stellar_plasma.ion_number_density.loc[1, 0].to_numpy()
+    line_nus = lines_sorted_in_range.nu.to_numpy()
 
     if use_vald:
         alphas_and_nu = stellar_plasma.alpha_line_from_linelist.sort_values("nu")
@@ -425,19 +414,12 @@ def calc_alpha_line_at_nu(
         .to_numpy()
     )
 
-    line_nus, gammas, doppler_widths = calculate_broadening(
-        lines_sorted_in_range.to_numpy(),
-        line_cols,
-        stellar_model.no_of_depth_points,
-        stellar_plasma.atomic_mass.values,
-        stellar_plasma.electron_densities.values,
-        stellar_model.temperatures.value,
-        h_densities,
-        linear_stark=linear_stark,
-        quadratic_stark=quadratic_stark,
-        van_der_waals=van_der_waals,
-        radiation=radiation,
-    )
+    gammas, doppler_widths = calculate_broadening(
+        lines_sorted_in_range,
+        stellar_model,
+        stellar_plasma,
+        line_opacity_config.broadening,
+    )  # This can be further improved by only calculating the broadening for the lines that are within the range.
 
     alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
 

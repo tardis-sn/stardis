@@ -5,16 +5,14 @@ model:
     fname: docs/quickstart/sun.mod
     final_atomic_number: 5
 opacity:
-    file:
-        Hminus_bf: docs/quickstart/h_minus_cross_section_wbr.dat
     bf:
         H_I: {}
     ff:
         H_I: {}
-    disable_electron_scattering: False
+    disable_electron_scattering: True
     line:
         disable: False
-        broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
+        broadening: []
         min: 6560 AA
         max: 6570 AA
 no_of_thetas: 1
