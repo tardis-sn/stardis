@@ -46,49 +46,41 @@ def test_mesa_truncation(mesa_model):
     assert len(mesa_model.data) == len_before_truncation - 1
 
 
-def test_read_marcs_model_scaled_log_number_fraction(marcs_model_file_path):
-    """
-    Test reading a MARCS model file
-    """
-    model = read_marcs_model(marcs_model_file_path)
+def test_read_marcs_model_scaled_log_number_fraction(marcs_model):
 
     assert np.allclose(
-        model.data.scaled_log_number_fraction_1,
+        marcs_model.data.scaled_log_number_fraction_1,
         12.0,
     )
 
 
-def test_read_marcs_model_metadata_surface_grav(marcs_model_file_path):
-    model = read_marcs_model(marcs_model_file_path)
+def test_read_marcs_model_metadata_surface_grav(marcs_model):
 
     assert np.allclose(
-        model.metadata["surface_grav"].value,
+        marcs_model.metadata["surface_grav"].value,
         10000,
     )
 
 
-def test_read_marcs_model_metadata_x(marcs_model_file_path):
-    model = read_marcs_model(marcs_model_file_path)
+def test_read_marcs_model_metadata_x(marcs_model):
 
     assert np.allclose(
-        model.metadata["x"],
+        marcs_model.metadata["x"],
         0.73826,
     )
 
 
-def test_read_marcs_model_data_depth(marcs_model_file_path):
-    model = read_marcs_model(marcs_model_file_path)
+def test_read_marcs_model_data_depth(marcs_model):
 
     assert np.allclose(
-        model.data.depth.iloc[-1],
+        marcs_model.data.depth.iloc[-1],
         44610000.0,
     )
 
 
-def test_read_marcs_model_data_lgtaur(marcs_model_file_path):
-    model = read_marcs_model(marcs_model_file_path)
+def test_read_marcs_model_data_lgtaur(marcs_model):
 
     assert np.allclose(
-        model.data.lgtaur.iloc[0],
+        marcs_model.data.lgtaur.iloc[0],
         -5.0,
     )
