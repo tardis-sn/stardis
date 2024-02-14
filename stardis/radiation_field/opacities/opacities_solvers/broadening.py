@@ -708,10 +708,7 @@ def calculate_broadening(
     doppler_widths = calc_doppler_width(
         lines.nu.values[:, np.newaxis],
         stellar_model.temperatures.value,
-        stellar_plasma.atomic_mass.values[
-            lines.atomic_number.values - 1,
-            np.newaxis,
-        ],
+        stellar_plasma.atomic_mass.loc[lines.atomic_number].values[:, np.newaxis],
     )
 
     return gammas, doppler_widths
