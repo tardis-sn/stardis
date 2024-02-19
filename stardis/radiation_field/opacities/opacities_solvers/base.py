@@ -33,7 +33,7 @@ RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
 
 
 # H minus opacity
-def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, spec, fpath):
+def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, opacity_source, fpath):
     """
     Calculates opacities when a cross-section file is provided.
 
@@ -43,7 +43,7 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, spec, fpath):
     stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    species : spec : str
+    opacity_source : str
         String representing the opacity source. Used to obtain the appropriate number density of the corresponding species.
     fpath : str
         Path to the cross-section file.
@@ -58,11 +58,11 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, spec, fpath):
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
 
     sigmas = sigma_file(
-        tracing_lambdas, stellar_model.temperatures.value, Path(fpath), spec
+        tracing_lambdas, stellar_model.temperatures.value, Path(fpath), opacity_source
     )
     number_density, atomic_number, ion_number = get_number_density(
-        stellar_plasma, spec
-    )  # Should revisit this function to make it more general and less hacky.
+        stellar_plasma, opacity_source
+    )  ###TODO: Should revisit this function to make it more general and less hacky.
     return sigmas * number_density.to_numpy()[:, np.newaxis]
 
 
@@ -531,18 +531,18 @@ def calc_alphas(
     """
 
     for (
-        spec,
+        opacity_source,
         fpath,
     ) in opacity_config.file.items():  # Iterate through requested file opacities
         alpha_file = calc_alpha_file(
             stellar_plasma,
             stellar_model,
             stellar_radiation_field.frequencies,
-            spec,
+            opacity_source,
             fpath,
         )
         stellar_radiation_field.opacities.opacities_dict[
-            f"alpha_file_{spec}"
+            f"alpha_file_{opacity_source}"
         ] = alpha_file
 
     alpha_bf = calc_alpha_bf(
@@ -583,9 +583,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"

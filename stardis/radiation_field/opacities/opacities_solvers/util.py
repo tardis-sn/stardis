@@ -7,7 +7,7 @@ from tardis.util.base import species_string_to_tuple
 from scipy.interpolate import interp1d, LinearNDInterpolator
 
 
-def sigma_file(tracing_lambdas, temperatures, fpath, spec=None):
+def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
     """
     Reads and interpolates a cross-section file.
 
@@ -19,7 +19,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, spec=None):
         Temperatures to compute the cross-section for.
     fpath : str
         Filepath to cross-section file.
-    spec: str
+    opacity_source: str
         Opacity source. Used to identify the table to be read appropriately.
 
     Returns
@@ -29,7 +29,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, spec=None):
         for each wavelength and temperature combination.
     """
     if (
-        spec == "H2plus_bf"
+        opacity_source == "H2plus_bf"
     ):  # This section specifically ingests the Stancil 1994 h2_plus_bf_S1994.dat table found in data.
         h2_plus_bf_table = pd.read_csv(fpath, delimiter="\s+", index_col=0, comment="#")
         h2_plus_bf_table.replace({"-": "e-"}, regex=True, inplace=True)
@@ -51,7 +51,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, spec=None):
         )  # Scaling from Stancil 1994 table
 
     elif (
-        spec == "Hminus_ff"
+        opacity_source == "Hminus_ff"
     ):  # This section specifically ingests the Bell and Berrington 1987 h_minus_ff_B1987.dat table found in data.
         h_minus_ff_table = pd.read_csv(fpath, delimiter="\s+", comment="#")
         h_minus_ff_table.columns = h_minus_ff_table.columns.str.strip(",")
@@ -74,7 +74,10 @@ def sigma_file(tracing_lambdas, temperatures, fpath, spec=None):
             * const.k_B.cgs.value
             * temperatures[:, np.newaxis]
         )
-    else:  # This is currently used to read h_minus_bf_W1979.dat, Wishart 1979
+
+    elif (
+        opacity_source == "Hminus_bf"
+    ):  # This is currently used to read h_minus_bf_W1979.dat, Wishart 1979
         h_minus_bf_table = pd.read_csv(
             fpath, header=None, comment="#", names=["wavelength", "cross_section"]
         )
@@ -89,10 +92,13 @@ def sigma_file(tracing_lambdas, temperatures, fpath, spec=None):
         )
         sigmas = linear_interp_1d_from_file(tracing_lambdas)
 
+    else:
+        raise ValueError(f"Unknown opacity_source: {opacity_source}")
+
     return sigmas
 
 
-def get_number_density(stellar_plasma, spec):
+def get_number_density(stellar_plasma, opacity_source):
     """
     Computes number density, atomic number, and ion number for an opacity
     source provided as a string.
@@ -107,41 +113,41 @@ def get_number_density(stellar_plasma, spec):
     ion_number : int
     """
 
-    if spec == "Hminus_bf":
+    if opacity_source == "Hminus_bf":
         return stellar_plasma.h_minus_density, None, None
-    elif spec == "Hminus_ff":
+    elif opacity_source == "Hminus_ff":
         return (
             stellar_plasma.ion_number_density.loc[1, 0]
             * stellar_plasma.electron_densities,
             None,
             None,
         )
-    elif spec == "Heminus_ff":
+    elif opacity_source == "Heminus_ff":
         return (
             stellar_plasma.ion_number_density.loc[2, 0]
             * stellar_plasma.electron_densities,
             None,
             None,
         )
-    elif spec == "H2minus_ff":
+    elif opacity_source == "H2minus_ff":
         return stellar_plasma.h2_density * stellar_plasma.electron_densities, None, None
-    elif spec == "H2plus_ff":
+    elif opacity_source == "H2plus_ff":
         return (
             stellar_plasma.ion_number_density.loc[1, 0]
             * stellar_plasma.ion_number_density.loc[1, 1],
             None,
             None,
         )
-    elif spec == "H2plus_bf":
+    elif opacity_source == "H2plus_bf":
         return stellar_plasma.h2_plus_density, None, None
 
-    ion = spec[: len(spec) - 3]
+    ion = opacity_source[: len(opacity_source) - 3]
 
     atomic_number, ion_number = species_string_to_tuple(ion.replace("_", " "))
 
     number_density = 1
 
-    if spec[len(spec) - 2 :] == "ff":
+    if opacity_source[len(opacity_source) - 2 :] == "ff":
         ion_number += 1
         number_density *= stellar_plasma.electron_densities
 
