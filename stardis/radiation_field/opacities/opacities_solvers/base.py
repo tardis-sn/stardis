@@ -541,9 +541,9 @@ def calc_alphas(
             spec,
             fpath,
         )
-        stellar_radiation_field.opacities.opacities_dict[f"alpha_file_{spec}"] = (
-            alpha_file
-        )
+        stellar_radiation_field.opacities.opacities_dict[
+            f"alpha_file_{spec}"
+        ] = alpha_file
 
     alpha_bf = calc_alpha_bf(
         stellar_plasma,
@@ -583,9 +583,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
-        alpha_line_at_nu
-    )
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu"
+    ] = alpha_line_at_nu
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
