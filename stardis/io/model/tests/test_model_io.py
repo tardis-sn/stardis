@@ -1,13 +1,8 @@
 import pytest
-
 import numpy as np
-
-# from astropy import units as u
-
-from importlib_resources import files
+from pathlib import Path
 
 from stardis.io.model.marcs import read_marcs_model
-from pathlib import Path
 from stardis.io.model.mesa import read_mesa_model
 
 MARCS_TEST_FPATH = Path(__file__).parent / "data" / "marcs_test.mod.gz"
