@@ -107,7 +107,7 @@ def example_stellar_radiation_field(
 
 
 @pytest.fixture(scope="session")
-def example_stellar_radiation_field_with_broadening(
+def example_stellar_radiation_field_broadening(
     example_stellar_model,
     example_config_broadening,
     example_tracing_nus,
@@ -151,12 +151,12 @@ def example_stardis_output(
 def example_stardis_output_broadening(
     example_stellar_model,
     example_stellar_plasma,
-    example_stellar_radiation_field,
+    example_stellar_radiation_field_broadening,
     example_config_broadening,
 ):
     return STARDISOutput(
         example_config_broadening.result_options,
         example_stellar_model,
         example_stellar_plasma,
-        example_stellar_radiation_field,
+        example_stellar_radiation_field_broadening,
     )
