@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from astropy import constants as const, units as u
+from scipy.interpolate import interp1d
 
 from tardis.plasma.base import BasePlasma
 from tardis.plasma.properties.base import (
@@ -37,6 +38,27 @@ THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.k_B)
 H_MINUS_CHI = 0.754195 * u.eV  # see https://en.wikipedia.org/wiki/Hydrogen_anion
 H2_DISSOCIATION_ENERGY = 4.476 * u.eV
 ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
+H2_IONIZATION_ENERGY = 15.422 * u.eV
+H2_PLUS_K_EQUILIBRIUM_CONSTANT = [
+    0.9600,
+    9.7683,
+    29.997,
+    59.599,
+    265.32,
+    845.01,
+    1685.3,
+    4289.5,
+]  # from Stancil 1994 https://articles.adsabs.harvard.edu/pdf/1994ApJ...430..360S
+H2_PLUS_K_SAMPLE_TEMPS = [
+    3150,
+    4200,
+    5040,
+    6300,
+    8400,
+    12600,
+    18600,
+    25200,
+]  # see directly above
 
 
 class HMinusDensity(ProcessingPlasmaProperty):
@@ -62,6 +84,7 @@ class HMinusDensity(ProcessingPlasmaProperty):
 class H2Density(ProcessingPlasmaProperty):
     """
     Used Kittel and Kroemer "Thermal Physics".
+    Currently unused.
 
     Attributes
     ----------
@@ -73,12 +96,32 @@ class H2Density(ProcessingPlasmaProperty):
 
     def calculate(self, ion_number_density, t_rad):
         t_rad = t_rad * u.K
-        h_neutral_density = ion_number_density.loc[1, 0]
+        h_neutral_density = ion_number_density.loc[1, 0].values * u.cm**-3
         thermal_de_broglie = (
             (2 * THERMAL_DE_BROGLIE_CONST / (const.m_p * t_rad)) ** (3 / 2)
         ).to(u.cm**3)
         phi = thermal_de_broglie * np.exp(H2_DISSOCIATION_ENERGY / (const.k_B * t_rad))
-        return h_neutral_density**2 * phi.value
+        return ((h_neutral_density**2 * phi).to(u.cm**-3)).value
+
+
+class H2PlusDensity(ProcessingPlasmaProperty):
+    """
+    Post Saha equation calculation of H2+ density, following Stancil 1994, https://articles.adsabs.harvard.edu/pdf/1994ApJ...430..360S.
+    Should be valid for low H2 densities.
+
+    Attributes
+    ----------
+    h2_plus_density : Pandas DataFrame, dtype float
+        Density of H2+, indexed by depth point.
+    """
+
+    outputs = ("h2_plus_density",)
+
+    def calculate(self, ion_number_density, t_rad):
+        interp_Ks = interp1d(H2_PLUS_K_SAMPLE_TEMPS, H2_PLUS_K_EQUILIBRIUM_CONSTANT)
+        h_neutral_density = ion_number_density.loc[1, 0]
+        h_plus_density = ion_number_density.loc[1, 1]
+        return h_neutral_density * h_plus_density / interp_Ks(t_rad) * 1e-19
 
 
 class AlphaLine(ProcessingPlasmaProperty):
@@ -439,7 +482,9 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 # Creating stellar plasma ------------------------------------------------------
 
 
-def create_stellar_plasma(stellar_model, atom_data, config):
+def create_stellar_plasma(
+    stellar_model, atom_data, config
+):  ###TODO: Clean up this function. Very messy.
     """
     Creates stellar plasma.
 
@@ -476,6 +521,7 @@ def create_stellar_plasma(stellar_model, atom_data, config):
 
     plasma_modules.append(HMinusDensity)
     plasma_modules.append(H2Density)
+    plasma_modules.append(H2PlusDensity)
 
     if config.opacity.line.vald_linelist.use_linelist:
         if config.opacity.line.vald_linelist.shortlist:

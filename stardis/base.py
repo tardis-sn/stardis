@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 from tardis.io.atom_data import AtomData
