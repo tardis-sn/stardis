@@ -6,7 +6,9 @@ model:
     final_atomic_number: 5
 opacity:
     file:
-        Hminus_bf: docs/quickstart/h_minus_cross_section_wbr.dat
+        Hminus_bf: stardis/data/h_minus_bf_W1979.dat
+        Hminus_ff: stardis/data/h_minus_ff_B1987.dat
+        H2plus_bf: stardis/data/h2_plus_bf_S1994.dat
     bf:
         H_I: {}
     ff:
