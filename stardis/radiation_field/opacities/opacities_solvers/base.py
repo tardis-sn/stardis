@@ -32,7 +32,7 @@ FF_CONSTANT = (
 RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
 
 
-# H minus opacity
+# Calculate opacity from any table specified by the user
 def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, opacity_source, fpath):
     """
     Calculates opacities when a cross-section file is provided.
