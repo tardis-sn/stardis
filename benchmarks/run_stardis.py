@@ -110,12 +110,13 @@ class BenchmarkStardis:
         )
 
     def time_calc_alpha_file(self):
+        opacity_sources, fpaths = self.config.opacity.file.items()
         calc_alpha_file(
             self.stellar_plasma,
             self.stellar_model,
             self.stellar_radiation_field.frequencies,
-            self.config.opacity.file.keys()[0],
-            self.config.opacity.file.values()[0],
+            opacity_sources[0],
+            fpaths[0],
         )
 
     def calc_alpha_rayleigh(self):
