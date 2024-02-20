@@ -107,6 +107,32 @@ def example_stellar_radiation_field(
 
 
 @pytest.fixture(scope="session")
+def example_stellar_radiation_field_broadening(
+    example_stellar_model,
+    example_config_broadening,
+    example_tracing_nus,
+    example_stellar_plasma,
+):
+    stellar_radiation_field = RadiationField(
+        example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
+    )
+
+    calc_alphas(
+        stellar_plasma=example_stellar_plasma,
+        stellar_model=example_stellar_model,
+        stellar_radiation_field=stellar_radiation_field,
+        opacity_config=example_config_broadening.opacity,
+    )
+
+    raytrace(
+        example_stellar_model,
+        stellar_radiation_field,
+        no_of_thetas=example_config_broadening.no_of_thetas,
+    )
+    return stellar_radiation_field
+
+
+@pytest.fixture(scope="session")
 def example_stardis_output(
     example_stellar_model,
     example_stellar_plasma,
@@ -118,4 +144,19 @@ def example_stardis_output(
         example_stellar_model,
         example_stellar_plasma,
         example_stellar_radiation_field,
+    )
+
+
+@pytest.fixture(scope="session")
+def example_stardis_output_broadening(
+    example_stellar_model,
+    example_stellar_plasma,
+    example_stellar_radiation_field_broadening,
+    example_config_broadening,
+):
+    return STARDISOutput(
+        example_config_broadening.result_options,
+        example_stellar_model,
+        example_stellar_plasma,
+        example_stellar_radiation_field_broadening,
     )

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+from pathlib import Path
 import numba
 
 from astropy import units as u, constants as const
@@ -32,8 +32,8 @@ FF_CONSTANT = (
 RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
 
 
-# H minus opacity
-def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
+# Calculate opacity from any table specified by the user
+def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, opacity_source, fpath):
     """
     Calculates opacities when a cross-section file is provided.
 
@@ -43,10 +43,10 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     stellar_model : stardis.model.base.StellarModel
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    species : tardis.io.configuration.config_reader.Configuration
-        Dictionary (in the form of a Configuration object) containing all
-        species and the cross-section files for which opacity is to be
-        calculated.
+    opacity_source : str
+        String representing the opacity source. Used to obtain the appropriate number density of the corresponding species.
+    fpath : str
+        Path to the cross-section file.
 
     Returns
     -------
@@ -56,20 +56,14 @@ def calc_alpha_file(stellar_plasma, stellar_model, tracing_nus, species):
     """
 
     tracing_lambdas = tracing_nus.to(u.AA, u.spectral()).value
-    alpha_file = np.zeros((stellar_model.no_of_depth_points, len(tracing_lambdas)))
 
-    for spec, fpath in species.items():
-        sigmas = sigma_file(tracing_lambdas, stellar_model.temperatures.value, fpath)
-
-        number_density, atomic_number, ion_number = get_number_density(
-            stellar_plasma, spec
-        )
-
-        alpha_spec = sigmas * np.array(number_density)[None].T
-
-        alpha_file += alpha_spec
-
-    return alpha_file
+    sigmas = sigma_file(
+        tracing_lambdas, stellar_model.temperatures.value, Path(fpath), opacity_source
+    )
+    number_density, atomic_number, ion_number = get_number_density(
+        stellar_plasma, opacity_source
+    )  ###TODO: Should revisit this function to make it more general and less hacky.
+    return sigmas * number_density.to_numpy()[:, np.newaxis]
 
 
 # rayleigh opacity
@@ -536,13 +530,20 @@ def calc_alphas(
         each depth point for each frequency in tracing_nus.
     """
 
-    alpha_file = calc_alpha_file(
-        stellar_plasma,
-        stellar_model,
-        stellar_radiation_field.frequencies,
-        opacity_config.file,
-    )
-    stellar_radiation_field.opacities.opacities_dict["alpha_file"] = alpha_file
+    for (
+        opacity_source,
+        fpath,
+    ) in opacity_config.file.items():  # Iterate through requested file opacities
+        alpha_file = calc_alpha_file(
+            stellar_plasma,
+            stellar_model,
+            stellar_radiation_field.frequencies,
+            opacity_source,
+            fpath,
+        )
+        stellar_radiation_field.opacities.opacities_dict[
+            f"alpha_file_{opacity_source}"
+        ] = alpha_file
 
     alpha_bf = calc_alpha_bf(
         stellar_plasma,
