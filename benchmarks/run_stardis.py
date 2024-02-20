@@ -115,8 +115,8 @@ class BenchmarkStardis:
             self.stellar_plasma,
             self.stellar_model,
             self.stellar_radiation_field.frequencies,
-            opacity_sources[0],
-            fpaths[0],
+            list(self.config.opacity.file.keys())[0],
+            list(self.config.opacity.file.values())[0],
         )
 
     def calc_alpha_rayleigh(self):
