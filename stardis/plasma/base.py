@@ -48,7 +48,7 @@ H2_PLUS_K_EQUILIBRIUM_CONSTANT = [
     845.01,
     1685.3,
     4289.5,
-]  # from Stancil 1994 https://articles.adsabs.harvard.edu/pdf/1994ApJ...430..360S
+]  # from Stancil 1994 https://articles.adsabs.harvard.edu/pdf/1994ApJ...430..360S table 1
 H2_PLUS_K_SAMPLE_TEMPS = [
     3150,
     4200,
@@ -108,6 +108,7 @@ class H2PlusDensity(ProcessingPlasmaProperty):
     """
     Post Saha equation calculation of H2+ density, following Stancil 1994, https://articles.adsabs.harvard.edu/pdf/1994ApJ...430..360S.
     Should be valid for low H2 densities.
+    Equation from Kittel and Kroemer "Thermal Physics", chapter 9 equation 35.
 
     Attributes
     ----------
@@ -121,7 +122,9 @@ class H2PlusDensity(ProcessingPlasmaProperty):
         interp_Ks = interp1d(H2_PLUS_K_SAMPLE_TEMPS, H2_PLUS_K_EQUILIBRIUM_CONSTANT)
         h_neutral_density = ion_number_density.loc[1, 0]
         h_plus_density = ion_number_density.loc[1, 1]
-        return h_neutral_density * h_plus_density / interp_Ks(t_rad) * 1e-19
+        return (
+            h_neutral_density * h_plus_density / interp_Ks(t_rad) * 1e-19
+        )  # scale factor from Stancil 1994 table 1
 
 
 class AlphaLine(ProcessingPlasmaProperty):
