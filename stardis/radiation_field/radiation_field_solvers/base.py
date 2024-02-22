@@ -102,7 +102,7 @@ def single_theta_trace(
                     / (taus[i, j] + taus[i, j + 1])
                 )
 
-            else:  # handle the last depth point, assuming the same source and tau as the preceeding value
+            else:  # handle the last depth point, assuming the same source as the preceeding value and tau as 0
                 second_term = 0
                 third_term = w2 * (source[j, i] - source[j + 1, i]) / taus[i, j] ** 2
 
