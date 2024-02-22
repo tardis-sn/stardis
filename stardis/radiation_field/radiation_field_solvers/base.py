@@ -102,18 +102,11 @@ def single_theta_trace(
                     / (taus[i, j] + taus[i, j + 1])
                 )
 
-            else:  # handle the last depth point
-                second_term = (
-                    w1
-                    * (
-                        -(source[j + 1, i] - source[j, i])
-                        * (taus[i, j + 1] / taus[i, j])
-                    )
-                    / (taus[i, j] + taus[i, j + 1])
-                )
+            else:  # handle the last depth point, assuming the same source and tau as the preceeding value
+                second_term = w1 * (-(source[j + 1, i] - source[j, i]))
                 third_term = w2 * (
                     (((source[j, i] - source[j + 1, i]) / taus[i, j]))
-                    / (taus[i, j] + taus[i, j + 1])
+                    / (2 * taus[i, j])
                 )
 
             I_nu_theta[j + 1, i] = (
