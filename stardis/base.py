@@ -104,7 +104,12 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         opacity_config=config.opacity,
     )
 
-    raytrace(stellar_model, stellar_radiation_field, no_of_thetas=config.no_of_thetas)
+    raytrace(
+        stellar_model,
+        stellar_radiation_field,
+        no_of_thetas=config.no_of_thetas,
+        parallel_config=config.parallel,
+    )
 
     return STARDISOutput(
         config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
