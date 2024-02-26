@@ -245,7 +245,7 @@ def single_theta_trace(
 
 
 def raytrace(
-    stellar_model, stellar_radiation_field, no_of_thetas=20, parallel_config=None
+    stellar_model, stellar_radiation_field, no_of_thetas=20, parallel_config=False
 ):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
