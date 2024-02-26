@@ -148,15 +148,15 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20):
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
-    # for theta in tqdm(thetas):
-    weight = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
-    stellar_radiation_field.F_nu += weight * single_theta_trace(
-        stellar_model.geometry.dist_to_next_depth_point,
-        stellar_model.temperatures.value.reshape(-1, 1),
-        stellar_radiation_field.opacities.total_alphas,
-        stellar_radiation_field.frequencies,
-        thetas,
-        stellar_radiation_field.source_function,
-    )
+    for theta in tqdm(thetas):
+        weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
+        stellar_radiation_field.F_nu += weight * single_theta_trace(
+            stellar_model.geometry.dist_to_next_depth_point,
+            stellar_model.temperatures.value.reshape(-1, 1),
+            stellar_radiation_field.opacities.total_alphas,
+            stellar_radiation_field.frequencies,
+            theta,
+            stellar_radiation_field.source_function,
+        )
 
     return stellar_radiation_field.F_nu
