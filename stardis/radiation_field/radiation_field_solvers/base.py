@@ -3,7 +3,7 @@ import numpy as np
 
 
 @numba.njit()
-def calc_weights_parallel(delta_tau):
+def calc_weights(delta_tau):
     """
     Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
 
@@ -36,39 +36,39 @@ def calc_weights_parallel(delta_tau):
     return w0, w1, w2
 
 
-def calc_weights(delta_tau):
-    """
-    Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
+# def calc_weights(delta_tau):
+#     """
+#     Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
 
-    Parameters
-    ----------
-    delta_tau : float
-        Total optical depth.
+#     Parameters
+#     ----------
+#     delta_tau : float
+#         Total optical depth.
 
-    Returns
-    -------
-    w0 : float
-    w1 : float
-    w2: float
-    """
-    w0 = np.ones_like(delta_tau)
-    w1 = np.ones_like(delta_tau)
-    w2 = np.ones_like(delta_tau) * 2.0
+#     Returns
+#     -------
+#     w0 : float
+#     w1 : float
+#     w2: float
+#     """
+#     w0 = np.ones_like(delta_tau)
+#     w1 = np.ones_like(delta_tau)
+#     w2 = np.ones_like(delta_tau) * 2.0
 
-    mask1 = delta_tau < 5e-4
-    mask2 = delta_tau > 50
-    mask3 = ~np.logical_or(mask1, mask2)
+#     mask1 = delta_tau < 5e-4
+#     mask2 = delta_tau > 50
+#     mask3 = ~np.logical_or(mask1, mask2)
 
-    w0[mask1] = delta_tau[mask1] * (1 - delta_tau[mask1] / 2)
-    w1[mask1] = delta_tau[mask1] ** 2 * (0.5 - delta_tau[mask1] / 3)
-    w2[mask1] = delta_tau[mask1] ** 3 * (1 / 3 - delta_tau[mask1] / 4)
+#     w0[mask1] = delta_tau[mask1] * (1 - delta_tau[mask1] / 2)
+#     w1[mask1] = delta_tau[mask1] ** 2 * (0.5 - delta_tau[mask1] / 3)
+#     w2[mask1] = delta_tau[mask1] ** 3 * (1 / 3 - delta_tau[mask1] / 4)
 
-    exp_delta_tau = np.exp(-delta_tau[mask3])
-    w0[mask3] = 1 - exp_delta_tau
-    w1[mask3] = w0[mask3] - delta_tau[mask3] * exp_delta_tau
-    w2[mask3] = 2 * w1[mask3] - delta_tau[mask3] * delta_tau[mask3] * exp_delta_tau
+#     exp_delta_tau = np.exp(-delta_tau[mask3])
+#     w0[mask3] = 1 - exp_delta_tau
+#     w1[mask3] = w0[mask3] - delta_tau[mask3] * exp_delta_tau
+#     w2[mask3] = 2 * w1[mask3] - delta_tau[mask3] * delta_tau[mask3] * exp_delta_tau
 
-    return w0, w1, w2
+#     return w0, w1, w2
 
 
 @numba.njit(parallel=True)
