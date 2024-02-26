@@ -11,13 +11,13 @@ def calc_weights_parallel(delta_tau):
     Parameters
     ----------
     delta_tau : float
-        Total optical depth.
+        Total optical depth at a single depth point and frequency
 
     Returns
     -------
     w0 : float
     w1 : float
-    w2: float
+    w2 : float
     """
     w0 = np.ones_like(delta_tau)
     w1 = np.ones_like(delta_tau)
@@ -53,14 +53,14 @@ def calc_weights(delta_tau):
 
     Parameters
     ----------
-    delta_tau : float
+    delta_tau : array of shape (no_of_depth_gaps, no_of_frequencies)
         Total optical depth.
 
     Returns
     -------
-    w0 : float
-    w1 : float
-    w2: float
+    w0 : array of shape (no_of_depth_gaps, no_of_frequencies)
+    w1 : array of shape (no_of_depth_gaps, no_of_frequencies)
+    w2 : array of shape (no_of_depth_gaps, no_of_frequencies)
     """
     w0 = np.ones_like(delta_tau)
     w1 = np.ones_like(delta_tau)
@@ -131,10 +131,8 @@ def single_theta_trace_parallel(
 
     # return I_nu_theta
     for nu_index in numba.prange(len(tracing_nus)):
-        for gap_index in range(
-            no_of_depth_gaps - 1
-        ):  # iterating over depth_gaps (rows)
-
+        for gap_index in range(no_of_depth_gaps - 1): 
+            #Start by solving all the weights and prefactors except the last jump which would go out of bounds
             second_term = (
                 w1[gap_index, nu_index]
                 * (
@@ -161,6 +159,7 @@ def single_theta_trace_parallel(
                 )
                 / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
             )
+            # Solve the raytracing equation for all points other than the final jump
             I_nu_theta[gap_index + 1, nu_index] = (
                 (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index, nu_index]
                 + w0[gap_index, nu_index] * source[gap_index + 1, nu_index]
@@ -173,6 +172,7 @@ def single_theta_trace_parallel(
             * (source[-2, nu_index] - source[-1, nu_index])
             / taus[-1, nu_index] ** 2
         )
+        # Solve the raytracing equation for the final jump assuming source does not change and tau is 0
         I_nu_theta[-1, nu_index] = (
             (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
             + w0[-1, nu_index] * source[-1, nu_index]
@@ -225,34 +225,42 @@ def single_theta_trace(
     source = source_function(tracing_nus, temps)
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
+
+    # Solve for all the weights and prefactors except the last jump which would go out of bounds
     w0, w1, w2 = calc_weights(taus)
-
-    for gap_index in range(no_of_depth_gaps - 1):  # iterating over depth_gaps (rows)
-
-        second_term = (
-            w1[gap_index]
-            * (
-                (source[gap_index + 1] - source[gap_index + 2])
-                * (taus[gap_index] / taus[gap_index + 1])
-                - (source[gap_index + 1] - source[gap_index])
-                * (taus[gap_index + 1] / taus[gap_index])
-            )
-            / (taus[gap_index] + taus[gap_index + 1])
+    gap_indices = np.arange(no_of_depth_gaps - 1)
+    second_term = (
+        w1[gap_indices]
+        * (
+            (source[gap_indices + 1] - source[gap_indices + 2])
+            * (taus[gap_indices] / taus[gap_indices + 1])
+            - (source[gap_indices + 1] - source[gap_indices])
+            * (taus[gap_indices + 1] / taus[gap_indices])
         )
-        third_term = w2[gap_index] * (
+        / (taus[gap_indices] + taus[gap_indices + 1])
+    )
+    third_term = w2[gap_indices] * (
+        (
             (
-                ((source[gap_index + 2] - source[gap_index + 1]) / taus[gap_index + 1])
-                + ((source[gap_index] - source[gap_index + 1]) / taus[gap_index])
+                (source[gap_indices + 2] - source[gap_indices + 1])
+                / taus[gap_indices + 1]
             )
-            / (taus[gap_index] + taus[gap_index + 1])
+            + ((source[gap_indices] - source[gap_indices + 1]) / taus[gap_indices])
         )
+        / (taus[gap_indices] + taus[gap_indices + 1])
+    )
+
+    for gap_index in range(
+        no_of_depth_gaps - 1
+    ):  # solve the ray tracing equation out to the surface of the star, not including the last jump
         I_nu_theta[gap_index + 1] = (
             (1 - w0[gap_index]) * I_nu_theta[gap_index]
             + w0[gap_index] * source[gap_index + 1]
-            + second_term
-            + third_term
+            + second_term[gap_index]
+            + third_term[gap_index]
         )
 
+    # Solve for the last jump and the final output intensity assuming source does not change and tau is 0
     third_term = w2[-1] * (source[-2] - source[-1]) / taus[-1] ** 2
     I_nu_theta[-1] = (1 - w0[-1]) * I_nu_theta[-2] + w0[-1] * source[-1] + third_term
 
