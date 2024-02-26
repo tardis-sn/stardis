@@ -3,7 +3,7 @@ import numpy as np
 
 
 @numba.njit()
-def calc_weights(delta_tau):
+def calc_weights_parallel(delta_tau):
     """
     Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
 
@@ -36,39 +36,39 @@ def calc_weights(delta_tau):
     return w0, w1, w2
 
 
-# def calc_weights(delta_tau):
-#     """
-#     Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
+def calc_weights(delta_tau):
+    """
+    Calculates w0 and w1 coefficients in van Noort 2001 eq 14.
 
-#     Parameters
-#     ----------
-#     delta_tau : float
-#         Total optical depth.
+    Parameters
+    ----------
+    delta_tau : float
+        Total optical depth.
 
-#     Returns
-#     -------
-#     w0 : float
-#     w1 : float
-#     w2: float
-#     """
-#     w0 = np.ones_like(delta_tau)
-#     w1 = np.ones_like(delta_tau)
-#     w2 = np.ones_like(delta_tau) * 2.0
+    Returns
+    -------
+    w0 : float
+    w1 : float
+    w2: float
+    """
+    w0 = np.ones_like(delta_tau)
+    w1 = np.ones_like(delta_tau)
+    w2 = np.ones_like(delta_tau) * 2.0
 
-#     mask1 = delta_tau < 5e-4
-#     mask2 = delta_tau > 50
-#     mask3 = ~np.logical_or(mask1, mask2)
+    mask1 = delta_tau < 5e-4
+    mask2 = delta_tau > 50
+    mask3 = ~np.logical_or(mask1, mask2)
 
-#     w0[mask1] = delta_tau[mask1] * (1 - delta_tau[mask1] / 2)
-#     w1[mask1] = delta_tau[mask1] ** 2 * (0.5 - delta_tau[mask1] / 3)
-#     w2[mask1] = delta_tau[mask1] ** 3 * (1 / 3 - delta_tau[mask1] / 4)
+    w0[mask1] = delta_tau[mask1] * (1 - delta_tau[mask1] / 2)
+    w1[mask1] = delta_tau[mask1] ** 2 * (0.5 - delta_tau[mask1] / 3)
+    w2[mask1] = delta_tau[mask1] ** 3 * (1 / 3 - delta_tau[mask1] / 4)
 
-#     exp_delta_tau = np.exp(-delta_tau[mask3])
-#     w0[mask3] = 1 - exp_delta_tau
-#     w1[mask3] = w0[mask3] - delta_tau[mask3] * exp_delta_tau
-#     w2[mask3] = 2 * w1[mask3] - delta_tau[mask3] * delta_tau[mask3] * exp_delta_tau
+    exp_delta_tau = np.exp(-delta_tau[mask3])
+    w0[mask3] = 1 - exp_delta_tau
+    w1[mask3] = w0[mask3] - delta_tau[mask3] * exp_delta_tau
+    w2[mask3] = 2 * w1[mask3] - delta_tau[mask3] * delta_tau[mask3] * exp_delta_tau
 
-#     return w0, w1, w2
+    return w0, w1, w2
 
 
 @numba.njit(parallel=True)
@@ -200,40 +200,46 @@ def single_theta_trace(
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
 
-    for gap_index in range(no_of_depth_gaps - 1):  # iterating over depth_gaps (rows)
+    for gap_index in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
 
         w0, w1, w2 = calc_weights(taus[gap_index, :])
 
-        second_term = (
-            w1
-            * (
-                (source[gap_index + 1] - source[gap_index + 2])
-                * (taus[gap_index, :] / taus[gap_index + 1, :])
-                - (source[gap_index + 1] - source[gap_index])
-                * (taus[gap_index + 1, :] / taus[gap_index, :])
-            )
-            / (taus[gap_index, :] + taus[gap_index + 1, :])
-        )
-        third_term = w2 * (
-            (
-                (
-                    (source[gap_index + 2] - source[gap_index + 1])
-                    / taus[gap_index + 1, :]
+        if gap_index < no_of_depth_gaps - 1:
+            second_term = (
+                w1
+                * (
+                    (source[gap_index + 1] - source[gap_index + 2])
+                    * (taus[gap_index, :] / taus[gap_index + 1, :])
+                    - (source[gap_index + 1] - source[gap_index])
+                    * (taus[gap_index + 1, :] / taus[gap_index, :])
                 )
-                + ((source[gap_index] - source[gap_index + 1]) / taus[gap_index, :])
+                / (taus[gap_index, :] + taus[gap_index + 1, :])
             )
-            / (taus[gap_index, :] + taus[gap_index + 1, :])
-        )
+            third_term = w2 * (
+                (
+                    (
+                        (source[gap_index + 2] - source[gap_index + 1])
+                        / taus[gap_index + 1, :]
+                    )
+                    + ((source[gap_index] - source[gap_index + 1]) / taus[gap_index, :])
+                )
+                / (taus[gap_index, :] + taus[gap_index + 1, :])
+            )
+
+        else:  # handle the last depth point, assuming the same source as the preceeding value and tau as 0
+            second_term = np.zeros_like(w0)
+            third_term = (
+                w2
+                * (source[gap_index] - source[gap_index + 1])
+                / taus[gap_index, :] ** 2
+            )
+
         I_nu_theta[gap_index + 1] = (
             (1 - w0) * I_nu_theta[gap_index]
             + w0 * source[gap_index + 1]
             + second_term
             + third_term
         )
-
-    w0, w1, w2 = calc_weights(taus[-1, :])
-    third_term = w2 * (source[-2] - source[-1]) / taus[-1, :] ** 2
-    I_nu_theta[-1] = (1 - w0) * I_nu_theta[-2] + w0 * source[-1] + third_term
 
     return I_nu_theta
 
