@@ -200,46 +200,40 @@ def single_theta_trace(
     I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
     I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
 
-    for gap_index in range(no_of_depth_gaps):  # iterating over depth_gaps (rows)
+    for gap_index in range(no_of_depth_gaps - 1):  # iterating over depth_gaps (rows)
 
         w0, w1, w2 = calc_weights(taus[gap_index, :])
 
-        if gap_index < no_of_depth_gaps - 1:
-            second_term = (
-                w1
-                * (
-                    (source[gap_index + 1] - source[gap_index + 2])
-                    * (taus[gap_index, :] / taus[gap_index + 1, :])
-                    - (source[gap_index + 1] - source[gap_index])
-                    * (taus[gap_index + 1, :] / taus[gap_index, :])
-                )
-                / (taus[gap_index, :] + taus[gap_index + 1, :])
+        second_term = (
+            w1
+            * (
+                (source[gap_index + 1] - source[gap_index + 2])
+                * (taus[gap_index, :] / taus[gap_index + 1, :])
+                - (source[gap_index + 1] - source[gap_index])
+                * (taus[gap_index + 1, :] / taus[gap_index, :])
             )
-            third_term = w2 * (
+            / (taus[gap_index, :] + taus[gap_index + 1, :])
+        )
+        third_term = w2 * (
+            (
                 (
-                    (
-                        (source[gap_index + 2] - source[gap_index + 1])
-                        / taus[gap_index + 1, :]
-                    )
-                    + ((source[gap_index] - source[gap_index + 1]) / taus[gap_index, :])
+                    (source[gap_index + 2] - source[gap_index + 1])
+                    / taus[gap_index + 1, :]
                 )
-                / (taus[gap_index, :] + taus[gap_index + 1, :])
+                + ((source[gap_index] - source[gap_index + 1]) / taus[gap_index, :])
             )
-
-        else:  # handle the last depth point, assuming the same source as the preceeding value and tau as 0
-            second_term = np.zeros_like(w0)
-            third_term = (
-                w2
-                * (source[gap_index] - source[gap_index + 1])
-                / taus[gap_index, :] ** 2
-            )
-
+            / (taus[gap_index, :] + taus[gap_index + 1, :])
+        )
         I_nu_theta[gap_index + 1] = (
             (1 - w0) * I_nu_theta[gap_index]
             + w0 * source[gap_index + 1]
             + second_term
             + third_term
         )
+
+    w0, w1, w2 = calc_weights(taus[-1, :])
+    third_term = w2 * (source[-2] - source[-1]) / taus[-1, :] ** 2
+    I_nu_theta[-1] = (1 - w0) * I_nu_theta[-2] + w0 * source[-1] + third_term
 
     return I_nu_theta
 
