@@ -1,6 +1,5 @@
 import numba
 import numpy as np
-from tqdm.notebook import tqdm
 
 
 @numba.njit(parallel=True)
@@ -122,10 +121,11 @@ def single_theta_trace_parallel(
     )
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    ###TODO: Generalize this for source functions other than blackbody that may require args other than frequency and temperature
     source = source_function(tracing_nus, temps)
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
-    I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
+    I_nu_theta[0] = source[
+        0
+    ]  # the innermost depth point is approximated as a blackbody
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
@@ -221,10 +221,11 @@ def single_theta_trace(
     )
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    ###TODO: Generalize this for source functions other than blackbody that may require args other than frequency and temperature
     source = source_function(tracing_nus, temps)
-    I_nu_theta = np.ones((no_of_depth_gaps + 1, len(tracing_nus))) * np.nan
-    I_nu_theta[0] = source[0]  # the innermost depth point is the photosphere
+    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
+    I_nu_theta[0] = source[
+        0
+    ]  # the innermost depth point is approximated as a blackbody
 
     # Solve for all the weights and prefactors except the last jump which would go out of bounds
     w0, w1, w2 = calc_weights(taus)
