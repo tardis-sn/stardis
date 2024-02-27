@@ -131,8 +131,8 @@ def single_theta_trace_parallel(
 
     # return I_nu_theta
     for nu_index in numba.prange(len(tracing_nus)):
-        for gap_index in range(no_of_depth_gaps - 1): 
-            #Start by solving all the weights and prefactors except the last jump which would go out of bounds
+        for gap_index in range(no_of_depth_gaps - 1):
+            # Start by solving all the weights and prefactors except the last jump which would go out of bounds
             second_term = (
                 w1[gap_index, nu_index]
                 * (
