@@ -129,7 +129,6 @@ def single_theta_trace_parallel(
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
-    # return I_nu_theta
     for nu_index in numba.prange(len(tracing_nus)):
         for gap_index in range(no_of_depth_gaps - 1):
             # Start by solving all the weights and prefactors except the last jump which would go out of bounds
@@ -167,12 +166,13 @@ def single_theta_trace_parallel(
                 + third_term
             )
 
+        # Below is the final jump, assuming source does not change and tau is 0 beyond the last depth point
         third_term = (
             w2[-1, nu_index]
             * (source[-2, nu_index] - source[-1, nu_index])
             / taus[-1, nu_index] ** 2
         )
-        # Solve the raytracing equation for the final jump assuming source does not change and tau is 0
+        # Solve the raytracing equation for the final jump
         I_nu_theta[-1, nu_index] = (
             (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
             + w0[-1, nu_index] * source[-1, nu_index]
@@ -187,7 +187,7 @@ def single_theta_trace(
     temps,
     alphas,
     tracing_nus,
-    theta,
+    thetas,
     source_function,
 ):
     """
@@ -205,7 +205,7 @@ def single_theta_trace(
         each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    theta : float
+    thetas : numpy.ndarray
         Angle that the ray makes with the normal/radial direction.
 
     Returns
@@ -216,13 +216,13 @@ def single_theta_trace(
     """
     # Need to calculate a mean opacity for the traversal between points. Linearly interporlating, but could have a choice for interpolation scheme here.
     mean_alphas = (alphas[1:] + alphas[:-1]) * 0.5
-    taus = (
-        mean_alphas * geometry_dist_to_next_depth_point.reshape(-1, 1) / np.cos(theta)
-    )
+    taus = (mean_alphas * geometry_dist_to_next_depth_point.reshape(-1, 1))[
+        :, :, np.newaxis
+    ] / np.cos(thetas)
     no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
 
-    source = source_function(tracing_nus, temps)
-    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
+    source = source_function(tracing_nus, temps)[:, :, np.newaxis]
+    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), thetas.shape[2]))
     I_nu_theta[0] = source[
         0
     ]  # the innermost depth point is approximated as a blackbody
@@ -297,16 +297,19 @@ def raytrace(
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     if parallel_config is False:
-        for theta in thetas:
-            weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
-            stellar_radiation_field.F_nu += weight * single_theta_trace(
+        weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
+        stellar_radiation_field.F_nu = np.sum(
+            weights
+            * single_theta_trace(
                 stellar_model.geometry.dist_to_next_depth_point,
                 stellar_model.temperatures.value.reshape(-1, 1),
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
-                theta,
+                thetas[np.newaxis, np.newaxis, :],
                 stellar_radiation_field.source_function,
-            )
+            ),
+            axis=2,
+        )
 
     elif parallel_config:
         for theta in thetas:
