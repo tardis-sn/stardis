@@ -105,7 +105,6 @@ def example_stellar_radiation_field(
         stellar_model=example_stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=example_config.opacity,
-        parallel_config=example_config.parallel,
     )
 
     raytrace(
@@ -132,7 +131,6 @@ def example_stellar_radiation_field_broadening(
         stellar_model=example_stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=example_config_broadening.opacity,
-        parallel_config=example_config_broadening.parallel,
     )
 
     raytrace(

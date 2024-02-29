@@ -322,7 +322,11 @@ def gaunt_times_departure(tracing_nus, temperatures, gaunt_fpath, departure_fpat
 
 # line opacity
 def calc_alpha_line_at_nu(
-    stellar_plasma, stellar_model, tracing_nus, line_opacity_config, parallel_config
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
+    line_opacity_config,
+    parallel_config=False,
 ):
     """
     Calculates line opacity.
