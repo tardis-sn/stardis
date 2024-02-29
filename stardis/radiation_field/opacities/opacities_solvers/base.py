@@ -591,7 +591,7 @@ def calc_alphas(
     stellar_model,
     stellar_radiation_field,
     opacity_config,
-    parallel_config,
+    parallel_config=False,
 ):
     """
     Calculates each opacity and adds it to the opacity dictionary contained in the radiation field.
