@@ -102,6 +102,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         stellar_model=stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=config.opacity,
+        parallel_config=config.parallel,
     )
 
     raytrace(
