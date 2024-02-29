@@ -6,18 +6,22 @@ model:
     fname: docs/quickstart/sun.mod
     final_atomic_number: 5
 opacity:
+    file:
+        Hminus_bf: stardis/data/h_minus_bf_W1979.dat
+        Hminus_ff: stardis/data/h_minus_ff_B1987.dat
+        H2plus_bf: stardis/data/h2_plus_bf_S1994.dat
     bf:
         H_I: {}
     ff:
         H_I: {}
     disable_electron_scattering: False
     line:
-        disable: True
+        disable: False
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
         min: 6560 AA
         max: 6570 AA
         vald_linelist: 
             use_linelist: False
             shortlist: False
-        broadening_range: 5 AA         
+        broadening_range: 3 AA         
 no_of_thetas: 10
