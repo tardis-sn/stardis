@@ -14,6 +14,7 @@ from stardis.radiation_field import RadiationField
 from stardis.io.model.marcs import read_marcs_model
 from stardis.io.model.mesa import read_mesa_model
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
+import logging
 
 
 BASE_DIR = Path(__file__).parent
@@ -48,6 +49,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     adata = AtomData.from_hdf(config.atom_data)
 
     # model
+    logging.info("Reading model")
     if config.model.type == "marcs":
         raw_marcs_model = read_marcs_model(
             Path(config.model.fname), gzipped=config.model.gzipped
@@ -91,12 +93,13 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         continuum_interaction_species=[],
     )
     # plasma
+    logging.info("Creating plasma")
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
     )
-
+    logging.info("Calculating alphas")
     calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
@@ -104,7 +107,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         opacity_config=config.opacity,
         parallel_config=config.parallel,
     )
-
+    logging.info("Raytracing")
     raytrace(
         stellar_model,
         stellar_radiation_field,
