@@ -443,7 +443,6 @@ def calc_alpha_line_at_nu(
                 "Broadening range must be in units of length or frequency."
             )
 
-    # Iterate through each frequency to calculate the contribution of each line within the broadening range.
     if parallel_config:
         alpha_line_at_nu = calc_alan_entries_parallel(
             stellar_model.no_of_depth_points,
@@ -482,6 +481,38 @@ def calc_alan_entries_parallel(
     broadening_range=None,
     h_lines_indices=None,
 ):
+    """
+    This is a helper function to appropriately parallelize the alpha line at nu calculation.
+    It is analagous to the calc_alan_entries function, but with the addition of the numba.prange decorator.
+
+    Parameters
+    ----------
+    no_of_depth_points : int
+        The number of depth points.
+    tracing_nus_values : array
+        The frequencies at which to calculate the Alan entries.
+    delta_nus : array
+        The differences between the frequencies and the line frequencies.
+    doppler_widths : array
+        The Doppler widths for each frequency.
+    gammas : array
+        The damping constants for each frequency.
+    alphas_array : array
+        The array of alpha values.
+    broadening_range : array, optional
+        The broadening range for each frequency. If provided, only frequencies within
+        this range will be considered. Default is None.
+    h_lines_indices : array, optional
+        The indices of the hydrogen lines. If provided, these lines will always be
+        considered, regardless of the broadening range. Default is None.
+
+    Returns
+    -------
+    alpha_line_at_nu : array
+        The calculated Alan entries for each frequency in `tracing_nus_values`.
+
+    """
+
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
 
     if broadening_range is None:
@@ -522,6 +553,41 @@ def calc_alan_entries(
     broadening_range=None,
     h_lines_indices=None,
 ):
+    """
+    This is a helper function to prepare appropriate calling of the voigt profile calculation and allow for structure that
+    can be parallelized. In the no broadening case it simply calls the voigt profile calculator with the appropriate structure.
+    In the broadening case it first creates a mask to only consider lines within the broadening range, and then calls the function
+    only on those lines. The variable line would make the input matrix not square, and prohibits easy access with numba, so an
+    explicit for loop must be called.
+
+    Parameters
+    ----------
+    no_of_depth_points : int
+        The number of depth points.
+    tracing_nus_values : array
+        The frequencies at which to calculate the Alan entries.
+    delta_nus : array
+        The differences between the frequencies and the line frequencies.
+    doppler_widths : array
+        The Doppler widths for each frequency.
+    gammas : array
+        The damping constants for each frequency.
+    alphas_array : array
+        The array of alpha values.
+    broadening_range : array, optional
+        The broadening range for each frequency. If provided, only frequencies within
+        this range will be considered. Default is None.
+    h_lines_indices : array, optional
+        The indices of the hydrogen lines. If provided, these lines will always be
+        considered, regardless of the broadening range. Default is None.
+
+    Returns
+    -------
+    alpha_line_at_nu : array
+        The calculated Alan entries for each frequency in `tracing_nus_values`.
+
+    """
+
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
 
     if broadening_range is None:
@@ -666,9 +732,9 @@ def calc_alphas(
         opacity_config.line,
         parallel_config,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
