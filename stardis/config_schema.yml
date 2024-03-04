@@ -5,6 +5,9 @@ properties:
     stardis_config_version:
         enum:
         - 1.0
+    parallel:
+        type: boolean
+        default: false
     atom_data:
         type: string
     model:
