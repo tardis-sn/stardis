@@ -56,6 +56,12 @@ def example_config_parallel():
 
 
 @pytest.fixture(scope="session")
+def example_config_parallel():
+    config_dict = validate_yaml(EXAMPLE_CONF_PATH_PARALLEL, schemapath=SCHEMA_PATH)
+    return Configuration(config_dict)
+
+
+@pytest.fixture(scope="session")
 def example_stellar_model(example_config, example_kurucz_atomic_data):
     raw_marcs_model = read_marcs_model(
         Path(example_config.model.fname), gzipped=example_config.model.gzipped
