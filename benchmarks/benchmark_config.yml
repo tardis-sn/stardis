@@ -15,6 +15,6 @@ opacity:
     line:
         disable: False
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
-        min: 6550 AA
-        max: 6575 AA
+        min: 6500 AA
+        max: 6600 AA
 no_of_thetas: 20
