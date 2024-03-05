@@ -8,8 +8,8 @@ properties:
     n_threads:
         type: number
         multipleOf: 1
-        default: -99
-        description: Number of threads to use. If -99 run in serial. If 0, use all available threads.
+        default: 1
+        description: Number of threads to use. If 1 run in serial. If 0, use all available threads.
     atom_data:
         type: string
         description: Path to the atomic data file. The file should be in hdf5 format output by carsus.

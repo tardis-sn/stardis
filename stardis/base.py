@@ -51,16 +51,16 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         raise ValueError("Config failed to validate. Check the config file.")
 
     # Set multithreading as specified by the config
-    if config.n_threads == -99:
+    if config.n_threads == 1:
         logging.info("Running in serial mode")
-    elif config.n_threads == 0:
+    elif config.n_threads == -99:
         logging.info("Running with max threads")
-    elif config.n_threads > 0:
+    elif config.n_threads > 1:
         logging.info(f"Running with {config.n_threads} threads")
         numba.config.NUMBA_NUM_THREADS = config.n_threads
     else:
         raise ValueError(
-            "n_threads must be -99, 0, or a positive integer less than the number of available threads"
+            "n_threads must be a positive integer less than the number of available threads, or -99 to run with max threads."
         )
 
     adata = AtomData.from_hdf(config.atom_data)

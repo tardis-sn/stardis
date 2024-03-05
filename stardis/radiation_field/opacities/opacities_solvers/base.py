@@ -326,7 +326,7 @@ def calc_alpha_line_at_nu(
     stellar_model,
     tracing_nus,
     line_opacity_config,
-    n_threads=-99,
+    n_threads=1,
 ):
     """
     Calculates line opacity.
@@ -443,7 +443,7 @@ def calc_alpha_line_at_nu(
                 "Broadening range must be in units of length or frequency."
             )
 
-    if n_threads == -99:  # Single threaded
+    if n_threads == 1:  # Single threaded
         alpha_line_at_nu = calc_alan_entries(
             stellar_model.no_of_depth_points,
             tracing_nus.value,
@@ -657,7 +657,7 @@ def calc_alphas(
     stellar_model,
     stellar_radiation_field,
     opacity_config,
-    n_threads=-99,
+    n_threads=1,
 ):
     """
     Calculates each opacity and adds it to the opacity dictionary contained in the radiation field.
