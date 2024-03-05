@@ -5,9 +5,11 @@ properties:
     stardis_config_version:
         enum:
         - 1.0
-    parallel:
-        type: boolean
-        default: false
+    n_threads:
+        type: number
+        multipleOf: 1
+        default: -99
+        description: Number of threads to use. If -99 run in serial. If 0, use all available threads.
     atom_data:
         type: string
     model:

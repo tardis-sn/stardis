@@ -6,6 +6,7 @@ from tardis.io.configuration.config_reader import Configuration
 
 from astropy import units as u
 from pathlib import Path
+import numba
 
 from stardis.plasma import create_stellar_plasma
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
@@ -45,6 +46,19 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
     config = Configuration(config_dict)
+
+    # Set multithreading as specified by the config
+    if config.n_threads == -99:
+        logging.info("Running in serial mode")
+    elif config.n_threads == 0:
+        logging.info("Running with max threads")
+    elif config.n_threads > 0:
+        logging.info(f"Running with {config.n_threads} threads")
+        numba.config.NUMBA_NUM_THREADS = config.n_threads
+    else:
+        raise ValueError(
+            "n_threads must be -99, 0, or a positive integer less than the number of available threads"
+        )
 
     adata = AtomData.from_hdf(config.atom_data)
 
@@ -105,14 +119,14 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         stellar_model=stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=config.opacity,
-        parallel_config=config.parallel,
+        n_threads=config.n_threads,
     )
     logging.info("Raytracing")
     raytrace(
         stellar_model,
         stellar_radiation_field,
         no_of_thetas=config.no_of_thetas,
-        parallel_config=config.parallel,
+        n_threads=config.n_threads,
     )
 
     return STARDISOutput(
