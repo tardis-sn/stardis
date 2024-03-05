@@ -44,8 +44,11 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
-    config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
-    config = Configuration(config_dict)
+    try:
+        config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
+        config = Configuration(config_dict)
+    except:
+        raise ValueError("Config failed to validate. Check the config file.")
 
     # Set multithreading as specified by the config
     if config.n_threads == -99:
