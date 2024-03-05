@@ -27,7 +27,7 @@ SCHEMA_PATH = BASE_DIR.parent / "stardis" / "config_schema.yml"
 CONFIG_PATH = BASE_DIR / "benchmark_config.yml"
 
 
-class BenchmarkStardis10Angstroms:
+class Sim10AA:
     """
     Class to benchmark Stardis functions.
     """
@@ -36,7 +36,7 @@ class BenchmarkStardis10Angstroms:
 
     def setup(self):
 
-        tracing_lambdas = np.arange(6550, 6600, 0.01) * u.Angstrom
+        tracing_lambdas = np.arange(6560, 6570, 0.01) * u.Angstrom
         os.chdir(BASE_DIR)
 
         tracing_nus = tracing_lambdas.to(u.Hz, u.spectral())
@@ -138,7 +138,7 @@ class BenchmarkStardis10Angstroms:
         create_stellar_plasma(self.stellar_model, self.adata, self.config)
 
 
-class BenchmarkStardis100Angstroms:
+class Sim100AA:
     """
     Class to benchmark Stardis functions.
     """

@@ -17,4 +17,5 @@ opacity:
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
         min: 6500 AA
         max: 6600 AA
+        broadening_range: 3 AA
 no_of_thetas: 20
