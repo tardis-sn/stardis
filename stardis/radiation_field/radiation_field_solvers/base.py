@@ -22,8 +22,8 @@ def calc_weights_parallel(delta_tau):
     w1 = np.ones_like(delta_tau)
     w2 = np.ones_like(delta_tau) * 2.0
 
-    for gap_index in numba.prange(delta_tau.shape[0]):
-        for nu_index in range(delta_tau.shape[1]):
+    for nu_index in numba.prange(delta_tau.shape[1]):
+        for gap_index in range(delta_tau.shape[0]):
             if delta_tau[gap_index, nu_index] < 5e-4:
                 w0[gap_index, nu_index] = delta_tau[gap_index, nu_index] * (
                     1 - delta_tau[gap_index, nu_index] / 2
