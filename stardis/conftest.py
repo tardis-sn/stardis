@@ -157,14 +157,14 @@ def example_stellar_radiation_field_parallel(
         stellar_model=example_stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=example_config_parallel.opacity,
-        parallel_config=example_config_parallel.parallel,
+        n_threads=example_config_parallel.n_threads,
     )
 
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
         no_of_thetas=example_config_parallel.no_of_thetas,
-        parallel_config=example_config_parallel.parallel,
+        n_threads=example_config_parallel.n_threads,
     )
     return stellar_radiation_field
 
