@@ -268,7 +268,7 @@ def single_theta_trace(
     return I_nu_theta
 
 
-def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=-99):
+def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=1):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
     rule.
@@ -294,7 +294,7 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
-    if n_threads == -99:  # Single threaded
+    if n_threads == 1:  # Single threaded
         weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
         stellar_radiation_field.F_nu = np.sum(
             weights
