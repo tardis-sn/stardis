@@ -22,8 +22,8 @@ def calc_weights_parallel(delta_tau):
     w1 = np.ones_like(delta_tau)
     w2 = np.ones_like(delta_tau) * 2.0
 
-    for gap_index in numba.prange(delta_tau.shape[0]):
-        for nu_index in range(delta_tau.shape[1]):
+    for nu_index in numba.prange(delta_tau.shape[1]):
+        for gap_index in range(delta_tau.shape[0]):
             if delta_tau[gap_index, nu_index] < 5e-4:
                 w0[gap_index, nu_index] = delta_tau[gap_index, nu_index] * (
                     1 - delta_tau[gap_index, nu_index] / 2
@@ -268,9 +268,7 @@ def single_theta_trace(
     return I_nu_theta
 
 
-def raytrace(
-    stellar_model, stellar_radiation_field, no_of_thetas=20, parallel_config=False
-):
+def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=1):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
     rule.
@@ -296,7 +294,7 @@ def raytrace(
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
-    if parallel_config is False:
+    if n_threads == 1:  # Single threaded
         weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
         stellar_radiation_field.F_nu = np.sum(
             weights
@@ -311,7 +309,7 @@ def raytrace(
             axis=2,
         )
 
-    elif parallel_config:
+    else:  # Parallel threaded
         for theta in thetas:
             weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
             stellar_radiation_field.F_nu += weight * single_theta_trace_parallel(

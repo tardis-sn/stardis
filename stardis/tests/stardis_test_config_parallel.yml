@@ -1,5 +1,5 @@
 stardis_config_version: 1.0
-parallel: True
+n_threads: -99
 atom_data: kurucz_cd23_chianti_H_He.h5
 model:
     type: marcs

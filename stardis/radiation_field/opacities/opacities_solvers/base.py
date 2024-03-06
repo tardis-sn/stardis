@@ -326,6 +326,7 @@ def calc_alpha_line_at_nu(
     stellar_model,
     tracing_nus,
     line_opacity_config,
+    n_threads=1,
 ):
     """
     Calculates line opacity.
@@ -415,22 +416,16 @@ def calc_alpha_line_at_nu(
         line_opacity_config.broadening,
     )  # This can be further improved by only calculating the broadening for the lines that are within the range.
 
-    alpha_line_at_nu = np.zeros((stellar_model.no_of_depth_points, len(tracing_nus)))
+    delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
 
     # If no broadening range, compute the contribution of every line at every frequency.
-    if line_range is None:
-        for i, nu in enumerate(tracing_nus):
-            delta_nus = nu.value - line_nus
-
-            alpha_line_at_nu[:, i] = calc_alan_entries(
-                delta_nus[:, np.newaxis],
-                doppler_widths,
-                gammas,
-                alphas_array,
-            )
+    h_lines_indices = None
+    line_range_value = None
 
     # If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range.
-    else:  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
+    if (
+        line_range is not None
+    ):  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
         h_lines_indices = (
             lines_sorted_in_range.atomic_number == 1
         ).to_numpy()  # Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
@@ -448,29 +443,182 @@ def calc_alpha_line_at_nu(
                 "Broadening range must be in units of length or frequency."
             )
 
-        # Iterate through each frequency to calculate the contribution of each line within the broadening range.
-        for i, nu in enumerate(tracing_nus):
-            delta_nus = nu.value - line_nus
+    if n_threads == 1:  # Single threaded
+        alpha_line_at_nu = calc_alan_entries(
+            stellar_model.no_of_depth_points,
+            tracing_nus.value,
+            delta_nus,
+            doppler_widths,
+            gammas,
+            alphas_array,
+            line_range_value,
+            h_lines_indices,
+        )
 
-            broadening_mask = np.abs(delta_nus) < line_range_value[i]
-            broadening_mask = np.logical_or(broadening_mask, h_lines_indices)
-
-            delta_nus_considered = delta_nus[broadening_mask]
-            gammas_considered = gammas[broadening_mask, :]
-            doppler_widths_considered = doppler_widths[broadening_mask, :]
-            alphas_considered = alphas_array[broadening_mask, :]
-            alpha_line_at_nu[:, i] = calc_alan_entries(
-                delta_nus_considered[:, np.newaxis],
-                doppler_widths_considered,
-                gammas_considered,
-                alphas_considered,
-            )
+    else:  # Parallel threaded
+        alpha_line_at_nu = calc_alan_entries_parallel(
+            stellar_model.no_of_depth_points,
+            tracing_nus.value,
+            delta_nus,
+            doppler_widths,
+            gammas,
+            alphas_array,
+            line_range_value,
+            h_lines_indices,
+        )
 
     return alpha_line_at_nu, gammas, doppler_widths
 
 
+@numba.njit(parallel=True)
+def calc_alan_entries_parallel(
+    no_of_depth_points,
+    tracing_nus_values,
+    delta_nus,
+    doppler_widths,
+    gammas,
+    alphas_array,
+    broadening_range=None,
+    h_lines_indices=None,
+):
+    """
+    This is a helper function to appropriately parallelize the alpha line at nu calculation.
+    It is analagous to the calc_alan_entries function, but with the addition of the numba.prange decorator.
+
+    Parameters
+    ----------
+    no_of_depth_points : int
+        The number of depth points.
+    tracing_nus_values : array
+        The frequencies at which to calculate the Alan entries.
+    delta_nus : array
+        The differences between the frequencies and the line frequencies.
+    doppler_widths : array
+        The Doppler widths for each frequency.
+    gammas : array
+        The damping constants for each frequency.
+    alphas_array : array
+        The array of alpha values.
+    broadening_range : array, optional
+        The broadening range for each frequency. If provided, only frequencies within
+        this range will be considered. Default is None.
+    h_lines_indices : array, optional
+        The indices of the hydrogen lines. If provided, these lines will always be
+        considered, regardless of the broadening range. Default is None.
+
+    Returns
+    -------
+    alpha_line_at_nu : array
+        The calculated Alan entries for each frequency in `tracing_nus_values`.
+
+    """
+
+    alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
+
+    if broadening_range is None:
+        for frequency_index in numba.prange(len(tracing_nus_values)):
+            alpha_line_at_nu[:, frequency_index] = _calc_alan_entries(
+                delta_nus[:, frequency_index, np.newaxis],
+                doppler_widths,
+                gammas,
+                alphas_array,
+            )
+
+    else:
+        for frequency_index in numba.prange(len(tracing_nus_values)):
+            broadening_mask = (
+                np.abs(delta_nus[:, frequency_index])
+                < broadening_range[frequency_index]
+            )
+            broadening_mask = np.logical_or(broadening_mask, h_lines_indices)
+
+            alpha_line_at_nu[:, frequency_index] = _calc_alan_entries(
+                delta_nus[:, frequency_index, np.newaxis][broadening_mask],
+                doppler_widths[broadening_mask],
+                gammas[broadening_mask],
+                alphas_array[broadening_mask],
+            )
+
+    return alpha_line_at_nu
+
+
 @numba.njit
 def calc_alan_entries(
+    no_of_depth_points,
+    tracing_nus_values,
+    delta_nus,
+    doppler_widths,
+    gammas,
+    alphas_array,
+    broadening_range=None,
+    h_lines_indices=None,
+):
+    """
+    This is a helper function to prepare appropriate calling of the voigt profile calculation and allow for structure that
+    can be parallelized. In the no broadening case it simply calls the voigt profile calculator with the appropriate structure.
+    In the broadening case it first creates a mask to only consider lines within the broadening range, and then calls the function
+    only on those lines. The variable line would make the input matrix not square, and prohibits easy access with numba, so an
+    explicit for loop must be called.
+
+    Parameters
+    ----------
+    no_of_depth_points : int
+        The number of depth points.
+    tracing_nus_values : array
+        The frequencies at which to calculate the Alan entries.
+    delta_nus : array
+        The differences between the frequencies and the line frequencies.
+    doppler_widths : array
+        The Doppler widths for each frequency.
+    gammas : array
+        The damping constants for each frequency.
+    alphas_array : array
+        The array of alpha values.
+    broadening_range : array, optional
+        The broadening range for each frequency. If provided, only frequencies within
+        this range will be considered. Default is None.
+    h_lines_indices : array, optional
+        The indices of the hydrogen lines. If provided, these lines will always be
+        considered, regardless of the broadening range. Default is None.
+
+    Returns
+    -------
+    alpha_line_at_nu : array
+        The calculated Alan entries for each frequency in `tracing_nus_values`.
+
+    """
+
+    alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
+
+    if broadening_range is None:
+        for frequency_index in range(len(tracing_nus_values)):
+            alpha_line_at_nu[:, frequency_index] = _calc_alan_entries(
+                delta_nus[:, frequency_index, np.newaxis],
+                doppler_widths,
+                gammas,
+                alphas_array,
+            )
+
+    else:
+        for frequency_index in range(len(tracing_nus_values)):
+            broadening_mask = (
+                np.abs(delta_nus[:, frequency_index])
+                < broadening_range[frequency_index]
+            )
+            broadening_mask = np.logical_or(broadening_mask, h_lines_indices)
+
+            alpha_line_at_nu[:, frequency_index] = _calc_alan_entries(
+                delta_nus[:, frequency_index, np.newaxis][broadening_mask],
+                doppler_widths[broadening_mask],
+                gammas[broadening_mask],
+                alphas_array[broadening_mask],
+            )
+
+    return alpha_line_at_nu
+
+
+@numba.njit
+def _calc_alan_entries(
     delta_nus,
     doppler_widths_at_depth_point,
     gammas_at_depth_point,
@@ -497,9 +645,8 @@ def calc_alan_entries(
     float
         Line opacity.
     """
-
     phis = voigt_profile(
-        np.abs(delta_nus), doppler_widths_at_depth_point, gammas_at_depth_point
+        delta_nus, doppler_widths_at_depth_point, gammas_at_depth_point
     )
 
     return np.sum(phis * alphas_at_depth_point, axis=0)
@@ -510,6 +657,7 @@ def calc_alphas(
     stellar_model,
     stellar_radiation_field,
     opacity_config,
+    n_threads=1,
 ):
     """
     Calculates each opacity and adds it to the opacity dictionary contained in the radiation field.
@@ -582,6 +730,7 @@ def calc_alphas(
         stellar_model,
         stellar_radiation_field.frequencies,
         opacity_config.line,
+        n_threads,
     )
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu"
