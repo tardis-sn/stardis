@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 from tardis.io.atom_data import AtomData
@@ -8,6 +6,7 @@ from tardis.io.configuration.config_reader import Configuration
 
 from astropy import units as u
 from pathlib import Path
+import numba
 
 from stardis.plasma import create_stellar_plasma
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
@@ -16,6 +15,7 @@ from stardis.radiation_field import RadiationField
 from stardis.io.model.marcs import read_marcs_model
 from stardis.io.model.mesa import read_mesa_model
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
+import logging
 
 
 BASE_DIR = Path(__file__).parent
@@ -44,12 +44,29 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
-    config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
-    config = Configuration(config_dict)
+    try:
+        config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
+        config = Configuration(config_dict)
+    except:
+        raise ValueError("Config failed to validate. Check the config file.")
+
+    # Set multithreading as specified by the config
+    if config.n_threads == 1:
+        logging.info("Running in serial mode")
+    elif config.n_threads == -99:
+        logging.info("Running with max threads")
+    elif config.n_threads > 1:
+        logging.info(f"Running with {config.n_threads} threads")
+        numba.config.NUMBA_NUM_THREADS = config.n_threads
+    else:
+        raise ValueError(
+            "n_threads must be a positive integer less than the number of available threads, or -99 to run with max threads."
+        )
 
     adata = AtomData.from_hdf(config.atom_data)
 
     # model
+    logging.info("Reading model")
     if config.model.type == "marcs":
         raw_marcs_model = read_marcs_model(
             Path(config.model.fname), gzipped=config.model.gzipped
@@ -93,20 +110,27 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         continuum_interaction_species=[],
     )
     # plasma
+    logging.info("Creating plasma")
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
     )
-
+    logging.info("Calculating alphas")
     calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=config.opacity,
+        n_threads=config.n_threads,
     )
-
-    raytrace(stellar_model, stellar_radiation_field, no_of_thetas=config.no_of_thetas)
+    logging.info("Raytracing")
+    raytrace(
+        stellar_model,
+        stellar_radiation_field,
+        no_of_thetas=config.no_of_thetas,
+        n_threads=config.n_threads,
+    )
 
     return STARDISOutput(
         config.result_options, stellar_model, stellar_plasma, stellar_radiation_field

@@ -19,6 +19,9 @@ EXAMPLE_CONF_PATH = Path(__file__).parent / "tests" / "stardis_test_config.yml"
 EXAMPLE_CONF_PATH_BROADENING = (
     Path(__file__).parent / "tests" / "stardis_test_config_broadening.yml"
 )
+EXAMPLE_CONF_PATH_PARALLEL = (
+    Path(__file__).parent / "tests" / "stardis_test_config_parallel.yml"
+)
 
 
 @pytest.fixture(scope="session")
@@ -43,6 +46,12 @@ def example_config():
 @pytest.fixture(scope="session")
 def example_config_broadening():
     config_dict = validate_yaml(EXAMPLE_CONF_PATH_BROADENING, schemapath=SCHEMA_PATH)
+    return Configuration(config_dict)
+
+
+@pytest.fixture(scope="session")
+def example_config_parallel():
+    config_dict = validate_yaml(EXAMPLE_CONF_PATH_PARALLEL, schemapath=SCHEMA_PATH)
     return Configuration(config_dict)
 
 
@@ -107,6 +116,60 @@ def example_stellar_radiation_field(
 
 
 @pytest.fixture(scope="session")
+def example_stellar_radiation_field_broadening(
+    example_stellar_model,
+    example_config_broadening,
+    example_tracing_nus,
+    example_stellar_plasma,
+):
+    stellar_radiation_field = RadiationField(
+        example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
+    )
+
+    calc_alphas(
+        stellar_plasma=example_stellar_plasma,
+        stellar_model=example_stellar_model,
+        stellar_radiation_field=stellar_radiation_field,
+        opacity_config=example_config_broadening.opacity,
+    )
+
+    raytrace(
+        example_stellar_model,
+        stellar_radiation_field,
+        no_of_thetas=example_config_broadening.no_of_thetas,
+    )
+    return stellar_radiation_field
+
+
+@pytest.fixture(scope="session")
+def example_stellar_radiation_field_parallel(
+    example_stellar_model,
+    example_config_parallel,
+    example_tracing_nus,
+    example_stellar_plasma,
+):
+    stellar_radiation_field = RadiationField(
+        example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
+    )
+
+    calc_alphas(
+        stellar_plasma=example_stellar_plasma,
+        stellar_model=example_stellar_model,
+        stellar_radiation_field=stellar_radiation_field,
+        opacity_config=example_config_parallel.opacity,
+        n_threads=example_config_parallel.n_threads,
+    )
+
+    raytrace(
+        example_stellar_model,
+        stellar_radiation_field,
+        no_of_thetas=example_config_parallel.no_of_thetas,
+        n_threads=example_config_parallel.n_threads,
+    )
+    return stellar_radiation_field
+
+
+@pytest.fixture(scope="session")
 def example_stardis_output(
     example_stellar_model,
     example_stellar_plasma,
@@ -118,4 +181,34 @@ def example_stardis_output(
         example_stellar_model,
         example_stellar_plasma,
         example_stellar_radiation_field,
+    )
+
+
+@pytest.fixture(scope="session")
+def example_stardis_output_broadening(
+    example_stellar_model,
+    example_stellar_plasma,
+    example_stellar_radiation_field_broadening,
+    example_config_broadening,
+):
+    return STARDISOutput(
+        example_config_broadening.result_options,
+        example_stellar_model,
+        example_stellar_plasma,
+        example_stellar_radiation_field_broadening,
+    )
+
+
+@pytest.fixture(scope="session")
+def example_stardis_output_parallel(
+    example_stellar_model,
+    example_stellar_plasma,
+    example_stellar_radiation_field_parallel,
+    example_config_parallel,
+):
+    return STARDISOutput(
+        example_config_parallel.result_options,
+        example_stellar_model,
+        example_stellar_plasma,
+        example_stellar_radiation_field_parallel,
     )

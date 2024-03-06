@@ -5,8 +5,14 @@ properties:
     stardis_config_version:
         enum:
         - 1.0
+    n_threads:
+        type: number
+        multipleOf: 1
+        default: 1
+        description: Number of threads to use. If 1 run in serial. If 0, use all available threads.
     atom_data:
         type: string
+        description: Path to the atomic data file. The file should be in hdf5 format output by carsus.
     model:
         type: object
         additionalProperties: false
@@ -17,17 +23,21 @@ properties:
                 - mesa
             fname:
                 type: string
+                description: Path to the model file. 
             gzipped:
                 type: boolean
-                default: false            
+                default: false
+                description: Whether the file is gzipped. Only used for marcs models.            
             final_atomic_number:
                 type: number
                 multipleOf: 1
                 default: 30
+                description: The atomic number of the heaviest element to use in the simulation. Elements heavier will be exlucded.
             truncate_to_shell:
                 type: number
                 multipleOf: 1
                 default: -99
+                description: If -99, use all shells. If positive, use only specified outermost depth points. Only used for mesa models. 
 
         required:
         - type
@@ -98,6 +108,7 @@ properties:
                             - van_der_waals
                             - radiation
                         default: []
+                        description: Types of broadening to include.
                     min:
                         type: quantity
                         default: 0 Hz
@@ -107,6 +118,7 @@ properties:
                     broadening_range:
                         type: [quantity, "null"]
                         default: null
+                        description: How far away to look for lines at any given wavelength or frequency. Must be in frequency or wavelength units. Does not apply to hydrogen. 
                     vald_linelist:
                         type: object
                         default: {}
@@ -118,12 +130,14 @@ properties:
                             shortlist:
                                 type: boolean
                                 default: false
+                        description: Options for whether to use a vald linelist. Linelist must be included the atom_data and cannot be supplied separately. 
         #required:
         #- line
     no_of_thetas:
         type: number
         multipleOf: 1
         default: 10
+        description: Number of angles to use in the simulation.
     result_options:
         type: object
         additionalProperties: False
@@ -138,6 +152,7 @@ properties:
             return_radiation_field:
                 type: boolean
                 default: True
+        description: Options for what to return from the simulation.
     required:
     - stardis_config_version
     - atom_data
