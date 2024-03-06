@@ -114,9 +114,11 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     Calculates the Voigt profile, the convolution of a Lorentz profile
     and a Gaussian profile.
 
-    This disagrees with scipy's voigt profile because doppler width disagrees with a Gaussian sigma by a factor of sqrt(2).
-    Similarly, the dispersion of the Lorentz profile is gamma/4pi (see https://robrutten.nl/rrweb/rjr-pubs/2003rtsa.book.....R.pdf page 59, eqs 3.63, 3.71, and 3.72).
-    Without the 1/2pi factor, the scipy voigt profile is returned.
+    See https://robrutten.nl/rrweb/rjr-pubs/2003rtsa.book.....R.pdf for equations following.
+    This disagrees with scipy's voigt profile because doppler width disagrees with a Gaussian sigma by a factor of sqrt(2) (see eq. 3.63 versus
+    https://en.wikipedia.org/wiki/Doppler_broadening with the equation for Gaussian sigma).
+    Similarly, the dispersion of the Lorentz profile is gamma/4pi (see page 59, 3.71, and 3.72).
+    Without the 1/2pi factor in gamma, the scipy voigt profile is returned.
     There's a factor of 2 unaccounted for, but it's not clear where it comes from.
 
     Parameters
