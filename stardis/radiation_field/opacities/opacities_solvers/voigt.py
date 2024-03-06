@@ -48,7 +48,9 @@ def _faddeeva(z):
 
     # If in Region II
     w = (
-        1j * (z * (z**2 * 1 / SQRT_PI - 1.4104739589)) / (0.75 + z**2 * (z**2 - 3.0))
+        1j
+        * (z * (z**2 * 1 / SQRT_PI - 1.4104739589))
+        / (0.75 + z**2 * (z**2 - 3.0))
         if IN_REGION_II
         else w
     )
