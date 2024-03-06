@@ -115,7 +115,8 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     and a Gaussian profile.
 
     This disagrees with scipy's voigt profile because doppler width disagrees with a Gaussian sigma by a factor of sqrt(2).
-    Similarly, the dispersion of the Lorentz profile is gamma/4pi. Without the 1/2pi factor, the scipy voigt profile is returned.
+    Similarly, the dispersion of the Lorentz profile is gamma/4pi (see https://robrutten.nl/rrweb/rjr-pubs/2003rtsa.book.....R.pdf page 59, eqs 3.63, 3.71, and 3.72).
+    Without the 1/2pi factor, the scipy voigt profile is returned.
     There's a factor of 2 unaccounted for, but it's not clear where it comes from.
 
     Parameters
