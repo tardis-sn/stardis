@@ -1,6 +1,16 @@
 STARDIS Stellar Radiative transfer
 ----------------------------------
 
+Welcome to STARDIS!
+STARDIS is an open source LTE Python package that utlizes the TARDIS infrastructure 
+to generate synthetic stellar spectra. To learn more about these codes, follow these links.
+STARDIS Documentation: https://tardis-sn.github.io/stardis/
+TARDIS Documentation: https://tardis-sn.github.io/tardis/
+
+To get started, take a look at our quickstart notebook here:
+https://tardis-sn.github.io/stardis/quickstart/quickstart.html
+Or try running it yourself 
+
 License
 -------
 
