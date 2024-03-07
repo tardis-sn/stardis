@@ -48,7 +48,9 @@ def _faddeeva(z):
 
     # If in Region II
     w = (
-        1j * (z * (z**2 * 1 / SQRT_PI - 1.4104739589)) / (0.75 + z**2 * (z**2 - 3.0))
+        1j
+        * (z * (z**2 * 1 / SQRT_PI - 1.4104739589))
+        / (0.75 + z**2 * (z**2 - 3.0))
         if IN_REGION_II
         else w
     )
@@ -119,7 +121,7 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     https://en.wikipedia.org/wiki/Doppler_broadening with the equation for Gaussian sigma).
     With the modification to dopple width, and without the 1/pi**1.5 factor in gamma,
     the scipy voigt profile is returned. I think this comes from the disagreements in the definition
-    of the voigt profile, (see page 59, 3.68, and 3.71).
+    of the voigt profile, (see page 59, 3.68, and 3.71 versus https://en.wikipedia.org/wiki/Voigt_profile).
 
 
     Parameters
