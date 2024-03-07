@@ -116,6 +116,14 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     Calculates the Voigt profile, the convolution of a Lorentz profile
     and a Gaussian profile.
 
+    See https://robrutten.nl/rrweb/rjr-pubs/2003rtsa.book.....R.pdf for equations following.
+    This disagrees with scipy's voigt profile because doppler width disagrees with a Gaussian sigma by a factor of sqrt(2) (see eq. 3.63 versus
+    https://en.wikipedia.org/wiki/Doppler_broadening with the equation for Gaussian sigma).
+    With the modification to doppler width, and without the 1/pi**1.5 factor in gamma,
+    the scipy voigt profile is returned. I think this comes from the disagreements in the definition
+    of the voigt profile, (see page 59, 3.68, and 3.71 versus https://en.wikipedia.org/wiki/Voigt_profile).
+
+
     Parameters
     ----------
     delta_nu : float
@@ -131,9 +139,13 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     phi : float
         Value of Voigt profile.
     """
-    delta_nu, doppler_width, gamma = float(delta_nu), float(doppler_width), float(gamma)
+    delta_nu, doppler_width, gamma = (
+        float(delta_nu),
+        float(doppler_width),
+        float(gamma),
+    )
 
-    z = complex(delta_nu, gamma / (4 * PI)) / doppler_width
+    z = complex(delta_nu, gamma / (SQRT_PI * PI)) / (doppler_width)
     phi = _faddeeva(z).real / (SQRT_PI * doppler_width)
     return phi
 
