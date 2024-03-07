@@ -48,9 +48,7 @@ def _faddeeva(z):
 
     # If in Region II
     w = (
-        1j
-        * (z * (z**2 * 1 / SQRT_PI - 1.4104739589))
-        / (0.75 + z**2 * (z**2 - 3.0))
+        1j * (z * (z**2 * 1 / SQRT_PI - 1.4104739589)) / (0.75 + z**2 * (z**2 - 3.0))
         if IN_REGION_II
         else w
     )
@@ -119,9 +117,10 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     See https://robrutten.nl/rrweb/rjr-pubs/2003rtsa.book.....R.pdf for equations following.
     This disagrees with scipy's voigt profile because doppler width disagrees with a Gaussian sigma by a factor of sqrt(2) (see eq. 3.63 versus
     https://en.wikipedia.org/wiki/Doppler_broadening with the equation for Gaussian sigma).
-    Similarly, the dispersion of the Lorentz profile is gamma/4pi (see page 59, 3.71, and 3.72).
-    Without the 1/2pi factor in gamma, the scipy voigt profile is returned.
-    There's a factor of 2 unaccounted for, but it's not clear where it comes from.
+    With the modification to dopple width, and without the 1/pi**1.5 factor in gamma,
+    the scipy voigt profile is returned. I think this comes from the disagreements in the definition
+    of the voigt profile, (see page 59, 3.68, and 3.71).
+
 
     Parameters
     ----------
@@ -144,7 +143,7 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
         float(gamma),
     )
 
-    z = complex(delta_nu, gamma / (2 * PI)) / (doppler_width)
+    z = complex(delta_nu, gamma / (SQRT_PI * PI)) / (doppler_width)
     phi = _faddeeva(z).real / (SQRT_PI * doppler_width)
     return phi
 
