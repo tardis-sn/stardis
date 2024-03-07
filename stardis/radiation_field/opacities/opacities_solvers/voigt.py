@@ -119,7 +119,7 @@ def _voigt_profile(delta_nu, doppler_width, gamma):
     See https://robrutten.nl/rrweb/rjr-pubs/2003rtsa.book.....R.pdf for equations following.
     This disagrees with scipy's voigt profile because doppler width disagrees with a Gaussian sigma by a factor of sqrt(2) (see eq. 3.63 versus
     https://en.wikipedia.org/wiki/Doppler_broadening with the equation for Gaussian sigma).
-    With the modification to dopple width, and without the 1/pi**1.5 factor in gamma,
+    With the modification to doppler width, and without the 1/pi**1.5 factor in gamma,
     the scipy voigt profile is returned. I think this comes from the disagreements in the definition
     of the voigt profile, (see page 59, 3.68, and 3.71 versus https://en.wikipedia.org/wiki/Voigt_profile).
 
