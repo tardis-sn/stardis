@@ -57,7 +57,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         logging.info("Running with max threads")
     elif config.n_threads > 1:
         logging.info(f"Running with {config.n_threads} threads")
-        numba.config.NUMBA_NUM_THREADS = config.n_threads
+        numba.set_num_threads(config.n_threads)
     else:
         raise ValueError(
             "n_threads must be a positive integer less than the number of available threads, or -99 to run with max threads."
