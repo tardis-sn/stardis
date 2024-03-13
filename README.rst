@@ -8,6 +8,7 @@ including a quickstart notebook, physics walkthrough and installation instructio
 Or, try running the `quickstart notebook <docs/quickstart/quickstart.ipynb>`_ yourself!
 
 To learn more about TARDIS, including documentation and collaborator information, go `here <https://tardis-sn.github.io/tardis/>`_.
+
 License
 -------
 
