@@ -11,7 +11,6 @@ from astropy import units as u
 import logging
 
 
-###TODO: Make a function that parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python
 def run_stardis(config_fname, tracing_lambdas_or_nus):
     """
     Runs a STARDIS simulation.
@@ -44,6 +43,7 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     return STARDISOutput(
         config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
     )
+    
 
 
 def set_num_threads(n_threads):
