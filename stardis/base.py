@@ -85,8 +85,8 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     """
     Create a stellar radiation field.
 
-    This function creates a stellar radiation field by initializing a `RadiationField` 
-    object and calculating the alpha values for the stellar plasma. It then performs 
+    This function creates a stellar radiation field by initializing a `RadiationField`
+    object and calculating the alpha values for the stellar plasma. It then performs
     raytracing on the stellar model.
 
     Parameters
@@ -105,8 +105,8 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     stellar_radiation_field : RadiationField
         The created stellar radiation field.
 
-    """    
-    
+    """
+
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
     )
