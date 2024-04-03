@@ -46,7 +46,28 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
 
 def set_num_threads(n_threads):
-    # Set multithreading as specified by the config
+    """
+    Set the number of threads for multithreading.
+
+    This function sets the number of threads to be used for multithreading based on the
+    input argument `n_threads`. It uses Numba's `set_num_threads` function to set the
+    number of threads.
+
+    Parameters
+    ----------
+    n_threads : int
+        The number of threads to use. If `n_threads` is 1, the function will run in
+        serial mode. If `n_threads` is -99, the function will run with the maximum
+        number of available threads. If `n_threads` is greater than 1, the function
+        will run with `n_threads` threads.
+
+    Raises
+    ------
+    ValueError
+        If `n_threads` is not a positive integer less than the number of available
+        threads, and it's not -99.
+
+    """
     if n_threads == 1:
         logging.info("Running in serial mode")
     elif n_threads == -99:
@@ -61,6 +82,31 @@ def set_num_threads(n_threads):
 
 
 def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, config):
+    """
+    Create a stellar radiation field.
+
+    This function creates a stellar radiation field by initializing a `RadiationField` 
+    object and calculating the alpha values for the stellar plasma. It then performs 
+    raytracing on the stellar model.
+
+    Parameters
+    ----------
+    tracing_nus : array
+        The frequencies at which to trace the radiation field.
+    stellar_model : StellarModel
+        The stellar model to use for the radiation field.
+    stellar_plasma : StellarPlasma
+        The stellar plasma to use for the radiation field.
+    config : Config
+        The configuration object containing the opacity and threading settings.
+
+    Returns
+    -------
+    stellar_radiation_field : RadiationField
+        The created stellar radiation field.
+
+    """    
+    
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
     )
