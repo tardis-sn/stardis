@@ -13,7 +13,8 @@ from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
-from stardis import SCHEMA_PATH, STARDISOutput
+from stardis import STARDISOutput
+from stardis.io.base import SCHEMA_PATH
 
 EXAMPLE_CONF_PATH = Path(__file__).parent / "tests" / "stardis_test_config.yml"
 EXAMPLE_CONF_PATH_BROADENING = (
