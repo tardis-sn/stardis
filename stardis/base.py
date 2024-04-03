@@ -16,6 +16,7 @@ from stardis.io.model.marcs import read_marcs_model
 from stardis.io.model.mesa import read_mesa_model
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 import logging
+import time
 
 
 BASE_DIR = Path(__file__).parent
@@ -64,9 +65,10 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         )
 
     adata = AtomData.from_hdf(config.atom_data)
-
     # model
     logging.info("Reading model")
+    func_start = time.time()
+
     if config.model.type == "marcs":
         raw_marcs_model = read_marcs_model(
             Path(config.model.fname), gzipped=config.model.gzipped
@@ -110,13 +112,19 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         continuum_interaction_species=[],
     )
     # plasma
+    logging.info(f"Model creation elapsed time: {time.time() - func_start} seconds")
     logging.info("Creating plasma")
+    func_start = time.time()
+
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
     )
+    logging.info(f"Plasma elapsed time: {time.time() - func_start} seconds")
     logging.info("Calculating alphas")
+    func_start = time.time()
+
     calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
@@ -124,13 +132,17 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         opacity_config=config.opacity,
         n_threads=config.n_threads,
     )
+
+    logging.info(f"Alpha calculation elapsed time: {time.time() - func_start} seconds")
     logging.info("Raytracing")
+    func_start = time.time()
     raytrace(
         stellar_model,
         stellar_radiation_field,
         no_of_thetas=config.no_of_thetas,
         n_threads=config.n_threads,
     )
+    logging.info(f"Raytracing elapsed time: {time.time() - func_start} seconds")
 
     return STARDISOutput(
         config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
