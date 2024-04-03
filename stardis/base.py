@@ -43,7 +43,6 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
     return STARDISOutput(
         config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
     )
-    
 
 
 def set_num_threads(n_threads):
