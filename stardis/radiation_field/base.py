@@ -1,5 +1,9 @@
-from stardis.radiation_field.opacities import Opacities
 import numpy as np
+import logging
+from stardis.radiation_field.opacities import Opacities
+from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
+from stardis.radiation_field.radiation_field_solvers import raytrace
+from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 
 class RadiationField:
@@ -31,3 +35,51 @@ class RadiationField:
         self.source_function = source_function
         self.opacities = Opacities(frequencies, stellar_model)
         self.F_nu = np.zeros((stellar_model.no_of_depth_points, len(frequencies)))
+
+
+def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, config):
+    """
+    Create a stellar radiation field.
+
+    This function creates a stellar radiation field by initializing a `RadiationField`
+    object and calculating the alpha values for the stellar plasma. It then performs
+    raytracing on the stellar model.
+
+    Parameters
+    ----------
+    tracing_nus : array
+        The frequencies at which to trace the radiation field.
+    stellar_model : StellarModel
+        The stellar model to use for the radiation field.
+    stellar_plasma : StellarPlasma
+        The stellar plasma to use for the radiation field.
+    config : Config
+        The configuration object containing the opacity and threading settings.
+
+    Returns
+    -------
+    stellar_radiation_field : RadiationField
+        The created stellar radiation field.
+
+    """
+
+    stellar_radiation_field = RadiationField(
+        tracing_nus, blackbody_flux_at_nu, stellar_model
+    )
+    logging.info("Calculating alphas")
+    calc_alphas(
+        stellar_plasma=stellar_plasma,
+        stellar_model=stellar_model,
+        stellar_radiation_field=stellar_radiation_field,
+        opacity_config=config.opacity,
+        n_threads=config.n_threads,
+    )
+    logging.info("Raytracing")
+    raytrace(
+        stellar_model,
+        stellar_radiation_field,
+        no_of_thetas=config.no_of_thetas,
+        n_threads=config.n_threads,
+    )
+
+    return stellar_radiation_field
