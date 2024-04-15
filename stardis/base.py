@@ -1,28 +1,13 @@
-import numpy as np
-
-from tardis.io.atom_data import AtomData
-from tardis.io.configuration.config_validator import validate_yaml
-from tardis.io.configuration.config_reader import Configuration
-
-from astropy import units as u
-from pathlib import Path
 import numba
 
+from stardis.io.base import parse_config_to_model
 from stardis.plasma import create_stellar_plasma
-from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
-from stardis.radiation_field.radiation_field_solvers import raytrace
-from stardis.radiation_field import RadiationField
-from stardis.io.model.marcs import read_marcs_model
-from stardis.io.model.mesa import read_mesa_model
-from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
+from stardis.radiation_field.base import create_stellar_radiation_field
+from astropy import units as u
+
 import logging
 
 
-BASE_DIR = Path(__file__).parent
-SCHEMA_PATH = BASE_DIR / "config_schema.yml"
-
-
-###TODO: Make a function that parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python
 def run_stardis(config_fname, tracing_lambdas_or_nus):
     """
     Runs a STARDIS simulation.
@@ -44,97 +29,53 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
-    try:
-        config_dict = validate_yaml(config_fname, schemapath=SCHEMA_PATH)
-        config = Configuration(config_dict)
-    except:
-        raise ValueError("Config failed to validate. Check the config file.")
+    config, adata, stellar_model = parse_config_to_model(config_fname)
+    set_num_threads(config.n_threads)
 
-    # Set multithreading as specified by the config
-    if config.n_threads == 1:
-        logging.info("Running in serial mode")
-    elif config.n_threads == -99:
-        logging.info("Running with max threads")
-    elif config.n_threads > 1:
-        logging.info(f"Running with {config.n_threads} threads")
-        numba.set_num_threads(config.n_threads)
-    else:
-        raise ValueError(
-            "n_threads must be a positive integer less than the number of available threads, or -99 to run with max threads."
-        )
-
-    adata = AtomData.from_hdf(config.atom_data)
-
-    # model
-    logging.info("Reading model")
-    if config.model.type == "marcs":
-        raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
-        )
-        stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
-        )
-
-    elif config.model.type == "mesa":
-        raw_mesa_model = read_mesa_model(Path(config.model.fname))
-        if config.model.truncate_to_shell != -99:
-            raw_mesa_model.truncate_model(config.model.truncate_to_shell)
-        elif config.model.truncate_to_shell < 0:
-            raise ValueError(
-                f"{config.model.truncate_to_shell} shells were requested for mesa model truncation. -99 is default for no truncation."
-            )
-
-        stellar_model = raw_mesa_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
-        )
-
-    else:
-        raise ValueError("Model type not recognized. Must be either 'marcs' or 'mesa'")
-
-    # Handle case of when there are fewer elements requested vs. elements in the atomic mass fraction table.
-    adata.prepare_atom_data(
-        np.arange(
-            1,
-            np.min(
-                [
-                    len(
-                        stellar_model.composition.atomic_mass_fraction.columns.tolist()
-                    ),
-                    config.model.final_atomic_number,
-                ]
-            )
-            + 1,
-        ),
-        line_interaction_type="macroatom",
-        nlte_species=[],
-        continuum_interaction_species=[],
-    )
-    # plasma
-    logging.info("Creating plasma")
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
-
-    stellar_radiation_field = RadiationField(
-        tracing_nus, blackbody_flux_at_nu, stellar_model
-    )
-    logging.info("Calculating alphas")
-    calc_alphas(
-        stellar_plasma=stellar_plasma,
-        stellar_model=stellar_model,
-        stellar_radiation_field=stellar_radiation_field,
-        opacity_config=config.opacity,
-        n_threads=config.n_threads,
-    )
-    logging.info("Raytracing")
-    raytrace(
-        stellar_model,
-        stellar_radiation_field,
-        no_of_thetas=config.no_of_thetas,
-        n_threads=config.n_threads,
+    stellar_radiation_field = create_stellar_radiation_field(
+        tracing_nus, stellar_model, stellar_plasma, config
     )
 
     return STARDISOutput(
         config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
     )
+
+
+def set_num_threads(n_threads):
+    """
+    Set the number of threads for multithreading.
+
+    This function sets the number of threads to be used for multithreading based on the
+    input argument `n_threads`. It uses Numba's `set_num_threads` function to set the
+    number of threads.
+
+    Parameters
+    ----------
+    n_threads : int
+        The number of threads to use. If `n_threads` is 1, the function will run in
+        serial mode. If `n_threads` is -99, the function will run with the maximum
+        number of available threads. If `n_threads` is greater than 1, the function
+        will run with `n_threads` threads.
+
+    Raises
+    ------
+    ValueError
+        If `n_threads` is not a positive integer less than the number of available
+        threads, and it's not -99.
+
+    """
+    if n_threads == 1:
+        logging.info("Running in serial mode")
+    elif n_threads == -99:
+        logging.info("Running with max threads")
+    elif n_threads > 1:
+        logging.info(f"Running with {n_threads} threads")
+        numba.set_num_threads(n_threads)
+    else:
+        raise ValueError(
+            "n_threads must be a positive integer less than the number of available threads, or -99 to run with max threads."
+        )
 
 
 class STARDISOutput:

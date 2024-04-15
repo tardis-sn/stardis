@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import logging
 
 from astropy import constants as const, units as u
 from scipy.interpolate import interp1d
@@ -501,6 +502,8 @@ def create_stellar_plasma(
     -------
     tardis.plasma.base.BasePlasma
     """
+
+    logging.info("Creating plasma")
 
     # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
     plasma_modules = []
