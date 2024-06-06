@@ -4,6 +4,7 @@ model:
     type: marcs
     fname: docs/quickstart/sun.mod
     final_atomic_number: 5
+    elemental_rescaling_dict : {'H': 1000, 'He': 2}
 opacity:
     file:
         Hminus_bf: stardis/data/h_minus_bf_W1979.dat
