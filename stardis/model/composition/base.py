@@ -20,13 +20,13 @@ class Composition:
         self.density = density
         self.atomic_mass_fraction = atomic_mass_fraction
 
-    def rescale_from_element_fraction(self, elements, scale_factors):
+    def rescale_elements(self, elements, scale_factors):
         """
         Renormalizes the composition after multiplying the specified element by the scale factor.
 
         Args:
-            element: The element to multiply.
-            scale_factor: How much to rescale the element by.
+            element: The elements to multiply.
+            scale_factor: How much to rescale the elements by.
 
         Returns:
             Composition: The rescaled composition object.
@@ -37,11 +37,6 @@ class Composition:
             elements = [elements]
         if not isinstance(scale_factors, list):
             scale_factors = [scale_factors]
-
-        if len(elements) != len(scale_factors):
-            raise ValueError(
-                "The lists elements and scale_factors should have the same length."
-            )
 
         new_atomic_mass_fraction = self.atomic_mass_fraction.copy()
 
