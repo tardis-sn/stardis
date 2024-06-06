@@ -1,6 +1,5 @@
 $schema: http://json-schema.org/draft-04/schema#
 type: object
-additionalProperties: false
 properties:
     stardis_config_version:
         enum:
@@ -15,7 +14,6 @@ properties:
         description: Path to the atomic data file. The file should be in hdf5 format output by carsus.
     model:
         type: object
-        additionalProperties: false
         properties:
             type:
                 enum:
