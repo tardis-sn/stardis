@@ -31,12 +31,15 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     config, adata, stellar_model = parse_config_to_model(config_fname)
     set_num_threads(config.n_threads)
+
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
     stellar_radiation_field = create_stellar_radiation_field(
         tracing_nus, stellar_model, stellar_plasma, config
     )
 
-    return stellar_radiation_field
+    return STARDISOutput(
+        config.result_options, stellar_model, stellar_plasma, stellar_radiation_field
+    )
 
 
 def set_num_threads(n_threads):
