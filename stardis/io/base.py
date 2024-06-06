@@ -97,3 +97,4 @@ def parse_config_to_model(config_fname):
         )
 
     return config, adata, stellar_model
+  
