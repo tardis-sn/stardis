@@ -42,7 +42,6 @@ properties:
               type: object
               default: {}
               description: Rescale the abundances of the elements in the model. The keys are the atomic numbers of the elements to rescale and the values are the rescaling factors.
-
         required:
         - type
         - fname
