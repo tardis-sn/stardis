@@ -8,9 +8,8 @@ import logging
 
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
-from stardis.model.composition.base import Composition
-
 from stardis.model.base import StellarModel
+from tardis.model.matter.composition import Composition
 
 
 @dataclass
@@ -57,7 +56,12 @@ class MARCSModel(object):
         atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
             atom_data, final_atomic_number
         )
-        return Composition(density, atomic_mass_fraction)
+        return Composition(
+            density,
+            atomic_mass_fraction,
+            atomic_mass_fraction,
+            atom_data.atom_data.mass.copy(),
+        )
 
     def convert_marcs_raw_abundances_to_mass_fractions(
         self, atom_data, final_atomic_number

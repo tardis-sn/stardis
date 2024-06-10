@@ -6,7 +6,7 @@ import numpy as np
 import logging
 
 from stardis.model.geometry.radial1d import Radial1DGeometry
-from stardis.model.composition.base import Composition
+from tardis.model.matter.composition import Composition
 
 from stardis.model.base import StellarModel
 from stardis.io.model.util import (
@@ -86,7 +86,12 @@ class MESAModel:
         )
 
         atomic_mass_fraction.index.name = "atomic_number"
-        return Composition(density, atomic_mass_fraction)
+        return Composition(
+            density,
+            atomic_mass_fraction,
+            atomic_mass_fraction,
+            atom_data.atom_data.mass.copy(),
+        )
 
     def to_stellar_model(
         self,
