@@ -259,6 +259,7 @@ def test_calc_n_effective_cuda_wrapped_sample_cuda_values(
             np.array(2 * [1]),
             np.array(2 * [0]),
             np.array(2 * [(0.60 * 0.642) ** (-3 / 2)]),
+            np.array(2 * [1.0]),
         ),
     ],
 )
@@ -376,6 +377,7 @@ c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
                 2 * [1.0e-19 / BOLTZMANN_CONSTANT * (36 * c4_prefactor) ** (-2.0 / 3.0)]
             ),
             np.array(2 * [1.0]),
+            np.array(2 * [1.0]),
         ),
     ],
 )
@@ -412,6 +414,7 @@ def test_calc_gamma_quadratic_stark_sample_values(
             np.array(
                 2 * [1.0e-19 / BOLTZMANN_CONSTANT * (36 * c4_prefactor) ** (-2.0 / 3.0)]
             ),
+            np.array(2 * [1.0]),
             np.array(2 * [1.0]),
         ),
     ],
@@ -495,7 +498,7 @@ def test_calc_gamma_quadratic_stark_cuda_wrapped_sample_cuda_values(
             0.0,  # n_eff_lower
             np.pi / 8 / BOLTZMANN_CONSTANT / 17 ** (1.0 / 0.3),  # temperature
             (3.0 * 6.46e-34) ** (-0.4),  # h_density
-            1.0,  # Expected output
+            13582529.79905836,  # Expected output
         ),
         (
             np.array(2 * [1], dtype=int),
@@ -503,7 +506,7 @@ def test_calc_gamma_quadratic_stark_cuda_wrapped_sample_cuda_values(
             np.array(2 * [0.0]),
             np.array(2 * [np.pi / 8 / BOLTZMANN_CONSTANT / 17 ** (1.0 / 0.3)]),
             np.array(2 * [(3.0 * 6.46e-34) ** (-0.4)]),
-            np.array(2 * [1.0]),
+            np.array(2 * [13582529.79905836]),
         ),
     ],
 )
@@ -515,15 +518,7 @@ def test_calc_gamma_van_der_waals_sample_values(
     calc_gamma_van_der_waals_sample_values_input_h_density,
     calc_gamma_van_der_waals_sample_values_expected_result,
 ):
-    print(
-        calc_gamma_van_der_waals(
-            calc_gamma_van_der_waals_sample_values_input_ion_number,
-            calc_gamma_van_der_waals_sample_values_input_n_eff_upper,
-            calc_gamma_van_der_waals_sample_values_input_n_eff_lower,
-            calc_gamma_van_der_waals_sample_values_input_temperature,
-            calc_gamma_van_der_waals_sample_values_input_h_density,
-        )
-    )
+
     assert np.allclose(
         calc_gamma_van_der_waals(
             calc_gamma_van_der_waals_sample_values_input_ion_number,
