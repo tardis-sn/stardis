@@ -38,7 +38,7 @@ VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * PI)
 
 
 @pytest.mark.parametrize(
-    "calc_doppler_width_sample_values_input_nu_line,calc_doppler_width_sample_values_input_temperature,calc_doppler_width_sample_values_input_atomic_mass, calc_doppler_width_sample_values_expected_result",
+    "calc_doppler_width_sample_values_input_nu_line, calc_doppler_width_sample_values_input_temperature, calc_doppler_width_sample_values_input_atomic_mass, calc_doppler_width_sample_values_expected_result",
     [
         (
             SPEED_OF_LIGHT,
@@ -74,7 +74,7 @@ def test_calc_doppler_width_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_doppler_width_cuda_unwrapped_sample_values_input_nu_line,calc_doppler_width_cuda_unwrapped_sample_values_input_temperature,calc_doppler_width_cuda_unwrapped_sample_values_input_atomic_mass,calc_doppler_width_cuda_unwrapped_sample_values_expected_result",
+    "calc_doppler_width_cuda_unwrapped_sample_values_input_nu_line, calc_doppler_width_cuda_unwrapped_sample_values_input_temperature, calc_doppler_width_cuda_unwrapped_sample_values_input_atomic_mass, calc_doppler_width_cuda_unwrapped_sample_values_expected_result",
     [
         (
             np.array(2 * [SPEED_OF_LIGHT]),
@@ -143,7 +143,7 @@ def test_calc_doppler_width_cuda_wrapped_sample_cuda_values(
 
 
 @pytest.mark.parametrize(
-    "calc_n_effective_sample_values_input_ion_number,calc_n_effective_sample_values_input_ionization_energy,calc_n_effective_sample_values_input_level_energy, calc_n_effective_sample_values_expected_result",
+    "calc_n_effective_sample_values_input_ion_number, calc_n_effective_sample_values_input_ionization_energy, calc_n_effective_sample_values_input_level_energy, calc_n_effective_sample_values_expected_result",
     [
         (
             1.0,
@@ -179,7 +179,7 @@ def test_calc_n_effective_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_n_effective_cuda_unwrapped_sample_values_input_ion_number,calc_n_effective_cuda_unwrapped_sample_values_input_ionization_energy,calc_n_effective_cuda_unwrapped_sample_values_input_level_energy,calc_n_effective_cuda_unwrapped_sample_values_expected_result",
+    "calc_n_effective_cuda_unwrapped_sample_values_input_ion_number, calc_n_effective_cuda_unwrapped_sample_values_input_ionization_energy, calc_n_effective_cuda_unwrapped_sample_values_input_level_energy, calc_n_effective_cuda_unwrapped_sample_values_expected_result",
     [
         (
             np.array(2 * [1]),
@@ -248,7 +248,7 @@ def test_calc_n_effective_cuda_wrapped_sample_cuda_values(
 
 
 @pytest.mark.parametrize(
-    "calc_gamma_linear_stark_sample_values_input_n_eff_upper,calc_gamma_linear_stark_sample_values_input_n_eff_lower,calc_gamma_linear_stark_sample_values_input_electron_density, calc_gamma_linear_stark_sample_values_expected_result",
+    "calc_gamma_linear_stark_sample_values_input_n_eff_upper, calc_gamma_linear_stark_sample_values_input_n_eff_lower, calc_gamma_linear_stark_sample_values_input_electron_density, calc_gamma_linear_stark_sample_values_expected_result",
     [
         (
             1,
@@ -283,7 +283,7 @@ def test_calc_gamma_linear_stark_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_gamma_linear_stark_cuda_unwrapped_sample_values_input_n_eff_upper,calc_gamma_linear_stark_cuda_unwrapped_sample_values_input_n_eff_lower,calc_gamma_linear_stark_cuda_unwrapped_sample_values_input_electron_density,calc_gamma_linear_stark_cuda_unwrapped_sample_values_expected_result",
+    "calc_gamma_linear_stark_cuda_unwrapped_sample_values_input_n_eff_upper, calc_gamma_linear_stark_cuda_unwrapped_sample_values_input_n_eff_lower, calc_gamma_linear_stark_cuda_unwrapped_sample_values_input_electron_density, calc_gamma_linear_stark_cuda_unwrapped_sample_values_expected_result",
     [
         (
             np.array(2 * [1]),
@@ -324,7 +324,7 @@ def test_calc_gamma_linear_stark_cuda_unwrapped_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_gamma_linear_stark_cuda_wrapped_sample_values_input_n_eff_upper,calc_gamma_linear_stark_cuda_wrapped_sample_values_input_n_eff_lower,calc_gamma_linear_stark_cuda_wrapped_sample_values_input_electron_density,calc_gamma_linear_stark_cuda_wrapped_sample_values_expected_result",
+    "calc_gamma_linear_stark_cuda_wrapped_sample_values_input_n_eff_upper, calc_gamma_linear_stark_cuda_wrapped_sample_values_input_n_eff_lower, calc_gamma_linear_stark_cuda_wrapped_sample_values_input_electron_density, calc_gamma_linear_stark_cuda_wrapped_sample_values_expected_result",
     [
         (
             np.array(2 * [1]),
@@ -357,7 +357,7 @@ c4_prefactor = (ELEMENTARY_CHARGE**2 * BOHR_RADIUS**3) / (
 
 
 @pytest.mark.parametrize(
-    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number, calc_gamma_quadratic_stark_sample_values_input_n_eff_upper, calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
     [
         (
             1,  # ion_number
@@ -404,7 +404,7 @@ def test_calc_gamma_quadratic_stark_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number, calc_gamma_quadratic_stark_sample_values_input_n_eff_upper, calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
     [
         (
             np.array(2 * [1], dtype=int),
@@ -452,7 +452,7 @@ def test_calc_gamma_quadratic_stark_cuda_unwrapped_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_gamma_quadratic_stark_sample_values_input_ion_number,calc_gamma_quadratic_stark_sample_values_input_n_eff_upper,calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
+    "calc_gamma_quadratic_stark_sample_values_input_ion_number, calc_gamma_quadratic_stark_sample_values_input_n_eff_upper, calc_gamma_quadratic_stark_sample_values_input_n_eff_lower, calc_gamma_quadratic_stark_sample_values_input_electron_density,  calc_gamma_quadratic_stark_sample_values_input_temperature,calc_gamma_quadratic_stark_sample_values_expected_result",
     [
         (
             np.array(2 * [1], dtype=int),
@@ -488,7 +488,7 @@ def test_calc_gamma_quadratic_stark_cuda_wrapped_sample_cuda_values(
 
 
 @pytest.mark.parametrize(
-    "calc_gamma_van_der_waals_sample_values_input_ion_number,calc_gamma_van_der_waals_sample_values_input_n_eff_upper,calc_gamma_van_der_waals_sample_values_input_n_eff_lower, calc_gamma_van_der_waals_sample_values_input_temperature,  calc_gamma_van_der_waals_sample_values_input_h_density,calc_gamma_van_der_waals_sample_values_expected_result",
+    "calc_gamma_van_der_waals_sample_values_input_ion_number,calc_gamma_van_der_waals_sample_values_input_n_eff_upper,calc_gamma_van_der_waals_sample_values_input_n_eff_lower, calc_gamma_van_der_waals_sample_values_input_temperature, calc_gamma_van_der_waals_sample_values_input_h_density,calc_gamma_van_der_waals_sample_values_expected_result",
     [
         (
             1,  # ion_number
@@ -541,7 +541,7 @@ def test_calc_gamma_van_der_waals_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_gamma_van_der_waals_sample_values_input_ion_number,calc_gamma_van_der_waals_sample_values_input_n_eff_upper,calc_gamma_van_der_waals_sample_values_input_n_eff_lower, calc_gamma_van_der_waals_sample_values_input_temperature,  calc_gamma_van_der_waals_sample_values_input_h_density,calc_gamma_van_der_waals_sample_values_expected_result",
+    "calc_gamma_van_der_waals_sample_values_input_ion_number, calc_gamma_van_der_waals_sample_values_input_n_eff_upper, calc_gamma_van_der_waals_sample_values_input_n_eff_lower, calc_gamma_van_der_waals_sample_values_input_temperature,  calc_gamma_van_der_waals_sample_values_input_h_density,calc_gamma_van_der_waals_sample_values_expected_result",
     [
         (
             np.array(2 * [1], dtype=int),
@@ -588,7 +588,7 @@ def test_calc_gamma_van_der_waals_cuda_unwrapped_sample_values(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    "calc_gamma_van_der_waals_sample_values_input_ion_number,calc_gamma_van_der_waals_sample_values_input_n_eff_upper,calc_gamma_van_der_waals_sample_values_input_n_eff_lower, calc_gamma_van_der_waals_sample_values_input_temperature,  calc_gamma_van_der_waals_sample_values_input_h_density,calc_gamma_van_der_waals_sample_values_expected_result",
+    "calc_gamma_van_der_waals_sample_values_input_ion_number, calc_gamma_van_der_waals_sample_values_input_n_eff_upper, calc_gamma_van_der_waals_sample_values_input_n_eff_lower, calc_gamma_van_der_waals_sample_values_input_temperature,  calc_gamma_van_der_waals_sample_values_input_h_density,calc_gamma_van_der_waals_sample_values_expected_result",
     [
         (
             np.array(2 * [1], dtype=int),
