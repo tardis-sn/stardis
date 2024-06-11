@@ -50,6 +50,7 @@ VACUUM_ELECTRIC_PERMITTIVITY = 1 / (4 * PI)
             np.array(2 * [SPEED_OF_LIGHT]),
             np.array(2 * [0.5]),
             np.array(2 * [BOLTZMANN_CONSTANT]),
+            np.array(2 * [1.0]),
         ),
     ],
 )
