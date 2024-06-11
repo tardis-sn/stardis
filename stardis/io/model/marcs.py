@@ -56,10 +56,14 @@ class MARCSModel(object):
         atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
             atom_data, final_atomic_number
         )
+
+        atomic_mass_fraction["mass_fraction"] = -1
+        atomic_mass_fraction.set_index("mass_fraction", append=True, inplace=True)
+
         return Composition(
             density,
             atomic_mass_fraction,
-            atomic_mass_fraction,
+            None,
             atom_data.atom_data.mass.copy(),
         )
 

@@ -85,11 +85,14 @@ class MESAModel:
             data=np.repeat(solar_profile.values, len(self.data), axis=1),
         )
 
+        atomic_mass_fraction["mass_fraction"] = -1
+        atomic_mass_fraction.set_index("mass_fraction", append=True, inplace=True)
+
         atomic_mass_fraction.index.name = "atomic_number"
         return Composition(
             density,
             atomic_mass_fraction,
-            atomic_mass_fraction,
+            None,
             atom_data.atom_data.mass.copy(),
         )
 

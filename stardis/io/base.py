@@ -73,7 +73,7 @@ def parse_config_to_model(config_fname):
             1,
             np.min(
                 [
-                    len(stellar_model.composition.element_masses.columns.tolist()),
+                    len(stellar_model.composition.element_masses),
                     config.model.final_atomic_number,
                 ]
             )

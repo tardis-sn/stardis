@@ -76,9 +76,7 @@ def example_stellar_plasma(
             1,
             np.min(
                 [
-                    len(
-                        example_stellar_model.composition.atomic_mass_fraction.columns.tolist()
-                    ),
+                    len(example_stellar_model.composition.element_masses),
                     example_config.model.final_atomic_number,
                 ]
             )
