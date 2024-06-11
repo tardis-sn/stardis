@@ -57,7 +57,9 @@ class Sim10AA:
                 1,
                 np.min(
                     [
-                        len(stellar_model.composition.element_masses),
+                        len(
+                            stellar_model.composition.elemental_mass_fractions.columns().tolist()
+                        ),
                         config.model.final_atomic_number,
                     ]
                 )
