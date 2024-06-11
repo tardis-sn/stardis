@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 from astropy import constants as const
-from numba import cuda
 
 from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calc_doppler_width,
@@ -21,7 +20,7 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calc_gamma_van_der_waals_cuda,
 )
 
-GPUs_available = cuda.is_available()
+GPUs_available = False  # cuda.is_available()
 
 if GPUs_available:
     import cupy as cp
