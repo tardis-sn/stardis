@@ -57,8 +57,8 @@ class MARCSModel(object):
             atom_data, final_atomic_number
         )
 
-        atomic_mass_fraction["mass_fraction"] = -1
-        atomic_mass_fraction.set_index("mass_fraction", append=True, inplace=True)
+        atomic_mass_fraction["mass_number"] = -1
+        atomic_mass_fraction.set_index("mass_number", append=True, inplace=True)
 
         return Composition(
             density,
