@@ -1,6 +1,5 @@
 $schema: http://json-schema.org/draft-04/schema#
 type: object
-additionalProperties: false
 properties:
     stardis_config_version:
         enum:
@@ -15,7 +14,6 @@ properties:
         description: Path to the atomic data file. The file should be in hdf5 format output by carsus.
     model:
         type: object
-        additionalProperties: false
         properties:
             type:
                 enum:
@@ -38,7 +36,10 @@ properties:
                 multipleOf: 1
                 default: -99
                 description: If -99, use all shells. If positive, use only specified outermost depth points. Only used for mesa models. 
-
+            elemental_rescaling_dict:
+              type: object
+              default: {}
+              description: Rescale the abundances of the elements in the model. The keys are the atomic numbers of the elements to rescale and the values are the rescaling factors.
         required:
         - type
         - fname

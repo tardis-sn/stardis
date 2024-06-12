@@ -74,7 +74,7 @@ def parse_config_to_model(config_fname):
             np.min(
                 [
                     len(
-                        stellar_model.composition.atomic_mass_fraction.columns.tolist()
+                        stellar_model.composition.elemental_mass_fraction.columns.tolist()
                     ),
                     config.model.final_atomic_number,
                 ]
@@ -85,5 +85,15 @@ def parse_config_to_model(config_fname):
         nlte_species=[],
         continuum_interaction_species=[],
     )
+
+    # if (
+    #     not config.model.elemental_rescaling_dict
+    # ):  # Pass if no rescaling is requested, else rescale by dictionary values provided
+    #     pass
+    # else:
+    #     stellar_model.composition.rescale_elements(
+    #         list(config.model.elemental_rescaling_dict.keys()),
+    #         list(config.model.elemental_rescaling_dict.values()),
+    #     )
 
     return config, adata, stellar_model

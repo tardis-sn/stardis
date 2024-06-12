@@ -67,7 +67,7 @@ jobs:
           key: atom-data
 
       - name: Install asv
-        run: pip install asv==0.5.*
+        run: pip install asv
 
       - name: Accept all asv questions
         run: asv machine --yes

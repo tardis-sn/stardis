@@ -18,6 +18,7 @@ RYDBERG_ENERGY = float((const.h.cgs * const.c.cgs * const.Ryd.cgs).value)
 ELEMENTARY_CHARGE = float(const.e.esu.value)
 BOHR_RADIUS = float(const.a0.cgs.value)
 VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
+H_MASS = float(const.m_p.cgs.value)
 
 
 @numba.njit
@@ -410,7 +411,6 @@ def _calc_gamma_van_der_waals(
     n_eff_lower,
     temperature,
     h_density,
-    h_mass,
 ):
     """
     Calculates broadening parameter for van der Waals broadening.
@@ -428,21 +428,18 @@ def _calc_gamma_van_der_waals(
         Temperature of depth points being considered.
     h_density : float
         Number density of Hydrogen at depth point being considered.
-    h_mass : float
-        Atomic mass of Hydrogen in grams.
 
     Returns
     -------
     gamma_van_der_waals : float
         Broadening parameter for van der Waals broadening.
     """
-    ion_number, n_eff_upper, n_eff_lower, temperature, h_density, h_mass = (
+    ion_number, n_eff_upper, n_eff_lower, temperature, h_density = (
         int(ion_number),
         float(n_eff_upper),
         float(n_eff_lower),
         float(temperature),
         float(h_density),
-        float(h_mass),
     )
     c6 = (
         6.46e-34
@@ -455,7 +452,7 @@ def _calc_gamma_van_der_waals(
 
     gamma_van_der_waals = (
         17
-        * (8 * BOLTZMANN_CONSTANT * temperature / (PI * h_mass)) ** 0.3
+        * (8 * BOLTZMANN_CONSTANT * temperature / (PI * H_MASS)) ** 0.3
         * c6**0.4
         * h_density
     )
@@ -470,7 +467,6 @@ def calc_gamma_van_der_waals(
     n_eff_lower,
     temperature,
     h_density,
-    h_mass,
 ):
     return _calc_gamma_van_der_waals(
         ion_number,
@@ -478,7 +474,6 @@ def calc_gamma_van_der_waals(
         n_eff_lower,
         temperature,
         h_density,
-        h_mass,
     )
 
 
@@ -490,7 +485,6 @@ def _calc_gamma_van_der_waals_cuda(
     n_eff_lower,
     temperature,
     h_density,
-    h_mass,
 ):
     tid = cuda.grid(1)
     size = len(res)
@@ -502,7 +496,6 @@ def _calc_gamma_van_der_waals_cuda(
             n_eff_lower[tid],
             temperature[tid],
             h_density[tid],
-            h_mass[tid],
         )
 
 
@@ -512,7 +505,6 @@ def calc_gamma_van_der_waals_cuda(
     n_eff_lower,
     temperature,
     h_density,
-    h_mass,
     nthreads=256,
     ret_np_ndarray=False,
     dtype=float,
@@ -523,7 +515,6 @@ def calc_gamma_van_der_waals_cuda(
         n_eff_lower,
         temperature,
         h_density,
-        h_mass,
     )
 
     shortest_arg_idx = np.argmin(map(len, arg_list))
@@ -554,7 +545,6 @@ def calc_gamma(
     electron_density,
     temperature,
     h_density,
-    h_mass,
     linear_stark=True,
     quadratic_stark=True,
     van_der_waals=True,
@@ -584,8 +574,6 @@ def calc_gamma(
         Temperature of depth points being considered.
     h_density : float
         Number density of Hydrogen at depth point being considered.
-    h_mass : float
-        Atomic mass of Hydrogen in grams.
     linear_stark : bool, optional
         True if linear Stark broadening is to be considered, otherwise False.
         By default True.
@@ -636,7 +624,6 @@ def calc_gamma(
             n_eff_lower,
             temperature,
             h_density,
-            h_mass,
         )
     else:
         gamma_van_der_waals = np.zeros_like(gamma_linear_stark)
@@ -698,7 +685,6 @@ def calculate_broadening(
         electron_density=stellar_plasma.electron_densities.values,
         temperature=stellar_model.temperatures.value,
         h_density=stellar_plasma.ion_number_density.loc[1, 0].values,
-        h_mass=stellar_plasma.atomic_mass.loc[1],
         linear_stark=linear_stark,
         quadratic_stark=quadratic_stark,
         van_der_waals=van_der_waals,
@@ -708,7 +694,9 @@ def calculate_broadening(
     doppler_widths = calc_doppler_width(
         lines.nu.values[:, np.newaxis],
         stellar_model.temperatures.value,
-        stellar_plasma.atomic_mass.loc[lines.atomic_number].values[:, np.newaxis],
+        stellar_model.composition.nuclide_masses.loc[lines.atomic_number].values[
+            :, np.newaxis
+        ],
     )
 
     return gammas, doppler_widths
