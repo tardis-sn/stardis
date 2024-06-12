@@ -92,8 +92,8 @@ class MESAModel:
         return Composition(
             density,
             atomic_mass_fraction,
-            None,
-            atom_data.atom_data.mass.copy(),
+            raw_isotope_abundance=None,
+            element_masses=atom_data.atom_data.mass.copy(),
         )
 
     def to_stellar_model(
