@@ -83,7 +83,7 @@ def rescale_nuclide_mass_fractions(nuclide_mass_fraction, nuclides, scale_factor
         if nuclide not in new_mass_fractions.columns:
             raise ValueError(f"{nuclide} not available in the simulation")
 
-        new_mass_fractions[nuclides] = new_mass_fractions[nuclides] * scale_factor
+        new_mass_fractions[nuclide] = new_mass_fractions[nuclide] * scale_factor
 
     return new_mass_fractions.T.div(
         new_mass_fractions.T.sum(axis=0)

@@ -72,9 +72,14 @@ def test_marcs_model(marcs_model):
 
 def test_rescale_nuclide_mass_fraction(example_stellar_model):
     rescaled = rescale_nuclide_mass_fractions(
-        example_stellar_model.composition.nuclide_mass_fraction, [5], [0.5]
+        example_stellar_model.composition.nuclide_mass_fraction, [4, 5], [1.1, 0.8]
     )
     assert np.allclose(
         rescaled.loc[5].values,
-        example_stellar_model.composition.nuclide_mass_fraction.loc[5].values * 0.5,
+        example_stellar_model.composition.nuclide_mass_fraction.loc[5].values * 0.8,
+    )
+
+    assert np.allclose(
+        rescaled.loc[5].values,
+        example_stellar_model.composition.nuclide_mass_fraction.loc[4].values * 1.1,
     )
