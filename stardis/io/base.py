@@ -8,7 +8,7 @@ from tardis.io.configuration.config_reader import Configuration
 
 from stardis.io.model.marcs import read_marcs_model
 from stardis.io.model.mesa import read_mesa_model
-from stardis.io.model.util import rescale_chemical_mass_fractions
+from stardis.io.model.util import rescale_nuclide_mass_fractions
 
 
 BASE_DIR = Path(__file__).parent.parent
@@ -88,14 +88,16 @@ def parse_config_to_model(config_fname):
     )
 
     if (
-        not config.model.elemental_rescaling_dict
+        not config.model.nuclide_rescaling_dict
     ):  # Pass if no rescaling is requested, else rescale by dictionary values provided
         pass
     else:
-        rescale_chemical_mass_fractions(
-            stellar_model.composition,
-            list(config.model.elemental_rescaling_dict.keys()),
-            list(config.model.elemental_rescaling_dict.values()),
+        stellar_model.composition.nuclide_mass_fraction = (
+            rescale_nuclide_mass_fractions(
+                stellar_model.composition.nuclide_mass_fraction,
+                list(config.model.nuclide_rescaling_dict.keys()),
+                list(config.model.nuclide_rescaling_dict.values()),
+            )
         )
 
     return config, adata, stellar_model

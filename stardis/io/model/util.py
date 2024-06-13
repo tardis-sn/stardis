@@ -60,27 +60,31 @@ def create_scaled_solar_profile(
     return solar_values.div(solar_values.sum(axis=0))
 
 
-def rescale_chemical_mass_fractions(composition, elements, scale_factors):
+def rescale_nuclide_mass_fractions(nuclide_mass_fraction, nuclides, scale_factors):
     """
-    Renormalizes the composition after multiplying the specified elements by a list of scale factors.
+    Renormalizes the nuclide_mass_fraction after multiplying the specified nuclides by a list of scale factors.
 
     Args:
-    composition: The composition object to rescale.
+    nuclide_mass_fraction: The mass_fraction object to rescale.
         nuclides: The nuclides to rescale by specified scale factors.
         scale_factors: How much to rescale the specified nuclides by before renormalizing.
+
+    returns: The rescaled mass fractions.
     """
 
-    new_mass_fractions = composition.nuclide_mass_fraction.copy().T
+    new_mass_fractions = nuclide_mass_fraction.copy().T
 
-    for element, scale_factor in zip(elements, scale_factors):
-        if not isinstance(element, int):
-            element = element_symbol2atomic_number(element)
+    for nuclide, scale_factor in zip(nuclides, scale_factors):
+        if not isinstance(nuclide, int):
+            nuclide = element_symbol2atomic_number(nuclide)
         logging.info(
-            f"Rescaling {atomic_number2element_symbol(element)} by {scale_factor}"
+            f"Rescaling {atomic_number2element_symbol(nuclide)} by {scale_factor}"
         )
+        if nuclide not in new_mass_fractions.columns:
+            raise ValueError(f"{nuclide} not available in the simulation")
 
-        new_mass_fractions[element] = new_mass_fractions[element] * scale_factor
+        new_mass_fractions[nuclides] = new_mass_fractions[nuclides] * scale_factor
 
-    composition.nuclide_mass_fraction = new_mass_fractions.T.div(
+    return new_mass_fractions.T.div(
         new_mass_fractions.T.sum(axis=0)
     )  # renormalize the composition after scaling

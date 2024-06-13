@@ -36,10 +36,10 @@ properties:
                 multipleOf: 1
                 default: -99
                 description: If -99, use all shells. If positive, use only specified outermost depth points. Only used for mesa models. 
-            elemental_rescaling_dict:
+            nuclide_rescaling_dict:
               type: object
               default: {}
-              description: Rescale the abundances of the elements in the model. The keys are the atomic numbers of the elements to rescale and the values are the rescaling factors.
+              description: Rescale the abundances of the elements/nuclides in the model. The keys are the atomic numbers of the elements to rescale and the values are the rescaling factors.
         required:
         - type
         - fname
