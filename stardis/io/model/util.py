@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+import logging
+from tardis.util.base import element_symbol2atomic_number, atomic_number2element_symbol
 
 
 PATH_TO_ASPLUND_2009 = Path(__file__).parent / "data" / "asplund_2009_processed.csv"
@@ -56,3 +58,33 @@ def create_scaled_solar_profile(
 
     # Return scaled mass fractions by dividing by total mass. Implicitly lowers the hydrogen abundance so that the total mass fraction is 1.
     return solar_values.div(solar_values.sum(axis=0))
+
+
+def rescale_nuclide_mass_fractions(nuclide_mass_fraction, nuclides, scale_factors):
+    """
+    Renormalizes the nuclide_mass_fraction after multiplying the specified nuclides by a list of scale factors.
+
+    Args:
+    nuclide_mass_fraction: The mass_fraction object to rescale.
+        nuclides: The nuclides to rescale by specified scale factors.
+        scale_factors: How much to rescale the specified nuclides by before renormalizing.
+
+    returns: The rescaled mass fractions.
+    """
+
+    new_mass_fractions = nuclide_mass_fraction.copy().T
+
+    for nuclide, scale_factor in zip(nuclides, scale_factors):
+        if not isinstance(nuclide, int):
+            nuclide = element_symbol2atomic_number(nuclide)
+        logging.info(
+            f"Rescaling {atomic_number2element_symbol(nuclide)} by {scale_factor}"
+        )
+        if nuclide not in new_mass_fractions.columns:
+            raise ValueError(f"{nuclide} not available in the simulation")
+
+        new_mass_fractions[nuclide] = new_mass_fractions[nuclide] * scale_factor
+
+    return new_mass_fractions.T.div(
+        new_mass_fractions.T.sum(axis=0)
+    )  # renormalize the composition after scaling

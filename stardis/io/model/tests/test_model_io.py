@@ -4,6 +4,7 @@ from pathlib import Path
 
 from stardis.io.model.marcs import read_marcs_model
 from stardis.io.model.mesa import read_mesa_model
+from stardis.io.model.util import rescale_nuclide_mass_fractions
 
 MARCS_TEST_FPATH = Path(__file__).parent / "data" / "marcs_test.mod.gz"
 MESA_TEST_FPATH = Path(__file__).parent / "data" / "end_core_h_burn.mod"
@@ -66,4 +67,23 @@ def test_marcs_model(marcs_model):
     assert np.allclose(
         marcs_model.data.lgtaur.iloc[0],
         -5.0,
+    )
+
+
+def test_rescale_nuclide_mass_fraction(example_stellar_model):
+    rescaled = rescale_nuclide_mass_fractions(
+        example_stellar_model.composition.nuclide_mass_fraction, [4, 5], [1.1, 0.8]
+    )
+    assert np.allclose(
+        rescaled.loc[5].values,
+        example_stellar_model.composition.nuclide_mass_fraction.loc[5].values * 0.8,
+        rtol=1e-10,
+        atol=1e-10,
+    )
+
+    assert np.allclose(
+        rescaled.loc[4].values,
+        example_stellar_model.composition.nuclide_mass_fraction.loc[4].values * 1.1,
+        rtol=1e-10,
+        atol=1e-10,
     )
