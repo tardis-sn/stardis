@@ -77,9 +77,13 @@ def test_rescale_nuclide_mass_fraction(example_stellar_model):
     assert np.allclose(
         rescaled.loc[5].values,
         example_stellar_model.composition.nuclide_mass_fraction.loc[5].values * 0.8,
+        rtol=1e-10,
+        atol=1e-10,
     )
 
     assert np.allclose(
-        rescaled.loc[5].values,
+        rescaled.loc[4].values,
         example_stellar_model.composition.nuclide_mass_fraction.loc[4].values * 1.1,
+        rtol=1e-10,
+        atol=1e-10,
     )
