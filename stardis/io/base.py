@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 from tardis.io.atom_data import AtomData
-from tardis.io.configuration.config_validator import validate_yaml
+from tardis.io.configuration.config_validator import validate_yaml, validate_dict
 from tardis.io.configuration.config_reader import Configuration
 
 from stardis.io.model.marcs import read_marcs_model
@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).parent.parent
 SCHEMA_PATH = BASE_DIR / "config_schema.yml"
 
 
-def parse_config_to_model(config_fname):
+def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=None):
     """
     Parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python.
 
@@ -23,6 +23,10 @@ def parse_config_to_model(config_fname):
     ----------
     config_fname : str
         Filepath to the STARDIS configuration. Must be a YAML file.
+        add_config_keys : list, optional
+        List of additional keys to add or overwrite for the configuration file.
+    add_config_vals : list, optional
+        List of corresponding additional values to add to the configuration file.
 
     Returns
     -------
@@ -39,6 +43,23 @@ def parse_config_to_model(config_fname):
         config = Configuration(config_dict)
     except:
         raise ValueError("Config failed to validate. Check the config file.")
+
+    if (
+        not add_config_keys
+    ):  # If a dictionary was passed, update the config with the dictionary
+        pass
+    else:
+        print("Updating config with additional keys and values")
+        try:
+            for key, val in zip(add_config_keys, add_config_vals):
+                config.set_config_item(key, val)
+        except:
+            config.set_config_item(add_config_keys, add_config_vals)
+
+        try:
+            config_dict = validate_dict(config, schemapath=SCHEMA_PATH)
+        except:
+            raise ValueError("Additional config keys and values failed to validate.")
 
     adata = AtomData.from_hdf(config.atom_data)
 
