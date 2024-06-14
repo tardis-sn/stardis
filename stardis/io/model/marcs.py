@@ -167,43 +167,43 @@ def read_marcs_metadata(fpath, gzipped=True):
     """
 
     METADATA_RE_STR = [
-        ("(.+)\\n", "fname"),
+        (r"(.+)\n", "fname"),
         (
-            "  (\d+\.)\s+Teff \[(.+)\]\.\s+Last iteration; yyyymmdd=\d+",
+            r"  (\d+\.)\s+Teff \[(.+)\]\.\s+Last iteration; yyyymmdd=\d+",
             "teff",
             "teff_units",
         ),
-        ("  (\d+\.\d+E\+\d+) Flux \[(.+)\]", "flux", "flux_units"),
+        (r"  (\d+\.\d+E\+\d+) Flux \[(.+)\]", "flux", "flux_units"),
         (
-            "  (\d+.\d+E\+\d+) Surface gravity \[(.+)\]",
+            r"  (\d+.\d+E\+\d+) Surface gravity \[(.+)\]",
             "surface_grav",
             "surface_grav_units",
         ),
         (
-            "  (\d+\.\d+)\W+Microturbulence parameter \[(.+)\]",
+            r"  (\d+\.\d+)\W+Microturbulence parameter \[(.+)\]",
             "microturbulence",
             "microturbulence_units",
         ),
-        ("  (\d+\.\d+)\s+(No mass for plane-parallel models)", "plane_parallel_mass"),
+        (r"  (\d+\.\d+)\s+(No mass for plane-parallel models)", "plane_parallel_mass"),
         (
-            " (\+?\-?\d+.\d+) (\+?\-?\d+.\d+) Metallicity \[Fe\/H] and \[alpha\/Fe\]",
+            r" (\+?\-?\d+.\d+) (\+?\-?\d+.\d+) Metallicity \[Fe\/H] and \[alpha\/Fe\]",
             "feh",
             "afe",
         ),
         (
-            "  (\d+\.\d+E\+00) (1 cm radius for plane-parallel models)",
+            r"  (\d+\.\d+E\+00) (1 cm radius for plane-parallel models)",
             "radius for plane-parallel model",
         ),
-        ("  (\d.\d+E-\d+) Luminosity \[(.+)\]", "luminosity", "luminosity_units"),
+        (r"  (\d.\d+E-\d+) Luminosity \[(.+)\]", "luminosity", "luminosity_units"),
         (
-            "  (\d+.\d+) (\d+.\d+) (\d+.\d+) (\d+.\d+) are the convection parameters: alpha, nu, y and beta",
+            r"  (\d+.\d+) (\d+.\d+) (\d+.\d+) (\d+.\d+) are the convection parameters: alpha, nu, y and beta",
             "conv_alpha",
             "conv_nu",
             "conv_y",
             "conv_beta",
         ),
         (
-            "  (0.\d+) (0.\d+) (\d.\d+E-\d+) are X, Y and Z, 12C\/13C=(\d+.?\d+)",
+            r"  (0.\d+) (0.\d+) (\d.\d+E-\d+) are X, Y and Z, 12C\/13C=(\d+.?\d+)",
             "x",
             "y",
             "z",
@@ -276,7 +276,7 @@ def read_marcs_data(fpath, gzipped=True):
         fpath,
         skiprows=LINES_BEFORE_UPPER_TABLE,
         nrows=MARCS_MODEL_SHELLS,
-        delim_whitespace=True,
+        sep=r"\s+",
         index_col="k",
     )
     marcs_model_data_lower_split = pd.read_csv(
@@ -284,7 +284,7 @@ def read_marcs_data(fpath, gzipped=True):
         skiprows=LINES_BEFORE_LOWER_TABLE,
         nrows=MARCS_MODEL_SHELLS,
         index_col="k",
-        sep="(?:\s+)|(?<=\+\d{2})(?=-)",
+        sep=r"(?:\s+)|(?<=\+\d{2})(?=-)",
         engine="python",
     )
 
