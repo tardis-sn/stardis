@@ -17,8 +17,6 @@ opacity:
     line:
         disable: False
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
-        min: 6560 AA
-        max: 6570 AA
         vald_linelist: 
             use_linelist: False
             shortlist: False

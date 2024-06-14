@@ -356,10 +356,6 @@ def calc_alpha_line_at_nu(
     if line_opacity_config.disable:
         return 0, 0, 0
 
-    _nu_min = line_opacity_config.min.to(u.Hz, u.spectral())
-    _nu_max = line_opacity_config.max.to(u.Hz, u.spectral())
-    line_nu_min = min(_nu_min, _nu_max)
-    line_nu_max = max(_nu_min, _nu_max)
     line_range = line_opacity_config.broadening_range
 
     use_vald = line_opacity_config.vald_linelist.use_linelist
@@ -394,7 +390,7 @@ def calc_alpha_line_at_nu(
 
     lines_sorted = lines.sort_values("nu")
     lines_sorted_in_range = lines_sorted[
-        lines_sorted.nu.between(line_nu_min, line_nu_max)
+        lines_sorted.nu.between(tracing_nus.min(), tracing_nus.max())
     ]
     line_nus = lines_sorted_in_range.nu.to_numpy()
 
@@ -404,7 +400,7 @@ def calc_alpha_line_at_nu(
         alphas_and_nu = stellar_plasma.alpha_line.sort_values("nu")
 
     alphas_array = (
-        alphas_and_nu[alphas_and_nu.nu.between(line_nu_min, line_nu_max)]
+        alphas_and_nu[alphas_and_nu.nu.between(tracing_nus.min(), tracing_nus.max())]
         .drop(labels="nu", axis=1)
         .to_numpy()
     )

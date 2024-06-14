@@ -13,6 +13,4 @@ opacity:
     line:
         disable: False
         broadening: []
-        min: 6560 AA
-        max: 6570 AA
 no_of_thetas: 1
