@@ -50,11 +50,18 @@ def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=No
         pass
     else:
         print("Updating config with additional keys and values")
-        try:
+        if isinstance(add_config_keys, str):
+            # Directly set the config item if add_config_keys is a string
+            config.set_config_item(add_config_keys, add_config_vals)
+        else:
+            # Proceed with iteration if add_config_keys is not a string
             for key, val in zip(add_config_keys, add_config_vals):
                 config.set_config_item(key, val)
-        except:
-            config.set_config_item(add_config_keys, add_config_vals)
+            try:
+                for key, val in zip(add_config_keys, add_config_vals):
+                    config.set_config_item(key, val)
+            except:
+                config.set_config_item(add_config_keys, add_config_vals)
 
         try:
             config_dict = validate_dict(config, schemapath=SCHEMA_PATH)
