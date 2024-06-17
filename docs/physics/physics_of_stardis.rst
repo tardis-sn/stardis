@@ -6,7 +6,7 @@ Physics of STARDIS
 Model and Plasma
 ================
 
-STARDIS assumes that the stellar atmosphere is spherically symmetric and breaks down the stellar atmosphere into radial depth points, as shown below, and then solves the plasma state at those depth points. We ingest a model atmosphere from a third party such as the MARCS code, a code that generates models of stellar atmospheres, to initialize the temperatures, chemical abundances, and densities at each depth point. The existing TARDIS plasma infrastructure determines the rest of the plasma state, namely the excitation and ionization properties and transition rates of the plasma.
+STARDIS assumes that the stellar atmosphere is spherically symmetric. It solves the state of the plasma at specific depth points throughout the atmosphere, as shown below, before moving light through the plasma. STARDIS ingests a model atmosphere from a third party such as the MARCS code, a code that generates models of stellar atmospheres, to initialize the temperatures, chemical abundances, and densities at each depth point. The code then determines the rest of the plasma, namely the states of the chemicals that compose the plasma, and uses that to understand how the plasma interacts with light.
 
 .. image:: media/model_and_plasma-1.png
    :width: 500 px
