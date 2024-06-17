@@ -8,7 +8,9 @@ from astropy import units as u
 import logging
 
 
-def run_stardis(config_fname, tracing_lambdas_or_nus):
+def run_stardis(
+    config_fname, tracing_lambdas_or_nus, add_config_keys=None, add_config_vals=None
+):
     """
     Runs a STARDIS simulation.
 
@@ -20,6 +22,10 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
         Numpy array of the frequencies or wavelengths to calculate the
         spectrum for. Must have units attached to it, with dimensions
         of either length or inverse time.
+    add_config_keys : list, optional
+        List of additional keys to add or overwrite for the configuration file.
+    add_config_vals : list, optional
+        List of corresponding additional values to add to the configuration file.
 
     Returns
     -------
@@ -29,7 +35,9 @@ def run_stardis(config_fname, tracing_lambdas_or_nus):
 
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
-    config, adata, stellar_model = parse_config_to_model(config_fname)
+    config, adata, stellar_model = parse_config_to_model(
+        config_fname, add_config_keys, add_config_vals
+    )
     set_num_threads(config.n_threads)
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
     stellar_radiation_field = create_stellar_radiation_field(
