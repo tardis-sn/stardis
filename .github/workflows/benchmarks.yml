@@ -1,7 +1,7 @@
 name: benchmarks
 
 env:
-  TARDIS_VER: master # release-2023.06.18
+  TARDIS_VER: master 
 
 on:
   push:
@@ -74,7 +74,7 @@ jobs:
 
       - name: Download TARDIS dependencies
         run: |
-          LOCK_URL="https://github.com/tardis-sn/tardis/raw/${{ env.TARDIS_VER }}/tardis_env3.yml"
+          LOCK_URL="https://github.com/tardis-sn/tardis/raw/${{ env.TARDIS_VER }}/conda-linux64.lock"
           wget -q "$LOCK_URL"
 
       - name: Add TARDIS install command to asv config file
