@@ -218,7 +218,7 @@ def read_mesa_data(fpath, mesa_shells):
     mesa_model = pd.read_csv(
         fpath,
         skiprows=ROWS_TO_SKIP,
-        delim_whitespace=True,
+        sep=r"\s+",
         nrows=mesa_shells,
         index_col=0,
         comment="!",
