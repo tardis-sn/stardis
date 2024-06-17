@@ -110,12 +110,6 @@ properties:
                             - radiation
                         default: []
                         description: Types of broadening to include.
-                    min:
-                        type: quantity
-                        default: 0 Hz
-                    max:
-                        type: quantity
-                        default: inf Hz
                     broadening_range:
                         type: [quantity, "null"]
                         default: null
