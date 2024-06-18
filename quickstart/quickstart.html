@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STARDIS &mdash; stardis 0.1.dev1+g1ed698a documentation</title>
+  <title>STARDIS &mdash; stardis 0.1.dev1+g157190a documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -16,7 +16,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=fa909a68"></script>
+        <script src="../_static/documentation_options.js?v=64cdc555"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
 
 <span class="kn">from</span> <span class="nn">stardis.base</span> <span class="kn">import</span> <span class="n">run_stardis</span>
 
-<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span><span class="p">,</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 </pre></div>
 </div>
 </div>
@@ -135,12 +135,12 @@
 </section>
 <section id="The-STARDIS-Configuration">
 <h2>The STARDIS Configuration<a class="headerlink" href="#The-STARDIS-Configuration" title="Link to this heading"></a></h2>
-<p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration. The configuration file called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code> used here can be found <a class="reference external" href="https://github.com/tardis-sn/stardis/tree/main/docs/quickstart">here</a>, along with any other files from this Quickstart. Below, we present an example for instructions for customizing the configuration for your needs.</p>
+<p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration. The configuration file called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code> used here can be found <a class="reference external" href="https://github.com/tardis-sn/stardis/tree/main/docs/quickstart">here</a>, along with the other files used in this Quickstart notebook. Below, we present an example for instructions for customizing the configuration for your needs.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 <span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to atomic data file&gt;</span>
 <span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span><span class="w"> </span><span class="c1"># more options will be available in the future</span>
-<span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to MARCS model file&gt;</span>
+<span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to model file&gt;</span>
 <span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;atomic number of largest element considered&gt;</span><span class="w"> </span><span class="c1"># may be up to 30</span>
 <span class="nt">opacity</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="c1"># reads a bound-free or free-free opacity file, omit if none</span>

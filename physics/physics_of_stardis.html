@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physics of STARDIS &mdash; stardis 0.1.dev1+g1ed698a documentation</title>
+  <title>Physics of STARDIS &mdash; stardis 0.1.dev1+g157190a documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=fa909a68"></script>
+        <script src="../_static/documentation_options.js?v=64cdc555"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -101,7 +101,7 @@
 <h1>Physics of STARDIS<a class="headerlink" href="#physics-of-stardis" title="Link to this heading"></a></h1>
 <section id="model-and-plasma">
 <h2>Model and Plasma<a class="headerlink" href="#model-and-plasma" title="Link to this heading"></a></h2>
-<p>STARDIS breaks down the stellar atmosphere into spherical shells as shown below and approximates that the plasma state is uniform throughout each shell. We rely on the MARCS code, a code that generates models of stellar atmospheres, to determine the temperatures, elemental abundances, and densities in each shell. The existing TARDIS plasma infrastructure determines the rest of the plasma state, namely the excitation and ionization properties and transition rates.</p>
+<p>STARDIS assumes that the stellar atmosphere is spherically symmetric. It solves the state of the plasma at specific depth points throughout the atmosphere, as shown below, before moving light through the plasma. STARDIS ingests a model atmosphere from a third party such as the MARCS code, a code that generates models of stellar atmospheres, to initialize the temperatures, chemical abundances, and densities at each depth point. The code then determines the rest of the plasma, namely the states of the chemicals that compose the plasma, and uses that to understand how the plasma interacts with light.</p>
 <a class="reference internal image-reference" href="../_images/model_and_plasma-1.png"><img alt="Diagram showing inner and outer boundaries of the stellar atmosphere" src="../_images/model_and_plasma-1.png" style="width: 500px;" /></a>
 </section>
 <section id="opacities">
@@ -109,7 +109,7 @@
 <p>To determine an output spectrum, we need to understand how photons of light move through the atmosphere and what interactions they experience. Opacity is a measure of how likely it is that light will be scattered or absorbed by some material, like the stellar plasma, per unit distance it travels. This is contributed to by several mechanisms, which are described <a class="reference internal" href="#opacity-sources"><span class="std std-ref">below</span></a>.</p>
 <section id="opacity-sources">
 <h3>Opacity Sources<a class="headerlink" href="#opacity-sources" title="Link to this heading"></a></h3>
-<p>The first four of these interactions are called continuum interactions, as they affect light at a large range of frequencies. Line interactions, on the other hand, only occur with light around specific frequencies, corresponding to the electron’s jump in energy. These are called <em>resonant frequencies</em>.</p>
+<p>The first four of these interactions are called continuum interactions, as they affect light at a large range of frequencies. Line interactions, on the other hand, only occur with light around specific frequencies, corresponding to difference in potential energy of an electron before and after it transitions between states. These are called <em>resonant frequencies</em>.</p>
 <section id="bound-free-absorbtion">
 <h4>Bound-Free Absorbtion<a class="headerlink" href="#bound-free-absorbtion" title="Link to this heading"></a></h4>
 <div class="math notranslate nohighlight">

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloading and Installation &mdash; stardis 0.1.dev1+g1ed698a documentation</title>
+  <title>Downloading and Installation &mdash; stardis 0.1.dev1+g157190a documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=fa909a68"></script>
+        <script src="_static/documentation_options.js?v=64cdc555"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -99,12 +99,13 @@
 </ul>
 </div>
 <p>STARDIS uses exclusively the packages in the TARDIS enviroment, as well
-as using the TARDIS code itself. However, since STARDIS can be sensitive
-to changes in TARDIS, we strongly suggest that users create a separate
-environment for STARDIS that pins the TARDIS version. To do this, run
+as using the TARDIS code itself. It uses a shared environment with TARDIS,
+as well as the TARDIS code itself. We strongly suggest that users create a separate
+environment for STARDIS. To do this, run
 the following in the terminal (replacing <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with
 <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>, <code class="docutils literal notranslate"><span class="pre">linux-64-cuda</span></code>, or <code class="docutils literal notranslate"><span class="pre">osx-64</span></code> as applicable).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
+$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
 $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git
@@ -114,6 +115,7 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 environment, which is necessary to correctly install STARDIS using the directions below.</p>
 <p>If you are using Mamba, the steps are similar:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
+$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>activate<span class="w"> </span>stardis
 $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git
