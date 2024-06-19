@@ -525,9 +525,12 @@ def create_stellar_plasma(
     )
     plasma_modules += helium_lte_properties
 
-    plasma_modules.append(HMinusDensity)
-    plasma_modules.append(H2Density)
-    plasma_modules.append(H2PlusDensity)
+    if getattr(config.opacity.file, "Hminus_bf", False):
+        plasma_modules.append(HMinusDensity)
+    if getattr(config.opacity.file, "H2_bf", False):
+        plasma_modules.append(H2Density)
+    if getattr(config.opacity.file, "H2plus_bf", False):
+        plasma_modules.append(H2PlusDensity)
 
     if config.opacity.line.vald_linelist.use_linelist:
         if config.opacity.line.vald_linelist.shortlist:
