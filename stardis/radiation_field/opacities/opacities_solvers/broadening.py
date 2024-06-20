@@ -1,8 +1,9 @@
 import numpy as np
-from astropy import constants as const
+from astropy import constants as const, units as u
 import math
 import numba
 from numba import cuda
+from scipy.ndimage import convolve1d
 
 GPUs_available = cuda.is_available()
 
@@ -19,6 +20,7 @@ ELEMENTARY_CHARGE = float(const.e.esu.value)
 BOHR_RADIUS = float(const.a0.cgs.value)
 VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
 H_MASS = float(const.m_p.cgs.value)
+C_KMS = float(const.c.to(u.km / u.s).value)
 
 
 @numba.njit
@@ -700,3 +702,51 @@ def calculate_broadening(
     )
 
     return gammas, doppler_widths
+
+
+def rotation_broadening(
+    velocity_per_pix, wavelength, flux, v_rot=0 * u.km / u.s, limb_darkening=0.6
+):
+    """Convolve a spectrum with a rotational broadening profile. Only accurate if the velocity_per_pix is constant.
+    Taken from starkit https://github.com/starkit/starkit/blob/57b919a79c1fd10e61af6036ec9ac56f38a6f883/starkit/base/operations/stellar.py#L14
+    Originally adapted from Observations of Stellar Photospheres by David Gray.
+
+    Parameters:
+        velocity_per_pix : astropy.units.Quantity
+            Velocity resolution element of the spectrum
+        wavelength : astropy.units.Quantity
+            Wavelengths of the spectrum
+        flux : astropy.units.Quantity
+            Fluxes of the spectrum
+        v_rot : astropy.units.Quantity
+            Rotational velocity, v sin(i) of the star
+        limb_darkening : float (0.6)
+            Limb darkening coefficient of the star. Default is 0.6.
+
+    Returns:
+        wavelengths: astropy.units.Quantity
+            Wavelengths of the convolved spectrum
+        fluxes: astropy.units.Quantity
+            Fluxes of the convolved spectrum
+    """
+
+    velocity_per_pix = velocity_per_pix.to(u.km / u.s).value
+    v_rot = v_rot.to(u.km / u.s).value
+
+    v_rot_by_c = np.maximum(1e-5, np.abs(v_rot)) / C_KMS
+
+    half_width_pix = np.round((v_rot / velocity_per_pix)).astype(int)
+    profile_velocity = (
+        np.linspace(-half_width_pix, half_width_pix, 2 * half_width_pix + 1)
+        * velocity_per_pix
+    )
+    profile = np.maximum(0.0, 1.0 - (profile_velocity / v_rot) ** 2)
+
+    rotational_profile = (
+        2 * (1 - limb_darkening) * profile**0.5 + 0.5 * PI * limb_darkening * profile
+    ) / (PI * v_rot_by_c * (1 - limb_darkening / 3))
+
+    if np.abs(v_rot) < 1e-5:
+        return (wavelength, flux)
+
+    return wavelength, convolve1d(flux, rotational_profile / rotational_profile.sum())

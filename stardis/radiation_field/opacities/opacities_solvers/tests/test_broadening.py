@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from astropy import constants as const
+from astropy import constants as const, units as u
 
 from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calc_doppler_width,
@@ -18,6 +18,7 @@ from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calc_gamma_van_der_waals,
     _calc_gamma_van_der_waals_cuda,
     calc_gamma_van_der_waals_cuda,
+    rotation_broadening,
 )
 
 GPUs_available = False  # cuda.is_available()
@@ -613,3 +614,12 @@ def test_calc_gamma_van_der_waals_cuda_wrapped_sample_cuda_values(
         calc_gamma_van_der_waals_cuda(*map(cp.asarray, arg_list)),
         calc_gamma_van_der_waals_sample_values_expected_result,
     )
+
+
+def test_rotational_broadening(example_stellar_output):
+    actual_wavelengths, actual_fluxes = rotation_broadening(
+        20 * u.km / u.s,
+        example_stellar_output.lambdas,
+        example_stellar_output.spectrum_lambda,
+    )
+    assert np.allclose(actual_wavelengths, example_stellar_output.lambdas)
