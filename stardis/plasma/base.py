@@ -33,6 +33,7 @@ from tardis.plasma.properties.property_collections import (
 )
 
 import tardis.plasma
+from tardis.opacities.tau_sobolev import TauSobolev
 
 
 THERMAL_DE_BROGLIE_CONST = const.h**2 / (2 * np.pi * const.k_B)
@@ -516,7 +517,7 @@ def create_stellar_plasma(
     plasma_modules.append(
         tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE
     )
-    plasma_modules.remove(tardis.plasma.properties.radiative_properties.TauSobolev)
+    plasma_modules.remove(TauSobolev)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.TimeExplosion)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.DilutionFactor)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.HeliumTreatment)
