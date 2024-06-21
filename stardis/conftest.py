@@ -2,7 +2,6 @@ import pytest
 from pathlib import Path
 import numpy as np
 from astropy import units as u
-from copy import deepcopy
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.atom_data.util import download_atom_data
