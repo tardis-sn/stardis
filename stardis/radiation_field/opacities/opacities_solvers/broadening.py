@@ -749,4 +749,12 @@ def rotation_broadening(
     if np.abs(v_rot) < 1e-5:
         return (wavelength, flux)
 
-    return wavelength, convolve1d(flux, rotational_profile / rotational_profile.sum())
+    broadened_fluxes = (
+        convolve1d(flux, rotational_profile / rotational_profile.sum())
+        * u.erg
+        / u.s
+        / u.cm**2
+        / u.Angstrom
+    )
+
+    return wavelength, broadened_fluxes

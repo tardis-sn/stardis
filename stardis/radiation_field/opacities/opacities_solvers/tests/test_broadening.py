@@ -616,10 +616,11 @@ def test_calc_gamma_van_der_waals_cuda_wrapped_sample_cuda_values(
     )
 
 
-def test_rotational_broadening(example_stellar_output):
+def test_rotational_broadening(example_stardis_output):
     actual_wavelengths, actual_fluxes = rotation_broadening(
         20 * u.km / u.s,
-        example_stellar_output.lambdas,
-        example_stellar_output.spectrum_lambda,
+        example_stardis_output.lambdas,
+        example_stardis_output.spectrum_lambda,
+        v_rot=0 * u.km / u.s,
     )
-    assert np.allclose(actual_wavelengths, example_stellar_output.lambdas)
+    assert np.allclose(actual_fluxes, example_stardis_output.spectrum_lambda)
