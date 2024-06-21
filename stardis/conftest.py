@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 import numpy as np
 from astropy import units as u
+from copy import deepcopy
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.atom_data.util import download_atom_data
@@ -40,13 +41,11 @@ def example_kurucz_atomic_data():
 
 @pytest.fixture(scope="session")
 def example_kurucz_atomic_data_broadening():
-    download_atom_data("kurucz_cd23_chianti_H_He")
     return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
 
 
 @pytest.fixture(scope="session")
 def example_kurucz_atomic_data_parllel():
-    download_atom_data("kurucz_cd23_chianti_H_He")
     return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
 
 
