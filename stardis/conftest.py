@@ -39,6 +39,16 @@ def example_kurucz_atomic_data():
 
 
 @pytest.fixture(scope="session")
+def example_kurucz_atomic_data_broadening():
+    return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
+
+
+@pytest.fixture(scope="session")
+def example_kurucz_atomic_data_parllel():
+    return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
+
+
+@pytest.fixture(scope="session")
 def example_config():
     config_dict = validate_yaml(EXAMPLE_CONF_PATH, schemapath=SCHEMA_PATH)
     return Configuration(config_dict)
@@ -94,6 +104,64 @@ def example_stellar_plasma(
 
 
 @pytest.fixture(scope="session")
+def example_stellar_plasma_parallel(
+    example_stellar_model, example_kurucz_atomic_data_parallel, example_config_parallel
+):
+    example_kurucz_atomic_data_parallel.prepare_atom_data(
+        np.arange(
+            1,
+            np.min(
+                [
+                    len(
+                        example_stellar_model.composition.elemental_mass_fraction.columns.tolist()
+                    ),
+                    example_config_parallel.model.final_atomic_number,
+                ]
+            )
+            + 1,
+        ),
+        line_interaction_type="macroatom",
+        nlte_species=[],
+        continuum_interaction_species=[],
+    )
+    return create_stellar_plasma(
+        example_stellar_model,
+        example_kurucz_atomic_data_parallel,
+        example_config_parallel,
+    )
+
+
+@pytest.fixture(scope="session")
+def example_stellar_plasma_broadening(
+    example_stellar_model,
+    example_kurucz_atomic_data_broadening,
+    example_config_broadening,
+):
+    example_kurucz_atomic_data_broadening.prepare_atom_data(
+        np.arange(
+            1,
+            np.min(
+                [
+                    len(
+                        example_stellar_model.composition.elemental_mass_fraction.columns.tolist()
+                    ),
+                    example_config_broadening.model.final_atomic_number,
+                ]
+            )
+            + 1,
+        ),
+        line_interaction_type="macroatom",
+        nlte_species=[],
+        continuum_interaction_species=[],
+    )
+    return create_stellar_plasma(
+        example_stellar_model,
+        example_kurucz_atomic_data_broadening,
+        example_config_broadening,
+    )
+
+
+@pytest.fixture(scope="session")
 def example_stellar_radiation_field(
     example_stellar_model, example_config, example_tracing_nus, example_stellar_plasma
 ):
@@ -121,14 +189,14 @@ def example_stellar_radiation_field_broadening(
     example_stellar_model,
     example_config_broadening,
     example_tracing_nus,
-    example_stellar_plasma,
+    example_stellar_plasma_broadening,
 ):
     stellar_radiation_field = RadiationField(
         example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
     )
 
     calc_alphas(
-        stellar_plasma=example_stellar_plasma,
+        stellar_plasma=example_stellar_plasma_broadening,
         stellar_model=example_stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=example_config_broadening.opacity,
@@ -147,14 +215,14 @@ def example_stellar_radiation_field_parallel(
     example_stellar_model,
     example_config_parallel,
     example_tracing_nus,
-    example_stellar_plasma,
+    example_stellar_plasma_broadening,
 ):
     stellar_radiation_field = RadiationField(
         example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
     )
 
     calc_alphas(
-        stellar_plasma=example_stellar_plasma,
+        stellar_plasma=example_stellar_plasma_broadening,
         stellar_model=example_stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=example_config_parallel.opacity,

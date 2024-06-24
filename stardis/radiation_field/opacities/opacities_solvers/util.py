@@ -31,7 +31,9 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
     if (
         opacity_source == "H2plus_bf"
     ):  # This section specifically ingests the Stancil 1994 h2_plus_bf_S1994.dat table found in data.
-        h2_plus_bf_table = pd.read_csv(fpath, delimiter="\s+", index_col=0, comment="#")
+        h2_plus_bf_table = pd.read_csv(
+            fpath, delimiter=r"\s+", index_col=0, comment="#"
+        )
         h2_plus_bf_table.replace({"-": "e-"}, regex=True, inplace=True)
         h2_plus_bf_table = h2_plus_bf_table.astype(float)
         file_wavelengths = (h2_plus_bf_table.index.values * u.nm).to(u.AA).value
@@ -53,7 +55,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
     elif (
         opacity_source == "Hminus_ff"
     ):  # This section specifically ingests the Bell and Berrington 1987 h_minus_ff_B1987.dat table found in data.
-        h_minus_ff_table = pd.read_csv(fpath, delimiter="\s+", comment="#")
+        h_minus_ff_table = pd.read_csv(fpath, delimiter=r"\s+", comment="#")
         h_minus_ff_table.columns = h_minus_ff_table.columns.str.strip(",")
 
         file_wavelengths = h_minus_ff_table[h_minus_ff_table.columns[0]].values
