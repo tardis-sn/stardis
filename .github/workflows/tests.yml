@@ -2,6 +2,8 @@ name: tests
 
 on:
   push:
+  repository_dispatch:
+    types: [trigger-workflow]
   pull_request:
   workflow_dispatch:
 
@@ -65,7 +67,7 @@ jobs:
         id: install-tardis
         # shell: bash -l {0}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git
+          pip install git+https://github.com/${{github.repository_owner}}/tardis.git@${{ github.event.client_payload.sha }}
           
       - name: Install STARDIS
         id: install-stardis
