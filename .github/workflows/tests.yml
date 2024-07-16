@@ -67,7 +67,7 @@ jobs:
         id: install-tardis
         # shell: bash -l {0}
         run: |
-          pip install git+https://github.com/${{github.repository_owner}}/tardis.git@${{ github.event.client_payload.sha }}
+          pip install git+https://github.com/${{github.repository_owner}}/tardis.git@${{ github.event.client_payload.commit_sha }}
           
       - name: Install STARDIS
         id: install-stardis
