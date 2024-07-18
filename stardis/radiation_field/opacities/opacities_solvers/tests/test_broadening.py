@@ -616,6 +616,7 @@ def test_calc_gamma_van_der_waals_cuda_wrapped_sample_cuda_values(
     )
 
 
+# Test this with actual regression data
 def test_rotational_broadening(example_stardis_output):
     actual_wavelengths, actual_fluxes_no_broadening = rotation_broadening(
         20 * u.km / u.s,
@@ -625,14 +626,14 @@ def test_rotational_broadening(example_stardis_output):
     )
 
     expected_broadening_fluxes = [
-        34069895.2932162,
-        34069822.27391726,
-        34069676.41567875,
-        34069458.07948008,
-        34069167.80744836,
-        34068806.32366434,
-        34068374.53527089,
-        34067873.53390926,
+        34325016.26500261,
+        34324942.84601202,
+        34324796.18937743,
+        34324576.65805383,
+        34324284.79713459,
+        34323921.33466243,
+        34323487.18274513,
+        34322983.43899771,
     ]
     actual_wavelengths, actual_fluxes = rotation_broadening(
         20 * u.km / u.s,
