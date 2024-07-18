@@ -114,7 +114,8 @@ def single_theta_trace_parallel(
         Array of shape (no_of_depth_points, no_of_frequencies). Output specific
         intensity at each depth point for each frequency in tracing_nus.
     """
-    # Need to calculate a mean opacity for the traversal between points. Linearly interporlating, but could have a choice for interpolation scheme here.
+    # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
+    # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
     taus = (
         mean_alphas * geometry_dist_to_next_depth_point.reshape(-1, 1) / np.cos(theta)
@@ -214,8 +215,8 @@ def single_theta_trace(
         Array of shape (no_of_depth_points, no_of_frequencies). Output specific
         intensity at each depth point for each frequency in tracing_nus.
     """
-    # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggest interpolating
-    # alphas in log space. Could have a choice for interpolation scheme here.
+    # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
+    # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
     taus = (mean_alphas * geometry_dist_to_next_depth_point.reshape(-1, 1))[
         :, :, np.newaxis
