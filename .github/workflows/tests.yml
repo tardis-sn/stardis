@@ -3,7 +3,7 @@ name: tests
 on:
   push:
   repository_dispatch:
-    types: [trigger-workflow]
+    types: [Tardis-Dispatch]
   pull_request:
   workflow_dispatch:
 
@@ -67,8 +67,14 @@ jobs:
         id: install-tardis
         # shell: bash -l {0}
         run: |
-          pip install git+https://github.com/${{github.repository_owner}}/tardis.git@${{ github.event.client_payload.commit_sha }}
-          
+            if [ "${{ github.event.action }}" == "Tardis-Dispatch" ]; then
+              echo "Triggered by repository dispatch, installing the latest version of TARDIS."
+              pip install git+https://github.com/${{github.repository_owner}}/tardis.git@${{ github.event.client_payload.commit_sha }}
+            else
+              echo "Not triggered by repository dispatch, installing the latest version of TARDIS."
+              pip install git+https://github.com/${{ github.repository_owner }}/tardis.git
+            fi
+
       - name: Install STARDIS
         id: install-stardis
         # shell: bash -l {0}
