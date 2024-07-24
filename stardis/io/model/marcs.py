@@ -147,7 +147,7 @@ class MARCSModel(object):
         return StellarModel(temperatures, marcs_geometry, marcs_composition)
 
 
-def read_marcs_metadata(fpath, gzipped=True):
+def read_marcs_metadata(fpath, gzipped=True, spherical=False):
     """
     Grabs the metadata information from a gzipped MARCS model file and returns it in a python dictionary.
     Matches the metadata information and units using regex. Assumes file line structure of plane-parallel models.
@@ -210,6 +210,11 @@ def read_marcs_metadata(fpath, gzipped=True):
             "12C/13C",
         ),
     ]
+    
+    if spherical:
+        #append regex string to grab the reference radius of the model
+        #this should be added to the depth points to get the actual radius of the model when the geometry object is created
+        pass
     BYTES_THROUGH_METADATA = 550
 
     # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
