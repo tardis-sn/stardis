@@ -197,8 +197,6 @@ def single_theta_trace(
     tracing_nus,
     thetas,
     source_function,
-    spherical=False,
-    reference_radius=2.5e11,
 ):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
@@ -227,8 +225,6 @@ def single_theta_trace(
     # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
     # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
-    if spherical:
-        pass
 
     taus = (
         mean_alphas[:, :, np.newaxis] * ray_dist_to_next_depth_point[:, np.newaxis, :]
@@ -288,7 +284,6 @@ def raytrace(
     no_of_thetas=20,
     n_threads=1,
     spherical=False,
-    reference_radius=2.5e11,
 ):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
@@ -321,15 +316,16 @@ def raytrace(
     weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
 
     if True:
-        ray_distances, ray_deepest_point_mask = calculate_spherical_ray(
+        ray_distances = calculate_spherical_ray(
             thetas, stellar_model.geometry.r
         )
-        # print(ray_distances.shape)
+        print(ray_distances)
+    # print(ray_distances.shape)
     else:
         ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(
             -1, 1
         ) / np.cos(thetas)
-        # print(ray_distances.shape)
+    # print(ray_distances.shape)
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     if n_threads == 1:  # Single threaded
@@ -364,31 +360,21 @@ def raytrace(
 
 def calculate_spherical_ray(thetas, depth_points_radii):
     ###NOTE: This will need to be revisited to handle some rays more carefully if they don't go through the star
-    ray_distance_to_next_depth_point = np.zeros(
+    ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
     )
-    ray_deepest_layer_mask = np.zeros((len(depth_points_radii), len(thetas)))
+    # ray_deepest_layer_mask = np.zeros((len(depth_points_radii), len(thetas)), dtype=bool)
 
     for theta_index, theta in enumerate(thetas):
-        b = depth_points_radii[-1] * np.sin(theta)
+        b = depth_points_radii[-1] * np.sin(theta) #impact parameter of the ray
         ray_depth_selection_mask = (
             b < depth_points_radii
-        )  # mask for the depth points that the ray will pass through.
+        )[:-1]  # mask for the depth points that the ray will pass through.
         ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
 
-        ray_distance_to_next_depth_point[:, theta_index] = np.diff(
+        ray_distance= np.diff(
             ray_z_coordinate_grid
         )
-        ray_deepest_layer_mask[:, theta_index] = ray_depth_selection_mask
-        if ray_distance_to_next_depth_point.any() == 0:
-            print(f"NaN in ray_distance_to_next_depth_point, theta is {theta}")
-        print(ray_distance_to_next_depth_point)
+        ray_distance_through_layer_by_impact_parameter[ray_depth_selection_mask, theta_index] = ray_distance[ray_depth_selection_mask]
 
-    # b = depth_points_radii[-1] * np.sin(thetas) #impact parameter
-    # ray_depth_selection_mask = b < depth_points_radii #mask for the depth points that the ray will pass through.
-    # #The layers the ray doesn't pass through will not contribute to the outgoing flux
-    # ray_distances = np.zeros_like(b)
-    # print(ray_distances.shape)
-    # ray_distances = np.sqrt(depth_points_radii[ray_depth_selection_mask]**2 - b**2)
-    # ray_distance_to_next_depth_point = np.diff(ray_distances)
-    return (ray_distance_to_next_depth_point, ray_deepest_layer_mask)
+    return (ray_distance_through_layer_by_impact_parameter)
