@@ -163,6 +163,8 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             Path to model file
     gzipped : Bool
             Whether or not the file is gzipped
+    spherical : Bool
+            Whether or not the model is spherical
 
     Returns
     -------
@@ -387,6 +389,8 @@ def read_marcs_model(fpath, gzipped=True, spherical=False):
             Path to model file
     gzipped : Bool
             Whether or not the file is gzipped
+    spherical : Bool
+            Whether or not the model is spherical
 
     Returns
     -------

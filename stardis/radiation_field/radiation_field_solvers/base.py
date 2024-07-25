@@ -1,5 +1,6 @@
 import numba
 import numpy as np
+from astropy import units as u
 
 
 @numba.njit(parallel=True)
@@ -308,10 +309,12 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
     weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
     
-    if spherical:
-        ray_depth_selection_mask, ray_distances = calculate_spherical_ray(thetas, stellar_model.geometry.r)
+    if True:
+        ray_distances, ray_deepest_point_mask = calculate_spherical_ray(thetas, stellar_model.geometry.r)
+        # print(ray_distances.shape)
     else: 
         ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(-1,1) / np.cos(thetas)
+        # print(ray_distances.shape)
     
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
@@ -342,10 +345,28 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=
 
     return stellar_radiation_field.F_nu
 
-def calculate_spherical_ray(theta, depth_points_radii):
+def calculate_spherical_ray(thetas, depth_points_radii):
     ###NOTE: This will need to be revisited to handle some rays more carefully if they don't go through the star 
-    b = depth_points_radii[-1] * np.sin(theta) #impact parameter
-    ray_depth_selection_mask = b < depth_points_radii #mask for the depth points that the ray will pass through. 
-    #The layers the ray doesn't pass through will not contribute to the outgoing flux
-    ray_distance_to_next_depth_point = np.sqrt(depth_points_radii[ray_depth_selection_mask]**2 - b**2)
-    return(ray_depth_selection_mask, ray_distance_to_next_depth_point)
+    ray_distance_to_next_depth_point = np.zeros((len(depth_points_radii) - 1, len(thetas)))
+    ray_deepest_layer_mask = np.zeros((len(depth_points_radii), len(thetas)))
+    
+    for theta_index, theta in enumerate(thetas):
+        b = depth_points_radii[-1] * np.sin(theta)
+        ray_depth_selection_mask = b < depth_points_radii #mask for the depth points that the ray will pass through. 
+        ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
+        
+        ray_distance_to_next_depth_point[:, theta_index] = np.diff(ray_z_coordinate_grid)
+        ray_deepest_layer_mask[:, theta_index] = ray_depth_selection_mask
+        if ray_distance_to_next_depth_point.any() == 0:
+            print(f"NaN in ray_distance_to_next_depth_point, theta is {theta}")
+        print(ray_distance_to_next_depth_point)
+        
+    
+    # b = depth_points_radii[-1] * np.sin(thetas) #impact parameter
+    # ray_depth_selection_mask = b < depth_points_radii #mask for the depth points that the ray will pass through. 
+    # #The layers the ray doesn't pass through will not contribute to the outgoing flux
+    # ray_distances = np.zeros_like(b)
+    # print(ray_distances.shape)
+    # ray_distances = np.sqrt(depth_points_radii[ray_depth_selection_mask]**2 - b**2)
+    # ray_distance_to_next_depth_point = np.diff(ray_distances)
+    return(ray_distance_to_next_depth_point, ray_deepest_layer_mask)
