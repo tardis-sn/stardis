@@ -36,8 +36,8 @@ class MARCSModel(object):
             -self.data.depth.values[::-1] * u.cm
         )  # Flip data to move from innermost stellar point to surface
         if self.spherical:
-            r += self.metadata['radius'] 
-            
+            r += self.metadata["radius"]
+
         return Radial1DGeometry(r)
 
     def to_composition(self, atom_data, final_atomic_number):
@@ -250,7 +250,11 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             "radius",
             "radius_units",
         ),
-        (r"\s+(\d+\.\d+(?:E[+-]?\d+)?) Luminosity \[(.+)\]", "luminosity", "luminosity_units"),
+        (
+            r"\s+(\d+\.\d+(?:E[+-]?\d+)?) Luminosity \[(.+)\]",
+            "luminosity",
+            "luminosity_units",
+        ),
         (
             r"  (\d+.\d+) (\d+.\d+) (\d+.\d+) (\d+.\d+) are the convection parameters: alpha, nu, y and beta",
             "conv_alpha",
@@ -290,8 +294,8 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             contents = file.readlines(BYTES_THROUGH_METADATA)
 
     lines = list(contents)
-    
-    #Check each line against the regex patterns and add the matched values to the metadata dictionary
+
+    # Check each line against the regex patterns and add the matched values to the metadata dictionary
     for i in range(len(metadata_re_str)):
         line = lines[i]
         metadata_re_match = metadata_re[i].match(line)
