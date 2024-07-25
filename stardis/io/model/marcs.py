@@ -166,7 +166,7 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             metadata parameters of file
     """
 
-    METADATA_RE_STR = [
+    METADATA_PLANE_PARALLEL_RE_STR = [
         (r"(.+)\n", "fname"),
         (
             r"  (\d+\.)\s+Teff \[(.+)\]\.\s+Last iteration; yyyymmdd=\d+",
@@ -210,16 +210,69 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             "12C/13C",
         ),
     ]
-    
-    if spherical:
-        #append regex string to grab the reference radius of the model
-        #this should be added to the depth points to get the actual radius of the model when the geometry object is created
-        pass
+
+    METADATA_SPHERICAL_RE_STR = [
+        (r"(.+)\n", "fname"),
+        (
+            r"  (\d+\.)\s+Teff \[(.+)\]\.\s+Last iteration; yyyymmdd=\d+",
+            "teff",
+            "teff_units",
+        ),
+        (r"  (\d+\.\d+E\+\d+) Flux \[(.+)\]", "flux", "flux_units"),
+        (
+            r"  (\d+.\d+E\+\d+) Surface gravity \[(.+)\]",
+            "surface_grav",
+            "surface_grav_units",
+        ),
+        (
+            r"  (\d+\.\d+)\W+Microturbulence parameter \[(.+)\]",
+            "microturbulence",
+            "microturbulence_units",
+        ),
+        (
+            r"\s+(\d+\.\d+)\s+Mass \[(.+)\]",
+            "mass",
+            "mass_units",
+        ),
+        (
+            r" (\+?\-?\d+.\d+) (\+?\-?\d+.\d+) Metallicity \[Fe\/H] and \[alpha\/Fe\]",
+            "feh",
+            "afe",
+        ),
+        (
+            r"  (\d+.\d+E\+\d\d) Radius \[(.+)\] at Tau",
+            "radius",
+            "radius_units",
+        ),
+        (r"\s+(\d+\.\d+(?:E[+-]?\d+)?) Luminosity \[(.+)\]", "luminosity", "luminosity_units"),
+        (
+            r"  (\d+.\d+) (\d+.\d+) (\d+.\d+) (\d+.\d+) are the convection parameters: alpha, nu, y and beta",
+            "conv_alpha",
+            "conv_nu",
+            "conv_y",
+            "conv_beta",
+        ),
+        (
+            r"  (0.\d+) (0.\d+) (\d.\d+E-\d+) are X, Y and Z, 12C\/13C=(\d+.?\d+)",
+            "x",
+            "y",
+            "z",
+            "12C/13C",
+        ),
+    ]
     BYTES_THROUGH_METADATA = 550
 
     # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
     # Then add each of the matched patterns as a key:value pair to the metadata dict.
-    metadata_re = [re.compile(re_str[0]) for re_str in METADATA_RE_STR]
+    spherical = True
+    if spherical:
+        metadata_re = [re.compile(re_str[0]) for re_str in METADATA_SPHERICAL_RE_STR]
+        metadata_re_str = METADATA_SPHERICAL_RE_STR
+    else:
+        metadata_re = [
+            re.compile(re_str[0]) for re_str in METADATA_PLANE_PARALLEL_RE_STR
+        ]
+        metadata_re_str = METADATA_PLANE_PARALLEL_RE_STR
     metadata = {}
 
     if gzipped:
@@ -231,11 +284,12 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             contents = file.readlines(BYTES_THROUGH_METADATA)
 
     lines = list(contents)
-
-    for i, line in enumerate(lines):
+    
+    for i in range(len(metadata_re_str)):
+        line = lines[i]
         metadata_re_match = metadata_re[i].match(line)
 
-        for j, metadata_name in enumerate(METADATA_RE_STR[i][1:]):
+        for j, metadata_name in enumerate(metadata_re_str[i][1:]):
             metadata[metadata_name] = metadata_re_match.group(j + 1)
 
     # clean up metadata dictionary by changing strings of numbers to floats and attaching parsed units where appropriate
