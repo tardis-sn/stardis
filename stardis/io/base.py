@@ -80,7 +80,7 @@ def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=No
     logger.info("Reading model")
     if config.model.type == "marcs":
         raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
+            Path(config.model.fname), gzipped=config.model.gzipped, spherical=config.model.spherical
         )
         stellar_model = raw_marcs_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
