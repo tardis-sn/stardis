@@ -22,6 +22,7 @@ class MARCSModel(object):
 
     metadata: dict
     data: pd.DataFrame
+    spherical: bool
 
     def to_geometry(self):
         """
@@ -34,6 +35,9 @@ class MARCSModel(object):
         r = (
             -self.data.depth.values[::-1] * u.cm
         )  # Flip data to move from innermost stellar point to surface
+        if self.spherical:
+            r += self.metadata['radius'] 
+            
         return Radial1DGeometry(r)
 
     def to_composition(self, atom_data, final_atomic_number):
@@ -264,7 +268,6 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
 
     # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
     # Then add each of the matched patterns as a key:value pair to the metadata dict.
-    spherical = True
     if spherical:
         metadata_re = [re.compile(re_str[0]) for re_str in METADATA_SPHERICAL_RE_STR]
         metadata_re_str = METADATA_SPHERICAL_RE_STR
@@ -375,7 +378,7 @@ def read_marcs_data(fpath, gzipped=True):
     return marcs_model_data
 
 
-def read_marcs_model(fpath, gzipped=True):
+def read_marcs_model(fpath, gzipped=True, spherical=False):
     """
     Parameters
     ----------
@@ -389,7 +392,7 @@ def read_marcs_model(fpath, gzipped=True):
     model : MARCSModel
         Assembled metadata and data pair of a MARCS model
     """
-    metadata = read_marcs_metadata(fpath, gzipped=gzipped)
+    metadata = read_marcs_metadata(fpath, gzipped=gzipped, spherical=spherical)
     data = read_marcs_data(fpath, gzipped=gzipped)
 
-    return MARCSModel(metadata, data)
+    return MARCSModel(metadata, data, spherical=spherical)
