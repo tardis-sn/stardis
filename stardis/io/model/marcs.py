@@ -268,6 +268,7 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
 
     # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
     # Then add each of the matched patterns as a key:value pair to the metadata dict.
+    # Files are formatted a little differently depending on if the MARCS model is spherical or plane-parallel
     if spherical:
         metadata_re = [re.compile(re_str[0]) for re_str in METADATA_SPHERICAL_RE_STR]
         metadata_re_str = METADATA_SPHERICAL_RE_STR
@@ -288,10 +289,10 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
 
     lines = list(contents)
     
+    #Check each line against the regex patterns and add the matched values to the metadata dictionary
     for i in range(len(metadata_re_str)):
         line = lines[i]
         metadata_re_match = metadata_re[i].match(line)
-
         for j, metadata_name in enumerate(metadata_re_str[i][1:]):
             metadata[metadata_name] = metadata_re_match.group(j + 1)
 
