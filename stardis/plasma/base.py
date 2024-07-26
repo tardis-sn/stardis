@@ -545,9 +545,14 @@ def create_stellar_plasma(
     # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
     # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
 
+    radiation_field = tardis.plasma.radiation_field.DilutePlanckianRadiationField(
+        temperature=stellar_model.temperatures,
+        dilution_factor=np.ones_like(stellar_model.temperatures),
+    )
+
     return BasePlasma(
         plasma_properties=plasma_modules,
-        t_rad=stellar_model.temperatures.value,
+        dilute_planckian_radiation_field=radiation_field,
         abundance=stellar_model.composition.elemental_mass_fraction,
         atomic_data=atom_data,
         number_density=stellar_model.composition.elemental_number_density,
