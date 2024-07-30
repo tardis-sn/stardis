@@ -120,8 +120,8 @@ def single_theta_trace_parallel(
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
 
     taus = np.zeros_like(mean_alphas, dtype=np.float64)
-    for gap_index in numba.prange(taus.shape[0]):
-        for nu_index in range(taus.shape[1]):
+    for nu_index in numba.prange(taus.shape[1]):
+        for gap_index in range(taus.shape[0]):
             taus[gap_index, nu_index] = (
                 mean_alphas[gap_index, nu_index]
                 * ray_dist_to_next_depth_point[gap_index]
@@ -133,7 +133,7 @@ def single_theta_trace_parallel(
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
     I_nu_theta[0] = source[
         0
-    ]  # the innermost depth point is approximated as a blackbody
+    ]*0  # the innermost depth point is approximated as a blackbody
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
@@ -329,16 +329,14 @@ def raytrace(
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
     weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
-
-    if True:
+    spherical=True
+    if spherical:
         ray_distances = calculate_spherical_ray(thetas, stellar_model.geometry.r)
-        print(ray_distances)
-    # print(ray_distances.shape)
+        # print(ray_distances)
     else:
         ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(
             -1, 1
         ) / np.cos(thetas)
-    # print(ray_distances.shape)
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     if n_threads == 1:  # Single threaded
@@ -374,28 +372,16 @@ def raytrace(
 def calculate_spherical_ray(thetas, depth_points_radii):
     ###NOTE: This will need to be revisited to handle some rays more carefully if they don't go through the star
     ray_distance_through_layer_by_impact_parameter = np.zeros(
-        (len(depth_points_radii) - 1, len(thetas))
+        (len(depth_points_radii)-1, len(thetas))
     )
 
     for theta_index, theta in enumerate(thetas):
         b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
-
-        deepest_ray_layer = np.argmin(np.abs(depth_points_radii - b))
-        for i in range(deepest_ray_layer + 1, len(depth_points_radii)):
-            ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
-            ray_distance = np.diff(ray_z_coordinate_grid)
-            ray_distance_through_layer_by_impact_parameter[i - 1, theta_index] = (
-                ray_distance[i - 1]
-            )
-
-        # ray_depth_selection_mask = (
-        #     b < depth_points_radii[:-1]
-        # )  # mask for the depth points that the ray will pass through.
-        # ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
-
-        # ray_distance = np.diff(ray_z_coordinate_grid)
-        # ray_distance_through_layer_by_impact_parameter[
-        #     ray_depth_selection_mask, theta_index
-        # ] = ray_distance[ray_depth_selection_mask]
-
+        deepest_ray_layer_index = np.argmin(np.abs(depth_points_radii - b))
+        ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
+        ray_distance = np.diff(ray_z_coordinate_grid)
+        # ray_distance_through_layer_by_impact_parameter[~np.isnan(ray_distance), theta_index] = ray_distance[~np.isnan(ray_distance)]
+        valid_layers = np.arange(deepest_ray_layer_index, len(depth_points_radii)-1)
+        ray_distance_through_layer_by_impact_parameter[valid_layers, theta_index] = ray_distance[valid_layers].value
+        
     return ray_distance_through_layer_by_impact_parameter
