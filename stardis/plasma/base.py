@@ -16,20 +16,8 @@ from tardis.plasma.properties.property_collections import (
     basic_properties,
     lte_excitation_properties,
     lte_ionization_properties,
-    macro_atom_properties,
-    dilute_lte_excitation_properties,
-    nebular_ionization_properties,
     non_nlte_properties,
-    nlte_properties,
-    helium_nlte_properties,
-    helium_numerical_nlte_properties,
     helium_lte_properties,
-    detailed_j_blues_properties,
-    detailed_j_blues_inputs,
-    continuum_interaction_properties,
-    continuum_interaction_inputs,
-    adiabatic_cooling_properties,
-    two_photon_properties,
 )
 
 import tardis.plasma
@@ -517,6 +505,7 @@ def create_stellar_plasma(
     plasma_modules.append(
         tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE
     )
+
     plasma_modules.remove(TauSobolev)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.TimeExplosion)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.DilutionFactor)
@@ -541,10 +530,6 @@ def create_stellar_plasma(
     else:
         plasma_modules.append(AlphaLine)
 
-    # plasma_modules.remove(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor)
-    # plasma_modules.remove(tardis.plasma.properties.general.SelectedAtoms)
-    # plasma_modules.remove(tardis.plasma.properties.plasma_input.Density)
-
     radiation_field = tardis.plasma.radiation_field.DilutePlanckianRadiationField(
         temperature=stellar_model.temperatures,
         dilution_factor=np.ones_like(stellar_model.temperatures),
@@ -559,4 +544,6 @@ def create_stellar_plasma(
         link_t_rad_t_electron=1.0,
         nlte_ionization_species=[],
         nlte_excitation_species=[],
+        plasma_solver_settings=None,
+        j_blues=None,
     )
