@@ -505,7 +505,7 @@ def create_stellar_plasma(
     plasma_modules.append(
         tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE
     )
-    
+
     plasma_modules.remove(TauSobolev)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.TimeExplosion)
     plasma_modules.remove(tardis.plasma.properties.plasma_input.DilutionFactor)
