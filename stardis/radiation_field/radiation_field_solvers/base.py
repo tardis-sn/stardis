@@ -140,39 +140,51 @@ def single_theta_trace_parallel(
     for nu_index in numba.prange(len(tracing_nus)):
         for gap_index in range(no_of_depth_gaps - 1):
             # Start by solving all the weights and prefactors except the last jump which would go out of bounds
-            second_term = (
-                w1[gap_index, nu_index]
-                * (
-                    (source[gap_index + 1, nu_index] - source[gap_index + 2, nu_index])
-                    * (taus[gap_index, nu_index] / taus[gap_index + 1, nu_index])
-                    - (source[gap_index + 1, nu_index] - source[gap_index, nu_index])
-                    * (taus[gap_index + 1, nu_index] / taus[gap_index, nu_index])
+            if taus[gap_index, nu_index] < 5e-4:
+                I_nu_theta[gap_index + 1, nu_index] = I_nu_theta[gap_index, nu_index]
+            else:
+                second_term = (
+                    w1[gap_index, nu_index]
+                    * (
+                        (
+                            source[gap_index + 1, nu_index]
+                            - source[gap_index + 2, nu_index]
+                        )
+                        * (taus[gap_index, nu_index] / taus[gap_index + 1, nu_index])
+                        - (
+                            source[gap_index + 1, nu_index]
+                            - source[gap_index, nu_index]
+                        )
+                        * (taus[gap_index + 1, nu_index] / taus[gap_index, nu_index])
+                    )
+                    / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
                 )
-                / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
-            )
-            third_term = w2[gap_index, nu_index] * (
-                (
+                third_term = w2[gap_index, nu_index] * (
                     (
                         (
-                            source[gap_index + 2, nu_index]
-                            - source[gap_index + 1, nu_index]
+                            (
+                                source[gap_index + 2, nu_index]
+                                - source[gap_index + 1, nu_index]
+                            )
+                            / taus[gap_index + 1, nu_index]
                         )
-                        / taus[gap_index + 1, nu_index]
+                        + (
+                            (
+                                source[gap_index, nu_index]
+                                - source[gap_index + 1, nu_index]
+                            )
+                            / taus[gap_index, nu_index]
+                        )
                     )
-                    + (
-                        (source[gap_index, nu_index] - source[gap_index + 1, nu_index])
-                        / taus[gap_index, nu_index]
-                    )
+                    / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
                 )
-                / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
-            )
-            # Solve the raytracing equation for all points other than the final jump
-            I_nu_theta[gap_index + 1, nu_index] = (
-                (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index, nu_index]
-                + w0[gap_index, nu_index] * source[gap_index + 1, nu_index]
-                + second_term
-                + third_term
-            )
+                # Solve the raytracing equation for all points other than the final jump
+                I_nu_theta[gap_index + 1, nu_index] = (
+                    (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index, nu_index]
+                    + w0[gap_index, nu_index] * source[gap_index + 1, nu_index]
+                    + second_term
+                    + third_term
+                )
 
         # Below is the final jump, assuming source does not change and tau is 0 beyond the last depth point
         third_term = (
@@ -181,11 +193,12 @@ def single_theta_trace_parallel(
             / taus[-1, nu_index] ** 2
         )
         # Solve the raytracing equation for the final jump
-        I_nu_theta[-1, nu_index] = (
-            (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
-            + w0[-1, nu_index] * source[-1, nu_index]
-            + third_term
-        )
+        I_nu_theta[-1, nu_index] = I_nu_theta[-2, nu_index]
+        # (
+        #     (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
+        #     + w0[-1, nu_index] * source[-1, nu_index]
+        #     + third_term
+        # )
 
     return I_nu_theta
 
@@ -225,6 +238,7 @@ def single_theta_trace(
     # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
     # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
+    # skip the parts of the plasma where the ray does not reach
 
     taus = (
         mean_alphas[:, :, np.newaxis] * ray_dist_to_next_depth_point[:, np.newaxis, :]
@@ -264,6 +278,7 @@ def single_theta_trace(
     for gap_index in range(
         no_of_depth_gaps - 1
     ):  # solve the ray tracing equation out to the surface of the star, not including the last jump
+
         I_nu_theta[gap_index + 1] = (
             (1 - w0[gap_index]) * I_nu_theta[gap_index]
             + w0[gap_index] * source[gap_index + 1]
@@ -316,9 +331,7 @@ def raytrace(
     weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
 
     if True:
-        ray_distances = calculate_spherical_ray(
-            thetas, stellar_model.geometry.r
-        )
+        ray_distances = calculate_spherical_ray(thetas, stellar_model.geometry.r)
         print(ray_distances)
     # print(ray_distances.shape)
     else:
@@ -363,18 +376,26 @@ def calculate_spherical_ray(thetas, depth_points_radii):
     ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
     )
-    # ray_deepest_layer_mask = np.zeros((len(depth_points_radii), len(thetas)), dtype=bool)
 
     for theta_index, theta in enumerate(thetas):
-        b = depth_points_radii[-1] * np.sin(theta) #impact parameter of the ray
-        ray_depth_selection_mask = (
-            b < depth_points_radii
-        )[:-1]  # mask for the depth points that the ray will pass through.
-        ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
+        b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
 
-        ray_distance= np.diff(
-            ray_z_coordinate_grid
-        )
-        ray_distance_through_layer_by_impact_parameter[ray_depth_selection_mask, theta_index] = ray_distance[ray_depth_selection_mask]
+        deepest_ray_layer = np.argmin(np.abs(depth_points_radii - b))
+        for i in range(deepest_ray_layer + 1, len(depth_points_radii)):
+            ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
+            ray_distance = np.diff(ray_z_coordinate_grid)
+            ray_distance_through_layer_by_impact_parameter[i - 1, theta_index] = (
+                ray_distance[i - 1]
+            )
 
-    return (ray_distance_through_layer_by_impact_parameter)
+        # ray_depth_selection_mask = (
+        #     b < depth_points_radii[:-1]
+        # )  # mask for the depth points that the ray will pass through.
+        # ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
+
+        # ray_distance = np.diff(ray_z_coordinate_grid)
+        # ray_distance_through_layer_by_impact_parameter[
+        #     ray_depth_selection_mask, theta_index
+        # ] = ray_distance[ray_depth_selection_mask]
+
+    return ray_distance_through_layer_by_impact_parameter
