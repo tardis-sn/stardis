@@ -80,6 +80,7 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
         stellar_radiation_field,
         no_of_thetas=config.no_of_thetas,
         n_threads=config.n_threads,
+        spherical=config.model.spherical,
     )
 
     return stellar_radiation_field

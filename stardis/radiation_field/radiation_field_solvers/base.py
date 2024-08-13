@@ -131,17 +131,19 @@ def single_theta_trace_parallel(
 
     source = source_function(tracing_nus, temps)
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
-    I_nu_theta[0] = source[
-        0
-    ]*0  # the innermost depth point is approximated as a blackbody
+    I_nu_theta[0] = (
+        source[0] * 0
+    )  # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. Check this
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
     for nu_index in numba.prange(len(tracing_nus)):
         for gap_index in range(no_of_depth_gaps - 1):
             # Start by solving all the weights and prefactors except the last jump which would go out of bounds
-            if taus[gap_index, nu_index] < 5e-4:
-                I_nu_theta[gap_index + 1, nu_index] = I_nu_theta[gap_index, nu_index]
+            if taus[gap_index, nu_index] == 0:
+                I_nu_theta[gap_index + 1, nu_index] = I_nu_theta[
+                    gap_index, nu_index
+                ]  # If no optical depth, no change in intensity
             else:
                 second_term = (
                     w1[gap_index, nu_index]
@@ -187,18 +189,21 @@ def single_theta_trace_parallel(
                 )
 
         # Below is the final jump, assuming source does not change and tau is 0 beyond the last depth point
-        third_term = (
-            w2[-1, nu_index]
-            * (source[-2, nu_index] - source[-1, nu_index])
-            / taus[-1, nu_index] ** 2
-        )
-        # Solve the raytracing equation for the final jump
-        I_nu_theta[-1, nu_index] = I_nu_theta[-2, nu_index]
-        # (
-        #     (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
-        #     + w0[-1, nu_index] * source[-1, nu_index]
-        #     + third_term
-        # )
+
+        if taus[-1, nu_index] == 0:
+            I_nu_theta[-1, nu_index] = I_nu_theta[-2, nu_index]
+        else:
+            third_term = (
+                w2[-1, nu_index]
+                * (source[-2, nu_index] - source[-1, nu_index])
+                / taus[-1, nu_index] ** 2
+            )
+            # Solve the raytracing equation for the final jump
+            I_nu_theta[-1, nu_index] = (
+                (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
+                + w0[-1, nu_index] * source[-1, nu_index]
+                + third_term
+            )
 
     return I_nu_theta
 
@@ -249,7 +254,7 @@ def single_theta_trace(
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), thetas.shape[2]))
     I_nu_theta[0] = source[
         0
-    ]  # the innermost depth point is approximated as a blackbody
+    ]  # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. Check this
 
     # Solve for all the weights and prefactors except the last jump which would go out of bounds
     w0, w1, w2 = calc_weights(taus)
@@ -319,19 +324,17 @@ def raytrace(
         each depth_point for each frequency in tracing_nus.
     """
 
-    if spherical:
-        # Calculate photosphere correction - apply it later to F_nu
-        pass
-    else:
-        pass
     dtheta = (np.pi / 2) / no_of_thetas  # Korg uses Gauss-Legendre quadrature here
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
     weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
-    spherical=True
+
     if spherical:
         ray_distances = calculate_spherical_ray(thetas, stellar_model.geometry.r)
+        photometric_correction = (
+            stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
+        ) ** 2
         # print(ray_distances)
     else:
         ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(
@@ -354,17 +357,31 @@ def raytrace(
         )
 
     else:  # Parallel threaded
-        for theta_index, theta in enumerate(thetas):
-            stellar_radiation_field.F_nu += weights[
-                theta_index
-            ] * single_theta_trace_parallel(
-                ray_distances[:, theta_index],
-                stellar_model.temperatures.value.reshape(-1, 1),
-                stellar_radiation_field.opacities.total_alphas,
-                stellar_radiation_field.frequencies,
-                theta,
-                stellar_radiation_field.source_function,
-            )
+        if spherical:
+            for theta_index, theta in enumerate(thetas):
+                stellar_radiation_field.F_nu += weights[
+                    theta_index
+                ] * single_theta_trace_parallel(
+                    ray_distances[:, theta_index],
+                    stellar_model.temperatures.value.reshape(-1, 1),
+                    stellar_radiation_field.opacities.total_alphas,
+                    stellar_radiation_field.frequencies,
+                    theta,
+                    stellar_radiation_field.source_function,
+                )
+            stellar_radiation_field.F_nu *= photometric_correction
+        else:
+            for theta_index, theta in enumerate(thetas):
+                stellar_radiation_field.F_nu += weights[
+                    theta_index
+                ] * single_theta_trace_parallel(
+                    ray_distances[:, theta_index],
+                    stellar_model.temperatures.value.reshape(-1, 1),
+                    stellar_radiation_field.opacities.total_alphas,
+                    stellar_radiation_field.frequencies,
+                    theta,
+                    stellar_radiation_field.source_function,
+                )
 
     return stellar_radiation_field.F_nu
 
@@ -372,16 +389,22 @@ def raytrace(
 def calculate_spherical_ray(thetas, depth_points_radii):
     ###NOTE: This will need to be revisited to handle some rays more carefully if they don't go through the star
     ray_distance_through_layer_by_impact_parameter = np.zeros(
-        (len(depth_points_radii)-1, len(thetas))
+        (len(depth_points_radii) - 1, len(thetas))
     )
 
     for theta_index, theta in enumerate(thetas):
         b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
-        deepest_ray_layer_index = np.argmin(np.abs(depth_points_radii - b))
         ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
-        ray_distance = np.diff(ray_z_coordinate_grid)
-        # ray_distance_through_layer_by_impact_parameter[~np.isnan(ray_distance), theta_index] = ray_distance[~np.isnan(ray_distance)]
-        valid_layers = np.arange(deepest_ray_layer_index, len(depth_points_radii)-1)
-        ray_distance_through_layer_by_impact_parameter[valid_layers, theta_index] = ray_distance[valid_layers].value
-        
+
+        dr = np.diff(depth_points_radii)
+        ds = dr * depth_points_radii[1:] / ray_z_coordinate_grid[1:]
+        ray_distance_through_layer_by_impact_parameter[~np.isnan(ds), theta_index] = ds[
+            ~np.isnan(ds)
+        ]
+
+        # ray_distance = np.diff(ray_z_coordinate_grid)
+        # ray_distance_through_layer_by_impact_parameter[
+        #     ~np.isnan(ray_distance), theta_index
+        # ] = ray_distance[~np.isnan(ray_distance)]
+
     return ray_distance_through_layer_by_impact_parameter
