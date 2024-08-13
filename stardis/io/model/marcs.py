@@ -32,13 +32,15 @@ class MARCSModel(object):
         -------
         stardis.model.geometry.radial1d.Radial1DGeometry
         """
+
+        reference_r = None
         r = (
             -self.data.depth.values[::-1] * u.cm
         )  # Flip data to move from innermost stellar point to surface
         if self.spherical:
             r += self.metadata["radius"]
-
-        return Radial1DGeometry(r)
+            reference_r = self.metadata["radius"]
+        return Radial1DGeometry(r, reference_r)
 
     def to_composition(self, atom_data, final_atomic_number):
         """
