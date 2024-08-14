@@ -88,7 +88,6 @@ def single_theta_trace_parallel(
     temps,
     alphas,
     tracing_nus,
-    theta,
     source_function,
 ):
     """
@@ -106,8 +105,6 @@ def single_theta_trace_parallel(
         each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    theta : float
-        Angle that the ray makes with the normal/radial direction.
 
     Returns
     -------
@@ -131,9 +128,7 @@ def single_theta_trace_parallel(
 
     source = source_function(tracing_nus, temps)
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
-    I_nu_theta[0] = (
-        source[0] * 0
-    )  # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. Check this
+    # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. This should be fine if models are optically thick.
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
@@ -208,12 +203,12 @@ def single_theta_trace_parallel(
     return I_nu_theta
 
 
-def single_theta_trace(
+def all_thetas_trace(
     ray_dist_to_next_depth_point,
     temps,
     alphas,
     tracing_nus,
-    thetas,
+    num_of_thetas,
     source_function,
 ):
     """
@@ -231,8 +226,7 @@ def single_theta_trace(
         each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    thetas : numpy.ndarray
-        Angle that the ray makes with the normal/radial direction.
+    num_of_thetas : int
 
     Returns
     -------
@@ -243,7 +237,6 @@ def single_theta_trace(
     # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
     # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
-    # skip the parts of the plasma where the ray does not reach
 
     taus = (
         mean_alphas[:, :, np.newaxis] * ray_dist_to_next_depth_point[:, np.newaxis, :]
@@ -251,10 +244,8 @@ def single_theta_trace(
     no_of_depth_gaps = len(ray_dist_to_next_depth_point)
 
     source = source_function(tracing_nus, temps)[:, :, np.newaxis]
-    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), thetas.shape[2]))
-    I_nu_theta[0] = (
-        source[0] * 0
-    )  # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. Check this
+    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), num_of_thetas))
+    # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case.
 
     # Solve for all the weights and prefactors except the last jump which would go out of bounds
     w0, w1, w2 = calc_weights(taus)
@@ -290,7 +281,7 @@ def single_theta_trace(
         I_nu_theta[gap_index + 1, ~tau_0_mask] = (
             (1 - w0[gap_index, ~tau_0_mask]) * I_nu_theta[gap_index, ~tau_0_mask]
             + w0[gap_index, ~tau_0_mask]
-            * np.repeat(source[gap_index + 1], thetas.shape[2], axis=1)[~tau_0_mask]
+            * np.repeat(source[gap_index + 1], num_of_thetas, axis=1)[~tau_0_mask]
             + second_term[gap_index, ~tau_0_mask]
             + third_term[gap_index, ~tau_0_mask]
         )
@@ -348,12 +339,12 @@ def raytrace(
     if n_threads == 1:  # Single threaded
         stellar_radiation_field.F_nu = np.sum(
             weights
-            * single_theta_trace(
+            * all_thetas_trace(
                 ray_distances,
                 stellar_model.temperatures.value.reshape(-1, 1),
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
-                thetas[np.newaxis, np.newaxis, :],
+                len(thetas),
                 stellar_radiation_field.source_function,
             ),
             axis=2,
@@ -368,34 +359,32 @@ def raytrace(
                 stellar_model.temperatures.value.reshape(-1, 1),
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
-                theta,
                 stellar_radiation_field.source_function,
             )
     if spherical:
-        stellar_radiation_field.F_nu *= photometric_correction
+        stellar_radiation_field.F_nu *= (
+            photometric_correction  # Outermost radius is larger than the photosphere
+        )
 
     return stellar_radiation_field.F_nu
 
 
 def calculate_spherical_ray(thetas, depth_points_radii):
-    ###NOTE: This will need to be revisited to handle some rays more carefully if they don't go through the star
+    # NOTE: May need to revisit for outer rays. Currently don't include the outer rays going going through the far side of the star
     ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
     )
 
     for theta_index, theta in enumerate(thetas):
         b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
-        ray_z_coordinate_grid = np.sqrt(depth_points_radii**2 - b**2)
+        ray_z_coordinate_grid = np.sqrt(
+            depth_points_radii**2 - b**2
+        )  # Rays that don't go deeper than a layer will have a nan here
 
         dr = np.diff(depth_points_radii)
-        ds = dr * depth_points_radii[1:] / ray_z_coordinate_grid[1:]
-        ray_distance_through_layer_by_impact_parameter[~np.isnan(ds), theta_index] = ds[
-            ~np.isnan(ds)
-        ]
-
-        # ray_distance = np.diff(ray_z_coordinate_grid)
-        # ray_distance_through_layer_by_impact_parameter[
-        #     ~np.isnan(ray_distance), theta_index
-        # ] = ray_distance[~np.isnan(ray_distance)]
+        ray_distance = dr * depth_points_radii[1:] / ray_z_coordinate_grid[1:]
+        ray_distance_through_layer_by_impact_parameter[
+            ~np.isnan(ray_distance), theta_index
+        ] = ray_distance[~np.isnan(ray_distance)]
 
     return ray_distance_through_layer_by_impact_parameter
