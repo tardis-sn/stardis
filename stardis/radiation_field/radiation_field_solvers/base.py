@@ -252,9 +252,9 @@ def single_theta_trace(
 
     source = source_function(tracing_nus, temps)[:, :, np.newaxis]
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), thetas.shape[2]))
-    I_nu_theta[0] = source[
-        0
-    ]  # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. Check this
+    I_nu_theta[0] = (
+        source[0] * 0
+    )  # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. Check this
 
     # Solve for all the weights and prefactors except the last jump which would go out of bounds
     w0, w1, w2 = calc_weights(taus)
@@ -283,15 +283,19 @@ def single_theta_trace(
     for gap_index in range(
         no_of_depth_gaps - 1
     ):  # solve the ray tracing equation out to the surface of the star, not including the last jump
-
-        I_nu_theta[gap_index + 1] = (
-            (1 - w0[gap_index]) * I_nu_theta[gap_index]
-            + w0[gap_index] * source[gap_index + 1]
-            + second_term[gap_index]
-            + third_term[gap_index]
+        tau_0_mask = taus[gap_index] == 0
+        I_nu_theta[gap_index + 1][tau_0_mask] = I_nu_theta[
+            gap_index, tau_0_mask
+        ]  # If no optical depth, no change in intensity
+        I_nu_theta[gap_index + 1, ~tau_0_mask] = (
+            (1 - w0[gap_index, ~tau_0_mask]) * I_nu_theta[gap_index, ~tau_0_mask]
+            + w0[gap_index, ~tau_0_mask]
+            * np.repeat(source[gap_index + 1], thetas.shape[2], axis=1)[~tau_0_mask]
+            + second_term[gap_index, ~tau_0_mask]
+            + third_term[gap_index, ~tau_0_mask]
         )
 
-    # Solve for the last jump and the final output intensity assuming source does not change and tau is 0
+    # Solve for the last jump and the final output intensity assuming source does not change and tau forward beyond boundary is 0
     third_term = w2[-1] * (source[-2] - source[-1]) / taus[-1] ** 2
     I_nu_theta[-1] = (1 - w0[-1]) * I_nu_theta[-2] + w0[-1] * source[-1] + third_term
 
@@ -335,7 +339,6 @@ def raytrace(
         photometric_correction = (
             stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
         ) ** 2
-        # print(ray_distances)
     else:
         ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(
             -1, 1
@@ -357,31 +360,19 @@ def raytrace(
         )
 
     else:  # Parallel threaded
-        if spherical:
-            for theta_index, theta in enumerate(thetas):
-                stellar_radiation_field.F_nu += weights[
-                    theta_index
-                ] * single_theta_trace_parallel(
-                    ray_distances[:, theta_index],
-                    stellar_model.temperatures.value.reshape(-1, 1),
-                    stellar_radiation_field.opacities.total_alphas,
-                    stellar_radiation_field.frequencies,
-                    theta,
-                    stellar_radiation_field.source_function,
-                )
-            stellar_radiation_field.F_nu *= photometric_correction
-        else:
-            for theta_index, theta in enumerate(thetas):
-                stellar_radiation_field.F_nu += weights[
-                    theta_index
-                ] * single_theta_trace_parallel(
-                    ray_distances[:, theta_index],
-                    stellar_model.temperatures.value.reshape(-1, 1),
-                    stellar_radiation_field.opacities.total_alphas,
-                    stellar_radiation_field.frequencies,
-                    theta,
-                    stellar_radiation_field.source_function,
-                )
+        for theta_index, theta in enumerate(thetas):
+            stellar_radiation_field.F_nu += weights[
+                theta_index
+            ] * single_theta_trace_parallel(
+                ray_distances[:, theta_index],
+                stellar_model.temperatures.value.reshape(-1, 1),
+                stellar_radiation_field.opacities.total_alphas,
+                stellar_radiation_field.frequencies,
+                theta,
+                stellar_radiation_field.source_function,
+            )
+    if spherical:
+        stellar_radiation_field.F_nu *= photometric_correction
 
     return stellar_radiation_field.F_nu
 
