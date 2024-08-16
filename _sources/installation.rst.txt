@@ -14,8 +14,7 @@ Setting Up the Environment
    * STARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`__ package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__ or `Mamba <https://mamba.readthedocs.io/en/latest/installation.html>`__ by default. Other distributions are untested.
 
 STARDIS uses exclusively the packages in the TARDIS enviroment, as well
-as using the TARDIS code itself. It uses a shared environment with TARDIS, 
-as well as the TARDIS code itself. We strongly suggest that users create a separate
+as using the TARDIS code itself. We strongly suggest that users create a separate
 environment for STARDIS. To do this, run
 the following in the terminal (replacing ``{platform}`` with
 ``linux-64``, ``linux-64-cuda``, or ``osx-64`` as applicable). 
@@ -26,7 +25,7 @@ the following in the terminal (replacing ``{platform}`` with
    $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-{platform}.lock
    $ conda create --name stardis --file conda-{platform}.lock
    $ conda activate stardis
-   $ pip install git+https://github.com/tardis-sn/tardis.git
+   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.12
 
 The third command (``conda activate stardis``) activates the
 environment, which is necessary to correctly install STARDIS using the directions below.
@@ -39,7 +38,7 @@ If you are using Mamba, the steps are similar:
    $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-{platform}.lock
    $ mamba create --name stardis --file conda-{platform}.lock
    $ mamba activate stardis
-   $ pip install git+https://github.com/tardis-sn/tardis.git
+   $ pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.12
    
 Downloading and Installing STARDIS
 ----------------------------------
