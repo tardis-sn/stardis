@@ -10,9 +10,9 @@ This is the documentation for stardis.
    Quickstart <quickstart/quickstart>
    Downloading and Installation <installation>
    Physics of STARDIS <physics/physics_of_stardis>
+   Example Notebooks <example_notebooks>
    Contributing <contributing>
    Bibliography <bibliography>
-   Example Notebooks <example_notebooks>
 	     
 Indices and tables
 ==================
