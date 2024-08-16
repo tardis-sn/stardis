@@ -1,7 +1,7 @@
-stardis Documentation
+STARDIS Documentation
 -----------------------
 
-This is the documentation for stardis.
+This is the documentation for STARDIS.
 
 .. toctree::
    :maxdepth: 2
