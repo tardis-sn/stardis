@@ -46,7 +46,7 @@ dependencies:
   - cupy
   
   - pip:
-      - git+https://github.com/tardis-sn/tardis.git # @release-2023.04.16  
+      - git+https://github.com/tardis-sn/tardis.git@release-2024.08.12
   
   # --- Packages not required for conda-forge recipe ---
 
