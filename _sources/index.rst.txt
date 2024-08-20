@@ -1,7 +1,7 @@
-stardis Documentation
+STARDIS Documentation
 -----------------------
 
-This is the documentation for stardis.
+This is the documentation for STARDIS.
 
 .. toctree::
    :maxdepth: 2
@@ -10,6 +10,7 @@ This is the documentation for stardis.
    Quickstart <quickstart/quickstart>
    Downloading and Installation <installation>
    Physics of STARDIS <physics/physics_of_stardis>
+   Example Notebooks <example_notebooks>
    Contributing <contributing>
    Bibliography <bibliography>
 	     
