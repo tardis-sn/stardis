@@ -19,6 +19,8 @@ from tardis.plasma.properties.property_collections import (
     non_nlte_properties,
     helium_lte_properties,
 )
+from stardis.plasma.molecules import MoleculeNumberDensities
+
 
 import tardis.plasma
 from tardis.opacities.tau_sobolev import TauSobolev
@@ -200,7 +202,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
 
         ###TODO: handle other broadening parameters
-
         points = len(t_electrons)
 
         linelist = atomic_data.linelist_atoms.rename(
@@ -446,6 +447,9 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         return alphas[valid_indices], linelist[valid_indices]
 
 
+
+
+
 # Properties that haven't been used in creating stellar plasma yet,
 # might be useful in future ----------------------------------------------------
 
@@ -538,6 +542,8 @@ def create_stellar_plasma(
         temperature=stellar_model.temperatures,
         dilution_factor=np.ones_like(stellar_model.temperatures),
     )
+
+    plasma_modules.append(MoleculeNumberDensities)
 
     return BasePlasma(
         plasma_properties=plasma_modules,
