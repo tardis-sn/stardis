@@ -7,6 +7,7 @@ from tardis.util.base import element_symbol2atomic_number
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
+ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
 
 logger = logging.getLogger(__name__)
 
@@ -18,18 +19,22 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
 
     outputs = ("molecule_number_densities",)
 
-    def calculate(self, ion_number_density, t_rad, atomic_data):
+    def calculate(self, ion_number_density, t_electrons, atomic_data):
         # This first implementation takes ~half a second. Much slower than is reasonable I think.
 
         number_densities_arr = np.zeros(
-            (len(atomic_data.molecule_data.equilibrium_constants), len(t_rad))
+            (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
         )
+
+        ###TODO - KEEP TRACK OF THE IONS SO WE CAN GET THEIR MASSES LATER FOR DOPPLER BROADENING PURPOSES
+        ions_arr = np.zeros((len(atomic_data.molecule_data.equilibrium_constants), 2))
 
         equilibrium_const_temps = (
             atomic_data.molecule_data.equilibrium_constants.columns.values
         )
         included_elements = ion_number_density.index.get_level_values(0).unique()
 
+        row_tracker = 0
         for row in atomic_data.molecule_data.dissociation_energies.iterrows():
             ionization_state_1 = 0
             ionization_state_2 = 0
@@ -43,6 +48,8 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
 
                 ion1 = element_symbol2atomic_number(ion1_arr[0])
                 ion2 = element_symbol2atomic_number(ion2_arr[0])
+                ions_arr[row_tracker] = [ion1, ion2]
+                row_tracker += 1
                 if ion1 not in included_elements:
                     logger.warning(
                         f"{row[1].Ion1} not in included elements. Assuming no {row[0]}."
@@ -54,19 +61,20 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
                     )
                     continue
             except:
+                row_tracker += 1
                 continue  # This will currently skip over negative ions
             ion1_number_density = ion_number_density.loc[ion1, ionization_state_1]
             ion2_number_density = ion_number_density.loc[ion2, ionization_state_2]
 
             pressure_equilibirium_const_at_depth_point = np.interp(
-                t_rad,
+                t_electrons,
                 equilibrium_const_temps,
                 atomic_data.molecule_data.equilibrium_constants.loc[row[0]].values,
             )
             equilibirium_const_at_depth_point = (
                 10 ** (pressure_equilibirium_const_at_depth_point)
                 * (u.N * const.N_A / u.m**2)
-                / (const.R * t_rad * u.K)
+                / (const.R * t_electrons * u.K)
             ).cgs.value
 
             molecule_number_density = (
@@ -77,13 +85,17 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
                 atomic_data.molecule_data.equilibrium_constants.index.get_loc(row[0])
             ] = molecule_number_density
 
-        return pd.DataFrame(
+        densities_df = pd.DataFrame(
             number_densities_arr,
             index=atomic_data.molecule_data.equilibrium_constants.index,
             columns=ion_number_density.columns,
         )
+        densities_df["ion1"] = ions_arr[:, 0].astype(int)
+        densities_df["ion2"] = ions_arr[:, 1].astype(int)
+        return densities_df
 
-class AlphaLineMolecules(ProcessingPlasmaProperty):
+
+class AlphaLineValdMolecules(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
@@ -118,10 +130,9 @@ class AlphaLineMolecules(ProcessingPlasmaProperty):
         ###TODO: handle other broadening parameters
         points = len(t_electrons)
 
-        linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
+        linelist = atomic_data.linelist_molecules[
             [
-                "atomic_number",
-                "ion_number",
+                "molecule",
                 "wavelength",
                 "log_gf",
                 "e_low",
@@ -134,11 +145,6 @@ class AlphaLineMolecules(ProcessingPlasmaProperty):
             ]
         ]
 
-        # Truncate to final atomic number
-        linelist = linelist[
-            linelist.atomic_number <= (atomic_data.selected_atomic_numbers.max())
-        ]
-
         # Calculate degeneracies
         linelist["g_lo"] = linelist.j_lo * 2 + 1
         linelist["g_up"] = linelist.j_up * 2 + 1
@@ -149,11 +155,14 @@ class AlphaLineMolecules(ProcessingPlasmaProperty):
             ).to(1)
         )
 
+        prepared_molecule_number_densities = molecule_number_densities.copy()
+        prepared_molecule_number_densities.index.name = "molecule"
+
         # grab densities for n_lower - need to use linelist as the index and normalize by dividing by the partition function
         linelist_with_densities = linelist.merge(
-            ion_number_density / partition_function,
+            prepared_molecule_number_densities,
             how="left",
-            on=["atomic_number", "ion_number"],
+            on=["molecule"],
         )
 
         n_lower = (
@@ -200,16 +209,6 @@ class AlphaLineMolecules(ProcessingPlasmaProperty):
         linelist["nu"] = line_nus.value
 
         # Linelist preparation below is taken from opacities_solvers/base/calc_alpha_line_at_nu
-        # Necessary for correct handling of ion numbers using charge instead of astronomy convention (i.e., 0 is neutral, 1 is singly ionized, etc.)
-        ionization_energies = ionization_data.reset_index()
-        ionization_energies["ion_number"] -= 1
-        linelist = pd.merge(
-            linelist,
-            ionization_energies,
-            how="left",
-            on=["atomic_number", "ion_number"],
-        )
-
         linelist["level_energy_lower"] = ((linelist["e_low"].values * u.eV).cgs).value
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
 
@@ -218,7 +217,4 @@ class AlphaLineMolecules(ProcessingPlasmaProperty):
             linelist["rad"]
         )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
 
-        # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
-        valid_indices = linelist.level_energy_upper < linelist.ionization_energy
-
-        return alphas[valid_indices], linelist[valid_indices]
+        return alphas, linelist

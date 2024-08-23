@@ -14,6 +14,8 @@ from stardis.io.model.util import rescale_nuclide_mass_fractions
 BASE_DIR = Path(__file__).parent.parent
 SCHEMA_PATH = BASE_DIR / "config_schema.yml"
 
+logger = logging.getLogger(__name__)
+
 
 def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=None):
     """
@@ -49,7 +51,7 @@ def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=No
     ):  # If a dictionary was passed, update the config with the dictionary
         pass
     else:
-        print("Updating config with additional keys and values")
+        logger.info("Updating config with additional keys and values")
         if isinstance(add_config_keys, str):
             # Directly set the config item if add_config_keys is a string
             config.set_config_item(add_config_keys, add_config_vals)
@@ -75,7 +77,7 @@ def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=No
     adata = AtomData.from_hdf(config.atom_data)
 
     # model
-    logging.info("Reading model")
+    logger.info("Reading model")
     if config.model.type == "marcs":
         raw_marcs_model = read_marcs_model(
             Path(config.model.fname), gzipped=config.model.gzipped

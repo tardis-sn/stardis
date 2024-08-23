@@ -19,7 +19,7 @@ from tardis.plasma.properties.property_collections import (
     non_nlte_properties,
     helium_lte_properties,
 )
-from stardis.plasma.molecules import MoleculeNumberDensities
+from stardis.plasma.molecules import MoleculeNumberDensities, AlphaLineValdMolecules
 
 
 import tardis.plasma
@@ -51,6 +51,8 @@ H2_PLUS_K_SAMPLE_TEMPS = [
     18600,
     25200,
 ]  # see directly above
+
+logger = logging.getLogger(__name__)
 
 
 class HMinusDensity(ProcessingPlasmaProperty):
@@ -447,9 +449,6 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         return alphas[valid_indices], linelist[valid_indices]
 
 
-
-
-
 # Properties that haven't been used in creating stellar plasma yet,
 # might be useful in future ----------------------------------------------------
 
@@ -500,7 +499,7 @@ def create_stellar_plasma(
     tardis.plasma.base.BasePlasma
     """
 
-    logging.info("Creating plasma")
+    logger.info("Creating plasma")
 
     # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
     plasma_modules = []
@@ -542,8 +541,9 @@ def create_stellar_plasma(
         temperature=stellar_model.temperatures,
         dilution_factor=np.ones_like(stellar_model.temperatures),
     )
-
-    plasma_modules.append(MoleculeNumberDensities)
+    if True:
+        plasma_modules.append(MoleculeNumberDensities)
+        plasma_modules.append(AlphaLineValdMolecules)
 
     return BasePlasma(
         plasma_properties=plasma_modules,

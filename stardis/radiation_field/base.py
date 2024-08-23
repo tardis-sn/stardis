@@ -5,6 +5,8 @@ from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
+logger = logging.getLogger(__name__)
+
 
 class RadiationField:
     """
@@ -66,7 +68,7 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     stellar_radiation_field = RadiationField(
         tracing_nus, blackbody_flux_at_nu, stellar_model
     )
-    logging.info("Calculating alphas")
+    logger.info("Calculating alphas")
     calc_alphas(
         stellar_plasma=stellar_plasma,
         stellar_model=stellar_model,
@@ -74,7 +76,7 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
         opacity_config=config.opacity,
         n_threads=config.n_threads,
     )
-    logging.info("Raytracing")
+    logger.info("Raytracing")
     raytrace(
         stellar_model,
         stellar_radiation_field,
