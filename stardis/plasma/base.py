@@ -203,7 +203,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
         points = len(t_electrons)
 
-        linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
+        linelist = atomic_data.linelist_atoms.rename(
+            columns={"ion_charge": "ion_number"}
+        )[
             [
                 "atomic_number",
                 "ion_number",
@@ -341,7 +343,9 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         ###TODO: handle other broadening parameters
         points = len(t_electrons)
 
-        linelist = atomic_data.linelist.rename(columns={"ion_charge": "ion_number"})[
+        linelist = atomic_data.linelist_atoms.rename(
+            columns={"ion_charge": "ion_number"}
+        )[
             [
                 "atomic_number",
                 "ion_number",
@@ -538,7 +542,6 @@ def create_stellar_plasma(
     return BasePlasma(
         plasma_properties=plasma_modules,
         dilute_planckian_radiation_field=radiation_field,
-        abundance=stellar_model.composition.elemental_mass_fraction,
         atomic_data=atom_data,
         number_density=stellar_model.composition.elemental_number_density,
         link_t_rad_t_electron=1.0,

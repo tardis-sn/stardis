@@ -1,7 +1,7 @@
 name: benchmarks
 
 env:
-  TARDIS_VER: release-2024.08.12 # master 
+  TARDIS_VER: release-2024.08.25 # master 
 
 on:
   push:

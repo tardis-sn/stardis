@@ -46,7 +46,7 @@ jobs:
         id: install-tardis
         # shell: bash -l {0}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.12
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
         
       - name: Install STARDIS
         id: install-stardis
