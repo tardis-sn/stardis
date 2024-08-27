@@ -136,12 +136,12 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    alpha_line_from_linelist : DataFrame
+    molecule_alpha_line_from_linelist : DataFrame
             A pandas DataFrame with dtype float. This represents the alpha calculation
             for each line from Vald at each depth point. Refer to Rybicki and Lightman
             equation 1.80. Voigt profiles are calculated later, and B_12 is substituted
             appropriately out for f_lu. This assumes LTE for lower level population.
-    lines_from_linelist: DataFrame
+    molecule_lines_from_linelist: DataFrame
             A pandas dataframe containing the lines and information about the lines in
             the same form and shape as alpha_line_from_linelist.
     """
