@@ -199,7 +199,7 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
         molecule_densities_div_partition_function.index.name = "molecule"
 
         # grab densities for n_lower - need to use linelist as the index and normalize by dividing by the partition function
-        linelist_with_densities = linelist.merge(
+        linelist_with_density_div_partition_function = linelist.merge(
             molecule_densities_div_partition_function,
             how="left",
             on=["molecule"],
@@ -207,9 +207,10 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
 
         n_lower = (
             (
-                exponent_by_point * linelist_with_densities[np.arange(points)]
+                exponent_by_point
+                * linelist_with_density_div_partition_function[np.arange(points)]
             ).values.T  # arange mask of the dataframe returns the set of densities of the appropriate ion for the line at each point
-            * linelist_with_densities.g_lo.values
+            * linelist_with_density_div_partition_function.g_lo.values
         )
 
         linelist["f_lu"] = (
