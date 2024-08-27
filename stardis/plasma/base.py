@@ -541,7 +541,7 @@ def create_stellar_plasma(
         temperature=stellar_model.temperatures,
         dilution_factor=np.ones_like(stellar_model.temperatures),
     )
-    if True:
+    if config.opacity.line.include_molecules:
         plasma_modules.append(MoleculeNumberDensities)
         plasma_modules.append(AlphaLineValdMolecules)
 

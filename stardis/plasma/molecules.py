@@ -72,10 +72,14 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
                 atomic_data.molecule_data.equilibrium_constants.loc[row[0]].values,
             )
             equilibirium_const_at_depth_point = (
-                10 ** (pressure_equilibirium_const_at_depth_point)
-                * (u.N * const.N_A / u.m**2)
-                / (const.R * t_electrons * u.K)
-            ).cgs.value
+                (
+                    10 ** (pressure_equilibirium_const_at_depth_point)
+                    * (u.N / u.m**2)
+                    / (const.k_B * t_electrons * u.K)
+                )
+                .to(u.cm**-3)
+                .value
+            )
 
             molecule_number_density = (
                 ion1_number_density * ion2_number_density
