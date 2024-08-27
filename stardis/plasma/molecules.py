@@ -12,7 +12,7 @@ ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
 logger = logging.getLogger(__name__)
 
 
-class MoleculeNumberDensities(ProcessingPlasmaProperty):
+class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
 
     # Need to think about negative ions - ignoring for now
     # applicable for equilibrium constants given by Barklem and Collet 2016, which are given in SI units
@@ -26,7 +26,6 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
             (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
         )
 
-        ###TODO - KEEP TRACK OF THE IONS SO WE CAN GET THEIR MASSES LATER FOR DOPPLER BROADENING PURPOSES
         ions_arr = np.zeros((len(atomic_data.molecule_data.equilibrium_constants), 2))
 
         equilibrium_const_temps = (
@@ -34,13 +33,13 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
         )
         included_elements = ion_number_density.index.get_level_values(0).unique()
 
-        row_tracker = 0
-        for row in atomic_data.molecule_data.dissociation_energies.iterrows():
+        molecule_row_tracker = 0
+        for molecule_row in atomic_data.molecule_data.dissociation_energies.iterrows():
             ionization_state_1 = 0
             ionization_state_2 = 0
             try:
-                ion1_arr = row[1].Ion1.split("+")
-                ion2_arr = row[1].Ion2.split("+")
+                ion1_arr = molecule_row[1].Ion1.split("+")
+                ion2_arr = molecule_row[1].Ion2.split("+")
                 if len(ion1_arr) == 2:
                     ionization_state_1 = 1
                 if len(ion2_arr) == 2:
@@ -48,20 +47,20 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
 
                 ion1 = element_symbol2atomic_number(ion1_arr[0])
                 ion2 = element_symbol2atomic_number(ion2_arr[0])
-                ions_arr[row_tracker] = [ion1, ion2]
-                row_tracker += 1
+                ions_arr[molecule_row_tracker] = [ion1, ion2]
+                molecule_row_tracker += 1
                 if ion1 not in included_elements:
                     logger.warning(
-                        f"{row[1].Ion1} not in included elements. Assuming no {row[0]}."
+                        f"{molecule_row[1].Ion1} not in included elements. Assuming no {molecule_row[0]}."
                     )
                     continue
                 elif ion2 not in included_elements:
                     logger.warning(
-                        f"{row[1].Ion2} not in included elements. Assuming no {row[0]}."
+                        f"{molecule_row[1].Ion2} not in included elements. Assuming no {molecule_row[0]}."
                     )
                     continue
             except:
-                row_tracker += 1
+                molecule_row_tracker += 1
                 continue  # This will currently skip over negative ions
             ion1_number_density = ion_number_density.loc[ion1, ionization_state_1]
             ion2_number_density = ion_number_density.loc[ion2, ionization_state_2]
@@ -69,7 +68,9 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
             pressure_equilibirium_const_at_depth_point = np.interp(
                 t_electrons,
                 equilibrium_const_temps,
-                atomic_data.molecule_data.equilibrium_constants.loc[row[0]].values,
+                atomic_data.molecule_data.equilibrium_constants.loc[
+                    molecule_row[0]
+                ].values,
             )
             equilibirium_const_at_depth_point = (
                 (
@@ -81,12 +82,14 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
                 .value
             )
 
-            molecule_number_density = (
-                ion1_number_density * ion2_number_density
-            ) / equilibirium_const_at_depth_point
+            molecule_number_density = (ion1_number_density * ion2_number_density) / (
+                equilibirium_const_at_depth_point
+            )
 
             number_densities_arr[
-                atomic_data.molecule_data.equilibrium_constants.index.get_loc(row[0])
+                atomic_data.molecule_data.equilibrium_constants.index.get_loc(
+                    molecule_row[0]
+                )
             ] = molecule_number_density
 
         densities_df = pd.DataFrame(
@@ -94,9 +97,39 @@ class MoleculeNumberDensities(ProcessingPlasmaProperty):
             index=atomic_data.molecule_data.equilibrium_constants.index,
             columns=ion_number_density.columns,
         )
+
         densities_df["ion1"] = ions_arr[:, 0].astype(int)
         densities_df["ion2"] = ions_arr[:, 1].astype(int)
         return densities_df
+
+
+class MoleculePartitionFunctions(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    molecule_partition_functions : DataFrame
+            A pandas DataFrame with dtype float. This represents the partition function
+            for each molecule at each depth point.
+    """
+
+    outputs = ("molecule_partition_functions",)
+
+    def calculate(self, t_electrons, atomic_data):
+        partition_functions = pd.DataFrame(
+            np.zeros(
+                (len(atomic_data.molecule_data.partition_functions), len(t_electrons))
+            ),
+            index=atomic_data.molecule_data.partition_functions.index,
+        )
+
+        for molecule in atomic_data.molecule_data.partition_functions.index:
+            partition_functions.loc[molecule] = np.interp(
+                t_electrons,
+                atomic_data.molecule_data.partition_functions.columns.values,
+                atomic_data.molecule_data.partition_functions.loc[molecule].values,
+            )
+
+        return partition_functions
 
 
 class AlphaLineValdMolecules(ProcessingPlasmaProperty):
@@ -125,6 +158,7 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
         atomic_data,
         molecule_number_densities,
         t_electrons,
+        molecule_partition_functions,
     ):
         # solve n_lower : n_i = N * g_i / U * e ^ (-E_i/kT)
         # get f_lu : loggf -> use g = 2j+1
@@ -159,12 +193,14 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        prepared_molecule_number_densities = molecule_number_densities.copy()
-        prepared_molecule_number_densities.index.name = "molecule"
+        molecule_densities_div_partition_function = (
+            molecule_number_densities.copy().div(molecule_partition_functions)
+        )
+        molecule_densities_div_partition_function.index.name = "molecule"
 
         # grab densities for n_lower - need to use linelist as the index and normalize by dividing by the partition function
         linelist_with_densities = linelist.merge(
-            prepared_molecule_number_densities,
+            molecule_densities_div_partition_function,
             how="left",
             on=["molecule"],
         )

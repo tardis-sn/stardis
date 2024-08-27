@@ -19,7 +19,11 @@ from tardis.plasma.properties.property_collections import (
     non_nlte_properties,
     helium_lte_properties,
 )
-from stardis.plasma.molecules import MoleculeNumberDensities, AlphaLineValdMolecules
+from stardis.plasma.molecules import (
+    MoleculeIonNumberDensities,
+    AlphaLineValdMolecules,
+    MoleculePartitionFunctions,
+)
 
 
 import tardis.plasma
@@ -542,8 +546,9 @@ def create_stellar_plasma(
         dilution_factor=np.ones_like(stellar_model.temperatures),
     )
     if config.opacity.line.include_molecules:
-        plasma_modules.append(MoleculeNumberDensities)
+        plasma_modules.append(MoleculeIonNumberDensities)
         plasma_modules.append(AlphaLineValdMolecules)
+        plasma_modules.append(MoleculePartitionFunctions)
 
     return BasePlasma(
         plasma_properties=plasma_modules,

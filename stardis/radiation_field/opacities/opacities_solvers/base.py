@@ -815,23 +815,25 @@ def calc_alphas(
         opacity_config.line,
         n_threads,
     )
-    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
-        alpha_line_at_nu
-    )
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu"
+    ] = alpha_line_at_nu
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
     ] = doppler_widths
 
     if opacity_config.line.include_molecules:
-        molecule_alpha_line_at_nu, molecule_gammas, molecule_doppler_widths = (
-            calc_molecular_alpha_line_at_nu(
-                stellar_plasma,
-                stellar_model,
-                stellar_radiation_field.frequencies,
-                opacity_config.line,
-                n_threads,
-            )
+        (
+            molecule_alpha_line_at_nu,
+            molecule_gammas,
+            molecule_doppler_widths,
+        ) = calc_molecular_alpha_line_at_nu(
+            stellar_plasma,
+            stellar_model,
+            stellar_radiation_field.frequencies,
+            opacity_config.line,
+            n_threads,
         )
 
         stellar_radiation_field.opacities.opacities_dict[
