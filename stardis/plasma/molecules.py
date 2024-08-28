@@ -26,7 +26,9 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
             (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
         )
 
-        ions_arr = np.zeros((len(atomic_data.molecule_data.equilibrium_constants), 2))
+        ions_arr = np.zeros(
+            (len(atomic_data.molecule_data.equilibrium_constants), 2), dtype=int
+        )
 
         equilibrium_const_temps = (
             atomic_data.molecule_data.equilibrium_constants.columns.values
@@ -97,9 +99,8 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
             index=atomic_data.molecule_data.equilibrium_constants.index,
             columns=ion_number_density.columns,
         )
-
-        densities_df["ion1"] = ions_arr[:, 0].astype(int)
-        densities_df["ion2"] = ions_arr[:, 1].astype(int)
+        densities_df["ion1"] = ions_arr[:, 0]
+        densities_df["ion2"] = ions_arr[:, 1]
         return densities_df
 
 
