@@ -17,7 +17,7 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
     # Need to think about negative ions - ignoring for now
     # applicable for equilibrium constants given by Barklem and Collet 2016, which are given in SI units
 
-    outputs = ("molecule_number_density",)
+    outputs = ("molecule_number_density", "molecule_ion_map")
 
     def calculate(self, ion_number_density, t_electrons, atomic_data):
         # Preprocessing - split ions into symbol, charge, and number
@@ -117,10 +117,13 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
             columns=ion_number_density.columns,
         )
         # Keep track of the individual ions - useful to calculate molecular masses later for doppler broadening
-        molecule_densities_df["ion1"] = molecules_df["Ion1"]
-        molecule_densities_df["ion2"] = molecules_df["Ion2"]
+        molecule_ion_map = pd.DataFrame(
+            molecules_df[["Ion1", "Ion2"]],
+        )
+        # molecule_densities_df["ion1"] = molecules_df["Ion1"]
+        # molecule_densities_df["ion2"] = molecules_df["Ion2"]
 
-        return molecule_densities_df
+        return molecule_densities_df, molecule_ion_map
 
 
 class MoleculePartitionFunction(ProcessingPlasmaProperty):
