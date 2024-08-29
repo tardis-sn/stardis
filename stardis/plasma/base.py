@@ -308,8 +308,8 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
 
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
-        linelist["A_ul"] = 10 ** (
-            linelist["rad"]
+        linelist["A_ul"] = 10 ** (linelist["rad"]) / (
+            4 * np.pi
         )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
 
         # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
@@ -547,8 +547,8 @@ def create_stellar_plasma(
     )
     if config.opacity.line.include_molecules:
         plasma_modules.append(MoleculeIonNumberDensities)
-        plasma_modules.append(AlphaLineValdMolecules)
         plasma_modules.append(MoleculePartitionFunctions)
+        plasma_modules.append(AlphaLineValdMolecules)
 
     return BasePlasma(
         plasma_properties=plasma_modules,
