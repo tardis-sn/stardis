@@ -167,7 +167,7 @@ class AlphaLineValdMolecule(ProcessingPlasmaProperty):
     """
 
     outputs = ("molecule_alpha_line_from_linelist", "molecule_lines_from_linelist")
-    latex_name = (r"\alpha_{\textrm{line, vald}}",)
+    latex_name = (r"\alpha_{\textrm{moleculeline, vald}}",)
     latex_formula = (
         r"\dfrac{\pi e^{2} n_{lower} f_{lu}}{m_{e} c}\
         \Big(1-exp(-h \nu / k T) \phi(\nu)\Big)",
@@ -201,7 +201,7 @@ class AlphaLineValdMolecule(ProcessingPlasmaProperty):
                 "stark",
                 "waals",
             ]
-        ]
+        ].copy()
 
         # Calculate degeneracies
         linelist["g_lo"] = linelist.j_lo * 2 + 1
@@ -295,8 +295,8 @@ class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
             the same form and shape as alpha_line_from_linelist.
     """
 
-    outputs = ("alpha_line_from_linelist", "lines_from_linelist")
-    latex_name = (r"\alpha_{\textrm{line, vald}}",)
+    outputs = ("molecule_alpha_line_from_linelist", "molecule_lines_from_linelist")
+    latex_name = (r"\alpha_{\textrm{moleculeline, vald}}",)
     latex_formula = (
         r"\dfrac{\pi e^{2} n_{lower} f_{lu}}{m_{e} c}\
         \Big(1-exp(-h \nu / k T) \phi(\nu)\Big)",
@@ -317,12 +317,9 @@ class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
         ###TODO: handle other broadening parameters
         points = len(t_electrons)
 
-        linelist = atomic_data.linelist_atoms.rename(
-            columns={"ion_charge": "ion_number"}
-        )[
+        linelist = atomic_data.linelist_molecules[
             [
-                "atomic_number",
-                "ion_number",
+                "molecule",
                 "wavelength",
                 "log_gf",
                 "e_low",
@@ -330,7 +327,7 @@ class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
                 "stark",
                 "waals",
             ]
-        ]
+        ].copy()
 
         linelist["e_up"] = (
             (

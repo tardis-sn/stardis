@@ -23,6 +23,7 @@ from stardis.plasma.molecules import (
     MoleculeIonNumberDensity,
     AlphaLineValdMolecule,
     MoleculePartitionFunction,
+    AlphaLineShortlistValdMolecule,
 )
 
 
@@ -548,7 +549,11 @@ def create_stellar_plasma(
     if config.opacity.line.include_molecules:
         plasma_modules.append(MoleculeIonNumberDensity)
         plasma_modules.append(MoleculePartitionFunction)
-        plasma_modules.append(AlphaLineValdMolecule)
+        if config.opacity.line.vald_linelist.use_linelist:
+            if config.opacity.line.vald_linelist.shortlist:
+                plasma_modules.append(AlphaLineShortlistValdMolecule)
+            else:
+                plasma_modules.append(AlphaLineValdMolecule)
 
     return BasePlasma(
         plasma_properties=plasma_modules,
