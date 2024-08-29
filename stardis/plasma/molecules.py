@@ -11,6 +11,8 @@ ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
 
 logger = logging.getLogger(__name__)
 
+from time import time
+
 
 class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
 
@@ -20,14 +22,30 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
     outputs = ("molecule_number_densities",)
 
     def calculate(self, ion_number_density, t_electrons, atomic_data):
-        # This first implementation takes ~half a second. Much slower than is reasonable I think.
+
+        molecules_df = atomic_data.molecule_data.dissociation_energies.copy()
+        molecules_df[
+            ["Ion1_symbol", "Ion1_positive", "Ion1_negative"]
+        ] = molecules_df.Ion1.str.extract(r"([A-Z][a-z]?+)(\+*)(\-*)")
+        molecules_df[
+            ["Ion2_symbol", "Ion2_positive", "Ion2_negative"]
+        ] = molecules_df.Ion2.str.extract(r"([A-Z][a-z]?+)(\+*)(\-*)")
+
+        molecules_df["Ion1"] = molecules_df["Ion1_symbol"].apply(
+            element_symbol2atomic_number
+        )
+        molecules_df["Ion2"] = molecules_df["Ion2_symbol"].apply(
+            element_symbol2atomic_number
+        )
+        molecules_df["Ion1_charge"] = molecules_df["Ion1_positive"].apply(
+            len
+        ) - molecules_df["Ion1_negative"].apply(len)
+        molecules_df["Ion2_charge"] = molecules_df["Ion2_positive"].apply(
+            len
+        ) - molecules_df["Ion2_negative"].apply(len)
 
         number_densities_arr = np.zeros(
             (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
-        )
-
-        ions_arr = np.zeros(
-            (len(atomic_data.molecule_data.equilibrium_constants), 2), dtype=int
         )
 
         equilibrium_const_temps = (
@@ -35,37 +53,33 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
         )
         included_elements = ion_number_density.index.get_level_values(0).unique()
 
-        molecule_row_tracker = 0
-        for molecule_row in atomic_data.molecule_data.dissociation_energies.iterrows():
-            ionization_state_1 = 0
-            ionization_state_2 = 0
-            try:
-                ion1_arr = molecule_row[1].Ion1.split("+")
-                ion2_arr = molecule_row[1].Ion2.split("+")
-                if len(ion1_arr) == 2:
-                    ionization_state_1 = 1
-                if len(ion2_arr) == 2:
-                    ionization_state_2 = 1
+        for molecule_row in molecules_df.iterrows():
+            # try:
+            if (molecule_row[1].Ion1_charge == -1) or (
+                molecule_row[1].Ion2_charge == -1
+            ):
+                logger.warning(
+                    f"Negative ionic molecules not currently supported. Assuming no {molecule_row[0]}."
+                )
+                continue
 
-                ion1 = element_symbol2atomic_number(ion1_arr[0])
-                ion2 = element_symbol2atomic_number(ion2_arr[0])
-                ions_arr[molecule_row_tracker] = [ion1, ion2]
-                molecule_row_tracker += 1
-                if ion1 not in included_elements:
-                    logger.warning(
-                        f"{molecule_row[1].Ion1} not in included elements. Assuming no {molecule_row[0]}."
-                    )
-                    continue
-                elif ion2 not in included_elements:
-                    logger.warning(
-                        f"{molecule_row[1].Ion2} not in included elements. Assuming no {molecule_row[0]}."
-                    )
-                    continue
-            except:
-                molecule_row_tracker += 1
-                continue  # This will currently skip over negative ions
-            ion1_number_density = ion_number_density.loc[ion1, ionization_state_1]
-            ion2_number_density = ion_number_density.loc[ion2, ionization_state_2]
+            elif molecule_row[1].Ion1 not in included_elements:
+                logger.warning(
+                    f"{molecule_row[1].Ion1} not in included elements. Assuming no {molecule_row[0]}."
+                )
+                continue
+            elif molecule_row[1].Ion2 not in included_elements:
+                logger.warning(
+                    f"{molecule_row[1].Ion2} not in included elements. Assuming no {molecule_row[0]}."
+                )
+                continue
+
+            ion1_number_density = ion_number_density.loc[
+                molecule_row[1].Ion1, molecule_row[1].Ion1_charge
+            ]
+            ion2_number_density = ion_number_density.loc[
+                molecule_row[1].Ion2, molecule_row[1].Ion2_charge
+            ]
 
             pressure_equilibirium_const_at_depth_point = np.interp(
                 t_electrons,
@@ -99,8 +113,9 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
             index=atomic_data.molecule_data.equilibrium_constants.index,
             columns=ion_number_density.columns,
         )
-        densities_df["ion1"] = ions_arr[:, 0]
-        densities_df["ion2"] = ions_arr[:, 1]
+        densities_df["ion1"] = molecules_df["Ion1"]
+        densities_df["ion2"] = molecules_df["Ion2"]
+
         return densities_df
 
 
