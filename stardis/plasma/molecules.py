@@ -11,8 +11,6 @@ ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
 
 logger = logging.getLogger(__name__)
 
-from time import time
-
 
 class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
 
@@ -22,7 +20,7 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
     outputs = ("molecule_number_densities",)
 
     def calculate(self, ion_number_density, t_electrons, atomic_data):
-
+        # Preprocessing - split ions into symbol, charge, and number
         molecules_df = atomic_data.molecule_data.dissociation_energies.copy()
         molecules_df[
             ["Ion1_symbol", "Ion1_positive", "Ion1_negative"]
@@ -47,14 +45,17 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
         number_densities_arr = np.zeros(
             (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
         )
-
+        # Get the temperatures at which the equilibrium constants are given for interpolation
         equilibrium_const_temps = (
             atomic_data.molecule_data.equilibrium_constants.columns.values
         )
         included_elements = ion_number_density.index.get_level_values(0).unique()
 
-        for molecule_row in molecules_df.iterrows():
-            # try:
+        for (
+            molecule_row
+        ) in (
+            molecules_df.iterrows()
+        ):  # Loop over all molecules, calculate number densities using Barklem and Collet 2016 equilibrium constants
             if (molecule_row[1].Ion1_charge == -1) or (
                 molecule_row[1].Ion2_charge == -1
             ):
@@ -81,6 +82,7 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
                 molecule_row[1].Ion2, molecule_row[1].Ion2_charge
             ]
 
+            # Barklem and Collet 2016 equilibrium constants are pressure constants and are in SI units
             pressure_equilibirium_const_at_depth_point = np.interp(
                 t_electrons,
                 equilibrium_const_temps,
@@ -88,6 +90,7 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
                     molecule_row[0]
                 ].values,
             )
+            # Convert from pressure constants to number density constants using ideal gas law
             equilibirium_const_at_depth_point = (
                 (
                     10 ** (pressure_equilibirium_const_at_depth_point)
@@ -108,15 +111,16 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
                 )
             ] = molecule_number_density
 
-        densities_df = pd.DataFrame(
+        molecule_densities_df = pd.DataFrame(
             number_densities_arr,
             index=atomic_data.molecule_data.equilibrium_constants.index,
             columns=ion_number_density.columns,
         )
-        densities_df["ion1"] = molecules_df["Ion1"]
-        densities_df["ion2"] = molecules_df["Ion2"]
+        # Keep track of the individual ions - useful to calculate molecular masses later for doppler broadening
+        molecule_densities_df["ion1"] = molecules_df["Ion1"]
+        molecule_densities_df["ion2"] = molecules_df["Ion2"]
 
-        return densities_df
+        return molecule_densities_df
 
 
 class MoleculePartitionFunctions(ProcessingPlasmaProperty):
