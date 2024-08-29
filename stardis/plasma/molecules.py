@@ -21,7 +21,12 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
 
     def calculate(self, ion_number_density, t_electrons, atomic_data):
         # Preprocessing - split ions into symbol, charge, and number
-        molecules_df = atomic_data.molecule_data.dissociation_energies.copy()
+        try:
+            molecules_df = atomic_data.molecule_data.dissociation_energies.copy()
+        except:
+            raise ValueError(
+                "No molecular dissociation energies found in atomic data. Use Carsus to generate atomic data with the Barklem and Collet 2016 data."
+            )
         molecules_df[
             ["Ion1_symbol", "Ion1_positive", "Ion1_negative"]
         ] = molecules_df.Ion1.str.extract(r"([A-Z][a-z]?+)(\+*)(\-*)")
@@ -55,7 +60,7 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
             molecule_row
         ) in (
             molecules_df.iterrows()
-        ):  # Loop over all molecules, calculate number densities using Barklem and Collet 2016 equilibrium constants
+        ):  # Loop over all molecules, calculate number densities using Barklem and Collet 2016 equilibrium constants - if a component ion does not exist in the plasma or is negative, assume no molecule
             if (molecule_row[1].Ion1_charge == -1) or (
                 molecule_row[1].Ion2_charge == -1
             ):
@@ -120,8 +125,6 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
         molecule_ion_map = pd.DataFrame(
             molecules_df[["Ion1", "Ion2"]],
         )
-        # molecule_densities_df["ion1"] = molecules_df["Ion1"]
-        # molecule_densities_df["ion2"] = molecules_df["Ion2"]
 
         return molecule_densities_df, molecule_ion_map
 
