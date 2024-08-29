@@ -68,43 +68,40 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
         included_elements = ion_number_density.index.get_level_values(0).unique()
 
         for (
-            molecule_row
+            molecule,
+            molecule_row,
         ) in (
             molecules_df.iterrows()
         ):  # Loop over all molecules, calculate number densities using Barklem and Collet 2016 equilibrium constants - if a component ion does not exist in the plasma or is negative, assume no molecule
-            if (molecule_row[1].Ion1_charge == -1) or (
-                molecule_row[1].Ion2_charge == -1
-            ):
+            if (molecule_row.Ion1_charge == -1) or (molecule_row.Ion2_charge == -1):
                 logger.warning(
-                    f"Negative ionic molecules not currently supported. Assuming no {molecule_row[0]}."
+                    f"Negative ionic molecules not currently supported. Assuming no {molecule}."
                 )
                 continue
 
-            elif molecule_row[1].Ion1 not in included_elements:
+            elif molecule_row.Ion1 not in included_elements:
                 logger.warning(
-                    f"{molecule_row[1].Ion1} not in included elements. Assuming no {molecule_row[0]}."
+                    f"{molecule_row.Ion1} not in included elements. Assuming no {molecule}."
                 )
                 continue
-            elif molecule_row[1].Ion2 not in included_elements:
+            elif molecule_row.Ion2 not in included_elements:
                 logger.warning(
-                    f"{molecule_row[1].Ion2} not in included elements. Assuming no {molecule_row[0]}."
+                    f"{molecule_row.Ion2} not in included elements. Assuming no {molecule}."
                 )
                 continue
 
             ion1_number_density = ion_number_density.loc[
-                molecule_row[1].Ion1, molecule_row[1].Ion1_charge
+                molecule_row.Ion1, molecule_row.Ion1_charge
             ]
             ion2_number_density = ion_number_density.loc[
-                molecule_row[1].Ion2, molecule_row[1].Ion2_charge
+                molecule_row.Ion2, molecule_row.Ion2_charge
             ]
 
             # Barklem and Collet 2016 equilibrium constants are pressure constants and are in SI units
             pressure_equilibirium_const_at_depth_point = np.interp(
                 t_electrons,
                 equilibrium_const_temps,
-                atomic_data.molecule_data.equilibrium_constants.loc[
-                    molecule_row[0]
-                ].values,
+                atomic_data.molecule_data.equilibrium_constants.loc[molecule].values,
             )
             # Convert from pressure constants to number density constants using ideal gas law
             equilibirium_const_at_depth_point = (
@@ -122,9 +119,7 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
             )
 
             number_densities_arr[
-                atomic_data.molecule_data.equilibrium_constants.index.get_loc(
-                    molecule_row[0]
-                )
+                atomic_data.molecule_data.equilibrium_constants.index.get_loc(molecule)
             ] = molecule_number_density
 
         molecule_densities_df = pd.DataFrame(
