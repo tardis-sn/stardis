@@ -12,12 +12,12 @@ ALPHA_COEFFICIENT = (np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs)
 logger = logging.getLogger(__name__)
 
 
-class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
+class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
 
     # Need to think about negative ions - ignoring for now
     # applicable for equilibrium constants given by Barklem and Collet 2016, which are given in SI units
 
-    outputs = ("molecule_number_densities",)
+    outputs = ("molecule_number_density",)
 
     def calculate(self, ion_number_density, t_electrons, atomic_data):
         # Preprocessing - split ions into symbol, charge, and number
@@ -123,16 +123,16 @@ class MoleculeIonNumberDensities(ProcessingPlasmaProperty):
         return molecule_densities_df
 
 
-class MoleculePartitionFunctions(ProcessingPlasmaProperty):
+class MoleculePartitionFunction(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    molecule_partition_functions : DataFrame
+    molecule_partition_function : DataFrame
             A pandas DataFrame with dtype float. This represents the partition function
             for each molecule at each depth point.
     """
 
-    outputs = ("molecule_partition_functions",)
+    outputs = ("molecule_partition_function",)
 
     def calculate(self, t_electrons, atomic_data):
         partition_functions = pd.DataFrame(
@@ -152,7 +152,7 @@ class MoleculePartitionFunctions(ProcessingPlasmaProperty):
         return partition_functions
 
 
-class AlphaLineValdMolecules(ProcessingPlasmaProperty):
+class AlphaLineValdMolecule(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
@@ -176,9 +176,9 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
     def calculate(
         self,
         atomic_data,
-        molecule_number_densities,
+        molecule_number_density,
         t_electrons,
-        molecule_partition_functions,
+        molecule_partition_function,
     ):
         # solve n_lower : n_i = N * g_i / U * e ^ (-E_i/kT)
         # get f_lu : loggf -> use g = 2j+1
@@ -213,8 +213,8 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        molecule_densities_div_partition_function = (
-            molecule_number_densities.copy().div(molecule_partition_functions)
+        molecule_densities_div_partition_function = molecule_number_density.copy().div(
+            molecule_partition_function
         )
         molecule_densities_div_partition_function.index.name = "molecule"
 
@@ -281,7 +281,7 @@ class AlphaLineValdMolecules(ProcessingPlasmaProperty):
         return alphas, linelist
 
 
-class AlphaLineShortlistValdMolecules(ProcessingPlasmaProperty):
+class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
@@ -305,9 +305,9 @@ class AlphaLineShortlistValdMolecules(ProcessingPlasmaProperty):
     def calculate(
         self,
         atomic_data,
-        molecule_number_densities,
+        molecule_number_density,
         t_electrons,
-        molecule_partition_functions,
+        molecule_partition_function,
     ):
         # solve n_lower : n_i = N * g_i / U * e ^ (-E_i/kT)
         # get f_lu : loggf -> use g = 2j+1
@@ -347,8 +347,8 @@ class AlphaLineShortlistValdMolecules(ProcessingPlasmaProperty):
             ).to(1)
         )
 
-        molecule_densities_div_partition_function = (
-            molecule_number_densities.copy().div(molecule_partition_functions)
+        molecule_densities_div_partition_function = molecule_number_density.copy().div(
+            molecule_partition_function
         )
         molecule_densities_div_partition_function.index.name = "molecule"
 

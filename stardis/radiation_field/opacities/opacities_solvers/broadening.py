@@ -717,9 +717,7 @@ def calculate_molecule_broadening(
             (len(lines), len(stellar_model.geometry.no_of_depth_points)), dtype=float
         )
 
-    ions = stellar_plasma.molecule_number_densities[["ion1", "ion2"]].loc[
-        lines.molecule
-    ]
+    ions = stellar_plasma.molecule_number_density[["ion1", "ion2"]].loc[lines.molecule]
 
     ion1_masses = stellar_model.composition.nuclide_masses.loc[ions.ion1].values
     ion2_masses = stellar_model.composition.nuclide_masses.loc[ions.ion2].values
