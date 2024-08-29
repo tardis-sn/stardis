@@ -13,6 +13,17 @@ logger = logging.getLogger(__name__)
 
 
 class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
+    """
+
+    Calculates the number density of each molecule at each depth point using Barklem and Collet 2016 equilibrium constants.
+    Multiplies the number density of each constituent ion and divides by the number density constant. Negative ions are ignored.
+    Attributes
+    ----------
+    molecule_number_density : DataFrame
+            A pandas DataFrame with dtype float. This represents the number density of each molecule at each depth point.
+    molecule_ion_map : DataFrame
+            A pandas DataFrame with the constituent ions of each molecule. Useful for calculating molecular masses later for doppler broadening.
+    """
 
     # Need to think about negative ions - ignoring for now
     # applicable for equilibrium constants given by Barklem and Collet 2016, which are given in SI units
@@ -131,6 +142,8 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
 
 class MoleculePartitionFunction(ProcessingPlasmaProperty):
     """
+    Processes the partition function for each molecule at each depth point by interpolating the partition function data.
+    From Barklem and Collet 2016.
     Attributes
     ----------
     molecule_partition_function : DataFrame
@@ -160,6 +173,7 @@ class MoleculePartitionFunction(ProcessingPlasmaProperty):
 
 class AlphaLineValdMolecule(ProcessingPlasmaProperty):
     """
+    Calculates the alpha values for each molecular line from Vald at each depth point. This is adapted from the AlphaLineVald calculation.
     Attributes
     ----------
     molecule_alpha_line_from_linelist : DataFrame
@@ -289,6 +303,8 @@ class AlphaLineValdMolecule(ProcessingPlasmaProperty):
 
 class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
     """
+    Calculates the alpha values for each molecular line from Vald at each depth point. This is adapted from the AlphaLineShortlistVald calculation.
+
     Attributes
     ----------
     alpha_line_from_linelist : DataFrame
