@@ -38,25 +38,9 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
             raise ValueError(
                 "No molecular dissociation energies found in atomic data. Use Carsus to generate atomic data with the Barklem and Collet 2016 data."
             )
-        molecules_df[
-            ["Ion1_symbol", "Ion1_positive", "Ion1_negative"]
-        ] = molecules_df.Ion1.str.extract(r"([A-Z][a-z]?+)(\+*)(\-*)")
-        molecules_df[
-            ["Ion2_symbol", "Ion2_positive", "Ion2_negative"]
-        ] = molecules_df.Ion2.str.extract(r"([A-Z][a-z]?+)(\+*)(\-*)")
 
-        molecules_df["Ion1"] = molecules_df["Ion1_symbol"].apply(
-            element_symbol2atomic_number
-        )
-        molecules_df["Ion2"] = molecules_df["Ion2_symbol"].apply(
-            element_symbol2atomic_number
-        )
-        molecules_df["Ion1_charge"] = molecules_df["Ion1_positive"].apply(
-            len
-        ) - molecules_df["Ion1_negative"].apply(len)
-        molecules_df["Ion2_charge"] = molecules_df["Ion2_positive"].apply(
-            len
-        ) - molecules_df["Ion2_negative"].apply(len)
+        for ion in [1, 2]:
+            self.preprocess_ion(molecules_df, ion)
 
         number_densities_arr = np.zeros(
             (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
@@ -133,6 +117,21 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
         )
 
         return molecule_densities_df, molecule_ion_map
+
+    def preprocess_ion(self, molecules_df, ion):
+        """
+        Preprocesses a component ion in the molecule data to add the ion's atomic number and charge to the df.
+        """
+        molecules_df[
+            [f"Ion{ion}_symbol", f"Ion{ion}_positive", f"Ion{ion}_negative"]
+        ] = molecules_df[f"Ion{ion}"].str.extract(r"([A-Z][a-z]?+)(\+*)(\-*)")
+        molecules_df[f"Ion{ion}"] = molecules_df[f"Ion{ion}_symbol"].apply(
+            element_symbol2atomic_number
+        )
+        molecules_df[f"Ion{ion}_charge"] = molecules_df[f"Ion{ion}_positive"].apply(
+            len
+        ) - molecules_df[f"Ion{ion}_negative"].apply(len)
+        return
 
 
 class MoleculePartitionFunction(ProcessingPlasmaProperty):
