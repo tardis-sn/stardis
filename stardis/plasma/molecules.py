@@ -168,7 +168,7 @@ class MoleculePartitionFunction(ProcessingPlasmaProperty):
 
 class AlphaLineValdMolecule(ProcessingPlasmaProperty):
     """
-    Calculates the alpha values for each molecular line from Vald at each depth point. This is adapted from the AlphaLineVald calculation.
+    Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each molecular line from Vald at each depth point. This is adapted from the AlphaLineVald calculation.
     Attributes
     ----------
     molecule_alpha_line_from_linelist : DataFrame
@@ -298,7 +298,7 @@ class AlphaLineValdMolecule(ProcessingPlasmaProperty):
 
 class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
     """
-    Calculates the alpha values for each molecular line from Vald at each depth point. This is adapted from the AlphaLineShortlistVald calculation.
+    Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each molecular line from Vald at each depth point. This is adapted from the AlphaLineShortlistVald calculation.
 
     Attributes
     ----------

@@ -131,7 +131,7 @@ class AlphaLine(ProcessingPlasmaProperty):
     Attributes
     ----------
     alpha_line : Pandas DataFrame, dtype float
-        Sobolev optical depth for each line. Indexed by line.
+        Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each line at each depth point. Indexed by line.
         Columns as zones.
     """
 
@@ -176,6 +176,7 @@ class AlphaLine(ProcessingPlasmaProperty):
 
 class AlphaLineVald(ProcessingPlasmaProperty):
     """
+    Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each line at each depth point. Uses VALD linelists for lines. Indexed by line.
     Attributes
     ----------
     alpha_line_from_linelist : DataFrame
@@ -321,6 +322,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
 class AlphaLineShortlistVald(ProcessingPlasmaProperty):
     """
+    Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each line at each depth point. Uses VALD shortform linelists for lines. Indexed by line.
+    Subtley different from the full list calculation in that it does not require the upper level degeneracy, and pure number density is not directly calculated as a result.
+
     Attributes
     ----------
     alpha_line_from_linelist : DataFrame
