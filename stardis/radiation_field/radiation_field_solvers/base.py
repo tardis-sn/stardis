@@ -323,11 +323,11 @@ def raytrace(
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
-    weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
+    stellar_radiation_field.I_nu_weights = 2 * np.pi * dtheta * np.sin(thetas)
 
     if spherical:
         ray_distances = calculate_spherical_ray(thetas, stellar_model.geometry.r)
-        photometric_correction = (
+        photospheric_correction = (
             stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
         ) ** 2
     else:
@@ -337,33 +337,38 @@ def raytrace(
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     if n_threads == 1:  # Single threaded
+        stellar_radiation_field.I_nus = all_thetas_trace(
+            ray_distances,
+            stellar_model.temperatures.value.reshape(-1, 1),
+            stellar_radiation_field.opacities.total_alphas,
+            stellar_radiation_field.frequencies,
+            len(stellar_radiation_field.thetas),
+            stellar_radiation_field.source_function,
+        )
         stellar_radiation_field.F_nu = np.sum(
-            weights
-            * all_thetas_trace(
-                ray_distances,
-                stellar_model.temperatures.value.reshape(-1, 1),
-                stellar_radiation_field.opacities.total_alphas,
-                stellar_radiation_field.frequencies,
-                len(thetas),
-                stellar_radiation_field.source_function,
-            ),
+            stellar_radiation_field.I_nus_weights *
+            stellar_radiation_field.I_nus,
             axis=2,
         )
 
     else:  # Parallel threaded
         for theta_index, theta in enumerate(thetas):
-            stellar_radiation_field.F_nu += weights[
-                theta_index
-            ] * single_theta_trace_parallel(
+            I_nu = single_theta_trace_parallel(
                 ray_distances[:, theta_index],
                 stellar_model.temperatures.value.reshape(-1, 1),
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
                 stellar_radiation_field.source_function,
             )
+            stellar_radiation_field.I_nus[:, :, theta_index] = I_nu
+
+            stellar_radiation_field.F_nu += I_nu * stellar_radiation_field.I_nus_weights[
+                theta_index
+            ]
+            
     if spherical:
         stellar_radiation_field.F_nu *= (
-            photometric_correction  # Outermost radius is larger than the photosphere
+            photospheric_correction  # Outermost radius is larger than the photosphere so need to downscale the flux
         )
 
     return stellar_radiation_field.F_nu
