@@ -203,7 +203,6 @@ def example_stellar_radiation_field(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        no_of_thetas=example_config.no_of_thetas,
     )
     return stellar_radiation_field
 
@@ -229,7 +228,6 @@ def example_stellar_radiation_field_broadening(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        no_of_thetas=example_config_broadening.no_of_thetas,
     )
     return stellar_radiation_field
 
@@ -256,7 +254,6 @@ def example_stellar_radiation_field_parallel(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        no_of_thetas=example_config_parallel.no_of_thetas,
         n_threads=example_config_parallel.n_threads,
     )
     return stellar_radiation_field

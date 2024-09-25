@@ -455,7 +455,6 @@ def calculate_spherical_ray(thetas, depth_points_radii):
     depth_points_radii : numpy.ndarray
         Array of radii of each depth point in the star.
     """
-    # NOTE: May need to revisit for outer rays. Currently don't include the outer rays going through the far side of the star
     ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
     )
