@@ -89,7 +89,7 @@ def single_theta_trace_parallel(
     alphas,
     tracing_nus,
     source_function,
-    rays_inward=False,
+    inward_rays=False,
 ):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
@@ -106,6 +106,9 @@ def single_theta_trace_parallel(
         each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
+    inward_rays : bool, optional
+        If True, rays are traced from the outermost layer to the innermost layer before the standard tracing
+        from the innermost layer to the outermost layer, by default False. Useful in spherical geometries. 
 
     Returns
     -------
@@ -134,9 +137,10 @@ def single_theta_trace_parallel(
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
-    if rays_inward:
+    #In spherical geometry, for outside rays, you need to handle the ray that goes through the star and comes out the other side.
+    if inward_rays:
         for nu_index in numba.prange(len(tracing_nus)):
-            for gap_index in np.arange(no_of_depth_gaps - 1)[::-1]:
+            for gap_index in (np.arange(no_of_depth_gaps - 1) + 1)[::-1]:
                 # Start by solving all the weights and prefactors except the last jump which would go out of bounds
                 if taus[gap_index - 1, nu_index] == 0:
                     I_nu_theta[gap_index - 1, nu_index] = I_nu_theta[
@@ -191,7 +195,7 @@ def single_theta_trace_parallel(
                         + second_term
                         + third_term
                     )
-                I_nu_theta[1, nu_index] = I_nu_theta[2, nu_index]
+                #This is wrong, but probably doesn't matter. This is the innermost point of the star for an inward ray. 
                 I_nu_theta[0, nu_index] = I_nu_theta[1, nu_index]
 
     for nu_index in numba.prange(len(tracing_nus)):
@@ -272,6 +276,7 @@ def all_thetas_trace(
     tracing_nus,
     num_of_thetas,
     source_function,
+    inward_rays=False
 ):
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
@@ -289,6 +294,9 @@ def all_thetas_trace(
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
     num_of_thetas : int
+    inward_rays : bool, optional
+        If True, rays are traced from the outermost layer to the innermost layer before the standard tracing
+        from the innermost layer to the outermost layer, by default False. Useful in spherical geomet
 
     Returns
     -------
@@ -332,7 +340,10 @@ def all_thetas_trace(
         )
         / (taus[gap_indices] + taus[gap_indices + 1])
     )
-
+    
+    if inward_rays:
+        pass
+    
     for gap_index in range(
         no_of_depth_gaps - 1
     ):  # solve the ray tracing equation out to the surface of the star, not including the last jump
@@ -370,8 +381,10 @@ def raytrace(
     stellar_model : stardis.model.base.StellarModel
     stellar_radiation_field : stardis.radiation_field.base.StellarRadiationField
         Contains temperatures, frequencies, and opacities needed to calculate F_nu.
-    no_of_thetas : int, optional
-        Number of angles to sample for ray tracing, by default 20.
+    spherical : bool, optional
+        If True, rays are traced from the outermost layer to the innermost layer before the standard tracing
+        from the innermost layer to the outermost layer, by default False. Distance of rays through
+        each the star is also calculated differently.
 
     Returns
     -------
@@ -384,15 +397,14 @@ def raytrace(
         ray_distances = calculate_spherical_ray(
             stellar_radiation_field.thetas, stellar_model.geometry.r
         )
-        photospheric_correction = (
-            stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
-        ) ** 2
+        inward_rays = True
     else:
         ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(
             -1, 1
         ) / np.cos(stellar_radiation_field.thetas)
-
-    if n_threads == 1:  # Single threaded
+        inward_rays = False
+    if False: #Commenting out serial threaded block for now - currently doesn't work with spherical geometry and not sure it's worth maintaining
+    # if n_threads == 1:  # Single threaded
         stellar_radiation_field.I_nus = all_thetas_trace(
             ray_distances,
             stellar_model.temperatures.value.reshape(-1, 1),
@@ -400,12 +412,12 @@ def raytrace(
             stellar_radiation_field.frequencies,
             len(stellar_radiation_field.thetas),
             stellar_radiation_field.source_function,
+            inward_rays
         )
         stellar_radiation_field.F_nu = np.sum(
             stellar_radiation_field.I_nus_weights * stellar_radiation_field.I_nus,
             axis=2,
         )
-
     else:  # Parallel threaded
         for theta_index, theta in enumerate(stellar_radiation_field.thetas):
             I_nu = single_theta_trace_parallel(
@@ -414,6 +426,7 @@ def raytrace(
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
                 stellar_radiation_field.source_function,
+                inward_rays
             )
             stellar_radiation_field.I_nus[:, :, theta_index] = I_nu
 
@@ -422,12 +435,26 @@ def raytrace(
             )
 
     if spherical:
+        photospheric_correction = (
+            stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
+        ) ** 2
         stellar_radiation_field.F_nu *= photospheric_correction  # Outermost radius is larger than the photosphere so need to downscale the flux
+
 
     return stellar_radiation_field.F_nu
 
 
 def calculate_spherical_ray(thetas, depth_points_radii):
+    """
+    Calculates the distance a ray travels through each layer of the star in spherical geometry.
+    
+    Parameters
+    ----------
+    thetas : numpy.ndarray
+        Array of angles in radians.
+    depth_points_radii : numpy.ndarray
+        Array of radii of each depth point in the star.
+    """
     # NOTE: May need to revisit for outer rays. Currently don't include the outer rays going through the far side of the star
     ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
