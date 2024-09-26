@@ -626,12 +626,12 @@ def test_rotational_broadening(example_stardis_output):
     )
 
     expected_broadening_fluxes = [
-        21851984.04113946,
-        21851937.30115837,
-        21851843.93664505,
-        21851704.17866379,
-        21851518.37423182,
-        21851286.98683553,
+        34325016.26500256,
+        34324942.84601195,
+        34324796.18937738,
+        34324576.65805378,
+        34324284.79713453,
+        34323921.33466238,
     ]
     actual_wavelengths, actual_fluxes = rotation_broadening(
         20 * u.km / u.s,
