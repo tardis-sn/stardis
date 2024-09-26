@@ -18,7 +18,8 @@ class RadiationField(HDFWriterMixin):
     ----------
     frequencies : astronopy.units.Quantity
     source_function : stardis.radiation_field.source_function
-    opacities : stardis.radiation_field.opacities
+    stellar_model : stardis.stellar_model.StellarModel
+    num_of_thetas : int
 
     Attributes
     ----------
@@ -31,6 +32,12 @@ class RadiationField(HDFWriterMixin):
         calculate the total opacity at each frequency at each depth point.
     F_nu : numpy.ndarray
         Radiation field fluxes at each frequency at each depth point. Initialized as zeros and calculated by a solver.
+    thetas : numpy.ndarray
+        Theta angles for raytracing.
+    I_nus_weights : numpy.ndarray
+        Weights for the theta angles.
+    I_nus : numpy.ndarray
+        Radiation field intensity at each frequency at each depth point at each theta angle. Initialized as zeros and calculated by a solver.
     """
 
     hdf_properties = ["frequencies", "opacities", "F_nu"]
