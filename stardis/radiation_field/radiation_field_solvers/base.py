@@ -92,7 +92,7 @@ def single_theta_trace_parallel(
     inward_rays=False,
 ):
     """
-    Performs ray tracing at an angle following van Noort 2001 eq 14.
+    Performs ray tracing at an angle following van Noort 2001 eq 14, parallelized over frequencies.
 
     Parameters
     ----------
@@ -281,6 +281,9 @@ def all_thetas_trace(
     """
     Performs ray tracing at an angle following van Noort 2001 eq 14.
 
+    Currently not using this method in favor of the parallelized njit version because it does not work correctly in spherical geometry.
+    This method is kept for reference.
+
     Parameters
     ----------
     geometry_dist_to_next_depth_point : numpy.ndarray
@@ -455,7 +458,7 @@ def calculate_spherical_ray(thetas, depth_points_radii):
         Array of angles in radians.
     depth_points_radii : numpy.ndarray
         Array of radii of each depth point in the star.
-        
+
     Returns
     -------
     ray_distance_through_layer_by_impact_parameter : numpy.ndarray
@@ -465,7 +468,7 @@ def calculate_spherical_ray(thetas, depth_points_radii):
     ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
     )
-    
+
     for theta_index, theta in enumerate(thetas):
         b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
         ray_z_coordinate_grid = np.sqrt(
