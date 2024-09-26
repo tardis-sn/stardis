@@ -447,7 +447,7 @@ def raytrace(
 
 def calculate_spherical_ray(thetas, depth_points_radii):
     """
-    Calculates the distance a ray travels through each layer of the star in spherical geometry.
+    Calculate the distance a ray travels between the depth points of the star in spherical geometry.
 
     Parameters
     ----------
@@ -455,19 +455,24 @@ def calculate_spherical_ray(thetas, depth_points_radii):
         Array of angles in radians.
     depth_points_radii : numpy.ndarray
         Array of radii of each depth point in the star.
+        
+    Returns
+    -------
+    ray_distance_through_layer_by_impact_parameter : numpy.ndarray
+        Array of shape (no_of_depth_points - 1, no_of_thetas). Distance a ray travels through each layer of the star
+        for each angle.
     """
     ray_distance_through_layer_by_impact_parameter = np.zeros(
         (len(depth_points_radii) - 1, len(thetas))
     )
-
+    
     for theta_index, theta in enumerate(thetas):
         b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
         ray_z_coordinate_grid = np.sqrt(
             depth_points_radii**2 - b**2
         )  # Rays that don't go deeper than a layer will have a nan here
 
-        dr = np.diff(depth_points_radii)
-        ray_distance = dr * depth_points_radii[1:] / ray_z_coordinate_grid[1:]
+        ray_distance = np.diff(ray_z_coordinate_grid)
         ray_distance_through_layer_by_impact_parameter[
             ~np.isnan(ray_distance), theta_index
         ] = ray_distance[~np.isnan(ray_distance)]
