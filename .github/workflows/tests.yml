@@ -7,7 +7,7 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --cov=stardis --cov-report=xml --cov-report=html
+  PYTEST_FLAGS: --cov=stardis --cov-report=xml --cov-report=html --stardis-regression-data=${{ github.workspace }}/stardis-regression-data
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
@@ -38,6 +38,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
 
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v2
