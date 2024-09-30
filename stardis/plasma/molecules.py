@@ -40,7 +40,7 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
             )
 
         for ion in [1, 2]:
-            self.preprocess_ion(molecules_df, ion)
+            molecules_df = self.preprocess_ion(molecules_df, ion)
 
         number_densities_arr = np.zeros(
             (len(atomic_data.molecule_data.equilibrium_constants), len(t_electrons))
@@ -131,7 +131,7 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
         molecules_df[f"Ion{ion}_charge"] = molecules_df[f"Ion{ion}_positive"].apply(
             len
         ) - molecules_df[f"Ion{ion}_negative"].apply(len)
-        return
+        return molecules_df
 
 
 class MoleculePartitionFunction(ProcessingPlasmaProperty):
