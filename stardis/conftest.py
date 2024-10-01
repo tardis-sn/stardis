@@ -5,7 +5,7 @@ import numpy as np
 from astropy import units as u
 
 from tardis.io.atom_data.base import AtomData
-from tardis.io.atom_data.util import download_atom_data
+from tardis.io.atom_data import download_atom_data
 from tardis.io.configuration.config_validator import validate_yaml
 from tardis.io.configuration.config_reader import Configuration
 from stardis.io.model.marcs import read_marcs_model
@@ -29,6 +29,10 @@ EXAMPLE_CONF_PATH_PARALLEL = (
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
+
+pytest_plugins = [
+   "stardis.util.regression_data",
+  ]
 
 def pytest_addoption(parser):
     parser.addoption(
