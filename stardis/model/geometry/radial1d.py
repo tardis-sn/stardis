@@ -1,4 +1,6 @@
-class Radial1DGeometry:
+from stardis.util import HDFWriterMixin
+
+class Radial1DGeometry(HDFWriterMixin):
 
     """
     Holds information about model geometry (distribution of depth points) for radial 1D models.
@@ -14,7 +16,7 @@ class Radial1DGeometry:
     dist_to_next_depth_point : astropy.units.quantity.Quantity
         distance to the next depth point
     """
-
+    hdf_properties = ["r"]
     def __init__(self, r):
         self.r = r
 
