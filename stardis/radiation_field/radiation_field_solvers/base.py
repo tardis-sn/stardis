@@ -140,32 +140,26 @@ def single_theta_trace_parallel(
     # In spherical geometry, for outside rays, you need to handle the ray that goes through the star and comes out the other side.
     if inward_rays:
         for nu_index in numba.prange(len(tracing_nus)):
-            for gap_index in (np.arange(no_of_depth_gaps - 1) + 1)[::-1]:
+            for gap_index in np.arange(0, no_of_depth_gaps)[::-1]:
                 # Start by solving all the weights and prefactors except the last jump which would go out of bounds
-                if taus[gap_index - 1, nu_index] == 0:
-                    I_nu_theta[gap_index - 1, nu_index] = I_nu_theta[
-                        gap_index, nu_index
-                    ]  # If no optical depth, no change in intensity
+                if (taus[gap_index, nu_index] == 0 or taus[gap_index - 1, nu_index] == 0):
+                        I_nu_theta[gap_index, nu_index] = I_nu_theta[
+                            gap_index + 1, nu_index
+                        ]  # If no optical depth, no change in intensity
                 else:
                     second_term = (
                         w1[gap_index, nu_index]
                         * (
                             (
-                                source[gap_index - 1, nu_index]
-                                - source[gap_index - 2, nu_index]
+                                source[gap_index, nu_index]
+                                - source[gap_index - 1, nu_index]
                             )
-                            * (
-                                taus[gap_index, nu_index]
-                                / taus[gap_index - 1, nu_index]
-                            )
+                            * (taus[gap_index, nu_index] / taus[gap_index - 1, nu_index])
                             - (
-                                source[gap_index - 1, nu_index]
-                                - source[gap_index, nu_index]
+                                source[gap_index, nu_index]
+                                - source[gap_index + 1, nu_index]
                             )
-                            * (
-                                taus[gap_index - 1, nu_index]
-                                / taus[gap_index, nu_index]
-                            )
+                            * (taus[gap_index - 1, nu_index] / taus[gap_index, nu_index])
                         )
                         / (taus[gap_index, nu_index] + taus[gap_index - 1, nu_index])
                     )
@@ -173,15 +167,15 @@ def single_theta_trace_parallel(
                         (
                             (
                                 (
-                                    source[gap_index - 2, nu_index]
-                                    - source[gap_index - 1, nu_index]
+                                    source[gap_index - 1, nu_index]
+                                    - source[gap_index, nu_index]
                                 )
                                 / taus[gap_index - 1, nu_index]
                             )
                             + (
                                 (
-                                    source[gap_index, nu_index]
-                                    - source[gap_index - 1, nu_index]
+                                    source[gap_index + 1, nu_index]
+                                    - source[gap_index, nu_index]
                                 )
                                 / taus[gap_index, nu_index]
                             )
@@ -189,14 +183,12 @@ def single_theta_trace_parallel(
                         / (taus[gap_index, nu_index] + taus[gap_index - 1, nu_index])
                     )
                     # Solve the raytracing equation for all points other than the final jump
-                    I_nu_theta[gap_index - 1, nu_index] = (
-                        (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index, nu_index]
-                        + w0[gap_index, nu_index] * source[gap_index - 1, nu_index]
+                    I_nu_theta[gap_index, nu_index] = (
+                        (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index + 1, nu_index]
+                        + w0[gap_index, nu_index] * source[gap_index, nu_index]
                         + second_term
                         + third_term
                     )
-                # This is wrong, but probably doesn't matter. This is the innermost point of the star for an inward ray.
-                I_nu_theta[0, nu_index] = I_nu_theta[1, nu_index]
 
     for nu_index in numba.prange(len(tracing_nus)):
         for gap_index in range(no_of_depth_gaps - 1):
@@ -431,7 +423,7 @@ def raytrace(
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
                 stellar_radiation_field.source_function,
-                inward_rays,
+                inward_rays=inward_rays,
             )
             stellar_radiation_field.I_nus[:, :, theta_index] = I_nu
 
