@@ -1,4 +1,4 @@
-from stardis.util import HDFWriterMixin
+from tardis.io.util import HDFWriterMixin
 
 class StellarModel(HDFWriterMixin):
     """

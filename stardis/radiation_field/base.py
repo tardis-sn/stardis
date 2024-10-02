@@ -4,9 +4,10 @@ from stardis.radiation_field.opacities import Opacities
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
+from tardis.io.util import HDFWriterMixin
 
 
-class RadiationField:
+class RadiationField(HDFWriterMixin):
     """
     Class containing information about the radiation field.
     ###TODO Radiation field temperature should be a separate attribute, for the case of differing gas and radiation.
