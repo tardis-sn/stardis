@@ -8,6 +8,7 @@ import pytest
 
 from tardis.io.util import HDFWriterMixin
 
+
 class RegressionData:
     def __init__(self, request) -> None:
         self.request = request
@@ -127,9 +128,7 @@ class RegressionData:
             self.fpath.parent.mkdir(parents=True, exist_ok=True)
             with self.fpath.open("w") as fh:
                 fh.write(data)
-            pytest.skip(
-                f"Skipping test to generate regression_data {self.fpath} data"
-            )
+            pytest.skip(f"Skipping test to generate regression_data {self.fpath} data")
         else:
             with self.fpath.open("r") as fh:
                 return fh.read()
@@ -156,9 +155,7 @@ class RegressionData:
             self.fpath.parent.mkdir(parents=True, exist_ok=True)
             with pd.HDFStore(self.fpath, mode="w") as store:
                 stardis_module.to_hdf(store, overwrite=True)
-            pytest.skip(
-                f"Skipping test to generate regression data: {self.fpath}"
-            )
+            pytest.skip(f"Skipping test to generate regression data: {self.fpath}")
         else:
             return pd.HDFStore(self.fpath, mode="r")
 

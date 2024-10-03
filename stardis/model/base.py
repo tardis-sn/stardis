@@ -1,5 +1,6 @@
 from tardis.io.util import HDFWriterMixin
 
+
 class StellarModel(HDFWriterMixin):
     """
     Class containing information about the stellar model.
@@ -21,6 +22,7 @@ class StellarModel(HDFWriterMixin):
     no_of_depth_points : int
         Class attribute to be easily accessible for initializing arrays that need to match the shape of the model.
     """
+
     hdf_properties = ["temperatures", "geometry", "composition"]
 
     def __init__(self, temperatures, geometry, composition):

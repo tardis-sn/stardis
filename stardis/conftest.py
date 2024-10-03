@@ -31,8 +31,9 @@ EXAMPLE_CONF_PATH_PARALLEL = (
 assert regression_data is not None
 
 pytest_plugins = [
-   "stardis.util.regression_data",
-  ]
+    "stardis.util.regression_data",
+]
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -305,14 +306,11 @@ def example_stardis_output_parallel(
         example_stellar_radiation_field_parallel,
     )
 
+
 @pytest.fixture(scope="session")
 def stardis_regression_path(request):
-    stardis_regression_path = request.config.getoption(
-        "--stardis-regression-data"
-    )
+    stardis_regression_path = request.config.getoption("--stardis-regression-data")
     if stardis_regression_path is None:
         pytest.skip("--stardis-regression-data was not specified")
     else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(stardis_regression_path))
-        )
+        return Path(os.path.expandvars(os.path.expanduser(stardis_regression_path)))
