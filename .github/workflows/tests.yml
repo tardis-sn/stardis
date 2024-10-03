@@ -43,7 +43,7 @@ jobs:
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
     
-      - name: Setup LFS
+      - name: Setup STARDIS
         uses: ./.github/actions/setup_env
         with:
           os-label: ${{ matrix.label }}
