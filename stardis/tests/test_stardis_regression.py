@@ -80,3 +80,14 @@ def test_stardis_plasma(example_stardis_output, regression_data):
 
 def test_stardis_radiation_field(example_stardis_output, regression_data):
     expected = regression_data.sync_hdf_store(example_stardis_output.stellar_radiation_field)
+    actual = example_stardis_output.stellar_radiation_field
+
+    np.testing.assert_allclose(
+        expected["/radiation_field/frequencies"].values, 
+        actual.frequencies.value
+    )
+
+    np.testing.assert_allclose(
+        expected["/radiation_field/F_nu"].values, 
+        actual.F_nu
+    )

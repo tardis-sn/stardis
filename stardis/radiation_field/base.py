@@ -30,6 +30,7 @@ class RadiationField(HDFWriterMixin):
     F_nu : numpy.ndarray
         Radiation field fluxes at each frequency at each depth point. Initialized as zeros and calculated by a solver.
     """
+    hdf_properties = ["frequencies", "opacities", "F_nu"]
 
     def __init__(self, frequencies, source_function, stellar_model):
         self.frequencies = frequencies
