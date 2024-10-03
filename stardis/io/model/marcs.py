@@ -403,7 +403,12 @@ def read_marcs_model(fpath, gzipped=True, spherical=False):
     model : MARCSModel
         Assembled metadata and data pair of a MARCS model
     """
-    metadata = read_marcs_metadata(fpath, gzipped=gzipped, spherical=spherical)
+    try:
+        metadata = read_marcs_metadata(fpath, gzipped=gzipped, spherical=spherical)
+    except:
+        raise ValueError(
+            "Failed to read metadata from MARCS model file. Make sure that you are specifying if the file is gzipped, and whether the model is spherical or plane-parallel appropriately."
+        )
     data = read_marcs_data(fpath, gzipped=gzipped)
 
     return MARCSModel(metadata, data, spherical=spherical)
