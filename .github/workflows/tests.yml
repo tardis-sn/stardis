@@ -2,7 +2,11 @@ name: tests
 
 on:
   push:
+    branches:
+      - master
   pull_request:
+    branches:
+      - master
   workflow_dispatch:
 
 env:
@@ -16,19 +20,16 @@ defaults:
 
 jobs:
   build:
-    # if: github.repository_owner == 'tardis-sn'
+    if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
         include:
-
         - os: ubuntu-latest
           label: linux-64
           prefix: /usr/share/miniconda3/envs/stardis
-
         # - os: ubuntu-latest
         #   label: linux-64-cuda
         #   prefix: /usr/share/miniconda3/envs/stardis
-
         - os: macos-latest
           label: osx-64
           prefix: /Users/runner/miniconda3/envs/stardis
@@ -37,13 +38,15 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
     
       - name: Setup LFS
         uses: ./.github/actions/setup_env
+        with:
+          os-label: ${{ matrix.label }}
 
       - name: Install TARDIS
         id: install-tardis
