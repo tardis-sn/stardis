@@ -372,7 +372,6 @@ def raytrace(
     stellar_model,
     stellar_radiation_field,
     n_threads=1,
-    spherical=False,
 ):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
@@ -395,7 +394,7 @@ def raytrace(
         each depth_point for each frequency in tracing_nus.
     """
 
-    if spherical:
+    if stellar_model.spherical:
         ray_distances = calculate_spherical_ray(
             stellar_radiation_field.thetas, stellar_model.geometry.r
         )
@@ -438,7 +437,7 @@ def raytrace(
                 I_nu * stellar_radiation_field.I_nus_weights[theta_index]
             )
 
-    if spherical:
+    if stellar_model.spherical:
         photospheric_correction = (
             stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
         ) ** 2

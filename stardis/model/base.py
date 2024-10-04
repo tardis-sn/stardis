@@ -21,14 +21,17 @@ class StellarModel(HDFWriterMixin):
         Composition of the model. Includes density and atomic mass fractions.
     no_of_depth_points : int
         Class attribute to be easily accessible for initializing arrays that need to match the shape of the model.
+    spherical : bool
+        Flag for spherical geometry.
     """
 
     hdf_properties = ["temperatures", "geometry", "composition"]
 
-    def __init__(self, temperatures, geometry, composition):
+    def __init__(self, temperatures, geometry, composition, spherical=False):
         self.temperatures = temperatures
         self.geometry = geometry
         self.composition = composition
+        self.spherical = spherical
 
     @property
     def no_of_depth_points(self):

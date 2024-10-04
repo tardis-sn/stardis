@@ -26,10 +26,6 @@ properties:
                 type: boolean
                 default: false
                 description: Whether the file is gzipped. Only used for marcs models.            
-            spherical:
-                type: boolean
-                default: false
-                description: Whether the model is spherical. Only used for marcs models.
             final_atomic_number:
                 type: number
                 multipleOf: 1

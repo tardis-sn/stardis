@@ -11,6 +11,8 @@ from stardis.model.geometry.radial1d import Radial1DGeometry
 from stardis.model.base import StellarModel
 from tardis.model.matter.composition import Composition
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class MARCSModel(object):
@@ -150,10 +152,12 @@ class MARCSModel(object):
             self.data.t.values[::-1] * u.K
         )  # Flip data to move from innermost stellar point to surface
         # First two none values are old fv_geometry and abundances which are replaced by the new structures.
-        return StellarModel(temperatures, marcs_geometry, marcs_composition)
+        return StellarModel(
+            temperatures, marcs_geometry, marcs_composition, spherical=self.spherical
+        )
 
 
-def read_marcs_metadata(fpath, gzipped=True, spherical=False):
+def read_marcs_metadata(fpath, gzipped=True):
     """
     Grabs the metadata information from a gzipped MARCS model file and returns it in a python dictionary.
     Matches the metadata information and units using regex. Assumes file line structure of plane-parallel models.
@@ -274,19 +278,6 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
     ]
     BYTES_THROUGH_METADATA = 550
 
-    # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
-    # Then add each of the matched patterns as a key:value pair to the metadata dict.
-    # Files are formatted a little differently depending on if the MARCS model is spherical or plane-parallel
-    if spherical:
-        metadata_re = [re.compile(re_str[0]) for re_str in METADATA_SPHERICAL_RE_STR]
-        metadata_re_str = METADATA_SPHERICAL_RE_STR
-    else:
-        metadata_re = [
-            re.compile(re_str[0]) for re_str in METADATA_PLANE_PARALLEL_RE_STR
-        ]
-        metadata_re_str = METADATA_PLANE_PARALLEL_RE_STR
-    metadata = {}
-
     if gzipped:
         with gzip.open(fpath, "rt") as file:
             contents = file.readlines(BYTES_THROUGH_METADATA)
@@ -296,6 +287,24 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             contents = file.readlines(BYTES_THROUGH_METADATA)
 
     lines = list(contents)
+
+    # Compile each of the regex pattern strings then open the file and match each of the patterns by line.
+    # Then add each of the matched patterns as a key:value pair to the metadata dict.
+    # Files are formatted a little differently depending on if the MARCS model is spherical or plane-parallel
+    if "plane-parallel" in lines[5]:
+        logger.info("Plane-parallel model detected.")
+        spherical = False
+        metadata_re = [
+            re.compile(re_str[0]) for re_str in METADATA_PLANE_PARALLEL_RE_STR
+        ]
+        metadata_re_str = METADATA_PLANE_PARALLEL_RE_STR
+    else:
+        logger.info("Spherical model detected.")
+        spherical = True
+        metadata_re = [re.compile(re_str[0]) for re_str in METADATA_SPHERICAL_RE_STR]
+        metadata_re_str = METADATA_SPHERICAL_RE_STR
+
+    metadata = {}
 
     # Check each line against the regex patterns and add the matched values to the metadata dictionary
     for i in range(len(metadata_re_str)):
@@ -315,7 +324,7 @@ def read_marcs_metadata(fpath, gzipped=True, spherical=False):
             metadata[key] = float(metadata[key])
     metadata = {key: metadata[key] for key in metadata if key not in keys_to_remove}
 
-    return metadata
+    return metadata, spherical
 
 
 def read_marcs_data(fpath, gzipped=True):
@@ -387,7 +396,7 @@ def read_marcs_data(fpath, gzipped=True):
     return marcs_model_data
 
 
-def read_marcs_model(fpath, gzipped=True, spherical=False):
+def read_marcs_model(fpath, gzipped=True):
     """
     Parameters
     ----------
@@ -404,7 +413,7 @@ def read_marcs_model(fpath, gzipped=True, spherical=False):
         Assembled metadata and data pair of a MARCS model
     """
     try:
-        metadata = read_marcs_metadata(fpath, gzipped=gzipped, spherical=spherical)
+        metadata, spherical = read_marcs_metadata(fpath, gzipped=gzipped)
     except:
         raise ValueError(
             "Failed to read metadata from MARCS model file. Make sure that you are specifying if the file is gzipped, and whether the model is spherical or plane-parallel appropriately."
