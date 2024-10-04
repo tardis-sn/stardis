@@ -416,7 +416,7 @@ def read_marcs_model(fpath, gzipped=True):
         metadata, spherical = read_marcs_metadata(fpath, gzipped=gzipped)
     except:
         raise ValueError(
-            "Failed to read metadata from MARCS model file. Make sure that you are specifying if the file is gzipped, and whether the model is spherical or plane-parallel appropriately."
+            "Failed to read metadata from MARCS model file. Make sure that you are specifying if the file is gzipped appropriately."
         )
     data = read_marcs_data(fpath, gzipped=gzipped)
 
