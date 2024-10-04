@@ -12,7 +12,6 @@ runs:
   steps:
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-${{ inputs.os-label }}.lock
-        if: matrix.pip == true
         shell: bash
       
       - name: Generate Cache Key
