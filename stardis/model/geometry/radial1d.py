@@ -13,6 +13,7 @@ class Radial1DGeometry:
     dist_to_next_depth_point : astropy.units.quantity.Quantity
         distance to the next depth point
     """
+
     def __init__(self, r):
         self.r = r
 
