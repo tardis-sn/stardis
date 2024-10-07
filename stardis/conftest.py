@@ -1,10 +1,11 @@
+import os
 import pytest
 from pathlib import Path
 import numpy as np
 from astropy import units as u
 
 from tardis.io.atom_data.base import AtomData
-from tardis.io.atom_data.util import download_atom_data
+from tardis.io.atom_data import download_atom_data
 from tardis.io.configuration.config_validator import validate_yaml
 from tardis.io.configuration.config_reader import Configuration
 from stardis.io.model.marcs import read_marcs_model
@@ -15,6 +16,8 @@ from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 from stardis import STARDISOutput
 from stardis.io.base import SCHEMA_PATH
+from stardis.util import regression_data
+
 
 EXAMPLE_CONF_PATH = Path(__file__).parent / "tests" / "stardis_test_config.yml"
 EXAMPLE_CONF_PATH_BROADENING = (
@@ -23,6 +26,27 @@ EXAMPLE_CONF_PATH_BROADENING = (
 EXAMPLE_CONF_PATH_PARALLEL = (
     Path(__file__).parent / "tests" / "stardis_test_config_parallel.yml"
 )
+
+# ensuring that regression_data is not removed by ruff
+assert regression_data is not None
+
+pytest_plugins = [
+    "stardis.util.regression_data",
+]
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--stardis-regression-data",
+        default=None,
+        help="Path to the stardis regression data directory",
+    )
+    parser.addoption(
+        "--generate-reference",
+        action="store_true",
+        default=False,
+        help="generate reference data instead of testing",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -281,3 +305,12 @@ def example_stardis_output_parallel(
         example_stellar_plasma,
         example_stellar_radiation_field_parallel,
     )
+
+
+@pytest.fixture(scope="session")
+def stardis_regression_path(request):
+    stardis_regression_path = request.config.getoption("--stardis-regression-data")
+    if stardis_regression_path is None:
+        pytest.skip("--stardis-regression-data was not specified")
+    else:
+        return Path(os.path.expandvars(os.path.expanduser(stardis_regression_path)))

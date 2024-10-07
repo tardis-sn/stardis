@@ -4,9 +4,10 @@ from stardis.radiation_field.opacities import Opacities
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
+from tardis.io.util import HDFWriterMixin
 
 
-class RadiationField:
+class RadiationField(HDFWriterMixin):
     """
     Class containing information about the radiation field.
     ###TODO Radiation field temperature should be a separate attribute, for the case of differing gas and radiation.
@@ -29,6 +30,8 @@ class RadiationField:
     F_nu : numpy.ndarray
         Radiation field fluxes at each frequency at each depth point. Initialized as zeros and calculated by a solver.
     """
+
+    hdf_properties = ["frequencies", "opacities", "F_nu"]
 
     def __init__(self, frequencies, source_function, stellar_model):
         self.frequencies = frequencies

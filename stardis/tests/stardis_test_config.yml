@@ -14,3 +14,7 @@ opacity:
         disable: False
         broadening: []
 no_of_thetas: 1
+result_options:
+    return_model: true
+    return_plasma: true
+    return_radiation_field: true

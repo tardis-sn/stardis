@@ -1,5 +1,4 @@
 class Radial1DGeometry:
-
     """
     Holds information about model geometry (distribution of depth points) for radial 1D models.
 
