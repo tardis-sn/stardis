@@ -704,6 +704,34 @@ def calculate_broadening(
     return gammas, doppler_widths
 
 
+def calculate_molecule_broadening(
+    lines,
+    stellar_model,
+    stellar_plasma,
+    broadening_line_opacity_config,
+):
+    if "radiation" in broadening_line_opacity_config:
+        gammas = lines.A_ul.values[:, np.newaxis]
+    else:
+        gammas = np.zeros(
+            (len(lines), len(stellar_model.geometry.no_of_depth_points)), dtype=float
+        )
+
+    ions = stellar_plasma.molecule_ion_map.loc[lines.molecule]
+
+    ion1_masses = stellar_model.composition.nuclide_masses.loc[ions.Ion1].values
+    ion2_masses = stellar_model.composition.nuclide_masses.loc[ions.Ion2].values
+
+    molecule_masses = (ion1_masses + ion2_masses)[:, np.newaxis]
+    doppler_widths = calc_doppler_width(
+        lines.nu.values[:, np.newaxis],
+        stellar_model.temperatures.value,
+        molecule_masses,
+    )
+
+    return gammas, doppler_widths
+
+
 def rotation_broadening(
     velocity_per_pix, wavelength, flux, v_rot=0 * u.km / u.s, limb_darkening=0.6
 ):

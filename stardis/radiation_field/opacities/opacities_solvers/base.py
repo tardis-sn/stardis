@@ -7,6 +7,7 @@ from astropy import units as u, constants as const
 
 from stardis.radiation_field.opacities.opacities_solvers.broadening import (
     calculate_broadening,
+    calculate_molecule_broadening,
 )
 from stardis.radiation_field.opacities.opacities_solvers.voigt import voigt_profile
 from stardis.radiation_field.opacities.opacities_solvers.util import (
@@ -466,6 +467,92 @@ def calc_alpha_line_at_nu(
     return alpha_line_at_nu, gammas, doppler_widths
 
 
+def calc_molecular_alpha_line_at_nu(
+    stellar_plasma,
+    stellar_model,
+    tracing_nus,
+    line_opacity_config,
+    n_threads=1,
+):
+    if line_opacity_config.disable:
+        return 0, 0, 0
+
+    line_range = line_opacity_config.broadening_range
+
+    lines = stellar_plasma.molecule_lines_from_linelist
+    lines_sorted = lines.sort_values("nu")
+    lines_sorted_in_range = lines_sorted[
+        lines_sorted.nu.between(tracing_nus.min(), tracing_nus.max())
+    ]
+    line_nus = lines_sorted_in_range.nu.to_numpy()
+
+    alphas_and_nu = stellar_plasma.molecule_alpha_line_from_linelist
+
+    alphas_array = (
+        alphas_and_nu[alphas_and_nu.nu.between(tracing_nus.min(), tracing_nus.max())]
+        .drop(labels="nu", axis=1)
+        .to_numpy()
+    )
+
+    gammas, doppler_widths = calculate_molecule_broadening(
+        lines_sorted_in_range,
+        stellar_model,
+        stellar_plasma,
+        line_opacity_config.broadening,
+    )
+
+    delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
+
+    line_range_value = None
+
+    # If there is a broadening range, first make sure the range is in frequency units, and then iterate through each frequency to calculate the contribution of each line within the broadening range.
+    if (
+        line_range is not None
+    ):  # This if statement block appropriately handles if the broadening range is in frequency or wavelength units.
+        h_lines_indices = np.full(
+            len(lines_sorted_in_range), False
+        )  # This is wonky but necessary for the calc_alan_entries function
+        if line_range.unit.physical_type == "length":
+            lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
+            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
+            nus_plus_broadening_range = lambdas_plus_broadening_range.to(
+                u.Hz, equivalencies=u.spectral()
+            )
+            line_range_value = (tracing_nus - nus_plus_broadening_range).value
+        elif line_range.unit.physical_type == "frequency":
+            line_range_value = line_range.to(u.Hz).value
+        else:
+            raise ValueError(
+                "Broadening range must be in units of length or frequency."
+            )
+
+    if n_threads == 1:  # Single threaded
+        alpha_line_at_nu = calc_alan_entries(
+            stellar_model.no_of_depth_points,
+            tracing_nus.value,
+            delta_nus,
+            doppler_widths,
+            gammas,
+            alphas_array,
+            line_range_value,
+            h_lines_indices,
+        )
+
+    else:  # Parallel threaded
+        alpha_line_at_nu = calc_alan_entries_parallel(
+            stellar_model.no_of_depth_points,
+            tracing_nus.value,
+            delta_nus,
+            doppler_widths,
+            gammas,
+            alphas_array,
+            line_range_value,
+            h_lines_indices,
+        )
+
+    return alpha_line_at_nu, gammas, doppler_widths
+
+
 @numba.njit(parallel=True)
 def calc_alan_entries_parallel(
     no_of_depth_points,
@@ -735,6 +822,30 @@ def calc_alphas(
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
     ] = doppler_widths
+
+    if opacity_config.line.include_molecules:
+        (
+            molecule_alpha_line_at_nu,
+            molecule_gammas,
+            molecule_doppler_widths,
+        ) = calc_molecular_alpha_line_at_nu(
+            stellar_plasma,
+            stellar_model,
+            stellar_radiation_field.frequencies,
+            opacity_config.line,
+            n_threads,
+        )
+
+        stellar_radiation_field.opacities.opacities_dict[
+            "molecule_alpha_line_at_nu"
+        ] = molecule_alpha_line_at_nu
+        stellar_radiation_field.opacities.opacities_dict[
+            "molecule_alpha_line_at_nu_gammas"
+        ] = molecule_gammas
+        stellar_radiation_field.opacities.opacities_dict[
+            "molecule_alpha_line_at_nu_doppler_widths"
+        ] = molecule_doppler_widths
+
     alphas = stellar_radiation_field.opacities.calc_total_alphas()
 
     return alphas

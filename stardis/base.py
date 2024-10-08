@@ -7,6 +7,8 @@ from astropy import units as u
 
 import logging
 
+logger = logging.getLogger(__name__)
+
 
 def run_stardis(
     config_fname, tracing_lambdas_or_nus, add_config_keys=None, add_config_vals=None
@@ -73,11 +75,11 @@ def set_num_threads(n_threads):
 
     """
     if n_threads == 1:
-        logging.info("Running in serial mode")
+        logger.info("Running in serial mode")
     elif n_threads == -99:
-        logging.info("Running with max threads")
+        logger.info("Running with max threads")
     elif n_threads > 1:
-        logging.info(f"Running with {n_threads} threads")
+        logger.info(f"Running with {n_threads} threads")
         numba.set_num_threads(n_threads)
     else:
         raise ValueError(

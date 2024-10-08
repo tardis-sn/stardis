@@ -126,6 +126,10 @@ properties:
                                 type: boolean
                                 default: false
                         description: Options for whether to use a vald linelist. Linelist must be included the atom_data and cannot be supplied separately. 
+                    include_molecules:
+                        type: boolean
+                        default: false
+                        description: Whether to include molecular lines in the simulation.
         #required:
         #- line
     no_of_thetas:

@@ -19,6 +19,13 @@ from tardis.plasma.properties.property_collections import (
     non_nlte_properties,
     helium_lte_properties,
 )
+from stardis.plasma.molecules import (
+    MoleculeIonNumberDensity,
+    AlphaLineValdMolecule,
+    MoleculePartitionFunction,
+    AlphaLineShortlistValdMolecule,
+)
+
 
 import tardis.plasma
 from tardis.opacities.tau_sobolev import TauSobolev
@@ -49,6 +56,8 @@ H2_PLUS_K_SAMPLE_TEMPS = [
     18600,
     25200,
 ]  # see directly above
+
+logger = logging.getLogger(__name__)
 
 
 class HMinusDensity(ProcessingPlasmaProperty):
@@ -122,7 +131,7 @@ class AlphaLine(ProcessingPlasmaProperty):
     Attributes
     ----------
     alpha_line : Pandas DataFrame, dtype float
-        Sobolev optical depth for each line. Indexed by line.
+        Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each line at each depth point. Indexed by line.
         Columns as zones.
     """
 
@@ -167,6 +176,7 @@ class AlphaLine(ProcessingPlasmaProperty):
 
 class AlphaLineVald(ProcessingPlasmaProperty):
     """
+    Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each line at each depth point. Uses VALD linelists for lines. Indexed by line.
     Attributes
     ----------
     alpha_line_from_linelist : DataFrame
@@ -200,7 +210,6 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         # alphas = ALPHA_COEFFICIENT * n_lower * f_lu * emission_correction
 
         ###TODO: handle other broadening parameters
-
         points = len(t_electrons)
 
         linelist = atomic_data.linelist_atoms.rename(
@@ -301,8 +310,8 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
 
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
-        linelist["A_ul"] = 10 ** (
-            linelist["rad"]
+        linelist["A_ul"] = 10 ** (linelist["rad"]) / (
+            4 * np.pi
         )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
 
         # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
@@ -313,6 +322,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
 
 class AlphaLineShortlistVald(ProcessingPlasmaProperty):
     """
+    Calculates the alpha (line integrated absorption coefficient in cm^-1) values for each line at each depth point. Uses VALD shortform linelists for lines. Indexed by line.
+    Subtley different from the full list calculation in that it does not require the upper level degeneracy, and pure number density is not directly calculated as a result.
+
     Attributes
     ----------
     alpha_line_from_linelist : DataFrame
@@ -496,7 +508,7 @@ def create_stellar_plasma(
     tardis.plasma.base.BasePlasma
     """
 
-    logging.info("Creating plasma")
+    logger.info("Creating plasma")
 
     # basic_properties.remove(tardis.plasma.properties.general.NumberDensity)
     plasma_modules = []
@@ -538,6 +550,14 @@ def create_stellar_plasma(
         temperature=stellar_model.temperatures,
         dilution_factor=np.ones_like(stellar_model.temperatures),
     )
+    if config.opacity.line.include_molecules:
+        plasma_modules.append(MoleculeIonNumberDensity)
+        plasma_modules.append(MoleculePartitionFunction)
+        if config.opacity.line.vald_linelist.use_linelist:
+            if config.opacity.line.vald_linelist.shortlist:
+                plasma_modules.append(AlphaLineShortlistValdMolecule)
+            else:
+                plasma_modules.append(AlphaLineValdMolecule)
 
     return BasePlasma(
         plasma_properties=plasma_modules,
