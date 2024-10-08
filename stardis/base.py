@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_stardis(
-    config_fname, tracing_lambdas_or_nus, add_config_keys=None, add_config_vals=None
+    config_fname, tracing_lambdas_or_nus, add_config_dict=None
 ):
     """
     Runs a STARDIS simulation.
@@ -24,10 +24,8 @@ def run_stardis(
         Numpy array of the frequencies or wavelengths to calculate the
         spectrum for. Must have units attached to it, with dimensions
         of either length or inverse time.
-    add_config_keys : list, optional
-        List of additional keys to add or overwrite for the configuration file.
-    add_config_vals : list, optional
-        List of corresponding additional values to add to the configuration file.
+    add_config_dict : dict, optional
+        Dictionary containing the the keys and values of the configuration to add or overwrite.
 
     Returns
     -------
@@ -38,7 +36,7 @@ def run_stardis(
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
     config, adata, stellar_model = parse_config_to_model(
-        config_fname, add_config_keys, add_config_vals
+        config_fname, add_config_dict
     )
     set_num_threads(config.n_threads)
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
