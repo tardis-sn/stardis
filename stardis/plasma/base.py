@@ -3,7 +3,6 @@ import pandas as pd
 import logging
 
 from astropy import constants as const, units as u
-from scipy.interpolate import interp1d
 
 from tardis.plasma.base import BasePlasma
 from tardis.plasma.properties.base import (
@@ -118,11 +117,13 @@ class H2PlusDensity(ProcessingPlasmaProperty):
     outputs = ("h2_plus_density",)
 
     def calculate(self, ion_number_density, t_rad):
-        interp_Ks = interp1d(H2_PLUS_K_SAMPLE_TEMPS, H2_PLUS_K_EQUILIBRIUM_CONSTANT)
         h_neutral_density = ion_number_density.loc[1, 0]
         h_plus_density = ion_number_density.loc[1, 1]
+        resampled_Ks = np.interp(
+            t_rad, H2_PLUS_K_SAMPLE_TEMPS, H2_PLUS_K_EQUILIBRIUM_CONSTANT
+        )
         return (
-            h_neutral_density * h_plus_density / interp_Ks(t_rad) * 1e-19
+            h_neutral_density * h_plus_density / resampled_Ks * 1e-19
         )  # scale factor from Stancil 1994 table 1
 
 

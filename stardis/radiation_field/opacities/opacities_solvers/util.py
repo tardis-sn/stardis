@@ -4,7 +4,7 @@ import pandas as pd
 from astropy import units as u, constants as const
 from tardis.util.base import species_string_to_tuple
 
-from scipy.interpolate import interp1d, LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator
 
 
 def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
@@ -83,16 +83,11 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         h_minus_bf_table = pd.read_csv(
             fpath, header=None, comment="#", names=["wavelength", "cross_section"]
         )
-        linear_interp_1d_from_file = interp1d(
+        sigmas = np.interp(
+            tracing_lambdas,
             h_minus_bf_table.wavelength.values,
             h_minus_bf_table.cross_section.values,
-            bounds_error=False,
-            fill_value=(
-                h_minus_bf_table.cross_section.iloc[0],
-                h_minus_bf_table.cross_section.iloc[-1],
-            ),
         )
-        sigmas = linear_interp_1d_from_file(tracing_lambdas)
 
     else:
         raise ValueError(f"Unknown opacity_source: {opacity_source}")
