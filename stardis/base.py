@@ -10,9 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def run_stardis(
-    config_fname, tracing_lambdas_or_nus, add_config_dict=None
-):
+def run_stardis(config_fname, tracing_lambdas_or_nus, add_config_dict=None):
     """
     Runs a STARDIS simulation.
 
@@ -35,9 +33,7 @@ def run_stardis(
 
     tracing_nus = tracing_lambdas_or_nus.to(u.Hz, u.spectral())
 
-    config, adata, stellar_model = parse_config_to_model(
-        config_fname, add_config_dict
-    )
+    config, adata, stellar_model = parse_config_to_model(config_fname, add_config_dict)
     set_num_threads(config.n_threads)
     stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
     stellar_radiation_field = create_stellar_radiation_field(
