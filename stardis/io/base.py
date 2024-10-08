@@ -17,7 +17,7 @@ SCHEMA_PATH = BASE_DIR / "config_schema.yml"
 logger = logging.getLogger(__name__)
 
 
-def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=None):
+def parse_config_to_model(config_fname, add_config_dict):
     """
     Parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python.
 
@@ -47,28 +47,18 @@ def parse_config_to_model(config_fname, add_config_keys=None, add_config_vals=No
         raise ValueError("Config failed to validate. Check the config file.")
 
     if (
-        not add_config_keys
+        not add_config_dict
     ):  # If a dictionary was passed, update the config with the dictionary
         pass
     else:
         logger.info("Updating config with additional keys and values")
-        if isinstance(add_config_keys, str):
-            # Directly set the config item if add_config_keys is a string
-            config.set_config_item(add_config_keys, add_config_vals)
-        else:
-            # Proceed with iteration if add_config_keys is not a string
-            if len(add_config_keys) != len(add_config_vals):
-                raise ValueError(
-                    "Length of additional config keys and values do not match."
-                )
+        for key, val in add_config_dict.items():
             try:
-                for key, val in zip(add_config_keys, add_config_vals):
-                    config.set_config_item(key, val)
+                config.set_config_item(key, val)
             except:
                 raise ValueError(
-                    f"{add_config_keys} not a valid type. Should be a single string or a list of strings for keys."
+                    f"{key} not a valid type. Should be a string for keys."
                 )
-
         try:
             config_dict = validate_dict(config, schemapath=SCHEMA_PATH)
         except:
