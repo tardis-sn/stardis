@@ -48,17 +48,19 @@ class RadiationField(HDFWriterMixin):
         self.opacities = Opacities(frequencies, stellar_model)
         self.F_nu = np.zeros((stellar_model.no_of_depth_points, len(frequencies)))
 
-        # thetas, weights = np.polynomial.legendre.leggauss(num_of_thetas) # This block migrates to Gauss-Legendre quadrature
-        # self.thetas = (thetas / 2) + 0.5 * np.pi / 2
-        # self.I_nus_weights = weights * np.pi / 2
+        # This uses gauss-legendre quadrature to sample thetas
+        thetas, weights = np.polynomial.legendre.leggauss(num_of_thetas)
+        self.thetas = (thetas / 2) + 0.5 * np.pi / 2
+        self.I_nus_weights = weights * np.pi / 2
 
-        dtheta = (np.pi / 2) / num_of_thetas  # Korg uses Gauss-Legendre quadrature here
-        start_theta = dtheta / 2
-        end_theta = (np.pi / 2) - (dtheta / 2)
-        self.thetas = np.linspace(start_theta, end_theta, num_of_thetas)
-        self.I_nus_weights = (
-            2 * np.pi * dtheta * np.sin(self.thetas) * np.cos(self.thetas)
-        )
+        # This was our original theta sampling method
+        # dtheta = (np.pi / 2) / num_of_thetas  # Korg uses Gauss-Legendre quadrature here
+        # start_theta = dtheta / 2
+        # end_theta = (np.pi / 2) - (dtheta / 2)
+        # self.thetas = np.linspace(start_theta, end_theta, num_of_thetas)
+        # self.I_nus_weights = (
+        #     2 * np.pi * dtheta * np.sin(self.thetas) * np.cos(self.thetas)
+        # )
 
         self.I_nus = np.zeros(
             (stellar_model.no_of_depth_points, len(frequencies), len(self.thetas))

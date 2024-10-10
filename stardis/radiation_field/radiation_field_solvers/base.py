@@ -467,15 +467,13 @@ def calculate_spherical_ray(thetas, depth_points_radii):
         (len(depth_points_radii) - 1, len(thetas))
     )
 
-    dr = np.diff(depth_points_radii)
     for theta_index, theta in enumerate(thetas):
         b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
         ray_z_coordinate_grid = np.sqrt(
             depth_points_radii**2 - b**2
         )  # Rays that don't go deeper than a layer will have a nan here
 
-        ray_distance = dr * depth_points_radii[1:] / ray_z_coordinate_grid[1:]
-        # ray_distance = np.diff(ray_z_coordinate_grid)
+        ray_distance = np.diff(ray_z_coordinate_grid)
         ray_distance_through_layer_by_impact_parameter[
             ~np.isnan(ray_distance), theta_index
         ] = ray_distance[~np.isnan(ray_distance)]
