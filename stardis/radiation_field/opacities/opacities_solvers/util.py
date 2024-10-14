@@ -81,6 +81,10 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
             * const.k_B.cgs.value
             * temperatures[:, np.newaxis]
         )
+        if np.any(sigmas == 0):
+            raise Warning(
+                "Outside of interpolation range for H- FF cross-sections in some part of the atmosphere. Assuming 0 opacity for these points."
+            )
 
     elif (
         opacity_source == "Hminus_bf"
@@ -93,10 +97,6 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
             h_minus_bf_table.wavelength.values,
             h_minus_bf_table.cross_section.values,
         )
-        if np.any(sigmas == 0):
-            raise Warning(
-                "Outside of interpolation range for H2+ BF cross-sections in some part of the atmosphere. Assuming 0 opacity for these points."
-            )
 
     else:
         raise ValueError(f"Unknown opacity_source: {opacity_source}")
