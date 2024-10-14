@@ -52,7 +52,10 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         sigmas = (
             linear_interp_h2plus_bf(lambdas, temps) * 1e-18
         )  # Scaling from Stancil 1994 table
-
+        if np.any(sigmas == 0):
+            raise Warning(
+                "Outside of interpolation range for H2+ BF cross-sections in some part of the atmosphere. Assuming 0 opacity for these points."
+            )
     elif (
         opacity_source == "Hminus_ff"
     ):  # This section specifically ingests the Bell and Berrington 1987 h_minus_ff_B1987.dat table found in data.
@@ -90,6 +93,10 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
             h_minus_bf_table.wavelength.values,
             h_minus_bf_table.cross_section.values,
         )
+        if np.any(sigmas == 0):
+            raise Warning(
+                "Outside of interpolation range for H2+ BF cross-sections in some part of the atmosphere. Assuming 0 opacity for these points."
+            )
 
     else:
         raise ValueError(f"Unknown opacity_source: {opacity_source}")
