@@ -1,10 +1,14 @@
 import numpy as np
 import pandas as pd
+import logging
 
 from astropy import units as u, constants as const
 from tardis.util.base import species_string_to_tuple
 
 from scipy.interpolate import LinearNDInterpolator
+
+
+logger = logging.getLogger(__name__)
 
 
 def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
@@ -53,7 +57,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
             linear_interp_h2plus_bf(lambdas, temps) * 1e-18
         )  # Scaling from Stancil 1994 table
         if np.any(sigmas == 0):
-            raise Warning(
+            logger.warning(
                 "Outside of interpolation range for H2+ BF cross-sections in some part of the atmosphere. Assuming 0 opacity from H2+ BF for these points."
             )
     elif (
@@ -82,7 +86,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
             * temperatures[:, np.newaxis]
         )
         if np.any(sigmas == 0):
-            raise Warning(
+            logger.warning(
                 "Outside of interpolation range for H- FF cross-sections in some part of the atmosphere. Assuming 0 opacity from H-FF for these points."
             )
 
