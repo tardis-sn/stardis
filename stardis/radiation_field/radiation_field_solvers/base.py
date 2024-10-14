@@ -1,5 +1,6 @@
 import numba
 import numpy as np
+from astropy import units as u
 
 
 @numba.njit(parallel=True)
@@ -83,11 +84,10 @@ def calc_weights(delta_tau):
 
 @numba.njit(parallel=True)
 def single_theta_trace_parallel(
-    geometry_dist_to_next_depth_point,
+    ray_dist_to_next_depth_point,
     temps,
     alphas,
     tracing_nus,
-    theta,
     source_function,
 ):
     """
@@ -105,8 +105,6 @@ def single_theta_trace_parallel(
         each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    theta : float
-        Angle that the ray makes with the normal/radial direction.
 
     Returns
     -------
@@ -117,78 +115,100 @@ def single_theta_trace_parallel(
     # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
     # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
-    taus = (
-        mean_alphas * geometry_dist_to_next_depth_point.reshape(-1, 1) / np.cos(theta)
-    )
-    no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
+
+    taus = np.zeros_like(mean_alphas, dtype=np.float64)
+    for nu_index in numba.prange(taus.shape[1]):
+        for gap_index in range(taus.shape[0]):
+            taus[gap_index, nu_index] = (
+                mean_alphas[gap_index, nu_index]
+                * ray_dist_to_next_depth_point[gap_index]
+            )
+
+    no_of_depth_gaps = len(ray_dist_to_next_depth_point)
 
     source = source_function(tracing_nus, temps)
     I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus)))
-    I_nu_theta[0] = source[
-        0
-    ]  # the innermost depth point is approximated as a blackbody
+    # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case. This should be fine if models are optically thick.
 
     w0, w1, w2 = calc_weights_parallel(taus)
 
     for nu_index in numba.prange(len(tracing_nus)):
         for gap_index in range(no_of_depth_gaps - 1):
             # Start by solving all the weights and prefactors except the last jump which would go out of bounds
-            second_term = (
-                w1[gap_index, nu_index]
-                * (
-                    (source[gap_index + 1, nu_index] - source[gap_index + 2, nu_index])
-                    * (taus[gap_index, nu_index] / taus[gap_index + 1, nu_index])
-                    - (source[gap_index + 1, nu_index] - source[gap_index, nu_index])
-                    * (taus[gap_index + 1, nu_index] / taus[gap_index, nu_index])
+            if taus[gap_index, nu_index] == 0:
+                I_nu_theta[gap_index + 1, nu_index] = I_nu_theta[
+                    gap_index, nu_index
+                ]  # If no optical depth, no change in intensity
+            else:
+                second_term = (
+                    w1[gap_index, nu_index]
+                    * (
+                        (
+                            source[gap_index + 1, nu_index]
+                            - source[gap_index + 2, nu_index]
+                        )
+                        * (taus[gap_index, nu_index] / taus[gap_index + 1, nu_index])
+                        - (
+                            source[gap_index + 1, nu_index]
+                            - source[gap_index, nu_index]
+                        )
+                        * (taus[gap_index + 1, nu_index] / taus[gap_index, nu_index])
+                    )
+                    / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
                 )
-                / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
-            )
-            third_term = w2[gap_index, nu_index] * (
-                (
+                third_term = w2[gap_index, nu_index] * (
                     (
                         (
-                            source[gap_index + 2, nu_index]
-                            - source[gap_index + 1, nu_index]
+                            (
+                                source[gap_index + 2, nu_index]
+                                - source[gap_index + 1, nu_index]
+                            )
+                            / taus[gap_index + 1, nu_index]
                         )
-                        / taus[gap_index + 1, nu_index]
+                        + (
+                            (
+                                source[gap_index, nu_index]
+                                - source[gap_index + 1, nu_index]
+                            )
+                            / taus[gap_index, nu_index]
+                        )
                     )
-                    + (
-                        (source[gap_index, nu_index] - source[gap_index + 1, nu_index])
-                        / taus[gap_index, nu_index]
-                    )
+                    / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
                 )
-                / (taus[gap_index, nu_index] + taus[gap_index + 1, nu_index])
-            )
-            # Solve the raytracing equation for all points other than the final jump
-            I_nu_theta[gap_index + 1, nu_index] = (
-                (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index, nu_index]
-                + w0[gap_index, nu_index] * source[gap_index + 1, nu_index]
-                + second_term
-                + third_term
-            )
+                # Solve the raytracing equation for all points other than the final jump
+                I_nu_theta[gap_index + 1, nu_index] = (
+                    (1 - w0[gap_index, nu_index]) * I_nu_theta[gap_index, nu_index]
+                    + w0[gap_index, nu_index] * source[gap_index + 1, nu_index]
+                    + second_term
+                    + third_term
+                )
 
         # Below is the final jump, assuming source does not change and tau is 0 beyond the last depth point
-        third_term = (
-            w2[-1, nu_index]
-            * (source[-2, nu_index] - source[-1, nu_index])
-            / taus[-1, nu_index] ** 2
-        )
-        # Solve the raytracing equation for the final jump
-        I_nu_theta[-1, nu_index] = (
-            (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
-            + w0[-1, nu_index] * source[-1, nu_index]
-            + third_term
-        )
+
+        if taus[-1, nu_index] == 0:
+            I_nu_theta[-1, nu_index] = I_nu_theta[-2, nu_index]
+        else:
+            third_term = (
+                w2[-1, nu_index]
+                * (source[-2, nu_index] - source[-1, nu_index])
+                / taus[-1, nu_index] ** 2
+            )
+            # Solve the raytracing equation for the final jump
+            I_nu_theta[-1, nu_index] = (
+                (1 - w0[-1, nu_index]) * I_nu_theta[-2, nu_index]
+                + w0[-1, nu_index] * source[-1, nu_index]
+                + third_term
+            )
 
     return I_nu_theta
 
 
-def single_theta_trace(
-    geometry_dist_to_next_depth_point,
+def all_thetas_trace(
+    ray_dist_to_next_depth_point,
     temps,
     alphas,
     tracing_nus,
-    thetas,
+    num_of_thetas,
     source_function,
 ):
     """
@@ -206,8 +226,7 @@ def single_theta_trace(
         each depth point for each frequency in tracing_nus.
     tracing_nus : astropy.unit.quantity.Quantity
         Numpy array of frequencies used for ray tracing with units of Hz.
-    thetas : numpy.ndarray
-        Angle that the ray makes with the normal/radial direction.
+    num_of_thetas : int
 
     Returns
     -------
@@ -218,16 +237,15 @@ def single_theta_trace(
     # Need to calculate a mean opacity for the traversal between points. Linearly interporlating. Van Noort paper suggests interpolating
     # alphas in log space. We could have a choice for interpolation scheme here.
     mean_alphas = np.exp((np.log(alphas[1:]) + np.log(alphas[:-1])) * 0.5)
-    taus = (mean_alphas * geometry_dist_to_next_depth_point.reshape(-1, 1))[
-        :, :, np.newaxis
-    ] / np.cos(thetas)
-    no_of_depth_gaps = len(geometry_dist_to_next_depth_point)
+
+    taus = (
+        mean_alphas[:, :, np.newaxis] * ray_dist_to_next_depth_point[:, np.newaxis, :]
+    )
+    no_of_depth_gaps = len(ray_dist_to_next_depth_point)
 
     source = source_function(tracing_nus, temps)[:, :, np.newaxis]
-    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), thetas.shape[2]))
-    I_nu_theta[0] = source[
-        0
-    ]  # the innermost depth point is approximated as a blackbody
+    I_nu_theta = np.zeros((no_of_depth_gaps + 1, len(tracing_nus), num_of_thetas))
+    # the innermost depth point is approximated as a blackbody - changed to 0 for spherical geometry case.
 
     # Solve for all the weights and prefactors except the last jump which would go out of bounds
     w0, w1, w2 = calc_weights(taus)
@@ -256,21 +274,32 @@ def single_theta_trace(
     for gap_index in range(
         no_of_depth_gaps - 1
     ):  # solve the ray tracing equation out to the surface of the star, not including the last jump
-        I_nu_theta[gap_index + 1] = (
-            (1 - w0[gap_index]) * I_nu_theta[gap_index]
-            + w0[gap_index] * source[gap_index + 1]
-            + second_term[gap_index]
-            + third_term[gap_index]
+        tau_0_mask = taus[gap_index] == 0
+        I_nu_theta[gap_index + 1][tau_0_mask] = I_nu_theta[
+            gap_index, tau_0_mask
+        ]  # If no optical depth, no change in intensity
+        I_nu_theta[gap_index + 1, ~tau_0_mask] = (
+            (1 - w0[gap_index, ~tau_0_mask]) * I_nu_theta[gap_index, ~tau_0_mask]
+            + w0[gap_index, ~tau_0_mask]
+            * np.repeat(source[gap_index + 1], num_of_thetas, axis=1)[~tau_0_mask]
+            + second_term[gap_index, ~tau_0_mask]
+            + third_term[gap_index, ~tau_0_mask]
         )
 
-    # Solve for the last jump and the final output intensity assuming source does not change and tau is 0
+    # Solve for the last jump and the final output intensity assuming source does not change and tau forward beyond boundary is 0
     third_term = w2[-1] * (source[-2] - source[-1]) / taus[-1] ** 2
     I_nu_theta[-1] = (1 - w0[-1]) * I_nu_theta[-2] + w0[-1] * source[-1] + third_term
 
     return I_nu_theta
 
 
-def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=1):
+def raytrace(
+    stellar_model,
+    stellar_radiation_field,
+    no_of_thetas=20,
+    n_threads=1,
+    spherical=False,
+):
     """
     Raytraces over many angles and integrates to get flux using the midpoint
     rule.
@@ -290,37 +319,72 @@ def raytrace(stellar_model, stellar_radiation_field, no_of_thetas=20, n_threads=
         each depth_point for each frequency in tracing_nus.
     """
 
-    dtheta = (np.pi / 2) / no_of_thetas
+    dtheta = (np.pi / 2) / no_of_thetas  # Korg uses Gauss-Legendre quadrature here
     start_theta = dtheta / 2
     end_theta = (np.pi / 2) - (dtheta / 2)
     thetas = np.linspace(start_theta, end_theta, no_of_thetas)
+    weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
+
+    if spherical:
+        ray_distances = calculate_spherical_ray(thetas, stellar_model.geometry.r)
+        photometric_correction = (
+            stellar_model.geometry.r[-1] / stellar_model.geometry.reference_r
+        ) ** 2
+    else:
+        ray_distances = stellar_model.geometry.dist_to_next_depth_point.reshape(
+            -1, 1
+        ) / np.cos(thetas)
 
     ###TODO: Thetas should probably be held by the model? Then can be passed in from there.
     if n_threads == 1:  # Single threaded
-        weights = 2 * np.pi * dtheta * np.sin(thetas) * np.cos(thetas)
         stellar_radiation_field.F_nu = np.sum(
             weights
-            * single_theta_trace(
-                stellar_model.geometry.dist_to_next_depth_point,
+            * all_thetas_trace(
+                ray_distances,
                 stellar_model.temperatures.value.reshape(-1, 1),
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
-                thetas[np.newaxis, np.newaxis, :],
+                len(thetas),
                 stellar_radiation_field.source_function,
             ),
             axis=2,
         )
 
     else:  # Parallel threaded
-        for theta in thetas:
-            weight = 2 * np.pi * dtheta * np.sin(theta) * np.cos(theta)
-            stellar_radiation_field.F_nu += weight * single_theta_trace_parallel(
-                stellar_model.geometry.dist_to_next_depth_point,
+        for theta_index, theta in enumerate(thetas):
+            stellar_radiation_field.F_nu += weights[
+                theta_index
+            ] * single_theta_trace_parallel(
+                ray_distances[:, theta_index],
                 stellar_model.temperatures.value.reshape(-1, 1),
                 stellar_radiation_field.opacities.total_alphas,
                 stellar_radiation_field.frequencies,
-                theta,
                 stellar_radiation_field.source_function,
             )
+    if spherical:
+        stellar_radiation_field.F_nu *= (
+            photometric_correction  # Outermost radius is larger than the photosphere
+        )
 
     return stellar_radiation_field.F_nu
+
+
+def calculate_spherical_ray(thetas, depth_points_radii):
+    # NOTE: May need to revisit for outer rays. Currently don't include the outer rays going going through the far side of the star
+    ray_distance_through_layer_by_impact_parameter = np.zeros(
+        (len(depth_points_radii) - 1, len(thetas))
+    )
+
+    for theta_index, theta in enumerate(thetas):
+        b = depth_points_radii[-1] * np.sin(theta)  # impact parameter of the ray
+        ray_z_coordinate_grid = np.sqrt(
+            depth_points_radii**2 - b**2
+        )  # Rays that don't go deeper than a layer will have a nan here
+
+        dr = np.diff(depth_points_radii)
+        ray_distance = dr * depth_points_radii[1:] / ray_z_coordinate_grid[1:]
+        ray_distance_through_layer_by_impact_parameter[
+            ~np.isnan(ray_distance), theta_index
+        ] = ray_distance[~np.isnan(ray_distance)]
+
+    return ray_distance_through_layer_by_impact_parameter
