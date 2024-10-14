@@ -46,6 +46,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         linear_interp_h2plus_bf = LinearNDInterpolator(
             np.vstack([file_waves_mesh.ravel(), file_temps_mesh.ravel()]).T,
             file_cross_sections.flatten(),
+            fill_value=0,
         )
         lambdas, temps = np.meshgrid(tracing_lambdas, temperatures)
         sigmas = (
