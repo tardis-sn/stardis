@@ -54,7 +54,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         )  # Scaling from Stancil 1994 table
         if np.any(sigmas == 0):
             raise Warning(
-                "Outside of interpolation range for H2+ BF cross-sections in some part of the atmosphere. Assuming 0 opacity for these points."
+                "Outside of interpolation range for H2+ BF cross-sections in some part of the atmosphere. Assuming 0 opacity from H2+ BF for these points."
             )
     elif (
         opacity_source == "Hminus_ff"
@@ -83,7 +83,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         )
         if np.any(sigmas == 0):
             raise Warning(
-                "Outside of interpolation range for H- FF cross-sections in some part of the atmosphere. Assuming 0 opacity for these points."
+                "Outside of interpolation range for H- FF cross-sections in some part of the atmosphere. Assuming 0 opacity from H-FF for these points."
             )
 
     elif (
