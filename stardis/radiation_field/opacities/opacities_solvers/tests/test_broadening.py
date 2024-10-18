@@ -68,7 +68,7 @@ def test_calc_doppler_width_sample_values(
             0.0,
         ),
         calc_doppler_width_sample_values_expected_result,
-    )
+    )  # No microturbulence for legacy reasons - 0.0
 
 
 @pytest.mark.skipif(
