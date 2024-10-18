@@ -24,7 +24,7 @@ C_KMS = float(const.c.to(u.km / u.s).value)
 
 
 @numba.njit
-def _calc_doppler_width(nu_line, temperature, atomic_mass):
+def _calc_doppler_width(nu_line, temperature, atomic_mass, microturbulence):
     """
     Calculates doppler width.
     https://ui.adsabs.harvard.edu/abs/2003rtsa.book.....R/
@@ -51,13 +51,18 @@ def _calc_doppler_width(nu_line, temperature, atomic_mass):
     return (
         nu_line
         / SPEED_OF_LIGHT
-        * math.sqrt(2.0 * BOLTZMANN_CONSTANT * temperature / atomic_mass)
+        * (
+            math.sqrt(
+                2.0 * BOLTZMANN_CONSTANT * temperature / atomic_mass
+                + microturbulence**2
+            )
+        )
     )
 
 
 @numba.vectorize(nopython=True)
-def calc_doppler_width(nu_line, temperature, atomic_mass):
-    return _calc_doppler_width(nu_line, temperature, atomic_mass)
+def calc_doppler_width(nu_line, temperature, atomic_mass, microturbulence=0.0):
+    return _calc_doppler_width(nu_line, temperature, atomic_mass, microturbulence)
 
 
 @cuda.jit
@@ -699,6 +704,7 @@ def calculate_broadening(
         stellar_model.composition.nuclide_masses.loc[lines.atomic_number].values[
             :, np.newaxis
         ],
+        stellar_model.microturbulence.cgs.value,
     )
 
     return gammas, doppler_widths
@@ -727,6 +733,7 @@ def calculate_molecule_broadening(
         lines.nu.values[:, np.newaxis],
         stellar_model.temperatures.value,
         molecule_masses,
+        stellar_model.microturbulence.cgs.value,
     )
 
     return gammas, doppler_widths
