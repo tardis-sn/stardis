@@ -76,6 +76,8 @@ def parse_config_to_model(config_fname, add_config_dict):
         stellar_model = raw_marcs_model.to_stellar_model(
             adata, final_atomic_number=config.model.final_atomic_number
         )
+        if config.opacity.line.disable_microturbulence:
+            stellar_model.microturbulence = stellar_model.microturbulence * 0.0
 
     elif config.model.type == "mesa":
         raw_mesa_model = read_mesa_model(Path(config.model.fname))

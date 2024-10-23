@@ -151,9 +151,12 @@ class MARCSModel(object):
         temperatures = (
             self.data.t.values[::-1] * u.K
         )  # Flip data to move from innermost stellar point to surface
-        # First two none values are old fv_geometry and abundances which are replaced by the new structures.
         return StellarModel(
-            temperatures, marcs_geometry, marcs_composition, spherical=self.spherical
+            temperatures,
+            marcs_geometry,
+            marcs_composition,
+            spherical=self.spherical,
+            microturbulence=self.metadata["microturbulence"],
         )
 
 

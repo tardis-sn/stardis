@@ -58,7 +58,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         )  # Scaling from Stancil 1994 table
         if np.any(sigmas == 0):
             logger.warning(
-                f"Outside of interpolation range for H2+ BF cross-sections at depth points {np.unique(np.where(sigmas == 0)[0])}. Assuming 0 opacity from H-FF for these depth points."
+                f"Outside of interpolation range for H2+ BF cross-sections at depth points {np.unique(np.where(sigmas == 0)[0])}. Assuming 0 opacity from H2+BF for these depth points."
             )
     elif (
         opacity_source == "Hminus_ff"
