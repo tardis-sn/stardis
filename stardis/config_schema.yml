@@ -131,7 +131,7 @@ properties:
                                 default: false
                             use_vald_broadening:
                                 type: boolean
-                                default: false
+                                default: True
                         description: Options for whether to use a vald linelist. Linelist must be included the atom_data and cannot be supplied separately. 
                     include_molecules:
                         type: boolean
