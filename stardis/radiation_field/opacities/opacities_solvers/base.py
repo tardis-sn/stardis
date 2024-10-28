@@ -411,7 +411,8 @@ def calc_alpha_line_at_nu(
         stellar_model,
         stellar_plasma,
         line_opacity_config.broadening,
-    )  # This can be further improved by only calculating the broadening for the lines that are within the range.
+        use_vald_broadening=line_opacity_config.vald_linelist.use_vald_broadening,
+    )
 
     delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
 
@@ -815,9 +816,9 @@ def calc_alphas(
         opacity_config.line,
         n_threads,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
