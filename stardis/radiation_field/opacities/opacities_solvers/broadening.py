@@ -873,7 +873,7 @@ def _calc_vald_vdw_unsoeld_approx(
             temperature
         ),  # This is just saying hydrogen density is 1. We multiply by hydrogen density later for all types of vdW broadening
     )
-    return vdW * approx_gamma
+    return vdW[:, np.newaxis] * approx_gamma
 
 
 def _calc_vald_vdW_abo(vdW, temperature, atomic_mass):
