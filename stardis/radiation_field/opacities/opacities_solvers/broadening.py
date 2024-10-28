@@ -873,7 +873,8 @@ def _calc_vald_vdw_unsoeld_approx(
             temperature
         ),  # This is just saying hydrogen density is 1. We multiply by hydrogen density later for all types of vdW broadening
     )
-    return vdW[:, np.newaxis] * approx_gamma
+
+    return approx_gamma * vdW[:, np.newaxis]
 
 
 def _calc_vald_vdW_abo(vdW, temperature, atomic_mass):
@@ -886,7 +887,8 @@ def _calc_vald_vdW_abo(vdW, temperature, atomic_mass):
     vdW_int = vdW.astype(int)
     sigma = (vdW_int * BOHR_RADIUS * BOHR_RADIUS)[:, np.newaxis]
     alpha = (vdW - vdW_int)[:, np.newaxis]
-    inverse_reduced_mass = (1 / 1.008 * AMU_CGS) + (1 / atomic_mass)
+
+    inverse_reduced_mass = 1 / (1.008 * AMU_CGS) + (1 / atomic_mass)
     vbar = np.sqrt(8 * BOLTZMANN_CONSTANT * temperature / PI * inverse_reduced_mass)
     return (
         2
