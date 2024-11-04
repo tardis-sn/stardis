@@ -143,7 +143,7 @@ properties:
         description: Number of angles to use in the simulation.
     result_options:
         type: object
-        additionalProperties: False
+        additionalProperties: false
         default: {}
         properties:
             return_model:
@@ -154,7 +154,7 @@ properties:
                 default: false
             return_radiation_field:
                 type: boolean
-                default: True
+                default: false
         description: Options for what to return from the simulation.
     required:
     - stardis_config_version
