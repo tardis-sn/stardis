@@ -38,11 +38,20 @@ class RadiationField(HDFWriterMixin):
         Weights for the theta angles.
     I_nus : numpy.ndarray
         Radiation field intensity at each frequency at each depth point at each theta angle. Initialized as zeros and calculated by a solver.
+    track_individual_intensities : bool
+        Flag to track individual intensities at each theta angle. Default is False.
     """
 
     hdf_properties = ["frequencies", "opacities", "F_nu"]
 
-    def __init__(self, frequencies, source_function, stellar_model, num_of_thetas):
+    def __init__(
+        self,
+        frequencies,
+        source_function,
+        stellar_model,
+        num_of_thetas,
+        track_individual_intensities=False,
+    ):
         self.frequencies = frequencies
         self.source_function = source_function
         self.opacities = Opacities(frequencies, stellar_model)
@@ -52,6 +61,11 @@ class RadiationField(HDFWriterMixin):
         thetas, weights = np.polynomial.legendre.leggauss(num_of_thetas)
         self.thetas = (thetas / 2) + 0.5 * np.pi / 2
         self.I_nus_weights = weights * np.pi / 2
+        self.track_individual_intensities = track_individual_intensities
+        if track_individual_intensities:
+            self.I_nus = np.zeros(
+                (stellar_model.no_of_depth_points, len(frequencies), len(self.thetas))
+            )
 
         # This was our original theta sampling method
         # dtheta = (np.pi / 2) / num_of_thetas  # Korg uses Gauss-Legendre quadrature here
@@ -61,10 +75,6 @@ class RadiationField(HDFWriterMixin):
         # self.I_nus_weights = (
         #     2 * np.pi * dtheta * np.sin(self.thetas) * np.cos(self.thetas)
         # )
-
-        self.I_nus = np.zeros(
-            (stellar_model.no_of_depth_points, len(frequencies), len(self.thetas))
-        )
 
 
 def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, config):
@@ -94,7 +104,11 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     """
 
     stellar_radiation_field = RadiationField(
-        tracing_nus, blackbody_flux_at_nu, stellar_model, config.no_of_thetas
+        tracing_nus,
+        blackbody_flux_at_nu,
+        stellar_model,
+        config.no_of_thetas,
+        track_individual_intensities=config.result_options.return_radiation_field,
     )
     logger.info("Calculating alphas")
     calc_alphas(

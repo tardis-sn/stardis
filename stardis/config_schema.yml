@@ -155,7 +155,7 @@ properties:
             return_radiation_field:
                 type: boolean
                 default: false
-        description: Options for what to return from the simulation.
+        description: Options for what to return from the simulation. Note that return_radiation_field can be very memory intensive because it returns the intensity at every depth point, wavelength, and theta in the model.
     required:
     - stardis_config_version
     - atom_data

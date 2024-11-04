@@ -404,9 +404,7 @@ def raytrace(
             -1, 1
         ) / np.cos(stellar_radiation_field.thetas)
         inward_rays = False
-    if (
-        False
-    ):  # Commenting out serial threaded block for now - currently doesn't work with spherical geometry and not sure it's worth maintaining
+    if False:  # Commenting out serial threaded block for now - currently doesn't work with spherical geometry and not sure it's worth maintaining
         # if n_threads == 1:  # Single threaded
         stellar_radiation_field.I_nus = all_thetas_trace(
             ray_distances,
@@ -431,7 +429,8 @@ def raytrace(
                 stellar_radiation_field.source_function,
                 inward_rays=inward_rays,
             )
-            stellar_radiation_field.I_nus[:, :, theta_index] = I_nu
+            if stellar_radiation_field.track_individual_intensities:
+                stellar_radiation_field.I_nus[:, :, theta_index] = I_nu
 
             stellar_radiation_field.F_nu += (
                 I_nu * stellar_radiation_field.I_nus_weights[theta_index]
