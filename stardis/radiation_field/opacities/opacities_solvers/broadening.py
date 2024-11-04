@@ -690,10 +690,14 @@ def calculate_broadening(
         if radiation:
             gammas += lines.A_ul.values[:, np.newaxis]
         if linear_stark or quadratic_stark:
-            stark = 10 ** lines.stark.values[:, np.newaxis]
+            stark = calc_vald_stark_gamma(
+                stellar_plasma.electron_densities.values,
+                lines.stark.values[:, np.newaxis],
+                stellar_model.temperatures.value,
+            )
             gammas += stark
         if van_der_waals:
-            gammas += calc_vald_vdW(
+            vdW = calc_vald_vdW(
                 lines.waals.values,
                 stellar_model.temperatures.value,
                 stellar_model.composition.nuclide_masses.loc[
@@ -705,7 +709,8 @@ def calculate_broadening(
                 lines.ion_number.values[:, np.newaxis] + 1,
                 lines.ionization_energy.values[:, np.newaxis],
             )
-
+            gammas += vdW
+        gammas /= 2  # FWHM to HWHM
     else:
         gammas = calc_gamma(
             atomic_number=lines.atomic_number.values[:, np.newaxis],
@@ -842,6 +847,13 @@ def rotation_broadening(
     return wavelength, broadened_fluxes
 
 
+def calc_vald_stark_gamma(electron_density, stark, temperature):
+    stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
+    # PRETTY SURE STARK IS WRONG, WAY TOO BROAD
+    np.where(stark * temperature == 0.0, 0.0, stark_gamma)
+    return stark_gamma  # * 1e-6
+
+
 def _calc_vald_vdW_scaled_gamma(vdW, temperature):
     """
     see https://github.com/barklem/public-data/tree/master/broadening-howto
@@ -874,7 +886,9 @@ def _calc_vald_vdw_unsoeld_approx(
         ),  # This is just saying hydrogen density is 1. We multiply by hydrogen density later for all types of vdW broadening
     )
 
-    return approx_gamma * vdW[:, np.newaxis]
+    return (
+        approx_gamma * vdW[:, np.newaxis]
+    )  # This gives FWHM, so divide by 2 to get HWHM
 
 
 def _calc_vald_vdW_abo(vdW, temperature, atomic_mass):
