@@ -776,8 +776,9 @@ def calculate_molecule_broadening(
     quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
     radiation = "radiation" in broadening_line_opacity_config
+
+    gammas = np.zeros((len(lines), stellar_model.no_of_depth_points), dtype=float)
     if use_vald_broadening:
-        gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
         if radiation:
             gammas += lines.A_ul.values[:, np.newaxis]
         if linear_stark or quadratic_stark:
@@ -802,8 +803,6 @@ def calculate_molecule_broadening(
             )
             gammas += vdW
         gammas /= 2  # FWHM to HWHM
-    else:
-        gammas = np.zeros((len(lines), stellar_model.no_of_depth_points), dtype=float)
 
     ions = stellar_plasma.molecule_ion_map.loc[lines.molecule]
 
