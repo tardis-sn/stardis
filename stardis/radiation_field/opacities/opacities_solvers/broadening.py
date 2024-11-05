@@ -745,6 +745,7 @@ def calculate_molecule_broadening(
     stellar_model,
     stellar_plasma,
     broadening_line_opacity_config,
+    use_vald_broadening=False,
 ):
     """
     Calculates broadening information for molecular line at each depth point.
@@ -760,6 +761,7 @@ def calculate_molecule_broadening(
     calc_only_doppler : bool, optional
         True if only Doppler broadening is to be calculated, otherwise False.
         By default False.
+    use_vald_broadening : bool, optional
 
     Returns
     -------
@@ -770,8 +772,36 @@ def calculate_molecule_broadening(
         Array of shape (no_of_lines, no_depth_points). Doppler width of each
         line at each depth point.
     """
-    if "radiation" in broadening_line_opacity_config:
-        gammas = lines.A_ul.values[:, np.newaxis]
+    linear_stark = "linear_stark" in broadening_line_opacity_config
+    quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
+    van_der_waals = "van_der_waals" in broadening_line_opacity_config
+    radiation = "radiation" in broadening_line_opacity_config
+    if use_vald_broadening:
+        gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
+        if radiation:
+            gammas += lines.A_ul.values[:, np.newaxis]
+        if linear_stark or quadratic_stark:
+            stark = calc_vald_stark_gamma(
+                stellar_plasma.electron_densities.values,
+                lines.stark.values[:, np.newaxis],
+                stellar_model.temperatures.value,
+            )
+            gammas += stark
+        if van_der_waals:
+            vdW = calc_vald_vdW(
+                lines.waals.values,
+                stellar_model.temperatures.value,
+                stellar_model.composition.nuclide_masses.loc[
+                    lines.atomic_number
+                ].values[:, np.newaxis],
+                lines.level_energy_upper.values[:, np.newaxis],
+                lines.level_energy_lower.values[:, np.newaxis],
+                stellar_plasma.ion_number_density.loc[1, 0].values,
+                lines.ion_number.values[:, np.newaxis] + 1,
+                lines.ionization_energy.values[:, np.newaxis],
+            )
+            gammas += vdW
+        gammas /= 2  # FWHM to HWHM
     else:
         gammas = np.zeros((len(lines), stellar_model.no_of_depth_points), dtype=float)
 
