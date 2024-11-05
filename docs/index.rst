@@ -10,6 +10,7 @@ This is the documentation for STARDIS.
    Quickstart <quickstart/quickstart>
    Downloading and Installation <installation>
    Physics of STARDIS <physics/physics_of_stardis>
+   Custom Star Model <Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs>
    Example Notebooks <example_notebooks/rotation_broadening>
    Contributing <contributing>
    Bibliography <bibliography>
