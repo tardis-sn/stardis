@@ -878,9 +878,8 @@ def rotation_broadening(
 
 def calc_vald_stark_gamma(electron_density, stark, temperature):
     stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
-    # PRETTY SURE STARK IS WRONG, WAY TOO BROAD
-    np.where(stark * temperature == 0.0, 0.0, stark_gamma)
-    return stark_gamma  # * 1e-6
+    stark_gamma = np.where(electron_density * stark >= 0, 0, stark_gamma)
+    return stark_gamma
 
 
 def _calc_vald_vdW_scaled_gamma(vdW, temperature):
@@ -985,5 +984,4 @@ def calc_vald_vdW(
     gamma_vdW[vdW_abo_mask, :] = _calc_vald_vdW_abo(
         vdW[vdW_abo_mask], temperature, atomic_mass[vdW_abo_mask]
     )
-
     return gamma_vdW * hydrogen_density
