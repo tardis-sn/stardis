@@ -989,6 +989,30 @@ def calc_vald_gamma(
     van_der_waals,
     radiation,
 ):
+    """
+    Calculates broadening information for vald lines at each depth point.
+
+    Parameters
+    ----------
+    lines : DataFrame
+        Dataframe of the lines to calculate broadening for.
+    stellar_model : stardis.model.base.StellarModel
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    linear_stark : bool
+        True if linear Stark broadening is to be considered, otherwise False.
+    quadratic_stark : bool
+        True if quadratic Stark broadening is to be considered, otherwise False.
+    van_der_waals : bool
+        True if Van Der Waals broadening is to be considered, otherwise False.
+    radiation : bool
+        True if radiation broadening is to be considered, otherwise False.
+
+    Returns
+    -------
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_depth_points). Collisional broadening
+        parameter of each line at each depth point.
+    """
     gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
     if radiation:
         gammas += lines.A_ul.values[:, np.newaxis]
