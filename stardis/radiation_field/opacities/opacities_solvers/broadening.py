@@ -685,32 +685,17 @@ def calculate_broadening(
     quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
     radiation = "radiation" in broadening_line_opacity_config
+
     if use_vald_broadening:
-        gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
-        if radiation:
-            gammas += lines.A_ul.values[:, np.newaxis]
-        if linear_stark or quadratic_stark:
-            stark = calc_vald_stark_gamma(
-                stellar_plasma.electron_densities.values,
-                lines.stark.values[:, np.newaxis],
-                stellar_model.temperatures.value,
-            )
-            gammas += stark
-        if van_der_waals:
-            vdW = calc_vald_vdW(
-                lines.waals.values,
-                stellar_model.temperatures.value,
-                stellar_model.composition.nuclide_masses.loc[
-                    lines.atomic_number
-                ].values[:, np.newaxis],
-                lines.level_energy_upper.values[:, np.newaxis],
-                lines.level_energy_lower.values[:, np.newaxis],
-                stellar_plasma.ion_number_density.loc[1, 0].values,
-                lines.ion_number.values[:, np.newaxis] + 1,
-                lines.ionization_energy.values[:, np.newaxis],
-            )
-            gammas += vdW
-        gammas /= 2  # FWHM to HWHM
+        gammas = calc_vald_gamma(
+            lines,
+            stellar_model,
+            stellar_plasma,
+            linear_stark=linear_stark,
+            quadratic_stark=quadratic_stark,
+            van_der_waals=van_der_waals,
+            radiation=radiation,
+        )
     else:
         gammas = calc_gamma(
             atomic_number=lines.atomic_number.values[:, np.newaxis],
@@ -803,6 +788,14 @@ def calculate_molecule_broadening(
             )
             gammas += vdW
         gammas /= 2  # FWHM to HWHM
+    else:
+        if "radiation" in broadening_line_opacity_config:
+            gammas = lines.A_ul.values[:, np.newaxis]
+        else:
+            gammas = np.zeros(
+                (len(lines), len(stellar_model.geometry.no_of_depth_points)),
+                dtype=float,
+            )
 
     ions = stellar_plasma.molecule_ion_map.loc[lines.molecule]
 
@@ -985,3 +978,43 @@ def calc_vald_vdW(
         vdW[vdW_abo_mask], temperature, atomic_mass[vdW_abo_mask]
     )
     return gamma_vdW * hydrogen_density
+
+
+def calc_vald_gamma(
+    lines,
+    stellar_model,
+    stellar_plasma,
+    linear_stark,
+    quadratic_stark,
+    van_der_waals,
+    radiation,
+):
+    gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
+    if radiation:
+        gammas += lines.A_ul.values[:, np.newaxis]
+    if linear_stark:
+        hydrogen_stark_gammas = 0
+        gammas += hydrogen_stark_gammas
+    if quadratic_stark:
+        stark = calc_vald_stark_gamma(
+            stellar_plasma.electron_densities.values,
+            lines.stark.values[:, np.newaxis],
+            stellar_model.temperatures.value,
+        )
+        gammas += stark
+    if van_der_waals:
+        vdW = calc_vald_vdW(
+            lines.waals.values,
+            stellar_model.temperatures.value,
+            stellar_model.composition.nuclide_masses.loc[lines.atomic_number].values[
+                :, np.newaxis
+            ],
+            lines.level_energy_upper.values[:, np.newaxis],
+            lines.level_energy_lower.values[:, np.newaxis],
+            stellar_plasma.ion_number_density.loc[1, 0].values,
+            lines.ion_number.values[:, np.newaxis] + 1,
+            lines.ionization_energy.values[:, np.newaxis],
+        )
+        gammas += vdW
+    gammas /= 2  # FWHM to HWHM
+    return gammas
