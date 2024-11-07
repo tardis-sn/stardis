@@ -1017,8 +1017,23 @@ def calc_vald_gamma(
     if radiation:
         gammas += lines.A_ul.values[:, np.newaxis]
     if linear_stark:
-        hydrogen_stark_gammas = 0
-        gammas += hydrogen_stark_gammas
+        h_indices = lines.atomic_number == 1
+        n_eff_upper = calc_n_effective(
+            1,
+            lines.ionization_energy[h_indices].values,
+            lines.level_energy_upper[h_indices].values,
+        )
+        n_eff_lower = calc_n_effective(
+            1,
+            lines.ionization_energy[h_indices].values,
+            lines.level_energy_lower[h_indices].values,
+        )
+        gamma_linear_stark = calc_gamma_linear_stark(
+            n_eff_upper,
+            n_eff_lower,
+            stellar_plasma.electron_densities.values,
+        )
+        gammas[h_indices, :] += gamma_linear_stark
     if quadratic_stark:
         stark = calc_vald_stark_gamma(
             stellar_plasma.electron_densities.values,
