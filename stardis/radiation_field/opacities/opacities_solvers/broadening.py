@@ -870,6 +870,9 @@ def rotation_broadening(
 
 
 def calc_vald_stark_gamma(electron_density, stark, temperature):
+    """ 
+    see 
+    """
     stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
     stark_gamma = np.where(electron_density * stark >= 0, 0, stark_gamma)
     return stark_gamma
@@ -877,10 +880,10 @@ def calc_vald_stark_gamma(electron_density, stark, temperature):
 
 def _calc_vald_vdW_scaled_gamma(vdW, temperature):
     """
-    see https://github.com/barklem/public-data/tree/master/broadening-howto
+    see https://github.com/barklem/public-data/tree/master/broadening-howto, https://articles.adsabs.harvard.edu/pdf/1995MNRAS.276..859A
     and Korg https://github.com/ajwheeler/Korg.jl/blob/ff89e57b5f90b06553c10aebacedcb649a451f0b/src/line_absorption.jl#L178
     """
-    return (10**vdW * (temperature / 1e4) ** 0.3).T
+    return (10**vdW * (temperature / 1e4) ** 0.38).T
 
 
 def _calc_vald_vdw_unsoeld_approx(
@@ -950,8 +953,21 @@ def calc_vald_vdW(
 
     Parameters
     ----------
-    vdW : float
+    vdW : numpy.ndarray
         van der Waals broadening parameter.
+    temperature : numpy.ndarray
+        Temperature of depth points being considered.
+    atomic_mass : numpy.ndarray
+    upper_level_energy : numpy.ndarray
+        Energy in ergs of upper level of transition being considered.
+    lower_level_energy : numpy.ndarray
+        Energy in ergs of upper level of transition being considered.
+    hydrogen_density : numpy.ndarray
+        Number density of Hydrogen at depth point being considered.
+    ion_number : numpy.ndarray
+        Ion number + 1 of ion being considered. Treats interior as hydrogenic.
+    ionization_energy : numpy.ndarray
+        Ionization energy in ergs of ion being considered.
     """
     vdW_unscaled_mask = vdW < 0
     vdW_0_mask = vdW == 0.0
@@ -1019,12 +1035,12 @@ def calc_vald_gamma(
     if linear_stark:
         h_indices = lines.atomic_number == 1
         n_eff_upper = calc_n_effective(
-            1,
+            lines.ion_number[h_indices].values + 1,
             lines.ionization_energy[h_indices].values,
             lines.level_energy_upper[h_indices].values,
         )
         n_eff_lower = calc_n_effective(
-            1,
+            lines.ion_number[h_indices].values + 1,
             lines.ionization_energy[h_indices].values,
             lines.level_energy_lower[h_indices].values,
         )
