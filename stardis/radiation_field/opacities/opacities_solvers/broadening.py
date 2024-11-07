@@ -870,8 +870,8 @@ def rotation_broadening(
 
 
 def calc_vald_stark_gamma(electron_density, stark, temperature):
-    """ 
-    see 
+    """
+    see
     """
     stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
     stark_gamma = np.where(electron_density * stark >= 0, 0, stark_gamma)
@@ -1045,8 +1045,8 @@ def calc_vald_gamma(
             lines.level_energy_lower[h_indices].values,
         )
         gamma_linear_stark = calc_gamma_linear_stark(
-            n_eff_upper,
-            n_eff_lower,
+            n_eff_upper[:, np.newaxis],
+            n_eff_lower[:, np.newaxis],
             stellar_plasma.electron_densities.values,
         )
         gammas[h_indices, :] += gamma_linear_stark
