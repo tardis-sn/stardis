@@ -10,7 +10,7 @@ This is the documentation for STARDIS.
    Quickstart <quickstart/quickstart>
    Downloading and Installation <installation>
    Physics of STARDIS <physics/physics_of_stardis>
-   Number of Threads Used <Threads_used/Threads_used_by_Stardis>
+   Using STARDIS in Parallel <using_stardis_in_parallel/stardis_in_parallel>
    Example Notebooks <example_notebooks/rotation_broadening>
    Contributing <contributing>
    Bibliography <bibliography>
