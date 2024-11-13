@@ -368,6 +368,7 @@ def calc_alpha_line_at_nu(
         # add ionization energy to lines
         ionization_data = stellar_plasma.ionization_data.reset_index()
         ionization_data["ion_number"] -= 1
+        ionization_data["ion_number"] = ionization_data["ion_number"]
         lines = pd.merge(
             lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
         )
@@ -405,6 +406,10 @@ def calc_alpha_line_at_nu(
         .drop(labels="nu", axis=1)
         .to_numpy()
     )
+
+    lines_sorted_in_range["ion_number"] = lines_sorted_in_range["ion_number"].astype(
+        int
+    )  # weird bug cropped up with ion_number being an object instead of an int
 
     gammas, doppler_widths = calculate_broadening(
         lines_sorted_in_range,
@@ -816,9 +821,9 @@ def calc_alphas(
         opacity_config.line,
         n_threads,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
