@@ -368,7 +368,6 @@ def calc_alpha_line_at_nu(
         # add ionization energy to lines
         ionization_data = stellar_plasma.ionization_data.reset_index()
         ionization_data["ion_number"] -= 1
-        ionization_data["ion_number"] = ionization_data["ion_number"]
         lines = pd.merge(
             lines, ionization_data, how="left", on=["atomic_number", "ion_number"]
         )
