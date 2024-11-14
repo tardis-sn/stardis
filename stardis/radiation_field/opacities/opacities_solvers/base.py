@@ -407,7 +407,9 @@ def calc_alpha_line_at_nu(
         .to_numpy()
     )
 
-    lines_sorted_in_range["ion_number"] = lines_sorted_in_range["ion_number"].astype(
+    lines_sorted_in_range.loc[:, "ion_number"] = lines_sorted_in_range[
+        "ion_number"
+    ].astype(
         int
     )  # weird bug cropped up with ion_number being an object instead of an int
 
