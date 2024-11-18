@@ -1,10 +1,14 @@
 import numpy as np
 import pandas as pd
+import logging
 
 from astropy import units as u, constants as const
 from tardis.util.base import species_string_to_tuple
 
-from scipy.interpolate import interp1d, LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator
+
+
+logger = logging.getLogger(__name__)
 
 
 def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
@@ -46,12 +50,16 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         linear_interp_h2plus_bf = LinearNDInterpolator(
             np.vstack([file_waves_mesh.ravel(), file_temps_mesh.ravel()]).T,
             file_cross_sections.flatten(),
+            fill_value=0,
         )
         lambdas, temps = np.meshgrid(tracing_lambdas, temperatures)
         sigmas = (
             linear_interp_h2plus_bf(lambdas, temps) * 1e-18
         )  # Scaling from Stancil 1994 table
-
+        if np.any(sigmas == 0):
+            logger.warning(
+                f"Outside of interpolation range for H2+ BF cross-sections at depth points {np.unique(np.where(sigmas == 0)[0])}. Assuming 0 opacity from H2+BF for these depth points."
+            )
     elif (
         opacity_source == "Hminus_ff"
     ):  # This section specifically ingests the Bell and Berrington 1987 h_minus_ff_B1987.dat table found in data.
@@ -68,6 +76,7 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         linear_interp_hminus_ff = LinearNDInterpolator(
             np.vstack([file_waves_mesh.ravel(), file_thetas_mesh.ravel()]).T,
             file_values.flatten(),
+            fill_value=0,
         )
         lambdas, thetas = np.meshgrid(tracing_lambdas, 5040 / temperatures)
         sigmas = (
@@ -76,6 +85,10 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
             * const.k_B.cgs.value
             * temperatures[:, np.newaxis]
         )
+        if np.any(sigmas == 0):
+            logger.warning(
+                f"Outside of interpolation range for H- FF cross-sections at depth points {np.unique(np.where(sigmas == 0)[0])}. Assuming 0 opacity from H-FF for these depth points."
+            )
 
     elif (
         opacity_source == "Hminus_bf"
@@ -83,16 +96,11 @@ def sigma_file(tracing_lambdas, temperatures, fpath, opacity_source=None):
         h_minus_bf_table = pd.read_csv(
             fpath, header=None, comment="#", names=["wavelength", "cross_section"]
         )
-        linear_interp_1d_from_file = interp1d(
+        sigmas = np.interp(
+            tracing_lambdas,
             h_minus_bf_table.wavelength.values,
             h_minus_bf_table.cross_section.values,
-            bounds_error=False,
-            fill_value=(
-                h_minus_bf_table.cross_section.iloc[0],
-                h_minus_bf_table.cross_section.iloc[-1],
-            ),
         )
-        sigmas = linear_interp_1d_from_file(tracing_lambdas)
 
     else:
         raise ValueError(f"Unknown opacity_source: {opacity_source}")
