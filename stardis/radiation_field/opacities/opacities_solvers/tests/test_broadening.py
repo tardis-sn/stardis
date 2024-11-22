@@ -65,9 +65,10 @@ def test_calc_doppler_width_sample_values(
             calc_doppler_width_sample_values_input_nu_line,
             calc_doppler_width_sample_values_input_temperature,
             calc_doppler_width_sample_values_input_atomic_mass,
+            0.0,
         ),
         calc_doppler_width_sample_values_expected_result,
-    )
+    )  # No microturbulence for legacy reasons - 0.0
 
 
 @pytest.mark.skipif(
@@ -519,7 +520,6 @@ def test_calc_gamma_van_der_waals_sample_values(
     calc_gamma_van_der_waals_sample_values_input_h_density,
     calc_gamma_van_der_waals_sample_values_expected_result,
 ):
-
     assert np.allclose(
         calc_gamma_van_der_waals(
             calc_gamma_van_der_waals_sample_values_input_ion_number,

@@ -109,7 +109,11 @@ properties:
                             - van_der_waals
                             - radiation
                         default: []
-                        description: Types of broadening to include.
+                        description: Types of broadening to include.                                              
+                    disable_microturbulence:
+                        type: boolean
+                        default: false
+                        description: Whether to disable microturbulence.
                     broadening_range:
                         type: [quantity, "null"]
                         default: null

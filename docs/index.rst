@@ -11,6 +11,7 @@ This is the documentation for STARDIS.
    Downloading and Installation <installation>
    Physics of STARDIS <physics/physics_of_stardis>
    Custom Atomic Data <Custom_atomic_data/Custom_atomic_data>
+   Using STARDIS in Parallel <using_stardis_in_parallel/stardis_in_parallel>
    Example Notebooks <example_notebooks/rotation_broadening>
    Contributing <contributing>
    Bibliography <bibliography>
