@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using MARCS to get .mod files &mdash; stardis 0.1.dev1+g6351d08 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=fad55cae"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Setting number of threads used in running a STARDIS simulation" href="../using_stardis_in_parallel/stardis_in_parallel.html" />
+    <link rel="prev" title="Physics of STARDIS" href="../physics/physics_of_stardis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            stardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Star Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#One-last-thing:-gzipped-files">One last thing: gzipped files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../example_notebooks/rotation_broadening.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">stardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using MARCS to get .mod files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p>In the quickstart notebook you saw STARDIS using the file ‘sun.mod’ to create spectra based on the sun. Here we will show how to obtain and use a .mod file for a star of your chosen parameters.</p>
+<section id="Using-MARCS-to-get-.mod-files">
+<h1>Using MARCS to get .mod files<a class="headerlink" href="#Using-MARCS-to-get-.mod-files" title="Link to this heading"></a></h1>
+<p>STARDIS uses files from the <a class="reference external" href="https://marcs.oreme.org/">MARCS site</a>, which “contains about 52,000 stellar atmospheric models of spectral types F, G and K”. Here we will only be discussing the aspects of MARCS needed for STARDIS. To get started, <a class="reference external" href="https://marcs.oreme.org/data/">go to the ‘Search Marcs’ tab of the MARCS site</a></p>
+<p><a class="reference external" href="https://marcs.oreme.org/data/">https://marcs.oreme.org/data/</a></p>
+<div><p><img alt="8a214192e6dc4229a2445405e41b15b4" class="no-scaled-link" src="../_images/search_marcs.png" style="width: 700px;" /></p>
+</div><p><em>picture of the Search Marcs page</em></p>
+<p>Getting an atmosphere model is as easy as entering a range of parameters of your choosing. For more information on what each of these qualities are, you can click the question marks next to each option or refer to <a class="reference external" href="https://marcs.oreme.org/documents/">the MARCS documentation</a>.</p>
+<p>In the below example, we have entered some arbitrary values into MARCS, and on the right are now all files that qualify. Note how the names of the files show the exact parameters of each file and how there are several pages of files you can look through.</p>
+<div><p><img alt="2c34b6cf35e441208ffbd5f48195f939" class="no-scaled-link" src="../_images/search_results.png" style="width: 700px;" /></p>
+</div><p>MARCS uses a ‘shopping cart’ style system for selecting models, called your ‘basket’. Once you have selected your chosen models, proceed to the ‘Basket’ tab to download them. <strong>Make sure you only have ‘.mod’ files selected, as that is the format used by STARDIS.</strong></p>
+<p>Below is an example of a yaml file using the ‘sun.mod’ file. Note that you can provide either the relative or absolute path to your new model data.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kurucz_cd23_chianti_H_He.h5</span>
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span>
+<span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sun.mod</span><span class="w"> </span><span class="c1"># &lt;----- this is where the .mod file is specified</span>
+<span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="nt">opacity</span><span class="p">:</span>
+<span class="nn">...</span>
+</pre></div>
+</div>
+<section id="One-last-thing:-gzipped-files">
+<h2>One last thing: gzipped files<a class="headerlink" href="#One-last-thing:-gzipped-files" title="Link to this heading"></a></h2>
+<p>when you download a mod file from MARCS, it will be gzipped (shown by the file ending with ‘.mod.gz’). By default STARDIS will assume you have extracted the file, however you can add a line to the yaml file ‘gzipped: True’ as shown below and STARDIS will take care of this for you.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span>
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span>
+<span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sun.mod</span>
+<span class="w">    </span><span class="nt">gzipped</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># &lt;----- use this if the file is gzipped</span>
+<span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="nn">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../physics/physics_of_stardis.html" class="btn btn-neutral float-left" title="Physics of STARDIS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../using_stardis_in_parallel/stardis_in_parallel.html" class="btn btn-neutral float-right" title="Setting number of threads used in running a STARDIS simulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, TARDIS Collaboration.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
