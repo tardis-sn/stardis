@@ -406,10 +406,8 @@ def calc_alpha_line_at_nu(
         .to_numpy()
     )
 
-    lines_sorted_in_range.loc[:, "ion_number"] = lines_sorted_in_range[
-        "ion_number"
-    ].astype(
-        int
+    lines_sorted_in_range = lines_sorted_in_range.apply(
+        pd.to_numeric
     )  # weird bug cropped up with ion_number being an object instead of an int
 
     gammas, doppler_widths = calculate_broadening(
@@ -491,6 +489,7 @@ def calc_molecular_alpha_line_at_nu(
     lines_sorted_in_range = lines_sorted[
         lines_sorted.nu.between(tracing_nus.min(), tracing_nus.max())
     ]
+
     line_nus = lines_sorted_in_range.nu.to_numpy()
 
     alphas_and_nu = stellar_plasma.molecule_alpha_line_from_linelist
