@@ -406,6 +406,16 @@ def calc_alpha_line_at_nu(
         .to_numpy()
     )
 
+    if not line_opacity_config.vald_linelist.use_vald_broadening:
+        autoionization_lines = (
+            lines_sorted_in_range.level_energy_upper
+            > lines_sorted_in_range.ionization_energy
+        ).values
+
+        lines_sorted_in_range = lines_sorted_in_range[~autoionization_lines].copy()
+        alphas_array = alphas_array[~autoionization_lines].copy()
+        line_nus = line_nus[~autoionization_lines].copy()
+
     lines_sorted_in_range = lines_sorted_in_range.apply(
         pd.to_numeric
     )  # weird bug cropped up with ion_number being an object instead of an int
