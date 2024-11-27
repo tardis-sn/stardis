@@ -425,7 +425,8 @@ def calc_alpha_line_at_nu(
         stellar_model,
         stellar_plasma,
         line_opacity_config.broadening,
-        use_vald_broadening=line_opacity_config.vald_linelist.use_vald_broadening,
+        use_vald_broadening=line_opacity_config.vald_linelist.use_vald_broadening
+        and line_opacity_config.vald_linelist.use_linelist,  # don't try to use vald broadening if you don't use vald linelists at all
     )
 
     delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
