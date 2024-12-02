@@ -449,7 +449,7 @@ def calc_alpha_line_at_nu(
             logger.info("Broadening range is in length units")
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
             logger.info("Convering broadening to frequency units")
-            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)")
+            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
             nus_plus_broadening_range = lambdas_plus_broadening_range.to(
                 u.Hz, equivalencies=u.spectral()
             )
