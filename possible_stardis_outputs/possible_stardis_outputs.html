@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Import Necessary Code &mdash; stardis 0.1.dev1+gfd1b669 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=534223b4"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using MARCS to get .mod files" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html" />
+    <link rel="prev" title="Physics of STARDIS" href="../physics/physics_of_stardis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            stardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Import Necessary Code</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#STARDIS-simulations-contain-a-variety-of-information,-and-depending-on-your-needs-you-can-have-different-parts-of-a-simulation-returned.">STARDIS simulations contain a variety of information, and depending on your needs you can have different parts of a simulation returned.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#Selecting-Result-Options">Selecting Result Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Stellar-Model">Stellar Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Stellar-Plasma">Stellar Plasma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Stellar-Radiation-Field">Stellar Radiation Field</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../example_notebooks/rotation_broadening.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">stardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Import Necessary Code</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/possible_stardis_outputs/possible_stardis_outputs.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Import-Necessary-Code">
+<h1>Import Necessary Code<a class="headerlink" href="#Import-Necessary-Code" title="Link to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">stardis.base</span> <span class="kn">import</span> <span class="n">run_stardis</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span><span class="p">,</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+</pre></div>
+</div>
+</div>
+<section id="STARDIS-simulations-contain-a-variety-of-information,-and-depending-on-your-needs-you-can-have-different-parts-of-a-simulation-returned.">
+<h2>STARDIS simulations contain a variety of information, and depending on your needs you can have different parts of a simulation returned.<a class="headerlink" href="#STARDIS-simulations-contain-a-variety-of-information,-and-depending-on-your-needs-you-can-have-different-parts-of-a-simulation-returned." title="Link to this heading"></a></h2>
+<p>There are three parts of the simulation you can choose to return: - Stellar_Model - Stellar_Plasma - Stellar_Radiation_Field</p>
+<p>Regardless of which are set to return, the simulation will always produce the stellar spectrum (such as the one displayed in the quickstart notebook).</p>
+</section>
+</section>
+<section id="Selecting-Result-Options">
+<h1>Selecting Result Options<a class="headerlink" href="#Selecting-Result-Options" title="Link to this heading"></a></h1>
+<p>To access these different parts of the model, you need to declare what you want to be returned in your Yaml file. This notebook uses a Yaml file named <code class="docutils literal notranslate"><span class="pre">stardis_outputs_config.yml</span></code> which has the following lines:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">broadening</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">radiation</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">linear_stark</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">quadratic_stark</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">van_der_waals</span><span class="p p-Indicator">]</span>
+<span class="nt">no_of_thetas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="nt">result_options</span><span class="p">:</span><span class="w"> </span><span class="c1"># &lt;-----</span>
+<span class="w">    </span><span class="nt">return_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># &lt;----- defaults to False</span>
+<span class="w">    </span><span class="nt">return_plasma</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># &lt;----- defaults to False</span>
+<span class="w">    </span><span class="nt">return_radiation_field</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># &lt;----- defaults to True</span>
+</pre></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tracing_lambdas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">6540</span><span class="p">:</span><span class="mi">6590</span><span class="p">:</span><span class="mf">.01</span><span class="p">]</span><span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span>
+
+<span class="n">sim</span> <span class="o">=</span> <span class="n">run_stardis</span><span class="p">(</span><span class="s1">&#39;stardis_outputs_config.yml&#39;</span><span class="p">,</span> <span class="n">tracing_lambdas</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+</pre></div></div>
+</div>
+</section>
+<section id="Stellar-Model">
+<h1>Stellar Model<a class="headerlink" href="#Stellar-Model" title="Link to this heading"></a></h1>
+<p>The stellar model is based on the information derived from the MARCS file for your star, and you can access it to verify STARDIS correctly processed the file. In the below example we are using the stellar model to look at simulated depths in our star in centimeters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">r</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$[-12340000,~-10630000,~-9171000,~-7926000,~-6851000,~-5907000,~-5478000,~-5063000,~-4651000,~-4229000,~-3778000,~-3266000,~-2648000,~-1898000,~-1015000,~-0,~1146000,~2411000,~3776000,~5215000,~6700000,~8210000,~9728000,~11240000,~12750000,~14250000,~15730000,~17210000,~18680000,~20130000,~21580000,~23020000,~24450000,~25880000,~27300000,~28710000,~30120000,~31520000,~32920000,~34310000,~35690000,~37070000,~38440000,~39810000,~41180000,~42530000,~45300000,~48050000,~50780000,~53490000,~56180000,~58840000,~61490000,~64110000,~66720000,~69310000] \; \mathrm{cm}$</div></div>
+</div>
+</section>
+<section id="Stellar-Plasma">
+<h1>Stellar Plasma<a class="headerlink" href="#Stellar-Plasma" title="Link to this heading"></a></h1>
+<p>The stellar plasma is generated from the stellar model, and in it we can find information about the makeup and qualities of the plasma in our simulated star. Here is an example of us looking at the density of ions at different depths within our star.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">ion_number_density</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>46</th>
+      <th>47</th>
+      <th>48</th>
+      <th>49</th>
+      <th>50</th>
+      <th>51</th>
+      <th>52</th>
+      <th>53</th>
+      <th>54</th>
+      <th>55</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">1</th>
+      <th>0</th>
+      <td>1.357488e+17</td>
+      <td>1.321919e+17</td>
+      <td>1.295592e+17</td>
+      <td>1.277547e+17</td>
+      <td>1.267249e+17</td>
+      <td>1.264809e+17</td>
+      <td>1.267312e+17</td>
+      <td>1.272488e+17</td>
+      <td>1.280748e+17</td>
+      <td>1.292835e+17</td>
+      <td>...</td>
+      <td>3.966417e+15</td>
+      <td>3.116191e+15</td>
+      <td>2.447204e+15</td>
+      <td>1.920907e+15</td>
+      <td>1.507041e+15</td>
+      <td>1.181611e+15</td>
+      <td>9.258287e+14</td>
+      <td>7.247400e+14</td>
+      <td>5.667448e+14</td>
+      <td>4.413455e+14</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.385172e+15</td>
+      <td>5.006329e+15</td>
+      <td>3.898646e+15</td>
+      <td>2.999333e+15</td>
+      <td>2.260427e+15</td>
+      <td>1.644337e+15</td>
+      <td>1.367509e+15</td>
+      <td>1.110215e+15</td>
+      <td>8.708180e+14</td>
+      <td>6.501580e+14</td>
+      <td>...</td>
+      <td>3.478357e+09</td>
+      <td>2.392115e+09</td>
+      <td>1.629784e+09</td>
+      <td>1.100527e+09</td>
+      <td>7.368918e+08</td>
+      <td>4.895196e+08</td>
+      <td>3.230976e+08</td>
+      <td>2.125878e+08</td>
+      <td>1.401980e+08</td>
+      <td>9.814634e+07</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">2</th>
+      <th>0</th>
+      <td>1.209755e+16</td>
+      <td>1.167746e+16</td>
+      <td>1.135911e+16</td>
+      <td>1.112897e+16</td>
+      <td>1.097843e+16</td>
+      <td>1.090522e+16</td>
+      <td>1.090297e+16</td>
+      <td>1.092512e+16</td>
+      <td>1.097505e+16</td>
+      <td>1.105915e+16</td>
+      <td>...</td>
+      <td>3.375972e+14</td>
+      <td>2.652311e+14</td>
+      <td>2.082910e+14</td>
+      <td>1.634958e+14</td>
+      <td>1.282700e+14</td>
+      <td>1.005715e+14</td>
+      <td>7.880083e+13</td>
+      <td>6.168539e+13</td>
+      <td>4.823782e+13</td>
+      <td>3.756461e+13</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.058951e+09</td>
+      <td>3.353671e+09</td>
+      <td>1.817801e+09</td>
+      <td>9.521732e+08</td>
+      <td>4.719585e+08</td>
+      <td>2.133037e+08</td>
+      <td>1.343820e+08</td>
+      <td>7.961535e+07</td>
+      <td>4.322331e+07</td>
+      <td>2.071727e+07</td>
+      <td>...</td>
+      <td>4.557768e-04</td>
+      <td>2.346949e-04</td>
+      <td>1.187835e-04</td>
+      <td>5.913624e-05</td>
+      <td>2.898587e-05</td>
+      <td>1.400182e-05</td>
+      <td>6.683730e-06</td>
+      <td>3.172236e-06</td>
+      <td>1.512106e-06</td>
+      <td>8.051582e-07</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5.581645e-13</td>
+      <td>7.050644e-14</td>
+      <td>8.127889e-15</td>
+      <td>8.158929e-16</td>
+      <td>6.613797e-17</td>
+      <td>3.784828e-18</td>
+      <td>7.112620e-19</td>
+      <td>1.065274e-19</td>
+      <td>1.157150e-20</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">30</th>
+      <th>26</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>495 rows × 56 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Stellar-Radiation-Field">
+<h1>Stellar Radiation Field<a class="headerlink" href="#Stellar-Radiation-Field" title="Link to this heading"></a></h1>
+<p>The stellar radiation field contains information on how light interacts with your star’s atmosphere in the simulation. The example below demonstrates <code class="docutils literal notranslate"><span class="pre">sim.stellar_radiation_field.opacities.opacities_dict</span></code> which contains a dictionary of each source of opacity and how much it contributes to the overall opacity at each wavelength at each depth.</p>
+<p>This is a breakdown of how opacities_dict stores this information</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">opacities_dict</span><span class="p">[</span><span class="s1">&#39;opacity_source&#39;</span><span class="p">][</span><span class="n">depth_point_index</span><span class="p">,</span> <span class="n">wavelength_index</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha_lines</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">stellar_radiation_field</span><span class="o">.</span><span class="n">opacities</span><span class="o">.</span><span class="n">opacities_dict</span><span class="p">[</span><span class="s1">&#39;alpha_line_at_nu&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">depth_point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_lines</span><span class="p">),</span> <span class="mi">12</span><span class="p">):</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">alpha_lines</span><span class="p">[</span><span class="n">depth_point</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">depth_point</span><span class="si">}</span><span class="s1">th layer&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/possible_stardis_outputs_possible_stardis_outputs_13_0.png" src="../_images/possible_stardis_outputs_possible_stardis_outputs_13_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../physics/physics_of_stardis.html" class="btn btn-neutral float-left" title="Physics of STARDIS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html" class="btn btn-neutral float-right" title="Using MARCS to get .mod files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, TARDIS Collaboration.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
