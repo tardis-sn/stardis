@@ -14,6 +14,7 @@ This is the documentation for STARDIS.
    Possible STARDIS Outputs <possible_stardis_outputs/possible_stardis_outputs>
    Custom Star Model <Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs>
    Using STARDIS in Parallel <using_stardis_in_parallel/stardis_in_parallel>
+   Changing Parameters <Changing_Parameters/Changing_Parameters>
    Example Notebooks <example_notebooks/rotation_broadening>
    Contributing <contributing>
    Bibliography <bibliography>

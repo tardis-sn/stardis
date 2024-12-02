@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changing Parameters &mdash; stardis 0.1.dev1+g7bddf42 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f9421be4"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="STARDIS" href="../example_notebooks/rotation_broadening.html" />
+    <link rel="prev" title="Setting number of threads used in running a STARDIS simulation" href="../using_stardis_in_parallel/stardis_in_parallel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            stardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Import Necessary Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Selecting-Result-Options">Selecting Result Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Model">Stellar Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Plasma">Stellar Plasma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Radiation-Field">Stellar Radiation Field</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changing Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Import-Necessary-Code">Import Necessary Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#How-to-Update-Parameters">How to Update Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Example-Use">Example Use</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../example_notebooks/rotation_broadening.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">stardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changing Parameters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Changing_Parameters/Changing_Parameters.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Changing-Parameters">
+<h1>Changing Parameters<a class="headerlink" href="#Changing-Parameters" title="Link to this heading"></a></h1>
+<section id="Import-Necessary-Code">
+<h2>Import Necessary Code<a class="headerlink" href="#Import-Necessary-Code" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">stardis.base</span> <span class="kn">import</span> <span class="n">run_stardis</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span><span class="p">,</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8905e1ace41d452db82f78f7c906f0e5", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3db6232984b34ac5a8e347a17fa2580b", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+</section>
+<section id="How-to-Update-Parameters">
+<h2>How to Update Parameters<a class="headerlink" href="#How-to-Update-Parameters" title="Link to this heading"></a></h2>
+<p>There will be instances where you may want to temporarily change or add to the yaml file you are using to make your STARDIS simulations, but don’t worry, you won’t need to edit the file every time. Instead, you can add the argument <code class="docutils literal notranslate"><span class="pre">add_config_dict</span></code> to <code class="docutils literal notranslate"><span class="pre">run_stardis</span></code> and temporarily set/change parts of your file this way.</p>
+<p>For example, if your yaml file had <code class="docutils literal notranslate"><span class="pre">final_atomic_number:</span> <span class="pre">30</span></code> but you wanted <code class="docutils literal notranslate"><span class="pre">final_atomic_number:</span> <span class="pre">10</span></code> for just one simulation, you could run:</p>
+<p><code class="docutils literal notranslate"><span class="pre">sim</span> <span class="pre">=</span> <span class="pre">run_stardis('my_yaml.yml',</span> <span class="pre">tracing_lambdas,</span> <span class="pre">add_config_dict</span> <span class="pre">=</span> <span class="pre">{'model.final_atomic_number'</span> <span class="pre">:</span> <span class="pre">10})</span></code></p>
+<p>note how, as <code class="docutils literal notranslate"><span class="pre">final_atomic_number</span></code> falls under <code class="docutils literal notranslate"><span class="pre">model</span></code> within the yaml file, it must be entered above as <code class="docutils literal notranslate"><span class="pre">'model.final_atomic_number'</span></code></p>
+</section>
+<section id="Example-Use">
+<h2>Example Use<a class="headerlink" href="#Example-Use" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tracing_lambdas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">6586</span><span class="p">:</span><span class="mi">6592</span><span class="p">:</span><span class="mf">0.01</span><span class="p">]</span><span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span>
+
+
+<span class="k">for</span> <span class="n">carbon_rescaling</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">run_stardis</span><span class="p">(</span><span class="s1">&#39;Changing_Param_Example.yml&#39;</span><span class="p">,</span> <span class="n">tracing_lambdas</span><span class="p">,</span> <span class="n">add_config_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;model.nuclide_rescaling_dict&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span> <span class="p">:</span> <span class="n">carbon_rescaling</span><span class="p">}})</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">spectrum_lambda</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;C rescaling factor: </span><span class="si">{</span><span class="n">carbon_rescaling</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;STARDIS Solar Spectrum&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Wavelength [$\AA$]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Flux density [erg/s/cm$^2$/$\AA$]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Changing_Parameters_Changing_Parameters_7_1.png" src="../_images/Changing_Parameters_Changing_Parameters_7_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../using_stardis_in_parallel/stardis_in_parallel.html" class="btn btn-neutral float-left" title="Setting number of threads used in running a STARDIS simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../example_notebooks/rotation_broadening.html" class="btn btn-neutral float-right" title="STARDIS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, TARDIS Collaboration.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
