@@ -1035,8 +1035,10 @@ def calc_vald_gamma(
     """
     gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
     if radiation:
+        logger.info("Calculating radiation broadening.")
         gammas += lines.A_ul.values[:, np.newaxis]
     if linear_stark:
+        logger.info("Calculating linear Stark broadening.")
         h_indices = lines.atomic_number == 1
         n_eff_upper = calc_n_effective(
             lines.ion_number[h_indices].values + 1,
@@ -1055,6 +1057,7 @@ def calc_vald_gamma(
         )
         gammas[h_indices, :] += gamma_linear_stark
     if quadratic_stark:
+        logger.info("Calculating quadratic Stark broadening.")
         stark = calc_vald_stark_gamma(
             stellar_plasma.electron_densities.values,
             lines.stark.values[:, np.newaxis],
@@ -1062,6 +1065,7 @@ def calc_vald_gamma(
         )
         gammas += stark
     if van_der_waals:
+        logger.info("Calculating van der Waals broadening.")
         vdW = calc_vald_vdW(
             lines.waals.values,
             stellar_model.temperatures.value,
