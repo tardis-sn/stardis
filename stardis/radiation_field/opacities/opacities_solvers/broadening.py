@@ -1,6 +1,7 @@
 import numpy as np
 from astropy import constants as const, units as u
 import math
+import logging
 import numba
 from numba import cuda
 from scipy.ndimage import convolve1d
@@ -23,6 +24,9 @@ VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
 H_MASS = float(const.m_p.cgs.value)
 C_KMS = float(const.c.to(u.km / u.s).value)
 AMU_CGS = const.u.cgs.value
+
+
+logger = logging.getLogger(__name__)
 
 
 @numba.njit
@@ -687,6 +691,7 @@ def calculate_broadening(
     radiation = "radiation" in broadening_line_opacity_config
 
     if use_vald_broadening:
+        logger.info("Using VALD broadening parameters.")
         gammas = calc_vald_gamma(
             lines,
             stellar_model,
@@ -697,6 +702,7 @@ def calculate_broadening(
             radiation=radiation,
         )
     else:
+        logger.info("Calculating broadening parameters.")
         gammas = calc_gamma(
             atomic_number=lines.atomic_number.values[:, np.newaxis],
             ion_number=lines.ion_number.values[:, np.newaxis] + 1,
@@ -787,7 +793,7 @@ def calculate_molecule_broadening(
                 lines.ionization_energy.values[:, np.newaxis],
             )
             gammas += vdW
-        gammas /= 2  # FWHM to HWHM
+        gammas  # HWHM TO FWHM
     else:
         if "radiation" in broadening_line_opacity_config:
             gammas = lines.A_ul.values[:, np.newaxis]
@@ -910,9 +916,7 @@ def _calc_vald_vdw_unsoeld_approx(
         ),  # This is just saying hydrogen density is 1. We multiply by hydrogen density later for all types of vdW broadening
     )
 
-    return (
-        approx_gamma * vdW[:, np.newaxis]
-    )  # This gives FWHM, so divide by 2 to get HWHM
+    return approx_gamma * vdW[:, np.newaxis]
 
 
 def _calc_vald_vdW_abo(vdW, temperature, atomic_mass):
@@ -1071,5 +1075,5 @@ def calc_vald_gamma(
             lines.ionization_energy.values[:, np.newaxis],
         )
         gammas += vdW
-    gammas /= 2  # FWHM to HWHM
+    gammas /= 2  # HWHM to FWHM
     return gammas
