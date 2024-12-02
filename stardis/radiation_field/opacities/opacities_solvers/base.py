@@ -431,7 +431,7 @@ def calc_alpha_line_at_nu(
         use_vald_broadening=line_opacity_config.vald_linelist.use_vald_broadening
         and line_opacity_config.vald_linelist.use_linelist,  # don't try to use vald broadening if you don't use vald linelists at all
     )
-
+    logger.info("Done with broadening")
     delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
 
     # If no broadening range, compute the contribution of every line at every frequency.
@@ -446,8 +446,10 @@ def calc_alpha_line_at_nu(
             lines_sorted_in_range.atomic_number == 1
         ).to_numpy()  # Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
         if line_range.unit.physical_type == "length":
+            logger.info("Broadening range is in length units")
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
-            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
+            logger.info("Convering broadening to frequency units")
+            lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)")
             nus_plus_broadening_range = lambdas_plus_broadening_range.to(
                 u.Hz, equivalencies=u.spectral()
             )
