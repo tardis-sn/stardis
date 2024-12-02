@@ -423,7 +423,6 @@ def calc_alpha_line_at_nu(
         pd.to_numeric
     )  # weird bug cropped up with ion_number being an object instead of an int
 
-    logger.info("Calculating broadening parameters.")
     gammas, doppler_widths = calculate_broadening(
         lines_sorted_in_range,
         stellar_model,
