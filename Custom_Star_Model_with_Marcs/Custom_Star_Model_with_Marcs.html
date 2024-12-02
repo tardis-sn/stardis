@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using MARCS to get .mod files &mdash; stardis 0.1.dev1+gfd1b669 documentation</title>
+  <title>Using MARCS to get .mod files &mdash; stardis 0.1.dev1+g4279f55 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=534223b4"></script>
+        <script src="../_static/documentation_options.js?v=460c8fa3"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Import Necessary Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Selecting-Result-Options">Selecting Result Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Model">Stellar Model</a></li>
@@ -97,11 +98,11 @@
 <h1>Using MARCS to get .mod files<a class="headerlink" href="#Using-MARCS-to-get-.mod-files" title="Link to this heading"></a></h1>
 <p>STARDIS uses files from the <a class="reference external" href="https://marcs.oreme.org/">MARCS site</a>, which “contains about 52,000 stellar atmospheric models of spectral types F, G and K”. Here we will only be discussing the aspects of MARCS needed for STARDIS. To get started, <a class="reference external" href="https://marcs.oreme.org/data/">go to the ‘Search Marcs’ tab of the MARCS site</a></p>
 <p><a class="reference external" href="https://marcs.oreme.org/data/">https://marcs.oreme.org/data/</a></p>
-<div><p><img alt="99d15d321302423aa4747927e1e63d6d" class="no-scaled-link" src="../_images/search_marcs.png" style="width: 700px;" /></p>
+<div><p><img alt="66ccefb055b34b30a02f74125ccb890e" class="no-scaled-link" src="../_images/search_marcs.png" style="width: 700px;" /></p>
 </div><p><em>picture of the Search Marcs page</em></p>
 <p>Getting an atmosphere model is as easy as entering a range of parameters of your choosing. For more information on what each of these qualities are, you can click the question marks next to each option or refer to <a class="reference external" href="https://marcs.oreme.org/documents/">the MARCS documentation</a>.</p>
 <p>In the below example, we have entered some arbitrary values into MARCS, and on the right are now all files that qualify. Note how the names of the files show the exact parameters of each file and how there are several pages of files you can look through.</p>
-<div><p><img alt="a5a1b458d899413eab9ec819095edd8b" class="no-scaled-link" src="../_images/search_results.png" style="width: 700px;" /></p>
+<div><p><img alt="e7129faec73149d98b15ee280f77c220" class="no-scaled-link" src="../_images/search_results.png" style="width: 700px;" /></p>
 </div><p>MARCS uses a ‘shopping cart’ style system for selecting models, called your ‘basket’. Once you have selected your chosen models, proceed to the ‘Basket’ tab to download them. <strong>Make sure you only have ‘.mod’ files selected, as that is the format used by STARDIS.</strong></p>
 <p>Below is an example of a yaml file using the ‘sun.mod’ file. Note that you can provide either the relative or absolute path to your new model data.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
