@@ -433,14 +433,7 @@ def calc_alpha_line_at_nu(
     )
 
     # This line is awful for large simulations. Has to solve wavelength points times number of lines. Can be optimized.
-    # delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
-
-    # Ensure arrays are contiguous
-    tracing_nus_value = np.ascontiguousarray(tracing_nus.value)
-    line_nus_reshaped = np.ascontiguousarray(line_nus[:, np.newaxis])
-
-    # Perform the operation
-    delta_nus = tracing_nus_value - line_nus_reshaped
+    delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
 
     # If no broadening range, compute the contribution of every line at every frequency.
     h_lines_indices = None
@@ -454,9 +447,7 @@ def calc_alpha_line_at_nu(
             lines_sorted_in_range.atomic_number == 1
         ).to_numpy()  # Hydrogen lines are much broader than other lines, so they need special treatment to ignore the broadening range.
         if line_range.unit.physical_type == "length":
-            logger.info("Broadening range is in length units")
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
-            logger.info("Converting broadening to frequency units")
             lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
             nus_plus_broadening_range = lambdas_plus_broadening_range.to(
                 u.Hz, equivalencies=u.spectral()
@@ -469,7 +460,6 @@ def calc_alpha_line_at_nu(
                 "Broadening range must be in units of length or frequency."
             )
 
-    logger.info("Calculating alphas at nus.")
     if n_threads == 1:  # Single threaded
         alpha_line_at_nu = calc_alan_entries(
             stellar_model.no_of_depth_points,
