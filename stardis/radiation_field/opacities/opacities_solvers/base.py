@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import numba
+import logging
 
 from astropy import units as u, constants as const
 
@@ -31,6 +32,8 @@ FF_CONSTANT = (
     * np.sqrt(2 * np.pi / (3 * const.m_e.cgs**3 * const.k_B.cgs))
 ).value
 RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
+
+logger = logging.getLogger(__name__)
 
 
 # Calculate opacity from any table specified by the user
@@ -420,6 +423,7 @@ def calc_alpha_line_at_nu(
         pd.to_numeric
     )  # weird bug cropped up with ion_number being an object instead of an int
 
+    logger.info("Calculating broadening parameters.")
     gammas, doppler_widths = calculate_broadening(
         lines_sorted_in_range,
         stellar_model,
@@ -456,6 +460,7 @@ def calc_alpha_line_at_nu(
                 "Broadening range must be in units of length or frequency."
             )
 
+    logger.info("Calculating alphas at nus.")
     if n_threads == 1:  # Single threaded
         alpha_line_at_nu = calc_alan_entries(
             stellar_model.no_of_depth_points,
@@ -542,7 +547,6 @@ def calc_molecular_alpha_line_at_nu(
             raise ValueError(
                 "Broadening range must be in units of length or frequency."
             )
-
     if n_threads == 1:  # Single threaded
         alpha_line_at_nu = calc_alan_entries(
             stellar_model.no_of_depth_points,
@@ -832,9 +836,9 @@ def calc_alphas(
         opacity_config.line,
         n_threads,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
