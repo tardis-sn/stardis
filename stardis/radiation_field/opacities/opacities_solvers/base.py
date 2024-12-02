@@ -431,8 +431,16 @@ def calc_alpha_line_at_nu(
         use_vald_broadening=line_opacity_config.vald_linelist.use_vald_broadening
         and line_opacity_config.vald_linelist.use_linelist,  # don't try to use vald broadening if you don't use vald linelists at all
     )
-    logger.info("Done with broadening")
-    delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
+
+    # This line is awful for large simulations. Has to solve wavelength points times number of lines. Can be optimized.
+    # delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
+
+    # Ensure arrays are contiguous
+    tracing_nus_value = np.ascontiguousarray(tracing_nus.value)
+    line_nus_reshaped = np.ascontiguousarray(line_nus[:, np.newaxis])
+
+    # Perform the operation
+    delta_nus = tracing_nus_value - line_nus_reshaped
 
     # If no broadening range, compute the contribution of every line at every frequency.
     h_lines_indices = None
@@ -448,7 +456,7 @@ def calc_alpha_line_at_nu(
         if line_range.unit.physical_type == "length":
             logger.info("Broadening range is in length units")
             lambdas = tracing_nus.to(u.AA, equivalencies=u.spectral())
-            logger.info("Convering broadening to frequency units")
+            logger.info("Converting broadening to frequency units")
             lambdas_plus_broadening_range = lambdas + line_range.to(u.AA)
             nus_plus_broadening_range = lambdas_plus_broadening_range.to(
                 u.Hz, equivalencies=u.spectral()
