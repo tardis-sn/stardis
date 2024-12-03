@@ -1035,7 +1035,7 @@ def calc_vald_gamma(
     """
     gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
     if radiation:
-        gammas += lines.A_ul.values[:, np.newaxis]
+        gammas += np.broadcast_to(lines.A_ul.values.reshape(-1, 1), gammas.shape)
     if linear_stark:
         h_indices = lines.atomic_number == 1
         n_eff_upper = calc_n_effective(
