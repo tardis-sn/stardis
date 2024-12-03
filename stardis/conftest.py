@@ -250,7 +250,6 @@ def example_stellar_radiation_field_parallel(
         stellar_model=example_stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=example_config_parallel.opacity,
-        n_threads=example_config_parallel.n_threads,
     )
 
     raytrace(
