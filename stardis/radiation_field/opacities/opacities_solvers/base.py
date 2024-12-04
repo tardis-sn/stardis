@@ -542,12 +542,13 @@ def calc_alan_entries(
             # We want to consider lines within a certain range of the line_nu
             line_broadening = (
                 (
-                    line_gamma + doppler_widths[line_index, depth_point_index] * 20
-                )  # 20 is a placeholder
+                    line_gamma + doppler_widths[line_index, depth_point_index] * 1e3
+                )  # 1e3 is a placeholder but seems to give reasonable answers
                 * alphas_array[
                     line_index, depth_point_index
                 ]  # Scale by alpha of the line
             ) / d_nu
+            print(line_broadening)
             line_broadening_range = max(10.0, line_broadening)  # This is a placeholder
 
             lower_freq_index = max(
@@ -560,13 +561,13 @@ def calc_alan_entries(
 
             delta_nus = tracing_nus_values[lower_freq_index:upper_freq_index] - line_nu
 
-            alpha_line_at_nu[
-                depth_point_index, lower_freq_index:upper_freq_index
-            ] += _calc_alan_entries(
-                delta_nus,
-                doppler_widths[line_index, depth_point_index],
-                line_gamma,
-                alphas_array[line_index, depth_point_index],
+            alpha_line_at_nu[depth_point_index, lower_freq_index:upper_freq_index] += (
+                _calc_alan_entries(
+                    delta_nus,
+                    doppler_widths[line_index, depth_point_index],
+                    line_gamma,
+                    alphas_array[line_index, depth_point_index],
+                )
             )
     return alpha_line_at_nu
 
@@ -684,9 +685,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
