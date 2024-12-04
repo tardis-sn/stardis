@@ -494,10 +494,7 @@ def calc_alan_entries(
 ):
     """
     This is a helper function to prepare appropriate calling of the voigt profile calculation and allow for structure that
-    can be parallelized. In the no broadening case it simply calls the voigt profile calculator with the appropriate structure.
-    In the broadening case it first creates a mask to only consider lines within the broadening range, and then calls the function
-    only on those lines. The variable line would make the input matrix not square, and prohibits easy access with numba, so an
-    explicit for loop must be called.
+    can be parallelized.
 
     Parameters
     ----------
@@ -545,8 +542,7 @@ def calc_alan_entries(
 
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
-                np.sqrt(line_gamma**2 + doppler_width**2)
-                * alpha  # Scale by alpha of the line
+                (line_gamma + doppler_width) * alpha  # Scale by alpha of the line
             ) / d_nu
             line_broadening_range = max(10.0, line_broadening)  # Force a minimum range
 
