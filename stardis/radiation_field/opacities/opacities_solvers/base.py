@@ -483,7 +483,7 @@ def calc_molecular_alpha_line_at_nu(
     return alpha_line_at_nu, gammas, doppler_widths
 
 
-# @numba.njit
+@numba.njit(parallel=True)
 def calc_alan_entries(
     no_of_depth_points,
     tracing_nus_values,
@@ -505,20 +505,14 @@ def calc_alan_entries(
         The number of depth points.
     tracing_nus_values : array
         The frequencies at which to calculate the Alan entries.
-    delta_nus : array
-        The differences between the frequencies and the line frequencies.
+    lines_nus : array
+        The frequencies of the lines.
     doppler_widths : array
         The Doppler widths for each frequency.
     gammas : array
         The damping constants for each frequency.
     alphas_array : array
         The array of alpha values.
-    broadening_range : array, optional
-        The broadening range for each frequency. If provided, only frequencies within
-        this range will be considered. Default is None.
-    h_lines_indices : array, optional
-        The indices of the hydrogen lines. If provided, these lines will always be
-        considered, regardless of the broadening range. Default is None.
 
     Returns
     -------
@@ -528,32 +522,51 @@ def calc_alan_entries(
     """
 
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
+    d_nu = tracing_nus_values[0] - tracing_nus_values[-1]
 
-    for line_index in range(len(line_nus)):
+    for line_index in numba.prange(len(line_nus)):
         line_nu = line_nus[line_index]
         for depth_point_index in range(no_of_depth_points):
-            # closest_frequency_index = np.argmin(
-            #     np.abs(tracing_nus_values - line_nu)
-            # )  # Maybe speed this up with binary search.
+            # If gamma is not for each depth point, we need to index it differently
+            line_gamma = (
+                gammas[line_index, depth_point_index]
+                if gammas.shape[1] > 1
+                else gammas[line_index, 0]
+            )
+
+            # Now we need to find the closest frequency in the tracing_nus_values, which is in descending order
             closest_frequency_index = len(tracing_nus_values) - np.searchsorted(
                 tracing_nus_values[::-1], line_nu
             )
 
-            lower_freq_index = np.array([closest_frequency_index - 1000, 0]).max()
-            # Be cleverer incorporating alpha, gamma, and doppler width
-            upper_freq_index = np.array(
-                [closest_frequency_index + 1000, len(tracing_nus_values)]
-            ).max()  # Be cleverer
+            # We want to consider lines within a certain range of the line_nu
+            line_broadening = (
+                (
+                    line_gamma + doppler_widths[line_index, depth_point_index] * 20
+                )  # 20 is a placeholder
+                * alphas_array[
+                    line_index, depth_point_index
+                ]  # Scale by alpha of the line
+            ) / d_nu
+            line_broadening_range = np.array(
+                [10, line_broadening]
+            ).max()  # This is a placeholder
+
+            lower_freq_index = max(
+                closest_frequency_index - int(line_broadening_range), 0
+            )
+            upper_freq_index = min(
+                closest_frequency_index + int(line_broadening_range),
+                len(tracing_nus_values),
+            )
+
             delta_nus = tracing_nus_values[lower_freq_index:upper_freq_index] - line_nu
-            if gammas[line_index].shape == (1,):
-                line_gammas = gammas[line_index]
-            else:
-                line_gammas = gammas[line_index, depth_point_index]
+
             alpha_line_at_nu[depth_point_index, lower_freq_index:upper_freq_index] += (
                 _calc_alan_entries(
                     delta_nus,
                     doppler_widths[line_index, depth_point_index],
-                    line_gammas,
+                    line_gamma,
                     alphas_array[line_index, depth_point_index],
                 )
             )
