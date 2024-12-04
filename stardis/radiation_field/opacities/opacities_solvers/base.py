@@ -543,8 +543,9 @@ def calc_alan_entries(
 
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
-                (line_gamma + doppler_widths[line_index, depth_point_index])
-                # 1e3 is a placeholder but seems to give the same answer as our previous broadening treatement
+                np.sqrt(
+                    line_gamma**2 + doppler_widths[line_index, depth_point_index] ** 2
+                )
                 * alphas_array[
                     line_index, depth_point_index
                 ]  # Scale by alpha of the line
