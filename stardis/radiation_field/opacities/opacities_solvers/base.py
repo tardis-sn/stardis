@@ -525,9 +525,18 @@ def calc_alan_entries(
     d_nu = (
         tracing_nus_values[0] - tracing_nus_values[-1]
     )  # This is a bit awkward, but not sure of a better way to do it for non-uniform grids
+    temp_alpha_line_at_nu = np.zeros(
+        (
+            no_of_depth_points,
+            len(tracing_nus_values),
+            numba.config.NUMBA_DEFAULT_NUM_THREADS,
+        )
+    )
 
     for line_index in numba.prange(len(line_nus)):
         line_nu = line_nus[line_index]
+        thread_id = numba.get_thread_id()
+
         for depth_point_index in range(no_of_depth_points):
             # If gamma is not for each depth point, we need to index it differently
             line_gamma = (
@@ -544,13 +553,15 @@ def calc_alan_entries(
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
                 (
-                    line_gamma + doppler_widths[line_index, depth_point_index] * 1e3
+                    line_gamma + doppler_widths[line_index, depth_point_index] * 1e5
                 )  # 1e3 is a placeholder but seems to give reasonable answers
                 * alphas_array[
                     line_index, depth_point_index
                 ]  # Scale by alpha of the line
             ) / d_nu
-            line_broadening_range = max(100.0, line_broadening)  # Force a minimum range
+            line_broadening_range = max(
+                1000.0, line_broadening
+            )  # Force a minimum range
 
             lower_freq_index = max(
                 closest_frequency_index - int(line_broadening_range), 0
@@ -562,14 +573,22 @@ def calc_alan_entries(
 
             delta_nus = tracing_nus_values[lower_freq_index:upper_freq_index] - line_nu
 
-            alpha_line_at_nu[
-                depth_point_index, lower_freq_index:upper_freq_index
+            temp_alpha_line_at_nu[
+                depth_point_index, lower_freq_index:upper_freq_index, thread_id
             ] += _calc_alan_entries(
                 delta_nus,
                 doppler_widths[line_index, depth_point_index],
                 line_gamma,
                 alphas_array[line_index, depth_point_index],
             )
+
+    # Combine the results from different threads
+    for depth_point_index in range(no_of_depth_points):
+        for i in range(len(tracing_nus_values)):
+            alpha_line_at_nu[depth_point_index, i] = np.sum(
+                temp_alpha_line_at_nu[depth_point_index, i, :]
+            )
+
     return alpha_line_at_nu
 
 
