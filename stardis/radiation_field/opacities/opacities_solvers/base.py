@@ -523,7 +523,7 @@ def calc_alan_entries(
 
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
     d_nu = (
-        tracing_nus_values[0] - tracing_nus_values[-1]
+        tracing_nus_values[0] - tracing_nus_values[1]
     )  # This is a bit awkward, but not sure of a better way to do it for non-uniform grids
 
     for line_index in range(len(line_nus)):
@@ -543,9 +543,8 @@ def calc_alan_entries(
 
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
-                (
-                    line_gamma + doppler_widths[line_index, depth_point_index] * 1e3
-                )  # 1e3 is a placeholder but seems to give the same answer as our previous broadening treatement
+                (line_gamma + doppler_widths[line_index, depth_point_index])
+                # 1e3 is a placeholder but seems to give the same answer as our previous broadening treatement
                 * alphas_array[
                     line_index, depth_point_index
                 ]  # Scale by alpha of the line
