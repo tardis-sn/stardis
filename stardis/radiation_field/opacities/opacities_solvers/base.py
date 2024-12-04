@@ -550,7 +550,7 @@ def calc_alan_entries(
                     line_index, depth_point_index
                 ]  # Scale by alpha of the line
             ) / d_nu
-            line_broadening_range = max(10.0, line_broadening)  # Force a minimum range
+            line_broadening_range = max(100.0, line_broadening)  # Force a minimum range
 
             lower_freq_index = max(
                 closest_frequency_index - int(line_broadening_range), 0
