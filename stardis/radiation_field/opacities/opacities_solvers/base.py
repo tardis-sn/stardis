@@ -561,13 +561,13 @@ def calc_alan_entries(
 
             delta_nus = tracing_nus_values[lower_freq_index:upper_freq_index] - line_nu
 
-            alpha_line_at_nu[depth_point_index, lower_freq_index:upper_freq_index] += (
-                _calc_alan_entries(
-                    delta_nus,
-                    doppler_widths[line_index, depth_point_index],
-                    line_gamma,
-                    alphas_array[line_index, depth_point_index],
-                )
+            alpha_line_at_nu[
+                depth_point_index, lower_freq_index:upper_freq_index
+            ] += _calc_alan_entries(
+                delta_nus,
+                doppler_widths[line_index, depth_point_index],
+                line_gamma,
+                alphas_array[line_index, depth_point_index],
             )
     return alpha_line_at_nu
 
@@ -685,9 +685,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
-        alpha_line_at_nu
-    )
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu"
+    ] = alpha_line_at_nu
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
