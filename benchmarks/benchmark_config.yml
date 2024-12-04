@@ -15,5 +15,4 @@ opacity:
     line:
         disable: False
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
-        broadening_range: 3 AA
 no_of_thetas: 20

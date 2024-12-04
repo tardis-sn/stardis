@@ -114,10 +114,6 @@ properties:
                         type: boolean
                         default: false
                         description: Whether to disable microturbulence.
-                    broadening_range:
-                        type: [quantity, "null"]
-                        default: null
-                        description: How far away to look for lines at any given wavelength or frequency. Must be in frequency or wavelength units. Does not apply to hydrogen. 
                     vald_linelist:
                         type: object
                         default: {}
