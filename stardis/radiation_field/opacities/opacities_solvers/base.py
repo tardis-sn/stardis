@@ -483,7 +483,7 @@ def calc_molecular_alpha_line_at_nu(
     return alpha_line_at_nu, gammas, doppler_widths
 
 
-@numba.njit(parallel=True)
+@numba.njit  # (parallel=True)
 def calc_alan_entries(
     no_of_depth_points,
     tracing_nus_values,
@@ -525,18 +525,9 @@ def calc_alan_entries(
     d_nu = (
         tracing_nus_values[0] - tracing_nus_values[-1]
     )  # This is a bit awkward, but not sure of a better way to do it for non-uniform grids
-    temp_alpha_line_at_nu = np.zeros(
-        (
-            no_of_depth_points,
-            len(tracing_nus_values),
-            numba.config.NUMBA_DEFAULT_NUM_THREADS,
-        )
-    )
 
     for line_index in numba.prange(len(line_nus)):
         line_nu = line_nus[line_index]
-        thread_id = numba.get_thread_id()
-
         for depth_point_index in range(no_of_depth_points):
             # If gamma is not for each depth point, we need to index it differently
             line_gamma = (
@@ -573,22 +564,14 @@ def calc_alan_entries(
 
             delta_nus = tracing_nus_values[lower_freq_index:upper_freq_index] - line_nu
 
-            temp_alpha_line_at_nu[
-                depth_point_index, lower_freq_index:upper_freq_index, thread_id
+            alpha_line_at_nu[
+                depth_point_index, lower_freq_index:upper_freq_index
             ] += _calc_alan_entries(
                 delta_nus,
                 doppler_widths[line_index, depth_point_index],
                 line_gamma,
                 alphas_array[line_index, depth_point_index],
             )
-
-    # Combine the results from different threads
-    for depth_point_index in range(no_of_depth_points):
-        for i in range(len(tracing_nus_values)):
-            alpha_line_at_nu[depth_point_index, i] = np.sum(
-                temp_alpha_line_at_nu[depth_point_index, i, :]
-            )
-
     return alpha_line_at_nu
 
 
