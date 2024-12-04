@@ -483,7 +483,7 @@ def calc_molecular_alpha_line_at_nu(
     return alpha_line_at_nu, gammas, doppler_widths
 
 
-@numba.njit(parallel=True)
+@numba.njit
 def calc_alan_entries(
     no_of_depth_points,
     tracing_nus_values,
