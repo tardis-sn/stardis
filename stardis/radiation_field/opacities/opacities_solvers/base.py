@@ -483,7 +483,7 @@ def calc_molecular_alpha_line_at_nu(
     return alpha_line_at_nu, gammas, doppler_widths
 
 
-@numba.njit  # (parallel=True)
+@numba.njit(parallel=True)
 def calc_alan_entries(
     no_of_depth_points,
     tracing_nus_values,
@@ -526,7 +526,7 @@ def calc_alan_entries(
         tracing_nus_values[0] - tracing_nus_values[-1]
     )  # This is a bit awkward, but not sure of a better way to do it for non-uniform grids
 
-    for line_index in numba.prange(len(line_nus)):
+    for line_index in range(len(line_nus)):
         line_nu = line_nus[line_index]
         for depth_point_index in range(no_of_depth_points):
             # If gamma is not for each depth point, we need to index it differently
@@ -544,15 +544,13 @@ def calc_alan_entries(
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
                 (
-                    line_gamma + doppler_widths[line_index, depth_point_index] * 1e5
-                )  # 1e3 is a placeholder but seems to give reasonable answers
+                    line_gamma + doppler_widths[line_index, depth_point_index] * 1e3
+                )  # 1e3 is a placeholder but seems to give the same answer as our previous broadening treatement
                 * alphas_array[
                     line_index, depth_point_index
                 ]  # Scale by alpha of the line
             ) / d_nu
-            line_broadening_range = max(
-                1000.0, line_broadening
-            )  # Force a minimum range
+            line_broadening_range = max(10.0, line_broadening)  # Force a minimum range
 
             lower_freq_index = max(
                 closest_frequency_index - int(line_broadening_range), 0
