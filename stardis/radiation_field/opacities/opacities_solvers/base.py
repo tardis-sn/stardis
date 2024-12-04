@@ -520,7 +520,7 @@ def calc_alan_entries(
         The calculated Alan entries for each frequency in `tracing_nus_values`.
 
     """
-
+    tracing_nus_reversed = tracing_nus_values[::-1]
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
     d_nu = (
         tracing_nus_values[0] - tracing_nus_values[1]
@@ -535,20 +535,18 @@ def calc_alan_entries(
                 if gammas.shape[1] > 1
                 else gammas[line_index, 0]
             )
+            alpha = alphas_array[line_index, depth_point_index]
+            doppler_width = doppler_widths[line_index, depth_point_index]
 
             # Now we need to find the closest frequency in the tracing_nus_values, which is in descending order
             closest_frequency_index = len(tracing_nus_values) - np.searchsorted(
-                tracing_nus_values[::-1], line_nu
+                tracing_nus_reversed, line_nu
             )
 
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
-                np.sqrt(
-                    line_gamma**2 + doppler_widths[line_index, depth_point_index] ** 2
-                )
-                * alphas_array[
-                    line_index, depth_point_index
-                ]  # Scale by alpha of the line
+                np.sqrt(line_gamma**2 + doppler_width**2)
+                * alpha  # Scale by alpha of the line
             ) / d_nu
             line_broadening_range = max(10.0, line_broadening)  # Force a minimum range
 
@@ -566,9 +564,9 @@ def calc_alan_entries(
                 depth_point_index, lower_freq_index:upper_freq_index
             ] += _calc_alan_entries(
                 delta_nus,
-                doppler_widths[line_index, depth_point_index],
+                doppler_width,
                 line_gamma,
-                alphas_array[line_index, depth_point_index],
+                alpha,
             )
     return alpha_line_at_nu
 
