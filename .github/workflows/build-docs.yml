@@ -7,11 +7,11 @@ name: build-docs
 on:
   push:
     branches:
-      - master
+      - main
 
   pull_request_target:
     branches:
-      - master
+      - main
 
     types:
       - opened
@@ -21,7 +21,6 @@ on:
       - ready_for_review
 
   workflow_dispatch: # manual trigger
-
 
 env:
   CACHE_NUMBER: 0 # increase to reset cache manually
@@ -64,8 +63,8 @@ jobs:
 
       - name: Check for changes in documentation
         run: |
-          if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep '^docs/' | grep -q .; then
-              num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
+          if git diff origin/main..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep '^docs/' | grep -q .; then
+              num_files=$(git diff --name-only origin/main...HEAD | grep '^docs/' | wc -l)
               echo "Changes found in documentation files: $num_files"
               exit 0
           else
