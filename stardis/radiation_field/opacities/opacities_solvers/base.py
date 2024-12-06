@@ -458,7 +458,7 @@ def calc_molecular_alpha_line_at_nu(
 
     line_nus = lines_sorted_in_range.nu.to_numpy()
 
-    alphas_and_nu = stellar_plasma.molecule_alpha_line_from_linelist
+    alphas_and_nu = stellar_plasma.molecule_alpha_line_from_linelist.sort_values("nu")
 
     alphas_array = (
         alphas_and_nu[alphas_and_nu.nu.between(tracing_nus.min(), tracing_nus.max())]
@@ -520,9 +520,9 @@ def calc_alan_entries(
     """
     tracing_nus_reversed = tracing_nus_values[::-1]
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
-    d_nu = (
-        tracing_nus_values[0] - tracing_nus_values[1]
-    )  # This is a bit awkward, but not sure of a better way to do it for non-uniform grids
+    d_nu = -np.diff(
+        tracing_nus_values
+    ).max()  # This is the smallest step size of the tracing_nus_values
 
     intermediate_arrays = np.zeros(
         (

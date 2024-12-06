@@ -417,5 +417,4 @@ class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
         linelist["A_ul"] = 10 ** (
             linelist["rad"]
         )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
-
         return alphas, linelist
