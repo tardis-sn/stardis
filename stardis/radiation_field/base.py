@@ -77,7 +77,6 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
         stellar_model=stellar_model,
         stellar_radiation_field=stellar_radiation_field,
         opacity_config=config.opacity,
-        n_threads=config.n_threads,
     )
     logger.info("Raytracing")
     raytrace(

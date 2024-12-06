@@ -21,5 +21,4 @@ opacity:
         vald_linelist: 
             use_linelist: False
             shortlist: False
-        broadening_range: 3 AA         
 no_of_thetas: 10
