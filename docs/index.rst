@@ -5,10 +5,9 @@ This is the documentation for STARDIS.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-   Quickstart <quickstart/quickstart>
    Downloading and Installation <installation>
+   Quickstart <quickstart/quickstart>
    Physics of STARDIS <physics/physics_of_stardis>
    Contributing <contributing>
    Bibliography <bibliography>
