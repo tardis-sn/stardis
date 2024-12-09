@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import numba
+import logging
 
 from astropy import units as u, constants as const
 
@@ -31,6 +32,8 @@ FF_CONSTANT = (
     * np.sqrt(2 * np.pi / (3 * const.m_e.cgs**3 * const.k_B.cgs))
 ).value
 RYDBERG_FREQUENCY = (const.c.cgs * const.Ryd.cgs).value
+
+logger = logging.getLogger(__name__)
 
 
 # Calculate opacity from any table specified by the user
@@ -406,13 +409,30 @@ def calc_alpha_line_at_nu(
         .to_numpy()
     )
 
+    if not line_opacity_config.vald_linelist.use_vald_broadening:
+        autoionization_lines = (
+            lines_sorted_in_range.level_energy_upper
+            > lines_sorted_in_range.ionization_energy
+        ).values
+
+        lines_sorted_in_range = lines_sorted_in_range[~autoionization_lines].copy()
+        alphas_array = alphas_array[~autoionization_lines].copy()
+        line_nus = line_nus[~autoionization_lines].copy()
+
+    lines_sorted_in_range = lines_sorted_in_range.apply(
+        pd.to_numeric
+    )  # weird bug cropped up with ion_number being an object instead of an int
+
     gammas, doppler_widths = calculate_broadening(
         lines_sorted_in_range,
         stellar_model,
         stellar_plasma,
         line_opacity_config.broadening,
-    )  # This can be further improved by only calculating the broadening for the lines that are within the range.
+        use_vald_broadening=line_opacity_config.vald_linelist.use_vald_broadening
+        and line_opacity_config.vald_linelist.use_linelist,  # don't try to use vald broadening if you don't use vald linelists at all
+    )
 
+    # This line is awful for large simulations. Has to solve wavelength points times number of lines. Can be optimized.
     delta_nus = tracing_nus.value - line_nus[:, np.newaxis]
 
     # If no broadening range, compute the contribution of every line at every frequency.
@@ -484,6 +504,7 @@ def calc_molecular_alpha_line_at_nu(
     lines_sorted_in_range = lines_sorted[
         lines_sorted.nu.between(tracing_nus.min(), tracing_nus.max())
     ]
+
     line_nus = lines_sorted_in_range.nu.to_numpy()
 
     alphas_and_nu = stellar_plasma.molecule_alpha_line_from_linelist
@@ -525,7 +546,6 @@ def calc_molecular_alpha_line_at_nu(
             raise ValueError(
                 "Broadening range must be in units of length or frequency."
             )
-
     if n_threads == 1:  # Single threaded
         alpha_line_at_nu = calc_alan_entries(
             stellar_model.no_of_depth_points,
