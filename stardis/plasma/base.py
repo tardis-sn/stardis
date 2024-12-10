@@ -313,7 +313,7 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
         linelist["A_ul"] = 10 ** (
             linelist["rad"]
-        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
+        )  # see 1995A&AS..112..525P for appropriate units
 
         # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
         valid_indices = linelist.level_energy_upper < linelist.ionization_energy
@@ -451,8 +451,7 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
         linelist["A_ul"] = 10 ** (
             linelist["rad"]
-        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
-
+        )  # see 1995A&AS..112..525P for appropriate units
         return alphas, linelist
 
 

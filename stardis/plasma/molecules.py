@@ -290,7 +290,7 @@ class AlphaLineValdMolecule(ProcessingPlasmaProperty):
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
         linelist["A_ul"] = 10 ** (
             linelist["rad"]
-        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
+        )  # see 1995A&AS..112..525P for appropriate units
 
         return alphas, linelist
 
@@ -416,6 +416,6 @@ class AlphaLineShortlistValdMolecule(ProcessingPlasmaProperty):
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
         linelist["A_ul"] = 10 ** (
             linelist["rad"]
-        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
+        )  # see 1995A&AS..112..525P for appropriate units
 
         return alphas, linelist
