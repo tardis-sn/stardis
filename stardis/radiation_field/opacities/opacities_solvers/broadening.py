@@ -1,9 +1,11 @@
 import numpy as np
 from astropy import constants as const, units as u
 import math
+import logging
 import numba
 from numba import cuda
 from scipy.ndimage import convolve1d
+from scipy.special import gamma as gamma_func
 
 GPUs_available = cuda.is_available()
 
@@ -21,6 +23,10 @@ BOHR_RADIUS = float(const.a0.cgs.value)
 VACUUM_ELECTRIC_PERMITTIVITY = 1.0 / (4.0 * PI)
 H_MASS = float(const.m_p.cgs.value)
 C_KMS = float(const.c.to(u.km / u.s).value)
+AMU_CGS = const.u.cgs.value
+
+
+logger = logging.getLogger(__name__)
 
 
 @numba.njit
@@ -655,6 +661,7 @@ def calculate_broadening(
     stellar_model,
     stellar_plasma,
     broadening_line_opacity_config,
+    use_vald_broadening=False,
 ):
     """
     Calculates broadening information for each line at each depth point.
@@ -667,6 +674,7 @@ def calculate_broadening(
     stellar_plasma : tardis.plasma.base.BasePlasma
     broadening_line_opacity_config : tardis.io.configuration.config_reader.Configuration
         Broadening methods section of the line opacity section of the STARDIS configuration.
+    use_vald_broadening : bool, optional
 
     Returns
     -------
@@ -682,21 +690,35 @@ def calculate_broadening(
     van_der_waals = "van_der_waals" in broadening_line_opacity_config
     radiation = "radiation" in broadening_line_opacity_config
 
-    gammas = calc_gamma(
-        atomic_number=lines.atomic_number.values[:, np.newaxis],
-        ion_number=lines.ion_number.values[:, np.newaxis] + 1,
-        ionization_energy=lines.ionization_energy.values[:, np.newaxis],
-        upper_level_energy=lines.level_energy_upper.values[:, np.newaxis],
-        lower_level_energy=lines.level_energy_lower.values[:, np.newaxis],
-        A_ul=lines.A_ul.values[:, np.newaxis],
-        electron_density=stellar_plasma.electron_densities.values,
-        temperature=stellar_model.temperatures.value,
-        h_density=stellar_plasma.ion_number_density.loc[1, 0].values,
-        linear_stark=linear_stark,
-        quadratic_stark=quadratic_stark,
-        van_der_waals=van_der_waals,
-        radiation=radiation,
-    )
+    if use_vald_broadening:
+        logger.info("Using VALD broadening parameters.")
+        gammas = calc_vald_gamma(
+            lines,
+            stellar_model,
+            stellar_plasma,
+            linear_stark=linear_stark,
+            quadratic_stark=quadratic_stark,
+            van_der_waals=van_der_waals,
+            radiation=radiation,
+        )
+    else:
+        logger.info("Calculating broadening parameters.")
+        gammas = calc_gamma(
+            atomic_number=lines.atomic_number.values[:, np.newaxis],
+            ion_number=lines.ion_number.values[:, np.newaxis]
+            + 1,  # You consider the charge of the ion interior to the outside electron
+            ionization_energy=lines.ionization_energy.values[:, np.newaxis],
+            upper_level_energy=lines.level_energy_upper.values[:, np.newaxis],
+            lower_level_energy=lines.level_energy_lower.values[:, np.newaxis],
+            A_ul=lines.A_ul.values[:, np.newaxis],
+            electron_density=stellar_plasma.electron_densities.values,
+            temperature=stellar_model.temperatures.value,
+            h_density=stellar_plasma.ion_number_density.loc[1, 0].values,
+            linear_stark=linear_stark,
+            quadratic_stark=quadratic_stark,
+            van_der_waals=van_der_waals,
+            radiation=radiation,
+        )
 
     doppler_widths = calc_doppler_width(
         lines.nu.values[:, np.newaxis],
@@ -715,13 +737,73 @@ def calculate_molecule_broadening(
     stellar_model,
     stellar_plasma,
     broadening_line_opacity_config,
+    use_vald_broadening=False,
 ):
-    if "radiation" in broadening_line_opacity_config:
-        gammas = lines.A_ul.values[:, np.newaxis]
+    """
+    Calculates broadening information for molecular line at each depth point.
+
+    Parameters
+    ----------
+    lines : DataFrame
+        Dataframe of the lines to calculate broadening for.
+    stellar_model : stardis.model.base.StellarModel
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    broadening_line_opacity_config : tardis.io.configuration.config_reader.Configuration
+        Broadening methods section of the line opacity section of the STARDIS configuration.
+    calc_only_doppler : bool, optional
+        True if only Doppler broadening is to be calculated, otherwise False.
+        By default False.
+    use_vald_broadening : bool, optional
+
+    Returns
+    -------
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_depth_points). Collisional broadening
+        parameter of each line at each depth point.
+    doppler_widths : numpy.ndarray
+        Array of shape (no_of_lines, no_depth_points). Doppler width of each
+        line at each depth point.
+    """
+    linear_stark = "linear_stark" in broadening_line_opacity_config
+    quadratic_stark = "quadratic_stark" in broadening_line_opacity_config
+    van_der_waals = "van_der_waals" in broadening_line_opacity_config
+    radiation = "radiation" in broadening_line_opacity_config
+
+    gammas = np.zeros((len(lines), stellar_model.no_of_depth_points), dtype=float)
+    if use_vald_broadening:
+        if radiation:
+            gammas += lines.A_ul.values[:, np.newaxis]
+        if linear_stark or quadratic_stark:
+            stark = calc_vald_stark_gamma(
+                stellar_plasma.electron_densities.values,
+                lines.stark.values[:, np.newaxis],
+                stellar_model.temperatures.value,
+            )
+            gammas += stark
+        if van_der_waals:
+            vdW = calc_vald_vdW(
+                lines.waals.values,
+                stellar_model.temperatures.value,
+                stellar_model.composition.nuclide_masses.loc[
+                    lines.atomic_number
+                ].values[:, np.newaxis],
+                lines.level_energy_upper.values[:, np.newaxis],
+                lines.level_energy_lower.values[:, np.newaxis],
+                stellar_plasma.ion_number_density.loc[1, 0].values,
+                lines.ion_number.values[:, np.newaxis]
+                + 1,  # You consider the charge of the ion interior to the outside electron
+                lines.ionization_energy.values[:, np.newaxis],
+            )
+            gammas += vdW
+        gammas  # HWHM TO FWHM
     else:
-        gammas = np.zeros(
-            (len(lines), len(stellar_model.geometry.no_of_depth_points)), dtype=float
-        )
+        if "radiation" in broadening_line_opacity_config:
+            gammas = lines.A_ul.values[:, np.newaxis]
+        else:
+            gammas = np.zeros(
+                (len(lines), len(stellar_model.geometry.no_of_depth_points)),
+                dtype=float,
+            )
 
     ions = stellar_plasma.molecule_ion_map.loc[lines.molecule]
 
@@ -793,3 +875,209 @@ def rotation_broadening(
     )
 
     return wavelength, broadened_fluxes
+
+
+def calc_vald_stark_gamma(electron_density, stark, temperature):
+    """
+    see https://articles.adsabs.harvard.edu/pdf/1995MNRAS.276..859A, most basic case
+    """
+    stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
+    stark_gamma = np.where(
+        electron_density * stark == 0, 0, stark_gamma
+    )  # The stark number should always be negative. 0 means missing. Have to broadcast out to the right shape.
+    return stark_gamma
+
+
+def _calc_vald_vdW_scaled_gamma(vdW, temperature):
+    """
+    see https://github.com/barklem/public-data/tree/master/broadening-howto, https://articles.adsabs.harvard.edu/pdf/1995MNRAS.276..859A
+    and Korg https://github.com/ajwheeler/Korg.jl/blob/ff89e57b5f90b06553c10aebacedcb649a451f0b/src/line_absorption.jl#L178
+    """
+    return (10**vdW * (temperature / 1e4) ** 0.38).T
+
+
+def _calc_vald_vdw_unsoeld_approx(
+    vdW,
+    ion_number,
+    ionization_energy,
+    upper_level_energy,
+    lower_level_energy,
+    temperature,
+):
+    """
+    unsoeld approximations are just enhancement factors to multiply approximate vdW values by,
+    so we calculate them as we would normally, and then multiply by the enhancement factor
+    """
+    n_eff_upper = calc_n_effective(ion_number, ionization_energy, upper_level_energy)
+    n_eff_lower = calc_n_effective(ion_number, ionization_energy, lower_level_energy)
+    approx_gamma = calc_gamma_van_der_waals(
+        ion_number,
+        n_eff_upper,
+        n_eff_lower,
+        temperature,
+        np.ones_like(
+            temperature
+        ),  # This is just saying hydrogen density is 1. We multiply by hydrogen density later for all types of vdW broadening
+    )
+
+    return approx_gamma * vdW[:, np.newaxis]
+
+
+def _calc_vald_vdW_abo(vdW, temperature, atomic_mass):
+    """abo calculation of vald parameters, following Korg https://github.com/ajwheeler/Korg.jl/blob/ff89e57b5f90b06553c10aebacedcb649a451f0b/src/line_absorption.jl#L179
+    which cites https://github.com/barklem/public-data/tree/master/broadening-howto
+    vdW values here are packed sigma and alpha, where sigma is pre-decimal point and alpha is post-decimal point
+    1e6 is 1e4 km/s in cgs, which is the measured value for sigmas in the ABO tables
+
+    """
+    vdW_int = vdW.astype(int)
+    sigma = (vdW_int * BOHR_RADIUS * BOHR_RADIUS)[:, np.newaxis]
+    alpha = (vdW - vdW_int)[:, np.newaxis]
+
+    inverse_reduced_mass = 1 / (1.008 * AMU_CGS) + (1 / atomic_mass)
+    vbar = np.sqrt(8 * BOLTZMANN_CONSTANT * temperature / PI * inverse_reduced_mass)
+    return (
+        2
+        * (4 / PI) ** (alpha / 2)
+        * gamma_func((4 - alpha) / 2)
+        * 1e6
+        * sigma
+        * (vbar / 1e6) ** (1 - alpha)
+    )
+
+
+def calc_vald_vdW(
+    vdW,
+    temperature,
+    atomic_mass,
+    upper_level_energy,
+    lower_level_energy,
+    hydrogen_density,
+    ion_number,
+    ionization_energy,
+):
+    """
+    see https://github.com/barklem/public-data/tree/master/broadening-howto
+
+    Parameters
+    ----------
+    vdW : numpy.ndarray
+        van der Waals broadening parameter.
+    temperature : numpy.ndarray
+        Temperature of depth points being considered.
+    atomic_mass : numpy.ndarray
+    upper_level_energy : numpy.ndarray
+        Energy in ergs of upper level of transition being considered.
+    lower_level_energy : numpy.ndarray
+        Energy in ergs of upper level of transition being considered.
+    hydrogen_density : numpy.ndarray
+        Number density of Hydrogen at depth point being considered.
+    ion_number : numpy.ndarray
+        Ion number + 1 of ion being considered. Treats interior as hydrogenic.
+    ionization_energy : numpy.ndarray
+        Ionization energy in ergs of ion being considered.
+    """
+    vdW_unscaled_mask = vdW < 0
+    vdW_0_mask = vdW == 0.0
+    vdW_unsoeld_mask = (0 < vdW) & (vdW < 20)
+    vdW_abo_mask = vdW >= 20
+    gamma_vdW = np.zeros((vdW.shape[0], temperature.shape[0]))
+
+    gamma_vdW[vdW_unscaled_mask, :] = _calc_vald_vdW_scaled_gamma(
+        vdW[vdW_unscaled_mask],
+        temperature[:, np.newaxis],
+    )
+
+    gamma_vdW[vdW_0_mask, :] = 0.0
+    gamma_vdW[vdW_unsoeld_mask, :] = _calc_vald_vdw_unsoeld_approx(
+        vdW[vdW_unsoeld_mask],
+        ion_number[vdW_unsoeld_mask],
+        ionization_energy[vdW_unsoeld_mask],
+        upper_level_energy[vdW_unsoeld_mask],
+        lower_level_energy[vdW_unsoeld_mask],
+        temperature,
+    )
+
+    gamma_vdW[vdW_abo_mask, :] = _calc_vald_vdW_abo(
+        vdW[vdW_abo_mask], temperature, atomic_mass[vdW_abo_mask]
+    )
+    return gamma_vdW * hydrogen_density
+
+
+def calc_vald_gamma(
+    lines,
+    stellar_model,
+    stellar_plasma,
+    linear_stark,
+    quadratic_stark,
+    van_der_waals,
+    radiation,
+):
+    """
+    Calculates broadening information for vald lines at each depth point.
+
+    Parameters
+    ----------
+    lines : DataFrame
+        Dataframe of the lines to calculate broadening for.
+    stellar_model : stardis.model.base.StellarModel
+    stellar_plasma : tardis.plasma.base.BasePlasma
+    linear_stark : bool
+        True if linear Stark broadening is to be considered, otherwise False.
+    quadratic_stark : bool
+        True if quadratic Stark broadening is to be considered, otherwise False.
+    van_der_waals : bool
+        True if Van Der Waals broadening is to be considered, otherwise False.
+    radiation : bool
+        True if radiation broadening is to be considered, otherwise False.
+
+    Returns
+    -------
+    gammas : numpy.ndarray
+        Array of shape (no_of_lines, no_depth_points). Collisional broadening
+        parameter of each line at each depth point.
+    """
+    gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
+    if radiation:
+        gammas += lines.A_ul.values[:, np.newaxis]
+    if linear_stark:
+        h_indices = lines.atomic_number == 1
+        n_eff_upper = calc_n_effective(
+            lines.ion_number[h_indices].values + 1,
+            lines.ionization_energy[h_indices].values,
+            lines.level_energy_upper[h_indices].values,
+        )
+        n_eff_lower = calc_n_effective(
+            lines.ion_number[h_indices].values + 1,
+            lines.ionization_energy[h_indices].values,
+            lines.level_energy_lower[h_indices].values,
+        )
+        gamma_linear_stark = calc_gamma_linear_stark(
+            n_eff_upper[:, np.newaxis],
+            n_eff_lower[:, np.newaxis],
+            stellar_plasma.electron_densities.values,
+        )
+        gammas[h_indices, :] += gamma_linear_stark
+    if quadratic_stark:
+        stark = calc_vald_stark_gamma(
+            stellar_plasma.electron_densities.values,
+            lines.stark.values[:, np.newaxis],
+            stellar_model.temperatures.value,
+        )
+        gammas += stark
+    if van_der_waals:
+        vdW = calc_vald_vdW(
+            lines.waals.values,
+            stellar_model.temperatures.value,
+            stellar_model.composition.nuclide_masses.loc[lines.atomic_number].values[
+                :, np.newaxis
+            ],
+            lines.level_energy_upper.values[:, np.newaxis],
+            lines.level_energy_lower.values[:, np.newaxis],
+            stellar_plasma.ion_number_density.loc[1, 0].values,
+            lines.ion_number.values[:, np.newaxis] + 1,
+            lines.ionization_energy.values[:, np.newaxis],
+        )
+        gammas += vdW
+    gammas /= 2  # HWHM to FWHM
+    return gammas
