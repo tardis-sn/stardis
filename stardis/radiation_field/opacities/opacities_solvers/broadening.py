@@ -877,10 +877,12 @@ def rotation_broadening(
 
 def calc_vald_stark_gamma(electron_density, stark, temperature):
     """
-    see
+    see https://articles.adsabs.harvard.edu/pdf/1995MNRAS.276..859A, most basic case
     """
     stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
-    stark_gamma = np.where(electron_density * stark >= 0, 0, stark_gamma)
+    stark_gamma = np.where(
+        electron_density * stark == 0, 0, stark_gamma
+    )  # The stark number should always be negative. 0 means missing. Have to broadcast out to the right shape.
     return stark_gamma
 
 
@@ -1035,7 +1037,7 @@ def calc_vald_gamma(
     """
     gammas = np.zeros((lines.shape[0], stellar_model.no_of_depth_points))
     if radiation:
-        gammas += np.broadcast_to(lines.A_ul.values.reshape(-1, 1), gammas.shape)
+        gammas += lines.A_ul.values[:, np.newaxis]
     if linear_stark:
         h_indices = lines.atomic_number == 1
         n_eff_upper = calc_n_effective(
