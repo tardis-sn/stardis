@@ -430,10 +430,6 @@ def calc_alpha_line_at_nu(
         alphas_array = alphas_array[~autoionization_lines].copy()
         line_nus = line_nus[~autoionization_lines].copy()
 
-    lines_sorted_in_range = lines_sorted_in_range.apply(
-        pd.to_numeric
-    )  # weird bug cropped up with ion_number being an object instead of an int
-
     gammas, doppler_widths = calculate_broadening(
         lines_sorted_in_range,
         stellar_model,

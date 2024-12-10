@@ -705,7 +705,8 @@ def calculate_broadening(
         logger.info("Calculating broadening parameters.")
         gammas = calc_gamma(
             atomic_number=lines.atomic_number.values[:, np.newaxis],
-            ion_number=lines.ion_number.values[:, np.newaxis] + 1,
+            ion_number=lines.ion_number.values[:, np.newaxis]
+            + 1,  # You consider the charge of the ion interior to the outside electron
             ionization_energy=lines.ionization_energy.values[:, np.newaxis],
             upper_level_energy=lines.level_energy_upper.values[:, np.newaxis],
             lower_level_energy=lines.level_energy_lower.values[:, np.newaxis],
@@ -789,7 +790,8 @@ def calculate_molecule_broadening(
                 lines.level_energy_upper.values[:, np.newaxis],
                 lines.level_energy_lower.values[:, np.newaxis],
                 stellar_plasma.ion_number_density.loc[1, 0].values,
-                lines.ion_number.values[:, np.newaxis] + 1,
+                lines.ion_number.values[:, np.newaxis]
+                + 1,  # You consider the charge of the ion interior to the outside electron
                 lines.ionization_energy.values[:, np.newaxis],
             )
             gammas += vdW
