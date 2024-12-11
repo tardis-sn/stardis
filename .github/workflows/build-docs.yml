@@ -1,56 +1,99 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/contributing/development/continuous_integration.html
+
 name: build-docs
+
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+
+  pull_request_target:
+    branches:
+      - main
+
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # requires the `build-docs` label
+      - ready_for_review
+
+  workflow_dispatch: # manual trigger
 
 env:
-  CACHE_NUMBER: 0
-  DEPLOY_BRANCH: gh-pages               # deployed docs branch
+  CACHE_NUMBER: 0 # increase to reset cache manually
+  DEPLOY_BRANCH: gh-pages # deployed docs branch
+  HDF5_USE_FILE_LOCKING: "FALSE" # disable file locking
 
 defaults:
   run:
-    shell: bash -le {0}
+    shell: bash -l {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  check-for-changes:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
+    outputs:
+      trigger-check-outcome: ${{ steps.trigger_check.outcome }}
+      docs-check-outcome: ${{ steps.docs_check.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: github.event_name == 'pull_request_target'
+
+      - name: Check for trigger by push event, manual dispatch, build-docs label on a PR
+        id: trigger_check
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
+        run: |
+          echo "Building docs as a test."
+          exit 0
+        continue-on-error: true
+
+      - name: Check for changes in documentation
+        run: |
+          if git diff origin/main..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep '^docs/' | grep -q .; then
+              num_files=$(git diff --name-only origin/main...HEAD | grep '^docs/' | wc -l)
+              echo "Changes found in documentation files: $num_files"
+              exit 0
+          else
+              echo "No changes found in documentation files - will stop running the pipeline."
+              exit 1
+          fi
+        id: docs_check
+        if: steps.trigger_check.outcome != 'success'
+        continue-on-error: true
   build-sphinx-html:
-    if: ((github.repository == 'tardis-sn/stardis') && (${{ github.head_ref || github.ref_name}} == 'main')) || (github.repository_owner != 'tardis-sn')
-    # The above line makes this action run if it is either not on the upstream/main or the main branch of upstream/main.
-    # If there is a better way to implement this, I'd like someone to please share.
-    # The context to get the branch name is from https://stackoverflow.com/a/71158878
+    needs: check-for-changes
+    if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     runs-on: ubuntu-latest
     steps:
-
-      - uses: actions/checkout@v2
+      - name: Checkout STARDIS
+        uses: actions/checkout@v4
         
-      - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
         with:
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          activate-environment: stardis
-          use-mamba: true
-      
-      - name: Cache Environment Lockfile
-        id: cache-env-lockfile
-        uses: actions/cache@v3
-        with:
-          path: /usr/share/miniconda3/envs/stardis
-          key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
-                  
-      - name: Update Conda Environment
-        id: update-env
-        run: |
-          mamba update -n stardis --file conda-linux-64.lock
-        if: steps.cache-env-lockfile.outputs.cache-hit != 'true'
+          os-label: linux-64
         
       - name: Install TARDIS
         id: install-tardis
-        # shell: bash -l {0}
         run: |
           pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
         
       - name: Install STARDIS
         id: install-stardis
-        # shell: bash -l {0}
         run: |
           pip install -e .[docs]
 
@@ -58,35 +101,49 @@ jobs:
         id: make-sphinx-html
         run: |
           make -C docs html
-          
-      - name: Set destination directory
-        run: |
-          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-          if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
 
-            if [[ $BRANCH == $DEFAULT ]]; then
-              echo "DEST_DIR=" >> $GITHUB_ENV
+          - name: Set destination directory
+          run: |
+            BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+            if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+  
+              if [[ $BRANCH == $DEFAULT ]]; then
+                echo "DEST_DIR=" >> $GITHUB_ENV
+              else
+                echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+              fi
+  
+            elif [[ $EVENT == pull_request_target ]]; then
+              echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+  
             else
-              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+              echo "Unexpected event trigger $EVENT"
+              exit 1
+  
             fi
-
-          elif [[ $EVENT == pull_request_target ]]; then
-            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
-            
-          else
-            echo "Unexpected event trigger $EVENT"
-            exit 1
-
-          fi
-
-          cat $GITHUB_ENV
+  
+            cat $GITHUB_ENV
+          env:
+            DEFAULT: ${{ github.event.repository.default_branch }}
+            EVENT: ${{ github.event_name }}
+            PR: ${{ github.event.number }}
+  
+      - name: Set clean branch option
+        run: |
+            if [[ $EVENT == workflow_dispatch ]]; then
+              echo "CLEAN_BRANCH=true" >> $GITHUB_ENV
+  
+            else
+              echo "CLEAN_BRANCH=false" >> $GITHUB_ENV
+  
+            fi
+  
+            cat $GITHUB_ENV
         env:
-          DEFAULT: ${{ github.event.repository.default_branch }}
           EVENT: ${{ github.event_name }}
-          PR: ${{ github.event.number }}
 
       - name: Deploy ${{ env.DEST_DIR }}
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
@@ -94,32 +151,32 @@ jobs:
           destination_dir: ${{ env.DEST_DIR }}
           keep_files: true
           force_orphan: ${{ env.CLEAN_BRANCH }}
-          user_name: 'TARDIS Bot'
-          user_email: 'tardis.sn.bot@gmail.com'
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
         id: fc
         with:
-          issue-number: ${{ github.event.number }}
-          body-includes: Hi, human.
+            issue-number: ${{ github.event.number }}
+            body-includes: Hi, human.
         if: always() && github.event_name == 'pull_request_target'
-
+  
       - name: Post comment (success)
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token:  ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-
-            Hi, human.
-
-            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
-            
-            [**Click here**](${{ env.URL }}) to see your results.
+            token: ${{ secrets.BOT_TOKEN }}
+            issue-number: ${{ github.event.number }}
+            comment-id: ${{ steps.fc.outputs.comment-id }}
+            edit-mode: replace
+            body: |
+              *\*beep\* \*bop\**
+  
+              Hi, human.
+  
+              The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+  
+              [**Click here**](${{ env.URL }}) to see your results.
         env:
           URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
         if: success() && github.event_name == 'pull_request_target'
@@ -127,7 +184,7 @@ jobs:
       - name: Post comment (failure)
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token:  ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
@@ -137,7 +194,7 @@ jobs:
             Hi, human.
 
             The **`${{ github.workflow }}`** workflow has **failed** :x:
-            
+
             [**Click here**](${{ env.URL }}) to see the build log.
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
