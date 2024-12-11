@@ -558,17 +558,19 @@ def calc_alan_entries(
             )
 
             # We want to consider grid points within a certain range of the line_nu
-            line_broadening = (
+            line_broadening_in_spectral_pixels = (
                 ((line_gamma + doppler_width) * alpha) / d_nu * 20
             )  # Scale by alpha of the line, though this would be good to revisit and come up with a better scaling.
             # This produces the same answer as before, but really just makes large lines search very very far away.
-            line_broadening_range = max(10, line_broadening)  # Force a minimum range
+            line_broadening_forced = max(
+                10, line_broadening_in_spectral_pixels
+            )  # Force a minimum range
 
             lower_freq_index = max(
-                closest_frequency_index - int(line_broadening_range), 0
+                closest_frequency_index - int(line_broadening_forced), 0
             )
             upper_freq_index = min(
-                closest_frequency_index + int(line_broadening_range),
+                closest_frequency_index + int(line_broadening_forced),
                 len(tracing_nus_values),
             )
 
