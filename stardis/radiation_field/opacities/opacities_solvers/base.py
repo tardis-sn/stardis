@@ -557,7 +557,8 @@ def calc_alan_entries(
             # We want to consider grid points within a certain range of the line_nu
             line_broadening = (
                 ((line_gamma + doppler_width) * alpha) / d_nu * 20
-            )  # Scale by alpha of the line
+            )  # Scale by alpha of the line, though this would be good to revisit and come up with a better scaling.
+            # This produces the same answer as before, but really just makes large lines search very very far away.
             line_broadening_range = max(10.0, line_broadening)  # Force a minimum range
 
             lower_freq_index = max(
@@ -699,9 +700,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
-        alpha_line_at_nu
-    )
+    stellar_radiation_field.opacities.opacities_dict[
+        "alpha_line_at_nu"
+    ] = alpha_line_at_nu
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
