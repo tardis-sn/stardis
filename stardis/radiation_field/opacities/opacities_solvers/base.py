@@ -518,12 +518,16 @@ def calc_alan_entries(
         The calculated Alan entries for each frequency in `tracing_nus_values`.
 
     """
+    D_NU_TENTH_AA = 688231911.625  # 0.1 AA step in Hz at 6600 AA
+
     tracing_nus_reversed = tracing_nus_values[::-1]
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
     d_nu = -np.diff(
         tracing_nus_values
     ).max()  # This is the smallest step size of the tracing_nus_values
-
+    minimum_spectral_pixel_search_range = (
+        D_NU_TENTH_AA * 20 / d_nu
+    )  # Impose roughly a minimum search of 2 AA on each side of the line)
     intermediate_arrays = np.zeros(
         (
             numba.config.NUMBA_DEFAULT_NUM_THREADS,
@@ -695,9 +699,9 @@ def calc_alphas(
         stellar_radiation_field.frequencies,
         opacity_config.line,
     )
-    stellar_radiation_field.opacities.opacities_dict[
-        "alpha_line_at_nu"
-    ] = alpha_line_at_nu
+    stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu"] = (
+        alpha_line_at_nu
+    )
     stellar_radiation_field.opacities.opacities_dict["alpha_line_at_nu_gammas"] = gammas
     stellar_radiation_field.opacities.opacities_dict[
         "alpha_line_at_nu_doppler_widths"
