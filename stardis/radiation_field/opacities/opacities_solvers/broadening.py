@@ -883,8 +883,10 @@ def calc_vald_stark_gamma(electron_density, stark, temperature):
     """
     stark_gamma = electron_density * 10**stark * (temperature / 1e4) ** (1 / 6)
     stark_gamma = np.where(
-        electron_density * stark == 0, 0, stark_gamma
-    )  # The stark number should always be negative. 0 means missing. Have to broadcast out to the right shape.
+        electron_density * stark >= 0, 0, stark_gamma
+    )  # The stark number should always be negative. 0 means missing, and anything greater
+    # is a hydrogen broadening line which we don't know how to use right now and calculate on our own.
+    # Also have to broadcast out to the right shape.
     return stark_gamma
 
 
