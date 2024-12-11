@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using Your Own Atomic Data &mdash; stardis 0.1.dev1+g7bddf42 documentation</title>
+  <title>Custom Atomic Data &mdash; stardis 0.1.dev1+g1e7fbaa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=f9421be4"></script>
+        <script src="../_static/documentation_options.js?v=1774285a"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Import Necessary Code" href="../possible_stardis_outputs/possible_stardis_outputs.html" />
-    <link rel="prev" title="Physics of STARDIS" href="../physics/physics_of_stardis.html" /> 
+    <link rel="next" title="Possible STARDIS Outputs" href="../possible_stardis_outputs/possible_stardis_outputs.html" />
+    <link rel="prev" title="Bibliography" href="../bibliography.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,27 +48,28 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Atomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Relevant-CARSUS-Data-to-Collect">Relevant CARSUS Data to Collect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Using-Your-Own-Atomic-Data">Using Your Own Atomic Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Relevant-CARSUS-Data-to-Collect">Relevant CARSUS Data to Collect</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#Using-VALD-linelists">Using VALD linelists</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Import Necessary Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Selecting-Result-Options">Selecting Result Options</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Model">Stellar Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Plasma">Stellar Plasma</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Radiation-Field">Stellar Radiation Field</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Changing_Parameters/Changing_Parameters.html">Changing Parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../example_notebooks/rotation_broadening.html">Example Notebooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rotation_broadening/rotation_broadening.html">Rotation Broadening</a></li>
 </ul>
 
         </div>
@@ -85,7 +86,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Using Your Own Atomic Data</li>
+      <li class="breadcrumb-item active">Custom Atomic Data</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/Custom_atomic_data/Custom_atomic_data.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -95,12 +96,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Using-Your-Own-Atomic-Data">
-<h1>Using Your Own Atomic Data<a class="headerlink" href="#Using-Your-Own-Atomic-Data" title="Link to this heading"></a></h1>
+  <section id="Custom-Atomic-Data">
+<h1>Custom Atomic Data<a class="headerlink" href="#Custom-Atomic-Data" title="Link to this heading"></a></h1>
+<section id="Using-Your-Own-Atomic-Data">
+<h2>Using Your Own Atomic Data<a class="headerlink" href="#Using-Your-Own-Atomic-Data" title="Link to this heading"></a></h2>
 <p>To run a simulation, STARDIS requires an atomic data file that has information on the properties of atoms and molecules needed by STARDIS. While <a class="reference external" href="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&amp;resolveLfs=true">“kurucz_cd23_chianti_H_He.h5”</a> is the default atomic data used by STARDIS, you can create and use other atomic data files by using <a class="reference external" href="https://tardis-sn.github.io/carsus/">CARSUS</a>. For more information on
 using CARSUS you can access the <a class="reference external" href="https://tardis-sn.github.io/carsus/index.html">CARSUS documentation</a>.</p>
 <section id="Relevant-CARSUS-Data-to-Collect">
-<h2>Relevant CARSUS Data to Collect<a class="headerlink" href="#Relevant-CARSUS-Data-to-Collect" title="Link to this heading"></a></h2>
+<h3>Relevant CARSUS Data to Collect<a class="headerlink" href="#Relevant-CARSUS-Data-to-Collect" title="Link to this heading"></a></h3>
 <p>While CARSUS accumulates all sorts of data when compiling the atomic data files, not everything it can include is necessary or relevant for running STARDIS. Here is a list of what data/readers you should make sure to include when running CARSUS: - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/nist.html">atomic weights &amp; ionization energy from NIST</a> - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/gfall.html">Robert Kurucz’s Atomic Linelist (GFALL)</a> - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/vald.html">atomic and molecular transitions from
 VALD</a> - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/barklem2016.html">Molecular formation from Barklem &amp; Collet 2016</a></p>
 <p>Use CARSUS and follow their documentation to get a data file:</p>
@@ -113,6 +116,7 @@ VALD</a> - <a class="reference external" href="https://tardis-sn.github.io/carsu
 <span class="nn">...</span>
 </pre></div>
 </div>
+</section>
 </section>
 <section id="Using-VALD-linelists">
 <h2>Using VALD linelists<a class="headerlink" href="#Using-VALD-linelists" title="Link to this heading"></a></h2>
@@ -136,8 +140,8 @@ VALD</a> - <a class="reference external" href="https://tardis-sn.github.io/carsu
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../physics/physics_of_stardis.html" class="btn btn-neutral float-left" title="Physics of STARDIS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../possible_stardis_outputs/possible_stardis_outputs.html" class="btn btn-neutral float-right" title="Import Necessary Code" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../bibliography.html" class="btn btn-neutral float-left" title="Bibliography" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../possible_stardis_outputs/possible_stardis_outputs.html" class="btn btn-neutral float-right" title="Possible STARDIS Outputs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

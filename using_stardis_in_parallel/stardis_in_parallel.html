@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Setting number of threads used in running a STARDIS simulation &mdash; stardis 0.1.dev1+g7bddf42 documentation</title>
+  <title>Using STARDIS in Parallel &mdash; stardis 0.1.dev1+g1e7fbaa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=f9421be4"></script>
+        <script src="../_static/documentation_options.js?v=1774285a"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Changing Parameters" href="../Changing_Parameters/Changing_Parameters.html" />
-    <link rel="prev" title="Using MARCS to get .mod files" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html" /> 
+    <link rel="prev" title="Custom Star Model" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,23 +48,21 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Import Necessary Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Selecting-Result-Options">Selecting Result Options</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Model">Stellar Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Plasma">Stellar Plasma</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html#Stellar-Radiation-Field">Stellar Radiation Field</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Using STARDIS in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Changing_Parameters/Changing_Parameters.html">Changing Parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../example_notebooks/rotation_broadening.html">Example Notebooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rotation_broadening/rotation_broadening.html">Rotation Broadening</a></li>
 </ul>
 
         </div>
@@ -81,7 +79,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Setting number of threads used in running a STARDIS simulation</li>
+      <li class="breadcrumb-item active">Using STARDIS in Parallel</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/using_stardis_in_parallel/stardis_in_parallel.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,8 +89,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Setting-number-of-threads-used-in-running-a-STARDIS-simulation">
-<h1>Setting number of threads used in running a STARDIS simulation<a class="headerlink" href="#Setting-number-of-threads-used-in-running-a-STARDIS-simulation" title="Link to this heading"></a></h1>
+  <section id="Using-STARDIS-in-Parallel">
+<h1>Using STARDIS in Parallel<a class="headerlink" href="#Using-STARDIS-in-Parallel" title="Link to this heading"></a></h1>
 <p>When you run a STARDIS simulation, the yaml file determines how many threads are used. By default, it will only use 1 thread. The more threads you set a simulation to use, the more computing power the simulation will take advantage of for calculating line opacity and ray tracing steps (as both of these are parallelized in STARDIS). <strong>Setting n_threads to 0 will make the simulation use all available threads.</strong></p>
 <p>Here is a what a yaml file that has the STARDIS simulation use 3 threads will look like</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
@@ -109,7 +107,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html" class="btn btn-neutral float-left" title="Using MARCS to get .mod files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html" class="btn btn-neutral float-left" title="Custom Star Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../Changing_Parameters/Changing_Parameters.html" class="btn btn-neutral float-right" title="Changing Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

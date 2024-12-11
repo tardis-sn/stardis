@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STARDIS &mdash; stardis 0.1.dev1+g1e7fbaa documentation</title>
+  <title>Rotation Broadening &mdash; stardis 0.1.dev1+g1e7fbaa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -26,8 +26,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Physics of STARDIS" href="../physics/physics_of_stardis.html" />
-    <link rel="prev" title="Downloading and Installation" href="../installation.html" /> 
+    <link rel="prev" title="Changing Parameters" href="../Changing_Parameters/Changing_Parameters.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,29 +48,26 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Import-Necessary-Code">Import Necessary Code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Download-Atomic-Data">Download Atomic Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#The-STARDIS-Configuration">The STARDIS Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Opacity-File-Format">Opacity File Format</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Create-Array-of-Wavelengths-and-Run-STARDIS">Create Array of Wavelengths and Run STARDIS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Plot-spectra">Plot spectra</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Changing_Parameters/Changing_Parameters.html">Changing Parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../rotation_broadening/rotation_broadening.html">Rotation Broadening</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rotation Broadening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Import-Necessary-Code">Import Necessary Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Download-Atomic-Data">Download Atomic Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Plot-spectra">Plot spectra</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -88,9 +84,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">STARDIS</li>
+      <li class="breadcrumb-item active">Rotation Broadening</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/quickstart/quickstart.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/rotation_broadening/rotation_broadening.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -98,8 +94,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="STARDIS">
-<h1>STARDIS<a class="headerlink" href="#STARDIS" title="Link to this heading"></a></h1>
+  <section id="Rotation-Broadening">
+<h1>Rotation Broadening<a class="headerlink" href="#Rotation-Broadening" title="Link to this heading"></a></h1>
 <section id="Import-Necessary-Code">
 <h2>Import Necessary Code<a class="headerlink" href="#Import-Necessary-Code" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
@@ -113,7 +109,7 @@
 
 <span class="kn">from</span> <span class="nn">stardis.base</span> <span class="kn">import</span> <span class="n">run_stardis</span>
 
-<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span><span class="p">,</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
 </pre></div>
 </div>
 </div>
@@ -121,18 +117,18 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "905bee835e86494e9b32602620732a0f", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "82c1cd15c922425ba0efefe4f5f9a47e", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "cd5c0624ed6845f7998ad9e48d578a03", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "50830dc7a44a408cb7aa88d4625653b7", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 <section id="Download-Atomic-Data">
 <h2>Download Atomic Data<a class="headerlink" href="#Download-Atomic-Data" title="Link to this heading"></a></h2>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
@@ -140,76 +136,71 @@
 </pre></div>
 </div>
 </div>
-</section>
-<section id="The-STARDIS-Configuration">
-<h2>The STARDIS Configuration<a class="headerlink" href="#The-STARDIS-Configuration" title="Link to this heading"></a></h2>
-<p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration. The configuration file called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code> used here can be found <a class="reference external" href="https://github.com/tardis-sn/stardis/tree/main/docs/quickstart">here</a>, along with the other files used in this Quickstart notebook. Below, we present an example for instructions for customizing the configuration for your needs.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
-<span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to atomic data file&gt;</span>
-<span class="nt">model</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span><span class="w"> </span><span class="c1"># more options will be available in the future</span>
-<span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to model file&gt;</span>
-<span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;atomic number of largest element considered&gt;</span><span class="w"> </span><span class="c1"># may be up to 30</span>
-<span class="nt">opacity</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="c1"># reads a bound-free or free-free opacity file, omit if none</span>
-<span class="w">        </span><span class="nt">&lt;species1&gt;_&lt;either bf for bound-free or ff for free-free&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to opacity file&gt;</span>
-<span class="w">        </span><span class="nt">&lt;species2&gt;_&lt;either bf for bound-free or ff for free-free&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to opacity file&gt;</span>
-<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">bf</span><span class="p">:</span><span class="w"> </span><span class="c1"># uses the hydrogenic approximation for bound-free opacity, omit if none</span>
-<span class="w">        </span><span class="nt">&lt;species1&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"> </span><span class="c1"># there will eventually be options to include files with gaunt factors or departure coefficients</span>
-<span class="w">        </span><span class="nt">&lt;species2&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
-<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">ff</span><span class="p">:</span><span class="w"> </span><span class="c1"># uses the hydrogenic approximation for free-free opacity, omit if none</span>
-<span class="w">        </span><span class="nt">&lt;species1&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"> </span><span class="c1"># there will eventually be options to include files with gaunt factors or departure coefficients</span>
-<span class="w">        </span><span class="nt">&lt;species2&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
-<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">rayleigh</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;list of species considered for rayleigh scattering&gt;</span><span class="w"> </span><span class="c1"># may include H, He, and/or H2, omit or use [] for none</span>
-<span class="w">    </span><span class="nt">disable_electron_scattering</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;True or False&gt;</span>
-<span class="w">    </span><span class="nt">line</span><span class="p">:</span><span class="w"> </span><span class="c1"># settings for line interaction opacity, at least one subfield is required</span>
-<span class="w">        </span><span class="nt">disable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;True or False&gt;</span>
-<span class="w">        </span><span class="nt">broadening</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;list of non-thermal broadening sources considered&gt;</span><span class="w"> </span><span class="c1"># may include radiation, linear_stark, quadratic_stark, and/or van_der_waals, omit or use [] for none</span>
-<span class="nt">no_of_thetas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;number of angles to sample for raytracing&gt;</span>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Atomic Data kurucz_cd23_chianti_H_He already exists in /home/shield90/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5. Will not download - override with force_download=True.
+</pre></div></div>
+</div>
+<p>STARDIS contains a post-simulation function to broaden the spectrum appropriate for a v sin(i) given by the user. However, this is only physically valid when the spectrum broadened is given over a small range of frequencies or wavelengths, or is constant in velocity resolution across the spectrum.</p>
+<p>First, let’s run a small, simple STARDIS simulation with a spectral resolution <span class="math notranslate nohighlight">\(R \sim 100000\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<p>In fields where an atomic species is requested, the species must be in the form <code class="docutils literal notranslate"><span class="pre">&lt;atomic</span> <span class="pre">symbol&gt;_&lt;ionization</span> <span class="pre">roman</span> <span class="pre">numeral&gt;</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">H_I</span></code> for neutral hydrogen, or <code class="docutils literal notranslate"><span class="pre">Si_III</span></code> for twice-ionized silicon.</p>
-<p>Additionally, in the opacity file section, the following entries are valid:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Hminus_bf</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Hminus_ff</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Heminus_ff</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">H2minus_ff</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">H2plus_ff</span></code></p></li>
-</ul>
-</section>
-<section id="Opacity-File-Format">
-<h2>Opacity File Format<a class="headerlink" href="#Opacity-File-Format" title="Link to this heading"></a></h2>
-<p>STARDIS can read and interpolate continuum opacity cross-section files for bound-free or free-free absorption (technically, for free-free absorption the files would provide the cross-section per electron density). The files must be one of the following formats:</p>
-<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>wavelength_1, cross-section_1
-wavelength_2, cross-section_2
-wavelength_3, cross-section_3
-...
-</pre></div>
-</div>
-<p>or</p>
-<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>, temperature_1, temperature_2, temperature_3, ...
-wavelength_1, cross-section_11, cross-section_12, cross-section_13, ...
-wavelength_2, cross-section_21, cross-section_22, cross-section_23, ...
-wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
-...
-</pre></div>
-</div>
-<p>Note the leading comma in the latter format. Temperatures must be in Kelvin, wavelengths in Angstroms, and cross-sections in cm² for bound-free or cm⁵ for free-free (once again because free-free opacity files provide the cross-section per electron density).</p>
-</section>
-<section id="Create-Array-of-Wavelengths-and-Run-STARDIS">
-<h2>Create Array of Wavelengths and Run STARDIS<a class="headerlink" href="#Create-Array-of-Wavelengths-and-Run-STARDIS" title="Link to this heading"></a></h2>
-<p>The main function, <code class="docutils literal notranslate"><span class="pre">run_stardis()</span></code>, requires as its first argument the name of a configuration file, which will be described below. The second argument is an array of the frequencies or wavelengths for which you are requesting the flux density, times an appropriate astropy quantity (such as Hertz or Angstroms). Note that this must be an array times a quantity, <strong>not</strong> an array of astropy quantities.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tracing_lambdas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">6540</span><span class="p">:</span><span class="mi">6590</span><span class="p">:</span><span class="mf">.01</span><span class="p">]</span><span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tracing_lambdas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6540</span><span class="p">,</span> <span class="mi">6590</span><span class="p">,</span> <span class="mf">0.065</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span>
 
-<span class="n">sim</span> <span class="o">=</span> <span class="n">run_stardis</span><span class="p">(</span><span class="s1">&#39;stardis_example.yml&#39;</span><span class="p">,</span> <span class="n">tracing_lambdas</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">run_stardis</span><span class="p">(</span><span class="s1">&#39;rotation_broadening_config.yml&#39;</span><span class="p">,</span> <span class="n">tracing_lambdas</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
+/home/shield90/tardis_fork/tardis/tardis/plasma/properties/radiative_properties.py:90: RuntimeWarning: invalid value encountered in divide
+  (g_lower * n_upper) / (g_upper * n_lower)
+/home/shield90/tardis_fork/tardis/tardis/plasma/properties/radiative_properties.py:90: RuntimeWarning: invalid value encountered in divide
+  (g_lower * n_upper) / (g_upper * n_lower)
+</pre></div></div>
+</div>
+<p>Now, let’s use the STARDIS broadening function and compare the outputs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">stardis.radiation_field.opacities.opacities_solvers</span> <span class="kn">import</span> <span class="n">rotation_broadening</span>
+</pre></div>
+</div>
+</div>
+<p>Calculate the velocity resolution of the spectrum</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100000</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$2.9979246 \; \mathrm{\frac{km}{s}}$</div></div>
+</div>
+<p>And then let’s apply the rotation broadening for our spectrum with a rotation velocity of 20 km/s.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wave</span><span class="p">,</span> <span class="n">broadened_flux</span> <span class="o">=</span> <span class="n">rotation_broadening</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">spectrum_lambda</span><span class="p">,</span> <span class="n">v_rot</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -217,11 +208,12 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 <section id="Plot-spectra">
 <h2>Plot spectra<a class="headerlink" href="#Plot-spectra" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">spectrum_lambda</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">spectrum_lambda</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Original Spectrum&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">broadened_flux</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Broadened Spectrum&#39;</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="mi">6540</span><span class="p">,</span><span class="mi">6590</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;STARDIS Solar Spectrum&quot;</span><span class="p">)</span>
@@ -229,6 +221,7 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Flux density [erg/s/cm$^2$/$\AA$]&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -237,7 +230,15 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/quickstart_quickstart_13_0.png" src="../_images/quickstart_quickstart_13_0.png" />
+<img alt="../_images/rotation_broadening_rotation_broadening_14_0.png" src="../_images/rotation_broadening_rotation_broadening_14_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
 </div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">
@@ -249,8 +250,7 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../installation.html" class="btn btn-neutral float-left" title="Downloading and Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../physics/physics_of_stardis.html" class="btn btn-neutral float-right" title="Physics of STARDIS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../Changing_Parameters/Changing_Parameters.html" class="btn btn-neutral float-left" title="Changing Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
