@@ -1,0 +1,24 @@
+stardis_config_version: 1.0
+n_threads: 1
+atom_data: kurucz_cd23_chianti_H_He.h5
+
+model:
+    fname: Tutorial_data/end_core_h_burn.mod
+    type: mesa
+    truncate_to_shell: 40
+    final_atomic_number: 30
+    
+opacity:
+    file:
+        Hminus_bf: ../../stardis/data/h2_plus_bf_S1994.dat
+    bf:
+        H_I: {}
+    ff:
+        H_I: {}
+    disable_electron_scattering: False
+    line:
+        disable: False
+        broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
+        min: 6500 AA
+        max: 6600 AA
+no_of_thetas: 20
