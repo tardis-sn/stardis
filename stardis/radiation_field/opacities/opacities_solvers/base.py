@@ -518,16 +518,19 @@ def calc_alan_entries(
         The calculated Alan entries for each frequency in `tracing_nus_values`.
 
     """
-    D_NU_TENTH_AA = 688231911.625  # 0.1 AA step in Hz at 6600 AA
 
     tracing_nus_reversed = tracing_nus_values[::-1]
     alpha_line_at_nu = np.zeros((no_of_depth_points, len(tracing_nus_values)))
     d_nu = -np.diff(
         tracing_nus_values
     ).max()  # This is the smallest step size of the tracing_nus_values
-    minimum_spectral_pixel_search_range = (
-        D_NU_TENTH_AA * 20 / d_nu
-    )  # Impose roughly a minimum search of 2 AA on each side of the line)
+
+    # D_NU_TENTH_AA = 3328841013.375  # 0.1 AA step in Hz at 3000 AA
+
+    # minimum_spectral_pixel_search_range = (
+    #     D_NU_TENTH_AA * 20 / d_nu
+    # )  # Impose roughly a minimum search of 2 AA on each side of the line)
+
     intermediate_arrays = np.zeros(
         (
             numba.config.NUMBA_DEFAULT_NUM_THREADS,
@@ -559,7 +562,7 @@ def calc_alan_entries(
                 ((line_gamma + doppler_width) * alpha) / d_nu * 20
             )  # Scale by alpha of the line, though this would be good to revisit and come up with a better scaling.
             # This produces the same answer as before, but really just makes large lines search very very far away.
-            line_broadening_range = max(10.0, line_broadening)  # Force a minimum range
+            line_broadening_range = max(10, line_broadening)  # Force a minimum range
 
             lower_freq_index = max(
                 closest_frequency_index - int(line_broadening_range), 0
