@@ -114,10 +114,6 @@ properties:
                         type: boolean
                         default: false
                         description: Whether to disable microturbulence.
-                    broadening_range:
-                        type: [quantity, "null"]
-                        default: null
-                        description: How far away to look for lines at any given wavelength or frequency. Must be in frequency or wavelength units. Does not apply to hydrogen. 
                     vald_linelist:
                         type: object
                         default: {}
@@ -129,6 +125,9 @@ properties:
                             shortlist:
                                 type: boolean
                                 default: false
+                            use_vald_broadening:
+                                type: boolean
+                                default: true
                         description: Options for whether to use a vald linelist. Linelist must be included the atom_data and cannot be supplied separately. 
                     include_molecules:
                         type: boolean
@@ -154,8 +153,8 @@ properties:
                 default: false
             return_radiation_field:
                 type: boolean
-                default: false
-        description: Options for what to return from the simulation. Note that return_radiation_field can be very memory intensive because it returns the intensity at every depth point, wavelength, and theta in the model.
+                default: true
+        description: Options for what to return from the simulation.
     required:
     - stardis_config_version
     - atom_data

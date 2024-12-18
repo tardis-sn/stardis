@@ -311,9 +311,9 @@ class AlphaLineVald(ProcessingPlasmaProperty):
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
 
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
-        linelist["A_ul"] = 10 ** (linelist["rad"]) / (
-            4 * np.pi
-        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
+        linelist["A_ul"] = 10 ** (
+            linelist["rad"]
+        )  # see 1995A&AS..112..525P for appropriate units
 
         # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
         valid_indices = linelist.level_energy_upper < linelist.ionization_energy
@@ -449,14 +449,10 @@ class AlphaLineShortlistVald(ProcessingPlasmaProperty):
         linelist["level_energy_upper"] = ((linelist["e_up"].values * u.eV).cgs).value
 
         # Radiation broadening parameter is approximated as the einstein A coefficient. Vald parameters are in log scale.
-        linelist["A_ul"] = 10 ** (linelist["rad"]) / (
-            4 * np.pi
-        )  # see 1995A&AS..112..525P for appropriate units - may be off by a factor of 4pi
-
-        # Need to remove autoionization lines - can't handle with current broadening treatment because can't calculate effective principal quantum number
-        valid_indices = linelist.level_energy_upper < linelist.ionization_energy
-
-        return alphas[valid_indices], linelist[valid_indices]
+        linelist["A_ul"] = 10 ** (
+            linelist["rad"]
+        )  # see 1995A&AS..112..525P for appropriate units
+        return alphas, linelist
 
 
 # Properties that haven't been used in creating stellar plasma yet,
