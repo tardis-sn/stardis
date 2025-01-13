@@ -68,7 +68,7 @@ class RadiationField(HDFWriterMixin):
             )
 
         # This was our original theta sampling method
-        # dtheta = (np.pi / 2) / num_of_thetas  # Korg uses Gauss-Legendre quadrature here
+        # dtheta = (np.pi / 2) / num_of_thetas
         # start_theta = dtheta / 2
         # end_theta = (np.pi / 2) - (dtheta / 2)
         # self.thetas = np.linspace(start_theta, end_theta, num_of_thetas)
