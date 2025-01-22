@@ -9,6 +9,7 @@ This is the documentation for STARDIS.
    Downloading and Installation <installation>
    Quickstart <quickstart/quickstart>
    Physics of STARDIS <physics/physics_of_stardis>
+   API <api/modules>
    Contributing <contributing>
    Bibliography <bibliography>
 

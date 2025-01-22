@@ -54,6 +54,14 @@ jobs:
         run: |
           pip install -e .[docs]
 
+      - name: Generate API Documentation
+        id: generate-api
+        working-directory: docs
+        run: |
+          sphinx-apidoc -o api ../stardis --separate --force
+        continue-on-error: true
+        
+
       - name: Make Sphinx HTML
         id: make-sphinx-html
         run: |
