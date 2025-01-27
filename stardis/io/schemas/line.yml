@@ -1,0 +1,40 @@
+$$target: line.yml
+type: object
+additionalProperties: false
+properties:
+    disable:
+        type: boolean
+        default: false
+    broadening:
+        type: array
+        items:
+            enum:
+            - linear_stark
+            - quadratic_stark
+            - van_der_waals
+            - radiation
+        default: []
+        description: Types of broadening to include.                                              
+    disable_microturbulence:
+        type: boolean
+        default: false
+        description: Whether to disable microturbulence.
+    vald_linelist:
+        type: object
+        default: {}
+        properties:
+            use_linelist:
+                type: boolean
+                default: false
+            type: boolean
+            shortlist:
+                type: boolean
+                default: false
+            use_vald_broadening:
+                type: boolean
+                default: true
+        description: Options for whether to use a vald linelist. Linelist must be included the atom_data and cannot be supplied separately. 
+    include_molecules:
+        type: boolean
+        default: false
+        description: Whether to include molecular lines in the simulation.
