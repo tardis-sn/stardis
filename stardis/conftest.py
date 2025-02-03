@@ -93,7 +93,8 @@ def example_config_parallel():
 @pytest.fixture(scope="session")
 def example_stellar_model(example_config, example_kurucz_atomic_data):
     raw_marcs_model = read_marcs_model(
-        Path(example_config.input_model.fname), gzipped=example_config.input_model.gzipped
+        Path(example_config.input_model.fname),
+        gzipped=example_config.input_model.gzipped,
     )
     return raw_marcs_model.to_stellar_model(
         example_kurucz_atomic_data,
