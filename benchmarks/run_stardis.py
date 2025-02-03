@@ -46,10 +46,10 @@ class Sim10AA:
         adata = AtomData.from_hdf(config.atom_data)
 
         raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
+            Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number
         )
 
         adata.prepare_atom_data(
@@ -60,7 +60,7 @@ class Sim10AA:
                         len(
                             stellar_model.composition.elemental_mass_fraction.columns.tolist()
                         ),
-                        config.model.final_atomic_number,
+                        config.input_model.final_atomic_number,
                     ]
                 )
                 + 1,
@@ -157,10 +157,10 @@ class Sim100AA:
         adata = AtomData.from_hdf(config.atom_data)
 
         raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
+            Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number
         )
 
         adata.prepare_atom_data(
@@ -171,7 +171,7 @@ class Sim100AA:
                         len(
                             stellar_model.composition.elemental_mass_fraction.columns.tolist()
                         ),
-                        config.model.final_atomic_number,
+                        config.input_model.final_atomic_number,
                     ]
                 )
                 + 1,

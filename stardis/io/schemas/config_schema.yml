@@ -12,7 +12,7 @@ properties:
     atom_data:
         type: string
         description: Path to the atomic data file. The file should be in hdf5 format output by carsus.
-    model:
+    input_model:
         $ref: model.yml
         description: defining the model used in the simulation
     opacity:
