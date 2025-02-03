@@ -23,6 +23,13 @@ This is the documentation for STARDIS.
    Changing Parameters <Changing_Parameters/Changing_Parameters>
    Rotation Broadening <rotation_broadening/rotation_broadening>
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contributing to STARDIS
+
+   Contribution Guidelines <contributing/contribution_guidelines>
+   Starting from Scratch <contributing/starting_from_scratch>
+   Editing Stardis <contributing/editing_stardis>
 	     
 Indices and tables
 ==================
