@@ -1,4 +1,4 @@
-$$target: model.yml
+$$target: input_model.yml
 type: object
 properties:
     type:
