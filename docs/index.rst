@@ -27,7 +27,7 @@ This is the documentation for STARDIS.
    :caption: Contributing to STARDIS
 
    Contribution Guidelines <contributing/contribution_guidelines>
-   Starting from Scratch <contributing/starting_from_scratch>
+   STARDIS for Developers <contributing/stardis_for_developers>
    Editing Stardis <contributing/editing_stardis>
 	     
 Indices and tables
