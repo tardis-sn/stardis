@@ -121,7 +121,6 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     raytrace(
         stellar_model,
         stellar_radiation_field,
-        n_threads=config.n_threads,
     )
 
     return stellar_radiation_field

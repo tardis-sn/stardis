@@ -262,7 +262,6 @@ def example_stellar_radiation_field_parallel(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        n_threads=example_config_parallel.n_threads,
     )
     return stellar_radiation_field
 
