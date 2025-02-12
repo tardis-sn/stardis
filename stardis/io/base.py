@@ -11,8 +11,8 @@ from stardis.io.model.mesa import read_mesa_model
 from stardis.io.model.util import rescale_nuclide_mass_fractions
 
 
-BASE_DIR = Path(__file__).parent.parent
-SCHEMA_PATH = BASE_DIR / "config_schema.yml"
+BASE_DIR = Path(__file__).parent
+SCHEMA_PATH = BASE_DIR / "schemas" / "config_schema.yml"
 
 logger = logging.getLogger(__name__)
 

@@ -23,7 +23,7 @@ from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 BASE_DIR = Path(__file__).resolve().parent
-SCHEMA_PATH = BASE_DIR.parent / "stardis" / "config_schema.yml"
+SCHEMA_PATH = BASE_DIR.parent / "stardis" / "io" / "schemas" / "config_schema.yml"
 CONFIG_PATH = BASE_DIR / "benchmark_config.yml"
 
 
