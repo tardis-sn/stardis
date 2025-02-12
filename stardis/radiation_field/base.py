@@ -67,15 +67,6 @@ class RadiationField(HDFWriterMixin):
                 (stellar_model.no_of_depth_points, len(frequencies), len(self.thetas))
             )
 
-        # This was our original theta sampling method
-        # dtheta = (np.pi / 2) / num_of_thetas  # Korg uses Gauss-Legendre quadrature here
-        # start_theta = dtheta / 2
-        # end_theta = (np.pi / 2) - (dtheta / 2)
-        # self.thetas = np.linspace(start_theta, end_theta, num_of_thetas)
-        # self.I_nus_weights = (
-        #     2 * np.pi * dtheta * np.sin(self.thetas) * np.cos(self.thetas)
-        # )
-
 
 def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, config):
     """
