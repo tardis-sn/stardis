@@ -68,27 +68,27 @@ def parse_config_to_model(config_fname, add_config_dict):
 
     # model
     logger.info("Reading model")
-    if config.model.type == "marcs":
+    if config.input_model.type == "marcs":
         raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
+            Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number
         )
         if config.opacity.line.disable_microturbulence:
             stellar_model.microturbulence = stellar_model.microturbulence * 0.0
 
-    elif config.model.type == "mesa":
-        raw_mesa_model = read_mesa_model(Path(config.model.fname))
-        if config.model.truncate_to_shell != -99:
-            raw_mesa_model.truncate_model(config.model.truncate_to_shell)
-        elif config.model.truncate_to_shell < 0:
+    elif config.input_model.type == "mesa":
+        raw_mesa_model = read_mesa_model(Path(config.input_model.fname))
+        if config.input_model.truncate_to_shell != -99:
+            raw_mesa_model.truncate_model(config.input_model.truncate_to_shell)
+        elif config.input_model.truncate_to_shell < 0:
             raise ValueError(
-                f"{config.model.truncate_to_shell} shells were requested for mesa model truncation. -99 is default for no truncation."
+                f"{config.input_model.truncate_to_shell} shells were requested for mesa model truncation. -99 is default for no truncation."
             )
 
         stellar_model = raw_mesa_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number
         )
 
     else:
@@ -103,7 +103,7 @@ def parse_config_to_model(config_fname, add_config_dict):
                     len(
                         stellar_model.composition.elemental_mass_fraction.columns.tolist()
                     ),
-                    config.model.final_atomic_number,
+                    config.input_model.final_atomic_number,
                 ]
             )
             + 1,
@@ -114,15 +114,15 @@ def parse_config_to_model(config_fname, add_config_dict):
     )
 
     if (
-        not config.model.nuclide_rescaling_dict
+        not config.input_model.nuclide_rescaling_dict
     ):  # Pass if no rescaling is requested, else rescale by dictionary values provided
         pass
     else:
         stellar_model.composition.nuclide_mass_fraction = (
             rescale_nuclide_mass_fractions(
                 stellar_model.composition.nuclide_mass_fraction,
-                list(config.model.nuclide_rescaling_dict.keys()),
-                list(config.model.nuclide_rescaling_dict.values()),
+                list(config.input_model.nuclide_rescaling_dict.keys()),
+                list(config.input_model.nuclide_rescaling_dict.values()),
             )
         )
 
