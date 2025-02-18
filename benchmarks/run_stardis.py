@@ -98,7 +98,6 @@ class Sim10AA:
         raytrace(
             self.stellar_model,
             self.stellar_radiation_field,
-            no_of_thetas=self.config.no_of_thetas,
         )
 
     def time_calc_alpha_line_at_nu(self):
@@ -209,7 +208,6 @@ class Sim100AA:
         raytrace(
             self.stellar_model,
             self.stellar_radiation_field,
-            no_of_thetas=self.config.no_of_thetas,
         )
 
     def time_calc_alpha_line_at_nu(self):

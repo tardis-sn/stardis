@@ -18,7 +18,8 @@ class RadiationField(HDFWriterMixin):
     ----------
     frequencies : astronopy.units.Quantity
     source_function : stardis.radiation_field.source_function
-    opacities : stardis.radiation_field.opacities
+    stellar_model : stardis.stellar_model.StellarModel
+    num_of_thetas : int
 
     Attributes
     ----------
@@ -31,15 +32,40 @@ class RadiationField(HDFWriterMixin):
         calculate the total opacity at each frequency at each depth point.
     F_nu : numpy.ndarray
         Radiation field fluxes at each frequency at each depth point. Initialized as zeros and calculated by a solver.
+    thetas : numpy.ndarray
+        Theta angles for raytracing.
+    I_nus_weights : numpy.ndarray
+        Weights for the theta angles.
+    I_nus : numpy.ndarray
+        Radiation field intensity at each frequency at each depth point at each theta angle. Initialized as zeros and calculated by a solver.
+    track_individual_intensities : bool
+        Flag to track individual intensities at each theta angle. Default is False.
     """
 
     hdf_properties = ["frequencies", "opacities", "F_nu"]
 
-    def __init__(self, frequencies, source_function, stellar_model):
+    def __init__(
+        self,
+        frequencies,
+        source_function,
+        stellar_model,
+        num_of_thetas,
+        track_individual_intensities=False,
+    ):
         self.frequencies = frequencies
         self.source_function = source_function
         self.opacities = Opacities(frequencies, stellar_model)
         self.F_nu = np.zeros((stellar_model.no_of_depth_points, len(frequencies)))
+
+        # This uses gauss-legendre quadrature to sample thetas
+        thetas, weights = np.polynomial.legendre.leggauss(num_of_thetas)
+        self.thetas = (thetas / 2) + 0.5 * np.pi / 2
+        self.I_nus_weights = weights * np.pi / 2
+        self.track_individual_intensities = track_individual_intensities
+        if track_individual_intensities:
+            self.I_nus = np.zeros(
+                (stellar_model.no_of_depth_points, len(frequencies), len(self.thetas))
+            )
 
 
 def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, config):
@@ -69,7 +95,11 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     """
 
     stellar_radiation_field = RadiationField(
-        tracing_nus, blackbody_flux_at_nu, stellar_model
+        tracing_nus,
+        blackbody_flux_at_nu,
+        stellar_model,
+        config.no_of_thetas,
+        track_individual_intensities=config.result_options.return_radiation_field,
     )
     logger.info("Calculating alphas")
     calc_alphas(
@@ -82,8 +112,6 @@ def create_stellar_radiation_field(tracing_nus, stellar_model, stellar_plasma, c
     raytrace(
         stellar_model,
         stellar_radiation_field,
-        no_of_thetas=config.no_of_thetas,
-        n_threads=config.n_threads,
     )
 
     return stellar_radiation_field

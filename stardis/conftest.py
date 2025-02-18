@@ -191,7 +191,10 @@ def example_stellar_radiation_field(
     example_stellar_model, example_config, example_tracing_nus, example_stellar_plasma
 ):
     stellar_radiation_field = RadiationField(
-        example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
+        example_tracing_nus,
+        blackbody_flux_at_nu,
+        example_stellar_model,
+        example_config.no_of_thetas,
     )
 
     calc_alphas(
@@ -204,7 +207,6 @@ def example_stellar_radiation_field(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        no_of_thetas=example_config.no_of_thetas,
     )
     return stellar_radiation_field
 
@@ -217,7 +219,10 @@ def example_stellar_radiation_field_broadening(
     example_stellar_plasma_broadening,
 ):
     stellar_radiation_field = RadiationField(
-        example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
+        example_tracing_nus,
+        blackbody_flux_at_nu,
+        example_stellar_model,
+        example_config_broadening.no_of_thetas,
     )
 
     calc_alphas(
@@ -230,7 +235,6 @@ def example_stellar_radiation_field_broadening(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        no_of_thetas=example_config_broadening.no_of_thetas,
     )
     return stellar_radiation_field
 
@@ -243,7 +247,10 @@ def example_stellar_radiation_field_parallel(
     example_stellar_plasma_broadening,
 ):
     stellar_radiation_field = RadiationField(
-        example_tracing_nus, blackbody_flux_at_nu, example_stellar_model
+        example_tracing_nus,
+        blackbody_flux_at_nu,
+        example_stellar_model,
+        example_config_parallel.no_of_thetas,
     )
 
     calc_alphas(
@@ -256,8 +263,6 @@ def example_stellar_radiation_field_parallel(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        no_of_thetas=example_config_parallel.no_of_thetas,
-        n_threads=example_config_parallel.n_threads,
     )
     return stellar_radiation_field
 
