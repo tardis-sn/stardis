@@ -1,0 +1,75 @@
+name: Save LFS Cache
+
+on:
+  workflow_call:
+    inputs:
+      regression-data-repo:
+        description: "Repository containing regression data (format: owner/repo)"
+        required: false
+        default: "stardis-sn/stardis-regression-data"
+        type: string
+      allow_lfs_pull:
+        description: "If true, allows LFS pull operations"
+        required: false
+        default: false
+        type: boolean
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+concurrency:
+  # Only one workflow can run at a time
+  # the workflow group is a unique identifier and contains the workflow name, pull request number, and regression data repo
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.regression-data-repo }}
+  cancel-in-progress: true
+
+
+jobs:
+  lfs-cache:
+    if: github.repository_owner == 'tardis-sn'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.regression-data-repo }}
+          path: stardis-regression-data
+    
+      - name: Create LFS file list
+        run: |
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
+        working-directory: stardis-regression-data
+
+      - name: Test cache availability
+        uses: actions/cache/restore@v4
+        id: test-lfs-cache-regression-data
+        with:
+          path: stardis-regression-data/.git/lfs
+          key: stardis-regression-full-data-${{ hashFiles('stardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+          lookup-only: true
+  
+      - name: Fail if LFS pull is needed but not allowed
+        if: |
+          steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
+          inputs.allow_lfs_pull != true
+        run: |
+          echo "Error: LFS pull is required but not allowed (allow_lfs_pull is false)"
+          exit 1
+      
+      - name: Git LFS Pull
+        if: |
+          steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
+          inputs.allow_lfs_pull == true
+        run: git lfs pull
+        working-directory: stardis-regression-data
+
+      - name: Git LFS Checkout
+        run: git lfs checkout
+        working-directory: stardis-regression-data
+  
+      - name: Save LFS cache if not found
+        uses: actions/cache/save@v4
+        if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') }}
+        with:
+          path: stardis-regression-data/.git/lfs
+          key: stardis-regression-full-data-${{ hashFiles('stardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
