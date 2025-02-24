@@ -93,11 +93,12 @@ def example_config_parallel():
 @pytest.fixture(scope="session")
 def example_stellar_model(example_config, example_kurucz_atomic_data):
     raw_marcs_model = read_marcs_model(
-        Path(example_config.model.fname), gzipped=example_config.model.gzipped
+        Path(example_config.input_model.fname),
+        gzipped=example_config.input_model.gzipped,
     )
     return raw_marcs_model.to_stellar_model(
         example_kurucz_atomic_data,
-        final_atomic_number=example_config.model.final_atomic_number,
+        final_atomic_number=example_config.input_model.final_atomic_number,
     )
 
 
@@ -113,7 +114,7 @@ def example_stellar_plasma(
                     len(
                         example_stellar_model.composition.elemental_mass_fraction.columns.tolist()
                     ),
-                    example_config.model.final_atomic_number,
+                    example_config.input_model.final_atomic_number,
                 ]
             )
             + 1,
@@ -262,7 +263,6 @@ def example_stellar_radiation_field_parallel(
     raytrace(
         example_stellar_model,
         stellar_radiation_field,
-        n_threads=example_config_parallel.n_threads,
     )
     return stellar_radiation_field
 

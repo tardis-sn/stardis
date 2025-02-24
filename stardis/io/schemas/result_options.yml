@@ -1,0 +1,13 @@
+$$target: result_options.yml
+type: object
+additionalProperties: false
+properties:
+    return_model:
+        type: boolean
+        default: false
+    return_plasma:
+        type: boolean
+        default: false
+    return_radiation_field:
+        type: boolean
+        default: true
