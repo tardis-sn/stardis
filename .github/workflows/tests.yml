@@ -26,6 +26,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   build:
+    needs: lfs-cache
     if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
