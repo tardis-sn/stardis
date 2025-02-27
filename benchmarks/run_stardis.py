@@ -23,7 +23,7 @@ from stardis.radiation_field import RadiationField
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
 
 BASE_DIR = Path(__file__).resolve().parent
-SCHEMA_PATH = BASE_DIR.parent / "stardis" / "config_schema.yml"
+SCHEMA_PATH = BASE_DIR.parent / "stardis" / "io" / "schemas" / "config_schema.yml"
 CONFIG_PATH = BASE_DIR / "benchmark_config.yml"
 
 
@@ -46,10 +46,10 @@ class Sim10AA:
         adata = AtomData.from_hdf(config.atom_data)
 
         raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
+            Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number
         )
 
         adata.prepare_atom_data(
@@ -60,7 +60,7 @@ class Sim10AA:
                         len(
                             stellar_model.composition.elemental_mass_fraction.columns.tolist()
                         ),
-                        config.model.final_atomic_number,
+                        config.input_model.final_atomic_number,
                     ]
                 )
                 + 1,
@@ -98,7 +98,6 @@ class Sim10AA:
         raytrace(
             self.stellar_model,
             self.stellar_radiation_field,
-            no_of_thetas=self.config.no_of_thetas,
         )
 
     def time_calc_alpha_line_at_nu(self):
@@ -157,10 +156,10 @@ class Sim100AA:
         adata = AtomData.from_hdf(config.atom_data)
 
         raw_marcs_model = read_marcs_model(
-            Path(config.model.fname), gzipped=config.model.gzipped
+            Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number
         )
 
         adata.prepare_atom_data(
@@ -171,7 +170,7 @@ class Sim100AA:
                         len(
                             stellar_model.composition.elemental_mass_fraction.columns.tolist()
                         ),
-                        config.model.final_atomic_number,
+                        config.input_model.final_atomic_number,
                     ]
                 )
                 + 1,
@@ -209,7 +208,6 @@ class Sim100AA:
         raytrace(
             self.stellar_model,
             self.stellar_radiation_field,
-            no_of_thetas=self.config.no_of_thetas,
         )
 
     def time_calc_alpha_line_at_nu(self):

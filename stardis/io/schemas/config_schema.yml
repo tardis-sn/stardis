@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-04/schema#
+type: object
+properties:
+    stardis_config_version:
+        enum:
+        - 1.0
+    n_threads:
+        type: number
+        multipleOf: 1
+        default: 1
+        description: Number of threads to use. If 1 run in serial. If 0, use all available threads.
+    atom_data:
+        type: string
+        description: Path to the atomic data file. The file should be in hdf5 format output by carsus.
+    input_model:
+        $ref: input_model.yml
+        description: defining the model used in the simulation
+    opacity:
+        $ref: opacity.yml
+        description: defining the opacity sources, absorption lines, and broadening sources of the simulation
+    no_of_thetas:
+        type: number
+        multipleOf: 1
+        default: 10
+        description: Number of angles to use in the simulation.
+    result_options:
+        default: {}
+        $ref: result_options.yml
+        description: Options for what to return from the simulation.
+    required:
+    - stardis_config_version
+    - atom_data
+    - model
+    - opacity

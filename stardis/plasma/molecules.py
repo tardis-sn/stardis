@@ -3,6 +3,7 @@ import pandas as pd
 import logging
 
 from astropy import constants as const, units as u
+from scipy.interpolate import CubicSpline
 from tardis.util.base import element_symbol2atomic_number
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -81,26 +82,49 @@ class MoleculeIonNumberDensity(ProcessingPlasmaProperty):
                 molecule_row.Ion2, molecule_row.Ion2_charge
             ]
 
-            # Barklem and Collet 2016 equilibrium constants are pressure constants and are in SI units
-            pressure_equilibirium_const_at_depth_point = np.interp(
-                t_electrons,
+            pressure_equil_spline = CubicSpline(
                 equilibrium_const_temps,
                 atomic_data.molecule_data.equilibrium_constants.loc[molecule].values,
-            )
-            # Convert from pressure constants to number density constants using ideal gas law
-            equilibirium_const_at_depth_point = (
-                (
-                    10 ** (pressure_equilibirium_const_at_depth_point)
-                    * (u.N / u.m**2)
-                    / (const.k_B * t_electrons * u.K)
-                )
-                .to(u.cm**-3)
-                .value
+                extrapolate=True,
             )
 
-            molecule_number_density = (ion1_number_density * ion2_number_density) / (
-                equilibirium_const_at_depth_point
+            pressure_equilibirium_const_at_depth_point = pressure_equil_spline(
+                t_electrons
             )
+
+            # Convert from pressure constants to number density constants using ideal gas law
+            # k is the equilibrium concentration constant, pressure is Pa
+            k = (
+                (
+                    (10**pressure_equilibirium_const_at_depth_point)
+                    * (u.Pa)
+                    / (const.k_B * t_electrons * u.K)
+                ).to(u.cm**-3)
+            ).value
+
+            # Different formulae for homonuclear heteronuclear diatomic molecules
+            if (molecule_row.Ion1 == molecule_row.Ion2) and (
+                molecule_row.Ion1_charge == molecule_row.Ion2_charge
+            ):
+                molecule_number_density = (1 / 8) * (
+                    (-((k * (k + 8 * ion1_number_density)) ** 0.5))
+                    + k
+                    + 4 * ion1_number_density
+                )
+
+            else:
+                molecule_number_density = 0.5 * (
+                    -np.sqrt(
+                        k**2
+                        + 2 * k * (ion1_number_density + ion2_number_density)
+                        + (ion1_number_density - ion2_number_density) ** 2
+                    )
+                    + k
+                    + ion1_number_density
+                    + ion2_number_density
+                )
+
+            np.maximum(molecule_number_density, 0, out=molecule_number_density)
 
             number_densities_arr[
                 atomic_data.molecule_data.equilibrium_constants.index.get_loc(molecule)

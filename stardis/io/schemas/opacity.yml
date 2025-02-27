@@ -1,0 +1,55 @@
+$$target: opacity.yml
+type: object
+additionalProperties: false
+properties:
+    file:
+        type: object
+        default: {}
+        additionalProperties: false
+        patternProperties:
+            _bf$:
+                type: string
+            _ff$:
+                type: string
+    bf:
+        type: object
+        default: {}
+        additionalProperties:
+            type: object
+            additionalProperties: false
+            properties:
+                gaunt:
+                    type: [string, "null"]
+                    default: null
+                departure:
+                    type: [string, "null"]
+                    default: null
+    ff:
+        type: object
+        default: {}
+        additionalProperties:
+            type: object
+            additionalProperties: false
+            properties:
+                gaunt:
+                    type: [string, "null"]
+                    default: null
+                departure:
+                    type: [string, "null"]
+                    default: null
+    rayleigh:
+        type: array
+        default: []
+        items:
+            enum:
+            - H
+            - He
+            - H2
+    disable_electron_scattering:
+        type: boolean
+        default: false
+    line:
+        $ref: line.yml
+        description: Options regarding absorption lines, broadening, microturbulence, VALD line lists, and molecular lines 
+#required:
+#- line

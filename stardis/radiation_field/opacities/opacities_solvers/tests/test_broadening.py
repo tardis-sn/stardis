@@ -626,14 +626,12 @@ def test_rotational_broadening(example_stardis_output):
     )
 
     expected_broadening_fluxes = [
-        34325016.26500261,
-        34324942.84601202,
-        34324796.18937743,
-        34324576.65805383,
-        34324284.79713459,
-        34323921.33466243,
-        34323487.18274513,
-        34322983.43899771,
+        21851984.04113946,
+        21851937.30115837,
+        21851843.93664505,
+        21851704.17866379,
+        21851518.37423182,
+        21851286.98683553,
     ]
     actual_wavelengths, actual_fluxes = rotation_broadening(
         20 * u.km / u.s,
@@ -645,4 +643,4 @@ def test_rotational_broadening(example_stardis_output):
     assert np.allclose(
         actual_fluxes_no_broadening, example_stardis_output.spectrum_lambda
     )
-    assert np.allclose(actual_fluxes[:8].value, expected_broadening_fluxes)
+    assert np.allclose(actual_fluxes[:6].value, expected_broadening_fluxes)

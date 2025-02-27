@@ -1,0 +1,31 @@
+$$target: input_model.yml
+type: object
+properties:
+    type:
+        enum:
+        - marcs
+        - mesa
+    fname:
+        type: string
+        description: Path to the model file. 
+    gzipped:
+        type: boolean
+        default: false
+        description: Whether the file is gzipped. Only used for marcs models.            
+    final_atomic_number:
+        type: number
+        multipleOf: 1
+        default: 30
+        description: The atomic number of the heaviest element to use in the simulation. Elements heavier will be exlucded.
+    truncate_to_shell:
+        type: number
+        multipleOf: 1
+        default: -99
+        description: If -99, use all shells. If positive, use only specified outermost depth points. Only used for mesa models. 
+    nuclide_rescaling_dict:
+        type: object
+        default: {}
+        description: Rescale the abundances of the elements/nuclides in the model. The keys are the atomic numbers of the elements to rescale and the values are the rescaling factors.
+required:
+- type
+- fname
