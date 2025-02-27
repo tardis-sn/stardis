@@ -1,6 +1,6 @@
 stardis_config_version: 1.0
 atom_data: kurucz_cd23_chianti_H_He.h5
-model:
+input_model:
     type: marcs
     fname: docs/quickstart/sun.mod
     final_atomic_number: 5

@@ -14,8 +14,9 @@ class Radial1DGeometry:
         distance to the next depth point
     """
 
-    def __init__(self, r):
+    def __init__(self, r, reference_r=None):
         self.r = r
+        self.reference_r = reference_r
 
     @property
     def dist_to_next_depth_point(self):
