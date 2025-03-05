@@ -9,7 +9,6 @@ This is the documentation for STARDIS.
    Downloading and Installation <installation>
    Quickstart <quickstart/quickstart>
    Physics of STARDIS <physics/physics_of_stardis>
-   Contributing <contributing>
    Bibliography <bibliography>
 
 .. toctree::
@@ -23,6 +22,13 @@ This is the documentation for STARDIS.
    Changing Parameters <Changing_Parameters/Changing_Parameters>
    Rotation Broadening <rotation_broadening/rotation_broadening>
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contributing to STARDIS
+
+   Contribution Guidelines <contributing/contribution_guidelines>
+   STARDIS for Developers <contributing/stardis_for_developers>
+   Editing Stardis <contributing/editing_stardis>
 	     
 Indices and tables
 ==================
