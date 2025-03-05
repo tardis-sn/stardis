@@ -19,7 +19,14 @@ defaults:
     shell: bash -l {0}
 
 jobs:
+  lfs-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+
   build:
+    needs: lfs-cache
     if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
@@ -27,9 +34,6 @@ jobs:
         - os: ubuntu-latest
           label: linux-64
           prefix: /usr/share/miniconda3/envs/stardis
-        # - os: ubuntu-latest
-        #   label: linux-64-cuda
-        #   prefix: /usr/share/miniconda3/envs/stardis
         - os: macos-latest
           label: osx-64
           prefix: /Users/runner/miniconda3/envs/stardis
