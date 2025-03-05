@@ -17,12 +17,11 @@ STARDIS uses exclusively the packages in the TARDIS enviroment, as well
 as using the TARDIS code itself. We strongly suggest that users create a separate
 environment for STARDIS. To do this, run
 the following in the terminal (replacing ``{platform}`` with
-``linux-64``, ``linux-64-cuda``, or ``osx-64`` as applicable). 
+``linux-64``, or ``osx-64`` as applicable). Cuda is not currently supported.
 
 .. code-block:: bash
 
    $ cd <path-to-stardis-directory>
-   $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-{platform}.lock
    $ conda create --name stardis --file conda-{platform}.lock
    $ conda activate stardis
    $ pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
@@ -35,7 +34,6 @@ If you are using Mamba, the steps are similar:
 .. code-block:: bash
 
    $ cd <path-to-stardis-directory>
-   $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-{platform}.lock
    $ mamba create --name stardis --file conda-{platform}.lock
    $ mamba activate stardis
    $ pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
