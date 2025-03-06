@@ -60,9 +60,9 @@ For Developers
 
 **Developers** should fork and clone the STARDIS repository.
 First, `fork the
-repository <https://github.com/tardis-sn/stardis/fork>`__ and `configure
+repository <contributing/editing_stardis.rst#creating-a-fork>`__ and `configure
 GitHub to work with SSH
-keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`__,
+keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent>`__,
 and then run the following in the terminal:
 
 ::

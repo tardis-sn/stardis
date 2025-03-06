@@ -1,8 +1,5 @@
-Contributing
-============
-
 Generating Conda Lockfiles
---------------------------
+===========================
 
 In the interest of reproducibility, STARDIS uses `conda-lock <https://conda.github.io/conda-lock/>`__ files to keep the virtual environment consistent across similar machines and installations. High level specifications of the environments are given in ``stardis_env3.yml`` and ``stardis_env3_cuda.yml``, and then ``conda-lock`` is used to create the corresponding lockfile. The steps are as follow.
 
