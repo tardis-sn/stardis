@@ -27,8 +27,8 @@ This is the documentation for STARDIS.
    :caption: Contributing to STARDIS
 
    Contribution Guidelines <contributing/contribution_guidelines>
-   STARDIS for Developers <contributing/stardis_for_developers>
    Editing Stardis <contributing/editing_stardis>
+   Generating Conda Lockfiles <contributing/conda_lockfiles>
 	     
 Indices and tables
 ==================
