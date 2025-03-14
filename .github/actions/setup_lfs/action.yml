@@ -10,7 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Clone stardis-sn/stardis-regression-data
+    - name: Clone tardis-sn/stardis-regression-data
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.regression-data-repo }}
