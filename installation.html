@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloading and Installation &mdash; stardis 0.1.dev1+g1e7fbaa documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <title>Downloading and Installation &mdash; stardis 0.1.dev1+g0b3084e documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=1774285a"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/documentation_options.js?v=1a282aad"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
@@ -58,7 +60,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="physics/physics_of_stardis.html">Physics of STARDIS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
@@ -69,6 +70,12 @@
 <li class="toctree-l1"><a class="reference internal" href="using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Changing_Parameters/Changing_Parameters.html">Changing Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rotation_broadening/rotation_broadening.html">Rotation Broadening</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to STARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/contribution_guidelines.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/editing_stardis.html">Editing Stardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/conda_lockfiles.html">Generating Conda Lockfiles</a></li>
 </ul>
 
         </div>
@@ -103,16 +110,15 @@
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>STARDIS is only supported on macOS and GNU/Linux. Windows users can run STARDIS on a virtual machine.</p></li>
-<li><p>STARDIS packages and dependencies are distributed only through the <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Miniconda</a> or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation.html">Mamba</a> by default. Other distributions are untested.</p></li>
+<li><p>STARDIS packages and dependencies are distributed only through the <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> package management system, therefore installation requires a conda distribution to be installed on your system. STARDIS uses <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Miniconda</a> or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html">Mamba</a> by default. Other distributions are untested.</p></li>
 </ul>
 </div>
 <p>STARDIS uses exclusively the packages in the TARDIS enviroment, as well
 as using the TARDIS code itself. We strongly suggest that users create a separate
 environment for STARDIS. To do this, run
 the following in the terminal (replacing <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with
-<code class="docutils literal notranslate"><span class="pre">linux-64</span></code>, <code class="docutils literal notranslate"><span class="pre">linux-64-cuda</span></code>, or <code class="docutils literal notranslate"><span class="pre">osx-64</span></code> as applicable).</p>
+<code class="docutils literal notranslate"><span class="pre">linux-64</span></code>, or <code class="docutils literal notranslate"><span class="pre">osx-64</span></code> as applicable). Cuda is not currently supported.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
-$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
 $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
@@ -122,7 +128,6 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 environment, which is necessary to correctly install STARDIS using the directions below.</p>
 <p>If you are using Mamba, the steps are similar:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
-$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>activate<span class="w"> </span>stardis
 $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
@@ -146,8 +151,8 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 <section id="for-developers">
 <h3>For Developers<a class="headerlink" href="#for-developers" title="Link to this heading"></a></h3>
 <p><strong>Developers</strong> should fork and clone the STARDIS repository.
-First, <a class="reference external" href="https://github.com/tardis-sn/stardis/fork">fork the
-repository</a> and <a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">configure
+First, <a class="reference internal" href="contributing/editing_stardis.html#creating-a-fork"><span class="std std-ref">fork the
+repository</span></a> and <a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent">configure
 GitHub to work with SSH
 keys</a>,
 and then run the following in the terminal:</p>

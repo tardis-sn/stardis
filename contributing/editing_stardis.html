@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editing STARDIS &mdash; stardis 0.1.dev1+g0b3084e documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=1a282aad"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Generating Conda Lockfiles" href="conda_lockfiles.html" />
+    <link rel="prev" title="Contribution Guidelines" href="contribution_guidelines.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            stardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Changing_Parameters/Changing_Parameters.html">Changing Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rotation_broadening/rotation_broadening.html">Rotation Broadening</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to STARDIS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="contribution_guidelines.html">Contribution Guidelines</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Editing Stardis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-edit">Before You Edit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-fork">Creating a Fork</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#starting-your-environment">Starting Your Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#branches">Branches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#while-you-edit">While You Edit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apply-your-changes">Apply Your Changes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dont-be-scared">Don’t be Scared!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#make-a-pull-request">Make a Pull Request</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#revising-and-editing-your-pull-request">Revising and Editing your Pull Request</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conda_lockfiles.html">Generating Conda Lockfiles</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">stardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Editing STARDIS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/contributing/editing_stardis.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="editing-stardis">
+<h1>Editing STARDIS<a class="headerlink" href="#editing-stardis" title="Link to this heading"></a></h1>
+<p>Now that you have installed STARDIS and hopefully set up everything you
+need, you can now get started on <strong>your first Pull Request</strong>, which is
+how you edit STARDIS!</p>
+<section id="before-you-edit">
+<h2>Before You Edit<a class="headerlink" href="#before-you-edit" title="Link to this heading"></a></h2>
+<p>Before you can start contributing to STARDIS, you’ll need to download
+and install it up on your computer. if you haven’t already, go through
+the <a class="reference internal" href="../installation.html"><span class="doc">Downloading and Installing STARDIS</span></a>
+documentation, and make sure to follow the <a class="reference internal" href="../installation.html#for-developers"><span class="std std-ref">For
+Developers</span></a> section when you do
+so.</p>
+<p>You’ll also need a set up a <a class="reference external" href="https://github.com/signup?">Github
+account</a>. Github is a platform that lets
+you easily access, download, and make edits to online ‘repositories’
+(shared projects) using something called ‘Git’. Git is a version control
+system that allows for developers easily keep prior versions of code,
+work on features without breaking the main program, and collaborate with
+others.</p>
+<section id="creating-a-fork">
+<h3>Creating a Fork<a class="headerlink" href="#creating-a-fork" title="Link to this heading"></a></h3>
+<p>“Forking” a repository means creating a personal copy of a project so
+you can make edits to it. Later, these edits can be applied to the
+original project through a Pull Request, often shortened to “PR”. The
+instructions here are will guide you through setting up STARDIS, but you
+can find more general instruction
+<a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">here</a>
+if you need extra help.</p>
+<ol class="arabic simple">
+<li><p>Go to the <a class="reference external" href="https://github.com/tardis-sn/stardis">STARDIS Github
+page</a>.</p></li>
+<li><p>click <strong>Fork</strong>, which should be near the top right of the page.</p></li>
+</ol>
+<img alt="Screenshot showing the Fork button on GitHub" src="../_images/fork.png" />
+<ol class="arabic simple">
+<li><p>By default, your account should be the Owner of this fork and “Copy
+the <code class="docutils literal notranslate"><span class="pre">main</span></code> brach only” should be selected. <strong>click ‘Create fork’</strong>.</p></li>
+</ol>
+</section>
+<section id="starting-your-environment">
+<h3>Starting Your Environment<a class="headerlink" href="#starting-your-environment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Launch your Command Line terminal, and navigatae to your Stardis
+direcotry using <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">&lt;path/to/Stardis/directory&gt;</span></code>.</p>
+<ul class="simple">
+<li><p>Your <code class="docutils literal notranslate"><span class="pre">&lt;path/to/Stardis/directory&gt;</span></code> will be based on where you
+first downloaded Stardis to. You can find this using
+<code class="docutils literal notranslate"><span class="pre">realpath</span> <span class="pre">Stardis</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Start your <strong>Stardis Environment</strong> by running the command
+<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">Stardis</span></code></p></li>
+</ol>
+</section>
+<section id="branches">
+<h3>Branches<a class="headerlink" href="#branches" title="Link to this heading"></a></h3>
+<p>One of the main reasons we use Git is because of Git <strong>Branches</strong>.
+Branches are like off-shoots of main code, where you can make changes to
+a specific feature or file without immediately worrying about the
+broader implications of your changes. The main code is in a branch
+called <code class="docutils literal notranslate"><span class="pre">main</span></code>, and can be referred to as the <em>trunk</em>, because the
+other branches come off of it.</p>
+<p>Its important to keep in mind that when you want to start working on a
+new feature or change, <strong>make a new branch for that change!</strong> This is
+proper procedure for a variety of reasons, like making it easier to find
+the source of bugs/error and making the process of adding features
+smoother.</p>
+<ul class="simple">
+<li><p>Make a new Branch with the command: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">branch</span> <span class="pre">my_branch_name</span></code></p></li>
+<li><p>Change to your new branch with the command:
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">my_branch_name</span></code></p></li>
+<li><p>To do both at once, use: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">my_branch_name</span></code></p></li>
+</ul>
+<p>It is good to name your branch after what you are changing in it. For
+example, the branch name used to make this documentation was
+<code class="docutils literal notranslate"><span class="pre">contribution_docs</span></code>, so an example from above would look like
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">contribution_docs</span></code>. Make sure to change to the
+<code class="docutils literal notranslate"><span class="pre">main</span></code> branch before making a new branch, that way you will have a
+fresh start to make your changes.</p>
+<p>Lastly, if you need a reminder on what branches you have made, you can
+use the command <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">branch</span></code> to see a list.</p>
+</section>
+</section>
+<section id="while-you-edit">
+<h2>While You Edit<a class="headerlink" href="#while-you-edit" title="Link to this heading"></a></h2>
+<p>While you are clicking through directories, making changes to your
+heart’s desire, there are some things to note.</p>
+<ul class="simple">
+<li><p>The edits you make will only impact the version on STARDIS on your
+computer for now, so you don’t have to worry about breaking anything.</p></li>
+<li><p>After editing a file, make sure to save your changes! Only saved
+changes will be included in your pull request.</p></li>
+<li><p>you can use the command <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">status</span></code> to remind yourself what branch
+you are on and see what edits/additions you have made. Do this often!</p></li>
+</ul>
+</section>
+<section id="apply-your-changes">
+<h2>Apply Your Changes<a class="headerlink" href="#apply-your-changes" title="Link to this heading"></a></h2>
+<p>Now that you have made your change, you can finally make a pull request!
+A pull request is essentially just a suggested change you think should
+be made to the functional code base of STARDIS. Once accepted, your work
+will be included in the version of STARDIS that everyone will use.</p>
+<section id="dont-be-scared">
+<h3>Don’t be Scared!<a class="headerlink" href="#dont-be-scared" title="Link to this heading"></a></h3>
+<p>You may be worried that your code doesn’t work, your changes don’t make
+sense, or that for some reason what you did is not good enough. <strong>This
+is not the case, we promise!</strong> A pull request can’t break anything. If
+you did make any mistakes, then a pull request is how you can get
+suggestions and help. It never hurts to make a pull request, and changes
+can always be revised and edited, even after the initial request.</p>
+<p>If you are still concerned a PR isn’t fully functional, you can always
+mark a pull request as a draft. To do this, go to the Github website,
+and find the new PR under either your account or on the STARDIS page.
+Open the pull request, and on the right side of the screen you should
+see an option to ‘convert to draft’.</p>
+</section>
+<section id="make-a-pull-request">
+<h3>Make a Pull Request<a class="headerlink" href="#make-a-pull-request" title="Link to this heading"></a></h3>
+<p>Here are the steps you can take to make your first PR:</p>
+<ol class="arabic simple">
+<li><p>Run the command <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">-A</span></code>. If you only want to push some of your
+edits, replace <code class="docutils literal notranslate"><span class="pre">-A</span></code> with the paths to your edited files.</p></li>
+<li><p>Run the command <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">'&lt;explanation_of_your_pr&gt;'</span></code></p>
+<ul class="simple">
+<li><p>example: git commit -m ‘Typo fix in the quickstart notebook’</p></li>
+</ul>
+</li>
+<li><p>Run the command <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">&lt;my_branch_name&gt;</span></code></p>
+<ul class="simple">
+<li><p>example: git push origin contribution_docs</p></li>
+</ul>
+</li>
+</ol>
+<p>By doing this, the change you made will be pushed to your fork of
+STARDIS under your Github account. Next, you need to go to <a class="reference external" href="https://github.com/tardis-sn/stardis">the original
+STARDIS repository</a> where you
+made your clone. There will be a yellow banner asking you to <strong>Compare &amp;
+Pull Request</strong>.</p>
+<p>You will then need to fill out a form that goes with the PR where you
+explain your changes. Make sure to be specific in your explanation of
+the changes, as well as edit the ‘type’ field to indicate what your
+changes effect.</p>
+</section>
+</section>
+<section id="revising-and-editing-your-pull-request">
+<h2>Revising and Editing your Pull Request<a class="headerlink" href="#revising-and-editing-your-pull-request" title="Link to this heading"></a></h2>
+<p>The vast majority of pull requests aren’t perfect on their first
+iteration, even those from expert programmers! After you make your pull
+request it will be up to STARDIS reviewers to give it a look over and
+see what is good and what needs a little polish. <strong>Don’t be discouraged
+by this, its part of the process!</strong> On Github you see the comments and
+suggestions of the STARDIS reviewers, and after some iterations, your
+code can get ‘merged’, or added to STARDIS!</p>
+<p>Here are some things to keep in mind when going to revise and edit your
+pull requests:</p>
+<ul class="simple">
+<li><p>You will need to go back to the branch you made the pull request from
+to revise it. Go through making changes to this branch just as you
+did before making the request.</p></li>
+<li><p>When you want to have your new changes made to your pull request, all
+you need to do is <code class="docutils literal notranslate"><span class="pre">add</span></code>, <code class="docutils literal notranslate"><span class="pre">commit</span></code>, and <code class="docutils literal notranslate"><span class="pre">push</span></code> commands again
+jsut as you did earlier. Your new message in your <code class="docutils literal notranslate"><span class="pre">commit</span></code> command
+should elaborate on what you updated, edited, or added to the
+request.</p></li>
+<li><p>No need to go to Github and Push or Pull any changes. Because you
+already made the pull request, it will automatically update after you
+run the new commit command.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="contribution_guidelines.html" class="btn btn-neutral float-left" title="Contribution Guidelines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="conda_lockfiles.html" class="btn btn-neutral float-right" title="Generating Conda Lockfiles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, TARDIS Collaboration.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
