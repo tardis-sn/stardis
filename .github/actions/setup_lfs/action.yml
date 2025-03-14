@@ -5,7 +5,7 @@ inputs:
   regression-data-repo:
     description: "Repository containing regression data (format: owner/repo)"
     required: false
-    default: "stardis-sn/stardis-regression-data"
+    default: "tardis-sn/stardis-regression-data"
 
 runs:
   using: "composite"
