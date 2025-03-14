@@ -69,7 +69,7 @@ jobs:
   
       - name: Save LFS cache if not found
         uses: actions/cache/save@v4
-        if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != true && !contains(github.ref, 'merge') }}
+        if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != true }}
         with:
           path: stardis-regression-data/.git/lfs
           key: stardis-regression-full-data-${{ hashFiles('stardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
