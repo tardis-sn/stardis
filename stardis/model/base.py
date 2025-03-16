@@ -1,4 +1,5 @@
 from tardis.io.util import HDFWriterMixin
+from astropy import units as u
 
 
 class StellarModel(HDFWriterMixin):
@@ -30,7 +31,12 @@ class StellarModel(HDFWriterMixin):
     hdf_properties = ["temperatures", "geometry", "composition"]
 
     def __init__(
-        self, temperatures, geometry, composition, spherical=False, microturbulence=0.0
+        self,
+        temperatures,
+        geometry,
+        composition,
+        spherical=False,
+        microturbulence=0.0 * u.km / u.s,
     ):
         self.temperatures = temperatures
         self.geometry = geometry

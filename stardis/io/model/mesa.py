@@ -134,7 +134,6 @@ class MESAModel:
             temperatures,
             mesa_geometry,
             mesa_composition,
-            microturbulence=0.0 * u.km / u.s,
         )
 
 
