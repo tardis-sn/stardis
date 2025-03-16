@@ -1,4 +1,5 @@
 from tardis.io.util import HDFWriterMixin
+from astropy import units as u
 
 
 class StellarModel(HDFWriterMixin):
@@ -36,7 +37,7 @@ class StellarModel(HDFWriterMixin):
         self.geometry = geometry
         self.composition = composition
         self.spherical = spherical
-        self.microturbulence = microturbulence
+        self.microturbulence = microturbulence * u.km / u.s
 
     @property
     def no_of_depth_points(self):
