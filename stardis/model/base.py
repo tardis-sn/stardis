@@ -1,5 +1,4 @@
 from tardis.io.util import HDFWriterMixin
-from astropy import units as u
 
 
 class StellarModel(HDFWriterMixin):
