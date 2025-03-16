@@ -130,7 +130,12 @@ class MESAModel:
         )
         temperatures = np.exp(self.data.lnT.values[::-1]) * u.K
 
-        return StellarModel(temperatures, mesa_geometry, mesa_composition)
+        return StellarModel(
+            temperatures,
+            mesa_geometry,
+            mesa_composition,
+            microturbulence=0.0 * u.km / u.s,
+        )
 
 
 def read_mesa_metadata(fpath):

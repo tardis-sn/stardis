@@ -24,7 +24,7 @@ class StellarModel(HDFWriterMixin):
         Class attribute to be easily accessible for initializing arrays that need to match the shape of the model.
     spherical : bool
         Flag for spherical geometry.
-    microturbulence : float
+    microturbulence : astropy.units.Quantity
         Microturbulence in km/s.
     """
 
@@ -37,7 +37,7 @@ class StellarModel(HDFWriterMixin):
         self.geometry = geometry
         self.composition = composition
         self.spherical = spherical
-        self.microturbulence = microturbulence * u.km / u.s
+        self.microturbulence = microturbulence
 
     @property
     def no_of_depth_points(self):
