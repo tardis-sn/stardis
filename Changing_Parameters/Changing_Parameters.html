@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changing Parameters &mdash; stardis 0.1.dev1+gf037f54 documentation</title>
+  <title>Changing Parameters &mdash; stardis 0.1.dev1+gbc9ad0e documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=89c760e2"></script>
+        <script src="../_static/documentation_options.js?v=9d826eb3"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -123,21 +123,19 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8905e1ace41d452db82f78f7c906f0e5", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e718348bdbb54da288b328b5cb237fe0", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3db6232984b34ac5a8e347a17fa2580b", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "023e13f23bef423a80d87460c89651cd", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 <section id="How-to-Update-Parameters">
 <h2>How to Update Parameters<a class="headerlink" href="#How-to-Update-Parameters" title="Link to this heading"></a></h2>
-<p>There will be instances where you may want to temporarily change or add to the yaml file you are using to make your STARDIS simulations, but don’t worry, you won’t need to edit the file every time. Instead, you can add the argument <code class="docutils literal notranslate"><span class="pre">add_config_dict</span></code> to <code class="docutils literal notranslate"><span class="pre">run_stardis</span></code> and temporarily set/change parts of your file this way.</p>
-<p>For example, if your yaml file had <code class="docutils literal notranslate"><span class="pre">final_atomic_number:</span> <span class="pre">30</span></code> but you wanted <code class="docutils literal notranslate"><span class="pre">final_atomic_number:</span> <span class="pre">10</span></code> for just one simulation, you could run:</p>
-<p><code class="docutils literal notranslate"><span class="pre">sim</span> <span class="pre">=</span> <span class="pre">run_stardis('my_yaml.yml',</span> <span class="pre">tracing_lambdas,</span> <span class="pre">add_config_dict</span> <span class="pre">=</span> <span class="pre">{'model.final_atomic_number'</span> <span class="pre">:</span> <span class="pre">10})</span></code></p>
-<p>note how, as <code class="docutils literal notranslate"><span class="pre">final_atomic_number</span></code> falls under <code class="docutils literal notranslate"><span class="pre">model</span></code> within the yaml file, it must be entered above as <code class="docutils literal notranslate"><span class="pre">'model.final_atomic_number'</span></code></p>
+<p>There will be instances where you may want to temporarily change or add to the YAML configuration file you are using to make your STARDIS simulations, but don’t worry, you won’t need to edit the file every time. Instead, you can add the argument <code class="docutils literal notranslate"><span class="pre">add_config_dict</span></code> to <code class="docutils literal notranslate"><span class="pre">run_stardis</span></code> and temporarily set/change parts of your file this way.</p>
+<p>For example, if your YAML file had <code class="docutils literal notranslate"><span class="pre">final_atomic_number:</span> <span class="pre">30</span></code> but you wanted <code class="docutils literal notranslate"><span class="pre">final_atomic_number:</span> <span class="pre">10</span></code> for just one simulation, you could run: <code class="docutils literal notranslate"><span class="pre">sim</span> <span class="pre">=</span> <span class="pre">run_stardis('my_yaml.yml',</span> <span class="pre">tracing_lambdas,</span> <span class="pre">add_config_dict</span> <span class="pre">=</span> <span class="pre">{'input_model.final_atomic_number'</span> <span class="pre">:</span> <span class="pre">10})</span></code> note how, as <code class="docutils literal notranslate"><span class="pre">final_atomic_number</span></code> falls under <code class="docutils literal notranslate"><span class="pre">input_model</span></code> within the YAML file, it must be entered above as <code class="docutils literal notranslate"><span class="pre">'input_model.final_atomic_number'</span></code></p>
 </section>
 <section id="Example-Use">
 <h2>Example Use<a class="headerlink" href="#Example-Use" title="Link to this heading"></a></h2>
@@ -149,7 +147,7 @@
 
 
 <span class="k">for</span> <span class="n">carbon_rescaling</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
-    <span class="n">sim</span> <span class="o">=</span> <span class="n">run_stardis</span><span class="p">(</span><span class="s1">&#39;Changing_Param_Example.yml&#39;</span><span class="p">,</span> <span class="n">tracing_lambdas</span><span class="p">,</span> <span class="n">add_config_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;model.nuclide_rescaling_dict&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span> <span class="p">:</span> <span class="n">carbon_rescaling</span><span class="p">}})</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">run_stardis</span><span class="p">(</span><span class="s1">&#39;Changing_Param_Example.yml&#39;</span><span class="p">,</span> <span class="n">tracing_lambdas</span><span class="p">,</span> <span class="n">add_config_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;input_model.nuclide_rescaling_dict&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span> <span class="p">:</span> <span class="n">carbon_rescaling</span><span class="p">}})</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">spectrum_lambda</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;C rescaling factor: </span><span class="si">{</span><span class="n">carbon_rescaling</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;STARDIS Solar Spectrum&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Wavelength [$\AA$]&quot;</span><span class="p">)</span>
@@ -167,7 +165,6 @@
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
-WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
 WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
 WARNING:astropy:UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard
 WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]

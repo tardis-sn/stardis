@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Custom Atomic Data &mdash; stardis 0.1.dev1+gf037f54 documentation</title>
+  <title>Custom Atomic Data &mdash; stardis 0.1.dev1+gbc9ad0e documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,13 +17,11 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=89c760e2"></script>
+        <script src="../_static/documentation_options.js?v=9d826eb3"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -59,11 +57,12 @@
 <p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Atomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Using-Your-Own-Atomic-Data">Using Your Own Atomic Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Relevant-CARSUS-Data-to-Collect">Relevant CARSUS Data to Collect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-your-own-atomic-data">Using Your Own Atomic Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#relevant-carsus-data-to-collect">Relevant CARSUS Data to Collect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-an-atomic-data-file">Using an Atomic Data File</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#Using-VALD-linelists">Using VALD linelists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-vald-linelists">Using VALD linelists</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
@@ -95,7 +94,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Custom Atomic Data</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/Custom_atomic_data/Custom_atomic_data.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/Custom_atomic_data/Custom_atomic_data.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -103,32 +102,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Custom-Atomic-Data">
-<h1>Custom Atomic Data<a class="headerlink" href="#Custom-Atomic-Data" title="Link to this heading"></a></h1>
-<section id="Using-Your-Own-Atomic-Data">
-<h2>Using Your Own Atomic Data<a class="headerlink" href="#Using-Your-Own-Atomic-Data" title="Link to this heading"></a></h2>
-<p>To run a simulation, STARDIS requires an atomic data file that has information on the properties of atoms and molecules needed by STARDIS. While <a class="reference external" href="https://github.com/tardis-sn/tardis-regression-data/raw/main/atom_data/kurucz_cd23_chianti_H_He.h5">“kurucz_cd23_chianti_H_He.h5”</a> is the default atomic data used by STARDIS, you can create and use other atomic data files by using <a class="reference external" href="https://tardis-sn.github.io/carsus/">CARSUS</a>. For more information on using CARSUS you can access the <a class="reference external" href="https://tardis-sn.github.io/carsus/index.html">CARSUS
+  <section id="custom-atomic-data">
+<h1>Custom Atomic Data<a class="headerlink" href="#custom-atomic-data" title="Link to this heading"></a></h1>
+<section id="using-your-own-atomic-data">
+<h2>Using Your Own Atomic Data<a class="headerlink" href="#using-your-own-atomic-data" title="Link to this heading"></a></h2>
+<p>To run a simulation, STARDIS requires an atomic data file that has
+information on the properties of atoms and molecules needed by STARDIS.
+While
+<a class="reference external" href="https://github.com/tardis-sn/tardis-regression-data/raw/main/atom_data/kurucz_cd23_chianti_H_He.h5">“kurucz_cd23_chianti_H_He.h5”</a>
+is used in the STARDIS quickstart documentation, you can create and use
+other atomic data files by using
+<a class="reference external" href="https://tardis-sn.github.io/carsus/">CARSUS</a>. For more information
+on using CARSUS you can access the <a class="reference external" href="https://tardis-sn.github.io/carsus/index.html">CARSUS
 documentation</a>.</p>
-<section id="Relevant-CARSUS-Data-to-Collect">
-<h3>Relevant CARSUS Data to Collect<a class="headerlink" href="#Relevant-CARSUS-Data-to-Collect" title="Link to this heading"></a></h3>
-<p>While CARSUS accumulates all sorts of data when compiling the atomic data files, not everything it can include is necessary or relevant for running STARDIS. Here is a list of what data/readers you should make sure to include when running CARSUS: - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/nist.html">atomic weights &amp; ionization energy from NIST</a> - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/gfall.html">Robert Kurucz’s Atomic Linelist (GFALL)</a> - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/vald.html">atomic and molecular transitions from
-VALD</a> - <a class="reference external" href="https://tardis-sn.github.io/carsus/io/barklem2016.html">Molecular formation from Barklem &amp; Collet 2016</a></p>
-<p>Use CARSUS and follow their documentation to get a data file:</p>
-<p><a class="reference external" href="https://tardis-sn.github.io/carsus/">https://tardis-sn.github.io/carsus/</a></p>
-<p>To use new atomic data file in a simulation, add/edit the line in your yaml file <code class="docutils literal notranslate"><span class="pre">atom_data:</span> <span class="pre">&lt;path/to/atomic_data&gt;</span></code>. This path can be <em>either</em> the relative or absolute path. Your atomic data file should have the file extension ‘.h5’.</p>
-<p>The file ‘kurucz_cd23_chianti_H_He.h5’ referenced below is the default atomic_data used by STARDIS.</p>
+<section id="relevant-carsus-data-to-collect">
+<h3>Relevant CARSUS Data to Collect<a class="headerlink" href="#relevant-carsus-data-to-collect" title="Link to this heading"></a></h3>
+<p>While CARSUS accumulates all sorts of data when compiling the atomic
+data files, not everything it can include is necessary or relevant for
+running STARDIS. Here is a list of what data/readers you should make
+sure to include when running CARSUS:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://tardis-sn.github.io/carsus/io/nist.html">atomic weights &amp; ionization energy from
+NIST</a></p></li>
+<li><p><a class="reference external" href="https://tardis-sn.github.io/carsus/io/gfall.html">Robert Kurucz’s Atomic Linelist
+(GFALL)</a></p></li>
+<li><p><a class="reference external" href="https://tardis-sn.github.io/carsus/io/vald.html">atomic and molecular transitions from
+VALD</a></p></li>
+<li><p><a class="reference external" href="https://tardis-sn.github.io/carsus/io/barklem2016.html">Molecular formation from Barklem &amp; Collet
+2016</a></p></li>
+</ul>
+</section>
+<section id="using-an-atomic-data-file">
+<h3>Using an Atomic Data File<a class="headerlink" href="#using-an-atomic-data-file" title="Link to this heading"></a></h3>
+<p>Your atomic data file should have the file extension <code class="docutils literal notranslate"><span class="pre">.h5</span></code> . To use
+your new atomic data file in a simulation, add/edit the line in your
+YAML file <code class="docutils literal notranslate"><span class="pre">atom_data:</span> <span class="pre">&lt;path/to/atom_data&gt;</span></code>. You can reference the
+<a class="reference internal" href="../quickstart/quickstart.html#The-STARDIS-Configuration"><span class="std std-ref">STARDIS Configuration YAML structure
+here</span></a>, but
+you should set the atomic data file on the second line of your YAML
+file, as shown below.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
-<span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kurucz_cd23_chianti_H_He.h5</span><span class="w"> </span><span class="c1"># &lt;----- put the relative or absolute path here</span>
-<span class="nt">model</span><span class="p">:</span>
+<span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;path/to/atomic_data&gt;</span>
+<span class="nt">input_model</span><span class="p">:</span>
 <span class="nn">...</span>
 </pre></div>
 </div>
 </section>
 </section>
-<section id="Using-VALD-linelists">
-<h2>Using VALD linelists<a class="headerlink" href="#Using-VALD-linelists" title="Link to this heading"></a></h2>
-<p>Possibly one of the most important reasons you would want to use a custom atomic data file would be to take advantage of a tailored VALD linelist. You can refer to <a class="reference external" href="https://www.astro.uu.se/valdwiki">VALD’s documentation</a> for information on these lists if you are unfamiliar. To create a detailed and accurate stellar spectrum, we highly recommend looking into using a VALD linelist bundled into your atomic data.</p>
-<p>If you have included a VALD linelist in your atom_data file, then you <strong>must</strong> make the following change to your Yaml file for the linelist to be used:</p>
+<section id="using-vald-linelists">
+<h2>Using VALD linelists<a class="headerlink" href="#using-vald-linelists" title="Link to this heading"></a></h2>
+<p>Possibly one of the most important reasons you would want to use a
+custom atomic data file would be to take advantage of a tailored VALD
+linelist. You can refer to <a class="reference external" href="https://www.astro.uu.se/valdwiki">VALD’s
+documentation</a> for information on
+these lists if you are unfamiliar. To create a detailed and accurate
+stellar spectrum, we highly recommend looking into using a VALD linelist
+bundled into your atomic data.</p>
+<p>If you have included a VALD linelist in your atomic data file, then you
+must make the following change to your YAML file for the linelist to be
+used:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span>
 <span class="nt">line</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">disable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>

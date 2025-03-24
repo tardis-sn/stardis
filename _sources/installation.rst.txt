@@ -22,6 +22,7 @@ the following in the terminal (replacing ``{platform}`` with
 .. code-block:: bash
 
    $ cd <path-to-stardis-directory>
+   $ wget -q https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-{platform}.lock
    $ conda create --name stardis --file conda-{platform}.lock
    $ conda activate stardis
    $ pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
@@ -34,6 +35,7 @@ If you are using Mamba, the steps are similar:
 .. code-block:: bash
 
    $ cd <path-to-stardis-directory>
+   $ wget -q https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-{platform}.lock
    $ mamba create --name stardis --file conda-{platform}.lock
    $ mamba activate stardis
    $ pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25

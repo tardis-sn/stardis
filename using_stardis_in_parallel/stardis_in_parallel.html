@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using STARDIS in Parallel &mdash; stardis 0.1.dev1+gf037f54 documentation</title>
+  <title>Using STARDIS in Parallel &mdash; stardis 0.1.dev1+gbc9ad0e documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,13 +17,11 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=89c760e2"></script>
+        <script src="../_static/documentation_options.js?v=9d826eb3"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -88,7 +86,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Using STARDIS in Parallel</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/using_stardis_in_parallel/stardis_in_parallel.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/using_stardis_in_parallel/stardis_in_parallel.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -96,18 +94,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Using-STARDIS-in-Parallel">
-<h1>Using STARDIS in Parallel<a class="headerlink" href="#Using-STARDIS-in-Parallel" title="Link to this heading"></a></h1>
-<p>When you run a STARDIS simulation, the yaml file determines how many threads are used. By default, it will only use 1 thread. The more threads you set a simulation to use, the more computing power the simulation will take advantage of for calculating line opacity and ray tracing steps (as both of these are parallelized in STARDIS). <strong>Setting n_threads to 0 will make the simulation use all available threads.</strong></p>
-<p>Here is a what a yaml file that has the STARDIS simulation use 3 threads will look like</p>
+  <section id="using-stardis-in-parallel">
+<h1>Using STARDIS in Parallel<a class="headerlink" href="#using-stardis-in-parallel" title="Link to this heading"></a></h1>
+<p>When you run a STARDIS simulation, the yaml file determines how many
+threads are used. By default, it will only use 1 thread. The more
+threads you set a simulation to use, the more computing power the
+simulation will take advantage of for calculating line opacity and ray
+tracing steps (as both of these are parallelized in STARDIS). <strong>Setting
+n_threads to 0 will make the simulation use all available threads.</strong></p>
+<p>Here is a what a YAML configuration file that has the STARDIS simulation
+use 3 threads could look like</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 <span class="nt">n_threads</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"> </span><span class="c1"># &lt;-----------  add your &#39;n_threads: &lt;integer&gt;&#39; here</span>
 <span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kurucz_cd23_chianti_H_He.h5</span>
-<span class="nt">model</span><span class="p">:</span>
+<span class="nt">input_model</span><span class="p">:</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </pre></div>
 </div>
-<p>One reason you may want to consider increasing threads used is when computing spectra with large numbers (i.e. 10,000 or more) of wavelength points.</p>
+<p>One reason you may want to consider increasing threads used is when
+computing spectra with large numbers (i.e. 10,000 or more) of wavelength
+points.</p>
 </section>
 
 

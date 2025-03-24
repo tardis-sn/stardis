@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloading and Installation &mdash; stardis 0.1.dev1+gf037f54 documentation</title>
+  <title>Downloading and Installation &mdash; stardis 0.1.dev1+gbc9ad0e documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
@@ -17,7 +17,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=89c760e2"></script>
+        <script src="_static/documentation_options.js?v=9d826eb3"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -119,6 +119,7 @@ environment for STARDIS. To do this, run
 the following in the terminal (replacing <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with
 <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>, or <code class="docutils literal notranslate"><span class="pre">osx-64</span></code> as applicable). Cuda is not currently supported.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
+$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>stardis
 $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
@@ -128,6 +129,7 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 environment, which is necessary to correctly install STARDIS using the directions below.</p>
 <p>If you are using Mamba, the steps are similar:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>&lt;path-to-stardis-directory&gt;
+$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>stardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
 $<span class="w"> </span>mamba<span class="w"> </span>activate<span class="w"> </span>stardis
 $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-2024.08.25

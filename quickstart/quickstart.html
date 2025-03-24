@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STARDIS &mdash; stardis 0.1.dev1+gf037f54 documentation</title>
+  <title>STARDIS &mdash; stardis 0.1.dev1+gbc9ad0e documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=89c760e2"></script>
+        <script src="../_static/documentation_options.js?v=9d826eb3"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -110,7 +110,7 @@
 <section id="Import-Necessary-Code">
 <h2>Import Necessary Code<a class="headerlink" href="#Import-Necessary-Code" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -128,24 +128,32 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "905bee835e86494e9b32602620732a0f", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "340bb9aaa228407c8393b8becae8ebdf", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "cd5c0624ed6845f7998ad9e48d578a03", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "900b602af0c2443594878b1358a7759d", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 <section id="Download-Atomic-Data">
 <h2>Download Atomic Data<a class="headerlink" href="#Download-Atomic-Data" title="Link to this heading"></a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Atomic Data kurucz_cd23_chianti_H_He already exists in /home/groneck/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5. Will not download - override with force_download=True.
+</pre></div></div>
 </div>
 </section>
 <section id="The-STARDIS-Configuration">
@@ -153,10 +161,10 @@
 <p>STARDIS uses <a class="reference external" href="https://yaml.org/">YAML</a> files for the configuration. The configuration file called <code class="docutils literal notranslate"><span class="pre">stardis_example.yml</span></code> used here can be found <a class="reference external" href="https://github.com/tardis-sn/stardis/tree/main/docs/quickstart">here</a>, along with the other files used in this Quickstart notebook. Below, we present an example for instructions for customizing the configuration for your needs.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 <span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to atomic data file&gt;</span>
-<span class="nt">model</span><span class="p">:</span>
+<span class="nt">input_model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span><span class="w"> </span><span class="c1"># more options will be available in the future</span>
 <span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to model file&gt;</span>
-<span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;atomic number of largest element considered&gt;</span><span class="w"> </span><span class="c1"># may be up to 30</span>
+<span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;atomic number of largest element considered&gt;</span>
 <span class="nt">opacity</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="c1"># reads a bound-free or free-free opacity file, omit if none</span>
 <span class="w">        </span><span class="nt">&lt;species1&gt;_&lt;either bf for bound-free or ff for free-free&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;filepath to opacity file&gt;</span>
@@ -210,8 +218,8 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 <section id="Create-Array-of-Wavelengths-and-Run-STARDIS">
 <h2>Create Array of Wavelengths and Run STARDIS<a class="headerlink" href="#Create-Array-of-Wavelengths-and-Run-STARDIS" title="Link to this heading"></a></h2>
 <p>The main function, <code class="docutils literal notranslate"><span class="pre">run_stardis()</span></code>, requires as its first argument the name of a configuration file, which will be described below. The second argument is an array of the frequencies or wavelengths for which you are requesting the flux density, times an appropriate astropy quantity (such as Hertz or Angstroms). Note that this must be an array times a quantity, <strong>not</strong> an array of astropy quantities.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tracing_lambdas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">6540</span><span class="p">:</span><span class="mi">6590</span><span class="p">:</span><span class="mf">.01</span><span class="p">]</span><span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span>
@@ -220,11 +228,19 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+</pre></div></div>
+</div>
 </section>
 <section id="Plot-spectra">
 <h2>Plot spectra<a class="headerlink" href="#Plot-spectra" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
@@ -240,11 +256,26 @@ wavelength_3, cross-section_31, cross-section_32, cross-section_33, ...
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+&lt;&gt;:6: SyntaxWarning: invalid escape sequence &#39;\A&#39;
+&lt;&gt;:7: SyntaxWarning: invalid escape sequence &#39;\A&#39;
+&lt;&gt;:6: SyntaxWarning: invalid escape sequence &#39;\A&#39;
+&lt;&gt;:7: SyntaxWarning: invalid escape sequence &#39;\A&#39;
+/tmp/ipykernel_76917/597640734.py:6: SyntaxWarning: invalid escape sequence &#39;\A&#39;
+  plt.xlabel(&#34;Wavelength [$\AA$]&#34;)
+/tmp/ipykernel_76917/597640734.py:7: SyntaxWarning: invalid escape sequence &#39;\A&#39;
+  plt.ylabel(&#34;Flux density [erg/s/cm$^2$/$\AA$]&#34;)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/quickstart_quickstart_13_0.png" src="../_images/quickstart_quickstart_13_0.png" />
+<img alt="../_images/quickstart_quickstart_13_1.png" src="../_images/quickstart_quickstart_13_1.png" />
 </div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">

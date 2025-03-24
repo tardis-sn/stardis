@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Custom Star Model &mdash; stardis 0.1.dev1+gf037f54 documentation</title>
+  <title>Custom Star Model &mdash; stardis 0.1.dev1+gbc9ad0e documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -17,13 +17,11 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=89c760e2"></script>
+        <script src="../_static/documentation_options.js?v=9d826eb3"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Star Model</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Using-MARCS-to-get-.mod-files">Using MARCS to get .mod files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-marcs-to-get-mod-files">Using MARCS to get .mod files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gzipped-files">gzipped files</a></li>
 </ul>
 </li>
@@ -92,7 +90,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Custom Star Model</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -100,23 +98,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Custom-Star-Model">
-<h1>Custom Star Model<a class="headerlink" href="#Custom-Star-Model" title="Link to this heading"></a></h1>
-<p>In the quickstart notebook you saw STARDIS using the file ‘sun.mod’ to create spectra based on the sun. Here we will show how to obtain and use a .mod file for a star of your chosen parameters.</p>
-<section id="Using-MARCS-to-get-.mod-files">
-<h2>Using MARCS to get .mod files<a class="headerlink" href="#Using-MARCS-to-get-.mod-files" title="Link to this heading"></a></h2>
-<p>STARDIS uses files from the <a class="reference external" href="https://marcs.oreme.org/">MARCS site</a>, which “contains about 52,000 stellar atmospheric models of spectral types F, G and K”. Here we will only be discussing the aspects of MARCS needed for STARDIS. To get started, <a class="reference external" href="https://marcs.oreme.org/data/">go to the ‘Search Marcs’ tab of the MARCS site</a></p>
-<p><a class="reference external" href="https://marcs.oreme.org/data/">https://marcs.oreme.org/data/</a></p>
-<div><p><img alt="e14cccbd03c748da8744522a3c436d30" class="no-scaled-link" src="../_images/search_marcs.png" style="width: 700px;" /></p>
-</div><p><em>picture of the Search Marcs page</em></p>
-<p>Getting an atmosphere model is as easy as entering a range of parameters of your choosing. For more information on what each of these qualities are, you can click the question marks next to each option or refer to <a class="reference external" href="https://marcs.oreme.org/documents/">the MARCS documentation</a>.</p>
-<p>In the below example, we have entered some arbitrary values into MARCS, and on the right are now all files that qualify. Note how the names of the files show the exact parameters of each file and how there are several pages of files you can look through.</p>
-<div><p><img alt="3c1be5f300d6476fac7c7e8870ae1bd5" class="no-scaled-link" src="../_images/search_results.png" style="width: 700px;" /></p>
-</div><p>MARCS uses a ‘shopping cart’ style system for selecting models, called your ‘basket’. Once you have selected your chosen models, proceed to the ‘Basket’ tab to download them. <strong>Make sure you only have ‘.mod’ files selected, as that is the format used by STARDIS.</strong></p>
-<p>Below is an example of a yaml file using the ‘sun.mod’ file. Note that you can provide either the relative or absolute path to your new model data.</p>
+  <section id="custom-star-model">
+<h1>Custom Star Model<a class="headerlink" href="#custom-star-model" title="Link to this heading"></a></h1>
+<p>In the quickstart notebook you saw a STARDIS simulation using the file
+<code class="docutils literal notranslate"><span class="pre">sun.mod</span></code> to create spectra based on the sun. These <code class="docutils literal notranslate"><span class="pre">.mod</span></code> files are
+how you supply a star model to STARDIS, and here we will show how to
+obtain and use such file for a star of your chosen parameters.</p>
+<section id="using-marcs-to-get-mod-files">
+<h2>Using MARCS to get .mod files<a class="headerlink" href="#using-marcs-to-get-mod-files" title="Link to this heading"></a></h2>
+<p>STARDIS uses files from the <a class="reference external" href="https://marcs.oreme.org/">MARCS site</a>,
+which “contains about 52,000 stellar atmospheric models of spectral
+types F, G and K”. Here we will only be discussing the aspects of MARCS
+needed for STARDIS. To get started, go to the ‘Search Marcs’ tab of the
+MARCS site <a class="reference external" href="https://marcs.oreme.org/data/">here!</a></p>
+<img alt="picture of the Search Marcs page" src="../_images/search_marcs.png" />
+<p><em>picture of the Search Marcs page</em></p>
+<p>Getting an atmosphere model is as easy as entering a range of parameters
+of your choosing. For more information on what each of these qualities
+are, you can click the question marks next to each option or refer to
+<a class="reference external" href="https://marcs.oreme.org/documents/">the MARCS documentation</a>. In the
+below example, we have entered some arbitrary values into MARCS, and on
+the right are now all files that qualify. Note how the names of the
+files show the exact parameters of each file and how there are several
+pages of files you can look through.</p>
+<img alt="picture of the Marcs Search Results" src="../_images/search_results.png" />
+<p>MARCS uses a ‘shopping cart’ style system for selecting models, called
+your ‘basket’. Once you have selected your chosen models, proceed to the
+‘Basket’ tab to download them. <strong>Make sure you only have ‘.mod’ files
+selected, as that is the format used by STARDIS.</strong></p>
+<p>Below is an example of a yaml file using the ‘sun.mod’ file. Note that
+you can provide either the relative or absolute path to your new model
+data.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stardis_config_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 <span class="nt">atom_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kurucz_cd23_chianti_H_He.h5</span>
-<span class="nt">model</span><span class="p">:</span>
+<span class="nt">input_model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span>
 <span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sun.mod</span><span class="w"> </span><span class="c1"># &lt;----- this is where the .mod file is specified</span>
 <span class="w">    </span><span class="nt">final_atomic_number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
@@ -127,9 +142,13 @@
 </section>
 <section id="gzipped-files">
 <h2>gzipped files<a class="headerlink" href="#gzipped-files" title="Link to this heading"></a></h2>
-<p>when you download a mod file from MARCS, it will be gzipped (shown by the file ending with ‘.mod.gz’). By default STARDIS will assume you have extracted the file, however you can add a line to the yaml file ‘gzipped: True’ as shown below and STARDIS will take care of this for you.</p>
+<p>when you download a mod file from MARCS, it will be gzipped (shown by
+the file ending with ‘.mod.gz’). By default STARDIS will assume you have
+extracted the file, however you can add a line to your YAML file
+<code class="docutils literal notranslate"><span class="pre">gzipped:</span> <span class="pre">True</span></code> as shown below and STARDIS will take care of this for
+you.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span>
-<span class="nt">model</span><span class="p">:</span>
+<span class="nt">input_model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marcs</span>
 <span class="w">    </span><span class="nt">fname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sun.mod</span>
 <span class="w">    </span><span class="nt">gzipped</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># &lt;----- use this if the file is gzipped</span>
