@@ -15,7 +15,8 @@ types F, G and K”. Here we will only be discussing the aspects of MARCS
 needed for STARDIS. To get started, go to the ‘Search Marcs’ tab of the
 MARCS site `here! <https://marcs.oreme.org/data/>`__
 
-.. container::
+.. image:: search_marcs.png
+   :alt: picture of the Search Marcs page
 
 *picture of the Search Marcs page*
 
@@ -28,7 +29,8 @@ the right are now all files that qualify. Note how the names of the
 files show the exact parameters of each file and how there are several
 pages of files you can look through.
 
-.. container::
+.. image:: search_results.png
+   :alt: picture of the Marcs Search Results
 
 MARCS uses a ‘shopping cart’ style system for selecting models, called
 your ‘basket’. Once you have selected your chosen models, proceed to the
