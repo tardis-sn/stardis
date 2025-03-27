@@ -14,11 +14,7 @@ from stardis.io.model.marcs_regex_patterns import (
     METADATA_PLANE_PARALLEL_RE_STR,
     METADATA_SPHERICAL_RE_STR,
 )
-from stardis.io.model.util import (
-    create_scaled_solar_profile,
-    ASPLUND_DEFAULT_HELIUM_MASS_FRACTION_Y,
-    ASPLUND_DEFAULT_HEAVY_ELEMENTS_MASS_FRACTION_Z,
-)
+from stardis.io.model.util import create_scaled_solar_profile
 
 logger = logging.getLogger(__name__)
 
