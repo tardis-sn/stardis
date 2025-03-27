@@ -100,7 +100,7 @@ class MARCSModel(object):
             )
         else:
             raise ValueError(
-                "Unknown base composition requested. composition_source must be 'from_model' or 'asplund2009'."
+                f"Unknown composition {composition_source} requested. composition_source must be 'from_model' or 'asplund2009'."
             )
 
         atomic_mass_fraction["mass_number"] = -1
