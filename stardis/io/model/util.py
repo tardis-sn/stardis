@@ -1,5 +1,6 @@
 from pathlib import Path
 import pandas as pd
+import numpy as np
 import logging
 from tardis.util.base import element_symbol2atomic_number, atomic_number2element_symbol
 
@@ -42,6 +43,8 @@ def create_scaled_solar_profile(
         * 10**solar_values.Value.values
     ).values
     solar_values.drop(columns=["Element", "Value"], inplace=True)
+    full_index = np.arange(solar_values.index.min(), solar_values.index.max() + 1)
+    solar_values = solar_values.reindex(full_index, fill_value=0)
 
     # Scale Helium
     solar_values.loc[2] = (

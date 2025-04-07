@@ -74,7 +74,11 @@ def parse_config_to_model(config_fname, add_config_dict):
             gzipped=config.input_model.gzipped,
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.input_model.final_atomic_number
+            adata,
+            final_atomic_number=config.input_model.final_atomic_number,
+            composition_source=config.input_model.composition_source,
+            helium_mass_frac_Y=config.input_model.composition_Y,
+            heavy_metal_mass_frac_Z=config.input_model.composition_Z,
         )
         if config.opacity.line.disable_microturbulence:
             stellar_model.microturbulence = stellar_model.microturbulence * 0.0
@@ -101,9 +105,7 @@ def parse_config_to_model(config_fname, add_config_dict):
             1,
             np.min(
                 [
-                    len(
-                        stellar_model.composition.elemental_mass_fraction.columns.tolist()
-                    ),
+                    len(stellar_model.composition.elemental_mass_fraction),
                     config.input_model.final_atomic_number,
                 ]
             )
