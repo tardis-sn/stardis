@@ -84,7 +84,9 @@ class MARCSModel(object):
             atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
                 atom_data, final_atomic_number
             )
-        elif composition_source == "asplund_2009" or composition_source == 'asplund_2020':
+        elif (
+            composition_source == "asplund_2009" or composition_source == "asplund_2020"
+        ):
             solar_profile = create_scaled_solar_profile(
                 atom_data,
                 helium_mass_frac_Y=helium_mass_frac_Y,

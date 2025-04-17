@@ -8,9 +8,7 @@ from tardis.util.base import element_symbol2atomic_number, atomic_number2element
 PATH_TO_ASPLUND_2009 = Path(__file__).parent / "data" / "asplund_2009_processed.csv"
 PATH_TO_ASPLUND_2020 = Path(__file__).parent / "data" / "asplund_2020_processed.csv"
 
-ASPLUND_2009_HE_MASS_FRAC_Y = (
-    0.2492280  # The Asplund 2009 mass fraction of measured He
-)
+ASPLUND_2009_HE_MASS_FRAC_Y = 0.2492280  # The Asplund 2009 mass fraction of measured He
 ASPLUND_2009_HEAVY_MASS_FRAC_Z = (
     0.01337  # The Asplund 2009 mass fraction of measured heavy metals
 )
@@ -18,12 +16,13 @@ ASPLUND_2009_HEAVY_MASS_FRAC_Z = (
 ASPLUND_2020_HE_MASS_FRAC_Y = 0.2423
 ASPLUND_2020_HEAVY_MASS_FRAC_Z = 0.0139
 
+
 def create_scaled_solar_profile(
     atom_data,
     helium_mass_frac_Y=ASPLUND_2020_HE_MASS_FRAC_Y,
     heavy_metal_mass_frac_Z=ASPLUND_2020_HEAVY_MASS_FRAC_Z,
     final_atomic_number=None,
-    composition_source="asplund_2020"
+    composition_source="asplund_2020",
 ):
     """
     Scales the solar mass fractions based on the given atom data, helium_mass_frac_Y, and heavy_metal_mass_frac_Z, using the photospheric composition from Asplund 2009.
@@ -47,7 +46,7 @@ def create_scaled_solar_profile(
             helium_mass_frac_Y = he_y_tot
         if heavy_metal_mass_frac_Z == -99:
             heavy_metal_mass_frac_Z = he_z_tot
-            
+
     elif composition_source == "asplund_2009":
         solar_values = pd.read_csv(PATH_TO_ASPLUND_2009, index_col=0)
         he_y_tot = ASPLUND_2009_HE_MASS_FRAC_Y
@@ -56,7 +55,7 @@ def create_scaled_solar_profile(
             helium_mass_frac_Y = he_y_tot
         if heavy_metal_mass_frac_Z == -99:
             heavy_metal_mass_frac_Z = he_z_tot
-        
+
     else:
         raise ValueError(
             f"Unknown composition source: {composition_source}. Use 'asplund_2009' or 'asplund_2020'."
@@ -73,17 +72,9 @@ def create_scaled_solar_profile(
     solar_values = solar_values.reindex(full_index, fill_value=0)
 
     # Scale Helium
-    solar_values.loc[2] = (
-        solar_values.loc[2]
-        * helium_mass_frac_Y
-        / he_y_tot
-    )
+    solar_values.loc[2] = solar_values.loc[2] * helium_mass_frac_Y / he_y_tot
     # Scale Metals
-    solar_values.loc[3:] = (
-        solar_values.loc[3:]
-        * heavy_metal_mass_frac_Z
-        / he_z_tot
-    )
+    solar_values.loc[3:] = solar_values.loc[3:] * heavy_metal_mass_frac_Z / he_z_tot
 
     # Return scaled mass fractions by dividing by total mass. Implicitly lowers the hydrogen abundance so that the total mass fraction is 1.
     return solar_values.div(solar_values.sum(axis=0))
