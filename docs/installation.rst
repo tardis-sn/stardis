@@ -17,7 +17,7 @@ STARDIS uses exclusively the packages in the TARDIS enviroment, as well
 as using the TARDIS code itself. We strongly suggest that users create a separate
 environment for STARDIS. To do this, run
 the following in the terminal (replacing ``{platform}`` with
-``linux-64``, or ``osx-64`` as applicable). Cuda is not currently supported.
+``linux-64``, ``osx-64``, or ``osx-arm64`` as applicable). Cuda is not currently supported.
 
 .. code-block:: bash
 
