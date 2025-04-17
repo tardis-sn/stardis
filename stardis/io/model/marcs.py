@@ -175,8 +175,8 @@ class MARCSModel(object):
         atom_data,
         final_atomic_number,
         composition_source,
-        helium_mass_frac_Y,
-        heavy_metal_mass_frac_Z,
+        helium_mass_frac_Y=None,
+        heavy_metal_mass_frac_Z=None,
     ):
         """
         Produces a stellar model readable by stardis.
