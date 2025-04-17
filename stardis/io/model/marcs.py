@@ -84,7 +84,7 @@ class MARCSModel(object):
             atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
                 atom_data, final_atomic_number
             )
-        elif composition_source == "asplund2009":
+        elif composition_source == "asplund_2009" or composition_source == 'asplund_2020':
             solar_profile = create_scaled_solar_profile(
                 atom_data,
                 helium_mass_frac_Y=helium_mass_frac_Y,
@@ -92,6 +92,7 @@ class MARCSModel(object):
                 final_atomic_number=np.min(
                     [final_atomic_number, len(atom_data.atom_data)]
                 ),
+                composition_source=composition_source,
             )
             atomic_mass_fraction = pd.DataFrame(
                 columns=range(len(self.data)),
@@ -100,7 +101,7 @@ class MARCSModel(object):
             )
         else:
             raise ValueError(
-                f"Unknown composition {composition_source} requested. composition_source must be 'from_model' or 'asplund2009'."
+                f"Unknown composition {composition_source} requested. composition_source must be 'from_model', 'asplund_2020', or 'asplund_2009'."
             )
 
         atomic_mass_fraction["mass_number"] = -1

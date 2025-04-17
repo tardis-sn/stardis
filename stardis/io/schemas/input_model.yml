@@ -25,15 +25,15 @@ properties:
     composition_source:
         type: string
         default: "from_model"
-        description: The source of the composition data. If "from_model", use the composition data in the model file.  Only used for marcs models. Can also specify "asplund2009"
+        description: The source of the composition data. If "from_model", use the composition data in the model file.  Only used for marcs models. Can also specify "asplund_2020" or "asplund_2009".
     composition_Y:
         type: number
-        default: 0.2492280
-        description: The helium mass fraction. Only used if composition is not read from the model file. Default solar from Asplund et al. 2009.
+        default: -99.
+        description: The helium mass fraction. Only used if composition is not read from the model file. If not specified will use the default from the composition_source.
     composition_Z:
         type: number
-        default: 0.01337
-        description: The heavy metal mass fraction. Only used if composition is not read from the model file. Default solar from Asplund et al. 2009.
+        default: -99.
+        description: The heavy metal mass fraction. Only used if composition is not read from the model file. If not specified will use the default from the composition_source.
     nuclide_rescaling_dict:
         type: object
         default: {}
