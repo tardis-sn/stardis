@@ -11,8 +11,8 @@ from tardis.model.matter.composition import Composition
 from stardis.model.base import StellarModel
 from stardis.io.model.util import (
     create_scaled_solar_profile,
-    ASPLUND_2020_HE_MASS_FRAC_Y,
-    ASPLUND_2020_HEAVY_MASS_FRAC_Z,
+    ASPLUND_2009_HE_MASS_FRAC_Y,
+    ASPLUND_2009_HEAVY_MASS_FRAC_Z,
 )
 
 
@@ -50,8 +50,8 @@ class MESAModel:
     def to_uniform_composition_from_solar(
         self,
         atom_data,
-        helium_mass_frac_Y=ASPLUND_2020_HE_MASS_FRAC_Y,
-        heavy_metal_mass_frac_Z=ASPLUND_2020_HEAVY_MASS_FRAC_Z,
+        helium_mass_frac_Y=ASPLUND_2009_HE_MASS_FRAC_Y,
+        heavy_metal_mass_frac_Z=ASPLUND_2009_HEAVY_MASS_FRAC_Z,
         final_atomic_number=138,
     ):
         """
@@ -100,8 +100,8 @@ class MESAModel:
         self,
         atom_data,
         truncate_to_shell_number=None,
-        helium_mass_frac_Y=ASPLUND_2020_HE_MASS_FRAC_Y,
-        heavy_metal_mass_frac_Z=ASPLUND_2020_HEAVY_MASS_FRAC_Z,
+        helium_mass_frac_Y=ASPLUND_2009_HE_MASS_FRAC_Y,
+        heavy_metal_mass_frac_Z=ASPLUND_2009_HEAVY_MASS_FRAC_Z,
         final_atomic_number=138,
     ):
         """
