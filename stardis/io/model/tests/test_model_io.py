@@ -87,3 +87,38 @@ def test_rescale_nuclide_mass_fraction(example_stellar_model):
         rtol=1e-10,
         atol=1e-10,
     )
+
+def test_marcs_with_asplund_2020(
+    marcs_model, example_kurucz_atomic_data, example_config
+):
+    marcs_only_h_stellar_model = marcs_model.to_stellar_model(
+        example_kurucz_atomic_data,
+        final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source="asplund_2020",
+        helium_mass_frac_Y=0.0,
+        heavy_metal_mass_frac_Z=0.0,
+    )
+    assert marcs_only_h_stellar_model.composition.elemental_mass_fraction.loc[1,0] == 1.0 #all hydrogen
+    assert marcs_only_h_stellar_model.composition.elemental_mass_fraction.loc[2,0] == 0.0 #no helium
+    assert marcs_only_h_stellar_model.composition.elemental_mass_fraction.loc[3,0] == 0.0 #no metals
+    
+    marcs_asplund_2020_defaults_stellar_model = marcs_model.to_stellar_model(
+        example_kurucz_atomic_data,
+        final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source="asplund_2020",
+        helium_mass_frac_Y=-99.,
+        heavy_metal_mass_frac_Z=-99.,
+    )
+    assert np.allclose(marcs_asplund_2020_defaults_stellar_model.composition.elemental_mass_fraction.loc[1,0], 0.75428) #This is not .7438 because the final atomic number is 30
+    assert np.allclose(marcs_asplund_2020_defaults_stellar_model.composition.elemental_mass_fraction.loc[2,0], 0.245713) #This is not .2423 because the final atomic number is 30
+
+    marcs_asplund_2009_defaults_stellar_model = marcs_model.to_stellar_model(
+        example_kurucz_atomic_data,
+        final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source="asplund_2009",
+        helium_mass_frac_Y=-99.,
+        heavy_metal_mass_frac_Z=-99.,
+    )
+    
+    assert np.allclose(marcs_asplund_2009_defaults_stellar_model.composition.elemental_mass_fraction.loc[1,0], 0.747394)
+    assert np.allclose(marcs_asplund_2009_defaults_stellar_model.composition.elemental_mass_fraction.loc[2,0], 0.252605)

@@ -30,7 +30,7 @@ atomic_number,Element,Value
 29,Cu,4.18
 30,Zn,4.56
 31,Ga,3.02
-32,Ge,3.63
+32,Ge,3.62
 36,Kr,3.12
 37,Rb,2.32
 38,Sr,2.83
@@ -42,7 +42,7 @@ atomic_number,Element,Value
 45,Rh,0.78
 46,Pd,1.57
 47,Ag,0.96
-49,In,0.8
+49,In,0.80
 50,Sn,2.02
 54,Xe,2.22
 56,Ba,2.27
