@@ -99,6 +99,7 @@ def example_stellar_model(example_config, example_kurucz_atomic_data):
     return raw_marcs_model.to_stellar_model(
         example_kurucz_atomic_data,
         final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source="from_model",
     )
 
 

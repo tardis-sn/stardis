@@ -14,6 +14,7 @@ from stardis.io.model.marcs_regex_patterns import (
     METADATA_PLANE_PARALLEL_RE_STR,
     METADATA_SPHERICAL_RE_STR,
 )
+from stardis.io.model.util import create_scaled_solar_profile
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,14 @@ class MARCSModel(object):
             reference_r = self.metadata["radius"]
         return Radial1DGeometry(r, reference_r)
 
-    def to_composition(self, atom_data, final_atomic_number):
+    def to_composition(
+        self,
+        atom_data,
+        final_atomic_number,
+        composition_source,
+        helium_mass_frac_Y,
+        heavy_metal_mass_frac_Z,
+    ):
         """
         Returns a stardis.model.composition.base.Composition object from the MARCS model.
 
@@ -57,21 +65,50 @@ class MARCSModel(object):
         atom_data : tardis.io.atom_data.base.AtomData
         final_atomic_number : int, optional
             Atomic number for the final element included in the model.
+        composition_source : str, optional
+            Choice of base composition source. Default is "from_model" and will read from the marcs model.
+            Options are: "from_model", "asplund2009".
+        helium_mass_frac_Y : float, optional
+            Helium mass fraction when not reading composition from model.
+        heavy_metal_mass_frac_Z : float, optional
+            Heavy element mass fraction when not reading composition from model.
 
         Returns
         ----------
-        stardis.model.composition.base.Composition
+        tardis.model.matter.composition.Composition
         """
         density = (
             self.data.density.values[::-1] * u.g / u.cm**3
         )  # Flip data to move from innermost stellar point to surface
-        atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
-            atom_data, final_atomic_number
-        )
+        if composition_source == "from_model":
+            atomic_mass_fraction = self.convert_marcs_raw_abundances_to_mass_fractions(
+                atom_data, final_atomic_number
+            )
+        elif (
+            composition_source == "asplund_2009" or composition_source == "asplund_2020"
+        ):
+            solar_profile = create_scaled_solar_profile(
+                atom_data,
+                helium_mass_frac_Y=helium_mass_frac_Y,
+                heavy_metal_mass_frac_Z=heavy_metal_mass_frac_Z,
+                final_atomic_number=np.min(
+                    [final_atomic_number, len(atom_data.atom_data)]
+                ),
+                composition_source=composition_source,
+            )
+            atomic_mass_fraction = pd.DataFrame(
+                columns=range(len(self.data)),
+                index=solar_profile.index,
+                data=np.repeat(solar_profile.values, len(self.data), axis=1),
+            )
+        else:
+            raise ValueError(
+                f"Unknown composition {composition_source} requested. composition_source must be 'from_model', 'asplund_2020', or 'asplund_2009'."
+            )
 
         atomic_mass_fraction["mass_number"] = -1
         atomic_mass_fraction.set_index("mass_number", append=True, inplace=True)
-
+        atomic_mass_fraction.index.name = "atomic_number"
         return Composition(
             density,
             atomic_mass_fraction,
@@ -133,7 +170,14 @@ class MARCSModel(object):
 
         return marcs_atom_data
 
-    def to_stellar_model(self, atom_data, final_atomic_number=118):
+    def to_stellar_model(
+        self,
+        atom_data,
+        final_atomic_number,
+        composition_source,
+        helium_mass_frac_Y=None,
+        heavy_metal_mass_frac_Z=None,
+    ):
         """
         Produces a stellar model readable by stardis.
 
@@ -150,7 +194,11 @@ class MARCSModel(object):
         """
         marcs_geometry = self.to_geometry()
         marcs_composition = self.to_composition(
-            atom_data=atom_data, final_atomic_number=final_atomic_number
+            atom_data=atom_data,
+            final_atomic_number=final_atomic_number,
+            composition_source=composition_source,
+            helium_mass_frac_Y=helium_mass_frac_Y,
+            heavy_metal_mass_frac_Z=heavy_metal_mass_frac_Z,
         )
         temperatures = (
             self.data.t.values[::-1] * u.K
