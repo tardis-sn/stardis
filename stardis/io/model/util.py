@@ -39,27 +39,21 @@ def create_scaled_solar_profile(
 
     """
     if composition_source == "asplund_2020":
-        solar_values = pd.read_csv(PATH_TO_ASPLUND_2020, index_col=0)
+        path_to_solar_data_table = PATH_TO_ASPLUND_2020
         he_y_tot = ASPLUND_2020_HE_MASS_FRAC_Y
         he_z_tot = ASPLUND_2020_HEAVY_MASS_FRAC_Z
-        if helium_mass_frac_Y == -99.0:
-            helium_mass_frac_Y = he_y_tot
-        if heavy_metal_mass_frac_Z == -99.0:
-            heavy_metal_mass_frac_Z = he_z_tot
-
     elif composition_source == "asplund_2009":
-        solar_values = pd.read_csv(PATH_TO_ASPLUND_2009, index_col=0)
+        path_to_solar_data_table = PATH_TO_ASPLUND_2009
         he_y_tot = ASPLUND_2009_HE_MASS_FRAC_Y
         he_z_tot = ASPLUND_2009_HEAVY_MASS_FRAC_Z
-        if helium_mass_frac_Y == -99:
-            helium_mass_frac_Y = he_y_tot
-        if heavy_metal_mass_frac_Z == -99:
-            heavy_metal_mass_frac_Z = he_z_tot
-
     else:
         raise ValueError(
             f"Unknown composition source: {composition_source}. Use 'asplund_2009' or 'asplund_2020'."
         )
+
+    solar_values = pd.read_csv(path_to_solar_data_table, index_col=0)
+
+    # Note that if you truncate the atom data, X, Y, and Z will be different from the Asplund values since you chop off the heavy metals and then renormalize
     if final_atomic_number is not None:
         solar_values = solar_values[solar_values.index <= final_atomic_number]
 
@@ -71,6 +65,11 @@ def create_scaled_solar_profile(
     full_index = np.arange(solar_values.index.min(), solar_values.index.max() + 1)
     solar_values = solar_values.reindex(full_index, fill_value=0.0)
 
+    # If helium_mass_frac_Y and heavy_metal_mass_frac_Z are -99.0, don't rescale any mass fractions later
+    if helium_mass_frac_Y == -99.0:
+        helium_mass_frac_Y = he_y_tot
+    if heavy_metal_mass_frac_Z == -99.0:
+        heavy_metal_mass_frac_Z = he_z_tot
     # Scale Helium
     solar_values.loc[2] = solar_values.loc[2] * helium_mass_frac_Y / he_y_tot
     # Scale Metals
