@@ -87,3 +87,38 @@ def test_rescale_nuclide_mass_fraction(example_stellar_model):
         rtol=1e-10,
         atol=1e-10,
     )
+
+
+@pytest.mark.parametrize(
+    ["composition_source_param", "input_Y", "input_Z", "X", "Y"],
+    [
+        ("asplund_2020", 0.0, 0.0, 1.0, 0.0),
+        ("asplund_2020", -99, -99, 0.75428, 0.245713),
+        ("asplund_2009", -99, -99, 0.747394, 0.252605),
+    ],
+)
+def test_marcs_with_asplund_compositions(
+    marcs_model,
+    example_kurucz_atomic_data,
+    example_config,
+    input_Y,
+    input_Z,
+    composition_source_param,
+    X,
+    Y,
+):
+    marcs_test_stellar_model = marcs_model.to_stellar_model(
+        example_kurucz_atomic_data,
+        final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source=composition_source_param,
+        helium_mass_frac_Y=input_Y,
+        heavy_metal_mass_frac_Z=input_Z,
+    )
+    assert np.allclose(
+        marcs_test_stellar_model.composition.elemental_mass_fraction.loc[1, 0],
+        X,
+    )
+    assert np.allclose(
+        marcs_test_stellar_model.composition.elemental_mass_fraction.loc[2, 0],
+        Y,
+    )

@@ -15,13 +15,25 @@ properties:
     final_atomic_number:
         type: number
         multipleOf: 1
-        default: 30
-        description: The atomic number of the heaviest element to use in the simulation. Elements heavier will be exlucded.
+        default: 92
+        description: The atomic number of the heaviest element to use in the simulation. Elements heavier will be excluded.
     truncate_to_shell:
         type: number
         multipleOf: 1
         default: -99
         description: If -99, use all shells. If positive, use only specified outermost depth points. Only used for mesa models. 
+    composition_source:
+        type: string
+        default: "from_model"
+        description: The source of the composition data. If "from_model", use the composition data in the model file.  Only used for marcs models. Can also specify "asplund_2020" or "asplund_2009".
+    composition_Y:
+        type: number
+        default: -99.
+        description: The helium mass fraction. Only used if composition is not read from the model file. If not specified will use the default from the composition_source.
+    composition_Z:
+        type: number
+        default: -99.
+        description: The heavy metal mass fraction. Only used if composition is not read from the model file. If not specified will use the default from the composition_source.
     nuclide_rescaling_dict:
         type: object
         default: {}
