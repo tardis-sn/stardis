@@ -10,4 +10,4 @@ properties:
         default: false
     return_radiation_field:
         type: boolean
-        default: true
+        default: false
