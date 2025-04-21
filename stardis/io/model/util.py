@@ -31,7 +31,7 @@ def create_scaled_solar_profile(
 
     Args:
         atom_data: The atom data used to scale the solar mass fractions.
-        helium_mass_frac_Y: The helium abundance. 
+        helium_mass_frac_Y: The helium abundance.
         heavy_metal_mass_frac_Z: The metallicity.
 
     Returns:
@@ -42,9 +42,9 @@ def create_scaled_solar_profile(
         solar_values = pd.read_csv(PATH_TO_ASPLUND_2020, index_col=0)
         he_y_tot = ASPLUND_2020_HE_MASS_FRAC_Y
         he_z_tot = ASPLUND_2020_HEAVY_MASS_FRAC_Z
-        if helium_mass_frac_Y == -99.:
+        if helium_mass_frac_Y == -99.0:
             helium_mass_frac_Y = he_y_tot
-        if heavy_metal_mass_frac_Z == -99.:
+        if heavy_metal_mass_frac_Z == -99.0:
             heavy_metal_mass_frac_Z = he_z_tot
 
     elif composition_source == "asplund_2009":
@@ -65,8 +65,8 @@ def create_scaled_solar_profile(
 
     solar_values["mass_fractions"] = (
         atom_data.atom_data.mass.loc[solar_values.index.values]
-        * 10**(solar_values.Value.values) # Could be - 12 but normalizes out the same
-    ).values 
+        * 10 ** (solar_values.Value.values)  # Could be - 12 but normalizes out the same
+    ).values
     solar_values.drop(columns=["Element", "Value"], inplace=True)
     full_index = np.arange(solar_values.index.min(), solar_values.index.max() + 1)
     solar_values = solar_values.reindex(full_index, fill_value=0.0)
