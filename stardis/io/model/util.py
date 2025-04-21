@@ -31,8 +31,8 @@ def create_scaled_solar_profile(
 
     Args:
         atom_data: The atom data used to scale the solar mass fractions.
-        helium_mass_frac_Y: The helium abundance. -99 does not rescale. 
-        heavy_metal_mass_frac_Z: The metallicity. -99 does not rescale. 
+        helium_mass_frac_Y: The helium abundance. -99 does not rescale.
+        heavy_metal_mass_frac_Z: The metallicity. -99 does not rescale.
 
     Returns:
         pandas.DataFrame: The scaled mass fractions.
