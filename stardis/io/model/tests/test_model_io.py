@@ -89,63 +89,36 @@ def test_rescale_nuclide_mass_fraction(example_stellar_model):
     )
 
 
-def test_marcs_with_asplund_2020(
-    marcs_model, example_kurucz_atomic_data, example_config
+@pytest.mark.parametrize(
+    ["composition_source_param", "input_Y", "input_Z", "X", "Y"],
+    [
+        ("asplund_2020", 0.0, 0.0, 1.0, 0.0),
+        ("asplund_2020", -99, -99, 0.75428, 0.245713),
+        ("asplund_2009", -99, -99, 0.747394, 0.252605),
+    ],
+)
+def test_marcs_with_asplund_compositions(
+    marcs_model,
+    example_kurucz_atomic_data,
+    example_config,
+    input_Y,
+    input_Z,
+    composition_source_param,
+    X,
+    Y,
 ):
-    marcs_only_h_stellar_model = marcs_model.to_stellar_model(
+    marcs_test_stellar_model = marcs_model.to_stellar_model(
         example_kurucz_atomic_data,
         final_atomic_number=example_config.input_model.final_atomic_number,
-        composition_source="asplund_2020",
-        helium_mass_frac_Y=0.0,
-        heavy_metal_mass_frac_Z=0.0,
-    )
-    assert (
-        marcs_only_h_stellar_model.composition.elemental_mass_fraction.loc[1, 0] == 1.0
-    )  # all hydrogen
-    assert (
-        marcs_only_h_stellar_model.composition.elemental_mass_fraction.loc[2, 0] == 0.0
-    )  # no helium
-    assert (
-        marcs_only_h_stellar_model.composition.elemental_mass_fraction.loc[3, 0] == 0.0
-    )  # no metals
-
-    marcs_asplund_2020_defaults_stellar_model = marcs_model.to_stellar_model(
-        example_kurucz_atomic_data,
-        final_atomic_number=example_config.input_model.final_atomic_number,
-        composition_source="asplund_2020",
-        helium_mass_frac_Y=-99.0,
-        heavy_metal_mass_frac_Z=-99.0,
+        composition_source=composition_source_param,
+        helium_mass_frac_Y=input_Y,
+        heavy_metal_mass_frac_Z=input_Z,
     )
     assert np.allclose(
-        marcs_asplund_2020_defaults_stellar_model.composition.elemental_mass_fraction.loc[
-            1, 0
-        ],
-        0.75428,
-    )  # This is not .7438 because the final atomic number is 30
-    assert np.allclose(
-        marcs_asplund_2020_defaults_stellar_model.composition.elemental_mass_fraction.loc[
-            2, 0
-        ],
-        0.245713,
-    )  # This is not .2423 because the final atomic number is 30
-
-    marcs_asplund_2009_defaults_stellar_model = marcs_model.to_stellar_model(
-        example_kurucz_atomic_data,
-        final_atomic_number=example_config.input_model.final_atomic_number,
-        composition_source="asplund_2009",
-        helium_mass_frac_Y=-99.0,
-        heavy_metal_mass_frac_Z=-99.0,
-    )
-
-    assert np.allclose(
-        marcs_asplund_2009_defaults_stellar_model.composition.elemental_mass_fraction.loc[
-            1, 0
-        ],
-        0.747394,
+        marcs_test_stellar_model.composition.elemental_mass_fraction.loc[1, 0],
+        X,
     )
     assert np.allclose(
-        marcs_asplund_2009_defaults_stellar_model.composition.elemental_mass_fraction.loc[
-            2, 0
-        ],
-        0.252605,
+        marcs_test_stellar_model.composition.elemental_mass_fraction.loc[2, 0],
+        Y,
     )
