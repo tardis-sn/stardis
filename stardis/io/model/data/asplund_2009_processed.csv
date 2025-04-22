@@ -33,7 +33,7 @@ atomic_number,Element,Value
 32,Ge,3.65
 33,As,2.30
 34,Se,3.34
-34,Br,2.54
+35,Br,2.54
 36,Kr,3.25
 37,Rb,2.52
 38,Sr,2.87
@@ -71,7 +71,7 @@ atomic_number,Element,Value
 72,Hf,0.85
 73,Ta,-0.12
 74,W,0.85
-75,0.26
+75,Re,0.26
 76,Os,1.4
 77,Ir,1.38
 78,Pt,1.62
