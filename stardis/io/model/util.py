@@ -4,6 +4,7 @@ import numpy as np
 import logging
 from tardis.util.base import element_symbol2atomic_number, atomic_number2element_symbol
 
+logger = logging.getLogger(__name__)
 
 PATH_TO_ASPLUND_2009 = Path(__file__).parent / "data" / "asplund_2009_processed.csv"
 PATH_TO_ASPLUND_2020 = Path(__file__).parent / "data" / "asplund_2020_processed.csv"
@@ -76,7 +77,11 @@ def create_scaled_solar_profile(
     solar_values.loc[3:] = solar_values.loc[3:] * heavy_metal_mass_frac_Z / he_z_tot
 
     # Return scaled mass fractions by dividing by total mass. Implicitly lowers the hydrogen abundance so that the total mass fraction is 1.
-    return solar_values.div(solar_values.sum(axis=0))
+    rescaled_mass_fractions = solar_values.div(solar_values.sum(axis=0))
+    logger.info(
+        f"Created composition with X={rescaled_mass_fractions.loc[1].values[0]:.3f}, Y={rescaled_mass_fractions.loc[2].values[0]:.3f}, Z={rescaled_mass_fractions.loc[3:].sum().values[0]:.3f}"
+    )
+    return rescaled_mass_fractions
 
 
 def rescale_nuclide_mass_fractions(nuclide_mass_fraction, nuclides, scale_factors):
