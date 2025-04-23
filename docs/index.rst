@@ -21,6 +21,8 @@ This is the documentation for STARDIS.
    Using STARDIS in Parallel <using_stardis_in_parallel/stardis_in_parallel>
    Changing Parameters <Changing_Parameters/Changing_Parameters>
    Rotation Broadening <rotation_broadening/rotation_broadening>
+   Fitting a Spectrum <fitting_stardis_example/fitting_stardis_example>
+
 
 .. toctree::
    :maxdepth: 2
