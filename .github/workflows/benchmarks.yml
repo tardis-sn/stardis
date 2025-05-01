@@ -54,6 +54,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
         if: github.event_name == 'pull_request'
+      
+      - name: Fetch master branch
+        run: git fetch origin main:main
+        if: github.event_name == 'pull_request_target'
 
       - name: Restore Atom Data
         uses: actions/cache/restore@v4
