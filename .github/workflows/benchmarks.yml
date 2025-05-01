@@ -57,7 +57,7 @@ jobs:
       
       - name: Fetch master branch
         run: git fetch origin main:main
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Restore Atom Data
         uses: actions/cache/restore@v4
