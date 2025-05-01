@@ -1,7 +1,5 @@
 name: benchmarks
 
-env:
-  TARDIS_VER: release-2024.08.25 # master 
 
 on:
   push:
@@ -25,6 +23,8 @@ defaults:
   run:
     shell: bash -l {0}
 
+env:
+  TARDIS_VER: release-2024.08.25 # master 
 jobs:
   build:
     if: github.event_name == 'push' ||
@@ -33,20 +33,20 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'benchmarks'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
         with:
           fetch-depth: 0
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
         if: github.event_name == 'pull_request_target'
 
       - name: Restore Atom Data
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id: atom-data-restore
         with:
           path: benchmarks/kurucz_cd23_chianti_H_He.h5
@@ -59,7 +59,7 @@ jobs:
           wget -q "$REPO_URL/raw/main/atom_data/kurucz_cd23_chianti_H_He.h5" -O benchmarks/kurucz_cd23_chianti_H_He.h5
 
       - name: Save Atom Data
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
         id: atom-data-cache-save
         with:
