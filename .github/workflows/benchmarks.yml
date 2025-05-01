@@ -142,7 +142,7 @@ jobs:
         run: |
           echo $(git rev-parse HEAD) > commit_hashes.txt
           echo $(git rev-parse main) >> commit_hashes.txt
-          asv run -a --show-stderr rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
+          asv run -a  rounds=1  --show-stderr HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
           if grep -q failed asv-output-PR.log; then 
             echo "Some benchmarks have failed!"
             exit 1
