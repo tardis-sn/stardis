@@ -74,7 +74,7 @@ class Sim10AA:
         stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
         stellar_radiation_field = RadiationField(
-            tracing_nus, blackbody_flux_at_nu, stellar_model
+            tracing_nus, blackbody_flux_at_nu, stellar_model, no_of_thetas=config.no_of_thetas
         )
 
         calc_alphas(
@@ -184,7 +184,7 @@ class Sim100AA:
         stellar_plasma = create_stellar_plasma(stellar_model, adata, config)
 
         stellar_radiation_field = RadiationField(
-            tracing_nus, blackbody_flux_at_nu, stellar_model
+            tracing_nus, blackbody_flux_at_nu, stellar_model, no_of_thetas=config.no_of_thetas
         )
 
         calc_alphas(
