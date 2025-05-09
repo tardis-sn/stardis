@@ -49,7 +49,7 @@ class Sim10AA:
             Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.input_model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number, composition_source=config.input_model.composition_source
         )
 
         adata.prepare_atom_data(
@@ -159,7 +159,7 @@ class Sim100AA:
             Path(config.input_model.fname), gzipped=config.input_model.gzipped
         )
         stellar_model = raw_marcs_model.to_stellar_model(
-            adata, final_atomic_number=config.input_model.final_atomic_number
+            adata, final_atomic_number=config.input_model.final_atomic_number, composition_source=config.input_model.composition_source
         )
 
         adata.prepare_atom_data(
