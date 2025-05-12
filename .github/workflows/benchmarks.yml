@@ -225,7 +225,7 @@ jobs:
 
       - name: Find Comment
         if: always() && github.event_name == 'pull_request'
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v3
         id: fc
         with:
           issue-number: ${{ github.event.number }}
@@ -234,7 +234,7 @@ jobs:
 
       - name: Post comment
         if: github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
