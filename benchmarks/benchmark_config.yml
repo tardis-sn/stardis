@@ -1,9 +1,10 @@
 stardis_config_version: 1.0
 atom_data: kurucz_cd23_chianti_H_He.h5
-model:
+input_model:
     type: marcs
     fname: sun.mod
     final_atomic_number: 30
+    composition_source: "from_model"
 opacity:
     file:
         Hminus_bf: h_minus_cross_section_wbr.dat
@@ -16,3 +17,7 @@ opacity:
         disable: False
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
 no_of_thetas: 20
+result_options:
+    return_model: True
+    return_plasma: True
+    return_radiation_field: True
