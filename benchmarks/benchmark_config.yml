@@ -17,7 +17,3 @@ opacity:
         disable: False
         broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
 no_of_thetas: 20
-result_options:
-    return_model: True
-    return_plasma: True
-    return_radiation_field: True
