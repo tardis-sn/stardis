@@ -1,0 +1,22 @@
+stardis_config_version: 1.0
+n_threads: 16
+atom_data: vald_extract_solar.h5
+input_model:
+    type: marcs
+    fname: ../quickstart/sun.mod
+    final_atomic_number: 120
+opacity:
+    file:
+        Hminus_bf: h_minus_cross_section_wbr.dat
+    bf:
+        H_I: {}
+    ff:
+        H_I: {}
+    disable_electron_scattering: False
+    line:
+        disable: False
+        broadening: [radiation, linear_stark, quadratic_stark, van_der_waals]
+        vald_linelist:
+            use_linelist: True
+            shortlist: True
+no_of_thetas: 20
