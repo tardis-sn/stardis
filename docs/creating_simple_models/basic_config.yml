@@ -6,14 +6,6 @@ input_model:
     fname: ../quickstart/sun.mod
     composition_source: asplund_2020
     final_atomic_number: 92
-    gzipped: False
 opacity:
     line:
-        vald_linelist:
-            use_linelist: True
-            shortlist: True
         include_molecules: True
-result_options:
-    return_plasma: True
-    return_model: True
-no_of_thetas: 20
