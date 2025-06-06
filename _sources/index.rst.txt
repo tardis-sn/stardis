@@ -21,6 +21,7 @@ This is the documentation for STARDIS.
    Using STARDIS in Parallel <using_stardis_in_parallel/stardis_in_parallel>
    Changing Parameters <Changing_Parameters/Changing_Parameters>
    Rotation Broadening <rotation_broadening/rotation_broadening>
+   Creating Simple Models <creating_simple_models/flexible_plasma>
 
 .. toctree::
    :maxdepth: 2

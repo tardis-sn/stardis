@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flexible model creation and molecule formation investigation &mdash; stardis 0.1.dev1+gf4eca33 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=d7bedf44"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contribution Guidelines" href="../contributing/contribution_guidelines.html" />
+    <link rel="prev" title="Rotation Broadening" href="../rotation_broadening/rotation_broadening.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            stardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/physics_of_stardis.html">Physics of STARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Custom_atomic_data/Custom_atomic_data.html">Custom Atomic Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../possible_stardis_outputs/possible_stardis_outputs.html">Possible STARDIS Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Custom_Star_Model_with_Marcs/Custom_Star_Model_with_Marcs.html">Custom Star Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../using_stardis_in_parallel/stardis_in_parallel.html">Using STARDIS in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Changing_Parameters/Changing_Parameters.html">Changing Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rotation_broadening/rotation_broadening.html">Rotation Broadening</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Creating Simple Models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to STARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/contribution_guidelines.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/editing_stardis.html">Editing Stardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/conda_lockfiles.html">Generating Conda Lockfiles</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">stardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Flexible model creation and molecule formation investigation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/creating_simple_models/flexible_plasma.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Flexible-model-creation-and-molecule-formation-investigation">
+<h1>Flexible model creation and molecule formation investigation<a class="headerlink" href="#Flexible-model-creation-and-molecule-formation-investigation" title="Link to this heading"></a></h1>
+<p>This notebook will explore how to create and explore a custom model, and use that to compare the stardis molecular solver to the molecular solver implemented in <a class="reference external" href="https://ajwheeler.github.io/Korg.jl/stable/">Korg</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Basic needed imports</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">stardis.io.base</span> <span class="kn">import</span> <span class="n">parse_config_to_model</span>
+<span class="kn">from</span> <span class="nn">stardis.plasma</span> <span class="kn">import</span> <span class="n">create_stellar_plasma</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/micromamba/envs/stardis/lib/python3.12/site-packages/setuptools_scm/git.py:167: UserWarning: &#34;/home/runner/work/stardis/stardis&#34; is shallow and may cause errors
+  warnings.warn(f&#39;&#34;{wd.path}&#34; is shallow and may cause errors&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "fde35463bd1d424b8fde6d0dc6740d2c"}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "0f7c6a6725bb4ecf9dc0775345644b61"}</script></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="p">,</span> <span class="n">adata</span><span class="p">,</span> <span class="n">stellar_model</span> <span class="o">=</span> <span class="n">parse_config_to_model</span><span class="p">(</span><span class="s1">&#39;basic_config.yml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: UnitsWarning: &#39;erg/cm2/s&#39; contains multiple slashes, which is discouraged by the FITS standard [astropy.units.format.generic]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$[9934.3,~9678.4,~9424.6,~9168.5,~8903.8,~8620.2,~8462.6,~8290.4,~8097.7,~7876.9,~7618.2,~7314.8,~6983.3,~6694.8,~6451.9,~6235.2,~6044.3,~5875.7,~5727.4,~5597.1,~5483.1,~5382.5,~5294.4,~5216.8,~5148.5,~5088.6,~5034.4,~4988.1,~4944.1,~4905.9,~4870.5,~4838.3,~4808.6,~4780.9,~4754.7,~4729.9,~4706,~4682.9,~4660.2,~4637.8,~4615.6,~4593.5,~4571.5,~4549.5,~4527.4,~4504.9,~4461,~4416.3,~4371.3,~4326.1,~4280.8,~4235.5,~4190.4,~4145.9,~4102.6,~4066.8] \; \mathrm{K}$</div></div>
+</div>
+<p>These temperatures come from the model we read in, which represent the sun. However, for demonstration purposes, let’s overwrite these temperatures to go from 3,000 to 10,000 K. This can be done by simply overwriting the object’s temperatures attribute. For ease of use, let’s match the same number of depth points as the existing one, so we don’t have to worry about shape mismatches for other parts of the model. We’ll also overwrite the density so we can examine how molecular formation changes
+purely as a function of temperature.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">3000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">))</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span>
+<span class="n">stellar_model</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">density</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3e-7</span> <span class="c1">#This is a reasonable density above the solar photosphere</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stellar_plasma</span> <span class="o">=</span> <span class="n">create_stellar_plasma</span><span class="p">(</span><span class="n">stellar_model</span><span class="p">,</span> <span class="n">adata</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="c1">#Then we go ahead and create the stellar plasma. This will solve the ionization and molecular balance equations.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Negative ionic molecules not currently supported. Assuming no H2-.
+Negative ionic molecules not currently supported. Assuming no C2-.
+Negative ionic molecules not currently supported. Assuming no CH-.
+Negative ionic molecules not currently supported. Assuming no OH-.
+Negative ionic molecules not currently supported. Assuming no SiH-.
+Negative ionic molecules not currently supported. Assuming no HS-.
+Negative ionic molecules not currently supported. Assuming no CN-.
+Negative ionic molecules not currently supported. Assuming no CS-.
+Negative ionic molecules not currently supported. Assuming no FeO-.
+Negative ionic molecules not currently supported. Assuming no H2-.
+Negative ionic molecules not currently supported. Assuming no C2-.
+Negative ionic molecules not currently supported. Assuming no CH-.
+Negative ionic molecules not currently supported. Assuming no OH-.
+Negative ionic molecules not currently supported. Assuming no SiH-.
+Negative ionic molecules not currently supported. Assuming no HS-.
+Negative ionic molecules not currently supported. Assuming no CN-.
+Negative ionic molecules not currently supported. Assuming no CS-.
+Negative ionic molecules not currently supported. Assuming no FeO-.
+</pre></div></div>
+</div>
+<p>Now we can investigate each of the molecular densities in the plasma.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>46</th>
+      <th>47</th>
+      <th>48</th>
+      <th>49</th>
+      <th>50</th>
+      <th>51</th>
+      <th>52</th>
+      <th>53</th>
+      <th>54</th>
+      <th>55</th>
+    </tr>
+    <tr>
+      <th>Molecule</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>H2</th>
+      <td>4.173526e+16</td>
+      <td>3.524205e+16</td>
+      <td>2.836289e+16</td>
+      <td>2.166660e+16</td>
+      <td>1.573569e+16</td>
+      <td>1.096084e+16</td>
+      <td>7.430232e+15</td>
+      <td>4.985077e+15</td>
+      <td>3.362091e+15</td>
+      <td>2.305035e+15</td>
+      <td>...</td>
+      <td>4.149437e+12</td>
+      <td>3.827602e+12</td>
+      <td>3.536749e+12</td>
+      <td>3.273035e+12</td>
+      <td>3.033149e+12</td>
+      <td>2.814238e+12</td>
+      <td>2.613836e+12</td>
+      <td>2.429808e+12</td>
+      <td>2.260302e+12</td>
+      <td>2.103711e+12</td>
+    </tr>
+    <tr>
+      <th>Li2</th>
+      <td>1.083895e+04</td>
+      <td>2.556534e+03</td>
+      <td>0.000000e+00</td>
+      <td>1.736232e+04</td>
+      <td>1.703398e+04</td>
+      <td>1.801338e+03</td>
+      <td>1.225000e+03</td>
+      <td>1.076660e+04</td>
+      <td>0.000000e+00</td>
+      <td>1.439098e+04</td>
+      <td>...</td>
+      <td>4.810851e+03</td>
+      <td>4.919161e+03</td>
+      <td>5.027418e+03</td>
+      <td>5.135517e+03</td>
+      <td>5.243352e+03</td>
+      <td>5.350815e+03</td>
+      <td>5.457791e+03</td>
+      <td>5.564162e+03</td>
+      <td>5.669803e+03</td>
+      <td>5.774583e+03</td>
+    </tr>
+    <tr>
+      <th>B2</th>
+      <td>2.001489e+02</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>7.175067e+02</td>
+      <td>0.000000e+00</td>
+      <td>5.503644e+03</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>2.124297e+03</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>1.826164e+05</td>
+      <td>3.438785e+04</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>5.516299e+05</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>C2</th>
+      <td>6.308218e+12</td>
+      <td>3.764890e+12</td>
+      <td>1.997027e+12</td>
+      <td>9.841823e+11</td>
+      <td>4.723712e+11</td>
+      <td>2.282457e+11</td>
+      <td>1.132013e+11</td>
+      <td>5.827353e+10</td>
+      <td>3.135724e+10</td>
+      <td>1.769409e+10</td>
+      <td>...</td>
+      <td>1.067086e+06</td>
+      <td>9.004944e+05</td>
+      <td>7.623889e+05</td>
+      <td>6.446457e+05</td>
+      <td>5.484334e+05</td>
+      <td>4.625608e+05</td>
+      <td>4.130229e+05</td>
+      <td>3.298226e+05</td>
+      <td>2.813122e+05</td>
+      <td>2.418078e+05</td>
+    </tr>
+    <tr>
+      <th>N2</th>
+      <td>4.483557e+12</td>
+      <td>4.460950e+12</td>
+      <td>4.418194e+12</td>
+      <td>4.339952e+12</td>
+      <td>4.202556e+12</td>
+      <td>3.973703e+12</td>
+      <td>3.618028e+12</td>
+      <td>3.113891e+12</td>
+      <td>2.481482e+12</td>
+      <td>1.800708e+12</td>
+      <td>...</td>
+      <td>2.491493e+06</td>
+      <td>2.056682e+06</td>
+      <td>1.706652e+06</td>
+      <td>1.420066e+06</td>
+      <td>1.185691e+06</td>
+      <td>9.944353e+05</td>
+      <td>8.355199e+05</td>
+      <td>7.034911e+05</td>
+      <td>5.936564e+05</td>
+      <td>5.033554e+05</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>GeSe</th>
+      <td>1.797603e+01</td>
+      <td>8.097244e+00</td>
+      <td>4.711990e+00</td>
+      <td>3.587088e+00</td>
+      <td>1.691207e+00</td>
+      <td>9.164035e-01</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>6.131447e+03</td>
+      <td>0.000000e+00</td>
+      <td>2.134916e+05</td>
+      <td>6.881388e+04</td>
+      <td>1.310527e+04</td>
+      <td>4.099053e+04</td>
+      <td>1.473623e+05</td>
+      <td>3.273818e+05</td>
+    </tr>
+    <tr>
+      <th>KBr</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>4.237644e-01</td>
+      <td>1.012536e+01</td>
+      <td>0.000000e+00</td>
+      <td>1.210853e+01</td>
+      <td>0.000000e+00</td>
+      <td>4.715811e+01</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>2.219070e+04</td>
+      <td>9.215178e+04</td>
+      <td>0.000000e+00</td>
+      <td>2.960028e+04</td>
+      <td>3.399918e+04</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>SiTe</th>
+      <td>3.280525e+02</td>
+      <td>1.982031e+02</td>
+      <td>7.249512e+01</td>
+      <td>5.465405e+01</td>
+      <td>0.000000e+00</td>
+      <td>1.329663e+01</td>
+      <td>0.000000e+00</td>
+      <td>4.557781e+02</td>
+      <td>6.401628e+02</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>6.349098e+04</td>
+      <td>0.000000e+00</td>
+      <td>2.342839e+05</td>
+      <td>0.000000e+00</td>
+      <td>3.321557e+05</td>
+      <td>3.750577e+05</td>
+      <td>0.000000e+00</td>
+      <td>1.656807e+05</td>
+      <td>3.604702e+05</td>
+      <td>4.431267e+05</td>
+    </tr>
+    <tr>
+      <th>GeTe</th>
+      <td>2.118515e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>5.061211e+01</td>
+      <td>9.543540e+01</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>2.200635e+05</td>
+      <td>0.000000e+00</td>
+      <td>1.848813e+05</td>
+      <td>0.000000e+00</td>
+      <td>2.012299e+05</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>3.588300e+05</td>
+    </tr>
+    <tr>
+      <th>KI</th>
+      <td>0.000000e+00</td>
+      <td>3.575574e+00</td>
+      <td>3.159040e+01</td>
+      <td>0.000000e+00</td>
+      <td>1.041164e+02</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>1.562940e+02</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>2.678832e+04</td>
+      <td>0.000000e+00</td>
+      <td>4.142413e+04</td>
+      <td>2.435976e+04</td>
+      <td>3.496347e+04</td>
+      <td>7.330461e+04</td>
+      <td>1.393621e+05</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>291 rows × 56 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">korg_densities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;korg_comparison_number_densities.csv&#39;</span><span class="p">)</span> <span class="c1">#This is a file with output number densities gathered from Korg, using the same densities and temperatures defined here.</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">korg_densities</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>T</th>
+      <th>C2</th>
+      <th>H2</th>
+      <th>O2</th>
+      <th>HHplus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3000.0000</td>
+      <td>2.530050e+01</td>
+      <td>4.175859e+16</td>
+      <td>4.990826e+08</td>
+      <td>7.781635e+00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3127.2727</td>
+      <td>9.400628e+01</td>
+      <td>3.444805e+16</td>
+      <td>7.489777e+08</td>
+      <td>5.935924e+01</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3254.5454</td>
+      <td>3.963682e+02</td>
+      <td>2.709785e+16</td>
+      <td>8.674742e+08</td>
+      <td>3.633406e+02</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3381.8181</td>
+      <td>1.835227e+03</td>
+      <td>2.035246e+16</td>
+      <td>8.131400e+08</td>
+      <td>1.807372e+03</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3509.0908</td>
+      <td>8.830996e+03</td>
+      <td>1.469220e+16</td>
+      <td>6.600394e+08</td>
+      <td>7.386049e+03</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>3636.3635</td>
+      <td>4.247642e+04</td>
+      <td>1.030661e+16</td>
+      <td>4.875497e+08</td>
+      <td>2.523339e+04</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>3763.6362</td>
+      <td>1.990776e+05</td>
+      <td>7.115632e+15</td>
+      <td>3.391470e+08</td>
+      <td>7.402898e+04</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>3890.9089</td>
+      <td>8.859317e+05</td>
+      <td>4.890974e+15</td>
+      <td>2.294073e+08</td>
+      <td>1.923825e+05</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>4018.1816</td>
+      <td>3.639707e+06</td>
+      <td>3.376555e+15</td>
+      <td>1.555365e+08</td>
+      <td>4.558531e+05</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>4145.4543</td>
+      <td>1.334790e+07</td>
+      <td>2.354848e+15</td>
+      <td>1.088003e+08</td>
+      <td>1.008459e+06</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>4272.7270</td>
+      <td>4.179838e+07</td>
+      <td>1.664657e+15</td>
+      <td>8.089770e+07</td>
+      <td>2.120734e+06</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>4399.9997</td>
+      <td>1.066539e+08</td>
+      <td>1.194737e+15</td>
+      <td>6.542193e+07</td>
+      <td>4.295063e+06</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>4527.2724</td>
+      <td>2.161158e+08</td>
+      <td>8.710359e+14</td>
+      <td>5.748114e+07</td>
+      <td>8.452567e+06</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>4654.5451</td>
+      <td>3.498605e+08</td>
+      <td>6.449981e+14</td>
+      <td>5.329004e+07</td>
+      <td>1.625382e+07</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>4781.8178</td>
+      <td>4.637127e+08</td>
+      <td>4.848620e+14</td>
+      <td>5.005032e+07</td>
+      <td>3.062428e+07</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>4909.0905</td>
+      <td>5.182725e+08</td>
+      <td>3.697505e+14</td>
+      <td>4.604665e+07</td>
+      <td>5.656093e+07</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>5036.3632</td>
+      <td>5.043794e+08</td>
+      <td>2.858153e+14</td>
+      <td>4.078431e+07</td>
+      <td>1.022459e+08</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>5163.6359</td>
+      <td>4.427584e+08</td>
+      <td>2.237668e+14</td>
+      <td>3.475198e+07</td>
+      <td>1.802601e+08</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>5290.9086</td>
+      <td>3.630244e+08</td>
+      <td>1.772946e+14</td>
+      <td>2.876599e+07</td>
+      <td>3.080865e+08</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>5418.1813</td>
+      <td>2.861592e+08</td>
+      <td>1.420541e+14</td>
+      <td>2.341764e+07</td>
+      <td>5.064037e+08</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>5545.4540</td>
+      <td>2.212943e+08</td>
+      <td>1.150152e+14</td>
+      <td>1.893879e+07</td>
+      <td>7.945201e+08</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>5672.7267</td>
+      <td>1.700065e+08</td>
+      <td>9.403810e+13</td>
+      <td>1.531782e+07</td>
+      <td>1.185694e+09</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>5799.9994</td>
+      <td>1.306757e+08</td>
+      <td>7.759292e+13</td>
+      <td>1.243801e+07</td>
+      <td>1.686568e+09</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>5927.2721</td>
+      <td>1.008814e+08</td>
+      <td>6.457310e+13</td>
+      <td>1.015987e+07</td>
+      <td>2.300636e+09</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>6054.5448</td>
+      <td>7.836478e+07</td>
+      <td>5.416917e+13</td>
+      <td>8.356222e+06</td>
+      <td>3.031979e+09</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>6181.8175</td>
+      <td>6.129999e+07</td>
+      <td>4.578299e+13</td>
+      <td>6.922415e+06</td>
+      <td>3.887110e+09</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>6309.0902</td>
+      <td>4.829544e+07</td>
+      <td>3.896796e+13</td>
+      <td>5.776106e+06</td>
+      <td>4.875239e+09</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>6436.3629</td>
+      <td>3.831673e+07</td>
+      <td>3.338691e+13</td>
+      <td>4.853654e+06</td>
+      <td>6.007844e+09</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>6563.6356</td>
+      <td>3.060270e+07</td>
+      <td>2.878293e+13</td>
+      <td>4.106246e+06</td>
+      <td>7.298140e+09</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>6690.9083</td>
+      <td>2.459422e+07</td>
+      <td>2.495858e+13</td>
+      <td>3.496479e+06</td>
+      <td>8.760624e+09</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>6818.1810</td>
+      <td>1.987946e+07</td>
+      <td>2.176088e+13</td>
+      <td>2.995622e+06</td>
+      <td>1.041072e+10</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>6945.4537</td>
+      <td>1.615349e+07</td>
+      <td>1.907039e+13</td>
+      <td>2.581498e+06</td>
+      <td>1.226452e+10</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>7072.7264</td>
+      <td>1.318902e+07</td>
+      <td>1.679310e+13</td>
+      <td>2.236899e+06</td>
+      <td>1.433852e+10</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>7199.9991</td>
+      <td>1.081518e+07</td>
+      <td>1.485432e+13</td>
+      <td>1.948348e+06</td>
+      <td>1.664929e+10</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>7327.2718</td>
+      <td>8.902745e+06</td>
+      <td>1.319438e+13</td>
+      <td>1.705244e+06</td>
+      <td>1.921325e+10</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>7454.5445</td>
+      <td>7.353404e+06</td>
+      <td>1.176550e+13</td>
+      <td>1.499227e+06</td>
+      <td>2.204644e+10</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>7581.8172</td>
+      <td>6.091811e+06</td>
+      <td>1.052916e+13</td>
+      <td>1.323658e+06</td>
+      <td>2.516441e+10</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>7709.0899</td>
+      <td>5.059765e+06</td>
+      <td>9.454148e+12</td>
+      <td>1.173235e+06</td>
+      <td>2.858187e+10</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>7836.3626</td>
+      <td>4.211974e+06</td>
+      <td>8.514986e+12</td>
+      <td>1.043695e+06</td>
+      <td>3.231249e+10</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>7963.6353</td>
+      <td>3.512942e+06</td>
+      <td>7.690794e+12</td>
+      <td>9.315901e+05</td>
+      <td>3.636858e+10</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>8090.9080</td>
+      <td>2.934686e+06</td>
+      <td>6.964403e+12</td>
+      <td>8.341261e+05</td>
+      <td>4.076100e+10</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>8218.1807</td>
+      <td>2.455215e+06</td>
+      <td>6.322030e+12</td>
+      <td>7.490830e+05</td>
+      <td>4.550051e+10</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>8345.4534</td>
+      <td>2.056922e+06</td>
+      <td>5.752291e+12</td>
+      <td>6.746483e+05</td>
+      <td>5.059739e+10</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>8472.7261</td>
+      <td>1.725497e+06</td>
+      <td>5.245502e+12</td>
+      <td>6.092985e+05</td>
+      <td>5.606044e+10</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>8599.9988</td>
+      <td>1.449272e+06</td>
+      <td>4.793406e+12</td>
+      <td>5.517493e+05</td>
+      <td>6.189667e+10</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>8727.2715</td>
+      <td>1.218709e+06</td>
+      <td>4.388942e+12</td>
+      <td>5.009152e+05</td>
+      <td>6.811107e+10</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>8854.5442</td>
+      <td>1.025989e+06</td>
+      <td>4.026059e+12</td>
+      <td>4.558764e+05</td>
+      <td>7.470626e+10</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>8981.8169</td>
+      <td>8.646861e+05</td>
+      <td>3.699559e+12</td>
+      <td>4.158519e+05</td>
+      <td>8.168222e+10</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>9109.0896</td>
+      <td>7.294670e+05</td>
+      <td>3.404836e+12</td>
+      <td>3.801574e+05</td>
+      <td>8.903400e+10</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>9236.3623</td>
+      <td>6.157404e+05</td>
+      <td>3.137219e+12</td>
+      <td>3.481090e+05</td>
+      <td>9.674025e+10</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>9363.6350</td>
+      <td>5.197659e+05</td>
+      <td>2.892626e+12</td>
+      <td>3.191165e+05</td>
+      <td>1.047672e+11</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>9490.9077</td>
+      <td>4.385582e+05</td>
+      <td>2.667754e+12</td>
+      <td>2.927082e+05</td>
+      <td>1.130724e+11</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>9618.1804</td>
+      <td>3.697125e+05</td>
+      <td>2.459928e+12</td>
+      <td>2.685063e+05</td>
+      <td>1.216042e+11</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>9745.4531</td>
+      <td>3.112730e+05</td>
+      <td>2.266986e+12</td>
+      <td>2.462078e+05</td>
+      <td>1.303018e+11</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>9872.7258</td>
+      <td>2.616349e+05</td>
+      <td>2.087180e+12</td>
+      <td>2.255704e+05</td>
+      <td>1.390956e+11</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>9999.9985</td>
+      <td>2.194700e+05</td>
+      <td>1.919105e+12</td>
+      <td>2.064002e+05</td>
+      <td>1.479072e+11</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;C2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;stardis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">],</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;C2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Korg&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;C2 Number Density $[cm^{-3}]$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span> <span class="n">ax1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="p">(</span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;C2&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;C2&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;C2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;C2 Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7faf365b1790&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/creating_simple_models_flexible_plasma_12_1.png" src="../_images/creating_simple_models_flexible_plasma_12_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;stardis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">],</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Korg&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;H2 Number Density $[cm^{-3}]$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span> <span class="n">ax1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="p">(</span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;H2 Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7faf347773b0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/creating_simple_models_flexible_plasma_13_1.png" src="../_images/creating_simple_models_flexible_plasma_13_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;H2+&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;stardis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">],</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;HHplus&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Korg&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;H2+ Number Density $[cm^{-3}]$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span> <span class="n">ax1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="p">(</span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;H2+&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;HHplus&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;HHplus&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;H2+ Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7faf34777b00&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/creating_simple_models_flexible_plasma_14_1.png" src="../_images/creating_simple_models_flexible_plasma_14_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;O2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;stardis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">],</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;O2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Korg&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;O2 Number Density $[cm^{-3}]$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span> <span class="n">ax1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stellar_model</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="p">(</span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">molecule_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;O2&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;O2&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">korg_densities</span><span class="p">[</span><span class="s1">&#39;O2&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;T [K]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;O2 Fractional Difference&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7faf34421010&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/creating_simple_models_flexible_plasma_15_1.png" src="../_images/creating_simple_models_flexible_plasma_15_1.png" />
+</div>
+</div>
+<p>This was a small comparison of choice molecules between stardis and korg, but the stellar plasma object contains much more information. We could also choose to look at any given ionization or excitation level of each atomic species.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">ion_number_density</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>46</th>
+      <th>47</th>
+      <th>48</th>
+      <th>49</th>
+      <th>50</th>
+      <th>51</th>
+      <th>52</th>
+      <th>53</th>
+      <th>54</th>
+      <th>55</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">1</th>
+      <th>0</th>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>...</td>
+      <td>1.311392e+17</td>
+      <td>1.308210e+17</td>
+      <td>1.304675e+17</td>
+      <td>1.300761e+17</td>
+      <td>1.296441e+17</td>
+      <td>1.291690e+17</td>
+      <td>1.286481e+17</td>
+      <td>1.280788e+17</td>
+      <td>1.274584e+17</td>
+      <td>1.267844e+17</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.738518e+03</td>
+      <td>1.887806e+04</td>
+      <td>1.119614e+05</td>
+      <td>5.766579e+05</td>
+      <td>2.585475e+06</td>
+      <td>1.013382e+07</td>
+      <td>3.515037e+07</td>
+      <td>1.098660e+08</td>
+      <td>3.153993e+08</td>
+      <td>8.458353e+08</td>
+      <td>...</td>
+      <td>2.177806e+15</td>
+      <td>2.495957e+15</td>
+      <td>2.849473e+15</td>
+      <td>3.240910e+15</td>
+      <td>3.672864e+15</td>
+      <td>4.147965e+15</td>
+      <td>4.668853e+15</td>
+      <td>5.238170e+15</td>
+      <td>5.858540e+15</td>
+      <td>6.532551e+15</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">2</th>
+      <th>0</th>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>...</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093667e+16</td>
+      <td>1.093667e+16</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3.111301e-16</td>
+      <td>1.209731e-14</td>
+      <td>3.534625e-13</td>
+      <td>7.954445e-12</td>
+      <td>1.400211e-10</td>
+      <td>1.957991e-09</td>
+      <td>2.223270e-08</td>
+      <td>2.105025e-07</td>
+      <td>1.706455e-06</td>
+      <td>1.212486e-05</td>
+      <td>...</td>
+      <td>4.042059e+08</td>
+      <td>5.695133e+08</td>
+      <td>7.949838e+08</td>
+      <td>1.099874e+09</td>
+      <td>1.508779e+09</td>
+      <td>2.052884e+09</td>
+      <td>2.771466e+09</td>
+      <td>3.713671e+09</td>
+      <td>4.940619e+09</td>
+      <td>6.527878e+09</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>3.922646e-17</td>
+      <td>1.355096e-16</td>
+      <td>4.524227e-16</td>
+      <td>1.461956e-15</td>
+      <td>4.578652e-15</td>
+      <td>1.391617e-14</td>
+      <td>4.109761e-14</td>
+      <td>1.180691e-13</td>
+      <td>3.303397e-13</td>
+      <td>9.010497e-13</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">92</th>
+      <th>88</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>91</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>92</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>4370 rows × 56 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stellar_plasma</span><span class="o">.</span><span class="n">level_number_density</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>46</th>
+      <th>47</th>
+      <th>48</th>
+      <th>49</th>
+      <th>50</th>
+      <th>51</th>
+      <th>52</th>
+      <th>53</th>
+      <th>54</th>
+      <th>55</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th>level_number</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">1</th>
+      <th>0</th>
+      <th>0</th>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>1.333170e+17</td>
+      <td>...</td>
+      <td>1.311392e+17</td>
+      <td>1.308210e+17</td>
+      <td>1.304675e+17</td>
+      <td>1.300761e+17</td>
+      <td>1.296441e+17</td>
+      <td>1.291690e+17</td>
+      <td>1.286481e+17</td>
+      <td>1.280788e+17</td>
+      <td>1.274584e+17</td>
+      <td>1.267844e+17</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>0</th>
+      <td>2.738518e+03</td>
+      <td>1.887806e+04</td>
+      <td>1.119614e+05</td>
+      <td>5.766579e+05</td>
+      <td>2.585475e+06</td>
+      <td>1.013382e+07</td>
+      <td>3.515037e+07</td>
+      <td>1.098660e+08</td>
+      <td>3.153993e+08</td>
+      <td>8.458353e+08</td>
+      <td>...</td>
+      <td>2.177806e+15</td>
+      <td>2.495957e+15</td>
+      <td>2.849473e+15</td>
+      <td>3.240910e+15</td>
+      <td>3.672864e+15</td>
+      <td>4.147965e+15</td>
+      <td>4.668853e+15</td>
+      <td>5.238170e+15</td>
+      <td>5.858540e+15</td>
+      <td>6.532551e+15</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">2</th>
+      <th rowspan="3" valign="top">0</th>
+      <th>0</th>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>...</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093668e+16</td>
+      <td>1.093667e+16</td>
+      <td>1.093667e+16</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.661479e-17</td>
+      <td>3.763092e-16</td>
+      <td>6.677489e-15</td>
+      <td>9.542576e-14</td>
+      <td>1.124429e-12</td>
+      <td>1.114832e-11</td>
+      <td>9.464682e-11</td>
+      <td>6.986081e-10</td>
+      <td>4.543251e-09</td>
+      <td>2.633726e-08</td>
+      <td>...</td>
+      <td>1.718646e+05</td>
+      <td>2.483340e+05</td>
+      <td>3.551559e+05</td>
+      <td>5.029440e+05</td>
+      <td>7.055253e+05</td>
+      <td>9.807612e+05</td>
+      <td>1.351537e+06</td>
+      <td>1.846951e+06</td>
+      <td>2.503720e+06</td>
+      <td>3.367851e+06</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.546131e-19</td>
+      <td>6.536775e-18</td>
+      <td>1.301989e-16</td>
+      <td>2.070421e-15</td>
+      <td>2.693755e-14</td>
+      <td>2.928577e-13</td>
+      <td>2.709363e-12</td>
+      <td>2.167044e-11</td>
+      <td>1.519374e-10</td>
+      <td>9.452067e-10</td>
+      <td>...</td>
+      <td>2.017951e+04</td>
+      <td>2.959249e+04</td>
+      <td>4.293446e+04</td>
+      <td>6.165615e+04</td>
+      <td>8.767468e+04</td>
+      <td>1.235012e+05</td>
+      <td>1.723973e+05</td>
+      <td>2.385645e+05</td>
+      <td>3.273739e+05</td>
+      <td>4.456396e+05</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">92</th>
+      <th>88</th>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>91</th>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>92</th>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>...</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>41033 rows × 56 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"5a725dc76a9a479290411f06ff2c8c4f": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "20px"}}, "700ee6f059a44bd8b21a6ed64c9d1197": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "245d781ec07946beb7279f19989afd2c": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "info", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_5a725dc76a9a479290411f06ff2c8c4f", "max": 1.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_700ee6f059a44bd8b21a6ed64c9d1197", "value": 0.0}}, "0c9e066918584d16a3f36219204dd997": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0e7cfbb30a384a78a688c6c55ee03337": {"model_name": "DescriptionStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "25fa450fbedd4ad39683308f403b40e4": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_0c9e066918584d16a3f36219204dd997", "placeholder": "\u200b", "style": "IPY_MODEL_0e7cfbb30a384a78a688c6c55ee03337", "value": "Iterations:"}}, "7572cf8363a0416cbff051c379424d19": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "4bc745fa1ca34ef8b3481d1ad2b6c0db": {"model_name": "DescriptionStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "4733f0c779ff4f65953c764284f722a4": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_7572cf8363a0416cbff051c379424d19", "placeholder": "\u200b", "style": "IPY_MODEL_4bc745fa1ca34ef8b3481d1ad2b6c0db", "value": "0/?\u2007[00:00&lt;?,\u2007?it/s]"}}, "ac328188a5e641a6a50e0e1b3d203e9c": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "fde35463bd1d424b8fde6d0dc6740d2c": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_25fa450fbedd4ad39683308f403b40e4", "IPY_MODEL_245d781ec07946beb7279f19989afd2c", "IPY_MODEL_4733f0c779ff4f65953c764284f722a4"], "layout": "IPY_MODEL_ac328188a5e641a6a50e0e1b3d203e9c"}}, "17210cff86614bd8bd36bf6deb1785a9": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "20px"}}, "bb4f2a207e974287aada9f28e3c60972": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "b62e8164fa23406fa4dd090244f1b1a0": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "info", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_17210cff86614bd8bd36bf6deb1785a9", "max": 1.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_bb4f2a207e974287aada9f28e3c60972", "value": 0.0}}, "9b059a46d67c4e718c4f5959c7acfbca": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "fb4b615158b040ab9e6f6cf93727ee6a": {"model_name": "DescriptionStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "997bda758e964272a25ab7c6d590241d": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_9b059a46d67c4e718c4f5959c7acfbca", "placeholder": "\u200b", "style": "IPY_MODEL_fb4b615158b040ab9e6f6cf93727ee6a", "value": "Packets:\u2007\u2007\u2007"}}, "149e6ce4db0b4f469fe110582c7418f6": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "db4449f2e150433e98e380638a2c05ca": {"model_name": "DescriptionStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "6d7f86c765444ef6b40ce4f4293997b5": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_149e6ce4db0b4f469fe110582c7418f6", "placeholder": "\u200b", "style": "IPY_MODEL_db4449f2e150433e98e380638a2c05ca", "value": "0/?\u2007[00:00&lt;?,\u2007?it/s]"}}, "e2968e98826649eaa6943ddd627f758c": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0f7c6a6725bb4ecf9dc0775345644b61": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_997bda758e964272a25ab7c6d590241d", "IPY_MODEL_b62e8164fa23406fa4dd090244f1b1a0", "IPY_MODEL_6d7f86c765444ef6b40ce4f4293997b5"], "layout": "IPY_MODEL_e2968e98826649eaa6943ddd627f758c"}}}, "version_major": 2, "version_minor": 0}
+</script></section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../rotation_broadening/rotation_broadening.html" class="btn btn-neutral float-left" title="Rotation Broadening" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../contributing/contribution_guidelines.html" class="btn btn-neutral float-right" title="Contribution Guidelines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, TARDIS Collaboration.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
