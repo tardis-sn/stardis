@@ -1,0 +1,11 @@
+stardis_config_version: 1.0
+atom_data: adata_with_molecular_constants.h5
+n_threads: 1
+input_model:
+    type: marcs
+    fname: ../quickstart/sun.mod
+    composition_source: asplund_2020
+    final_atomic_number: 92
+opacity:
+    line:
+        include_molecules: True

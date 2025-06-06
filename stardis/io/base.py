@@ -17,7 +17,7 @@ SCHEMA_PATH = BASE_DIR / "schemas" / "config_schema.yml"
 logger = logging.getLogger(__name__)
 
 
-def parse_config_to_model(config_fname, add_config_dict):
+def parse_config_to_model(config_fname, add_config_dict=None):
     """
     Parses the config and model files and outputs python objects to be passed into run stardis so they can be individually modified in python.
 
