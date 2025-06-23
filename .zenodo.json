@@ -4,7 +4,9 @@
       "name": "TARDIS Collaboration"
     },
     {
-      "name": "Joshua V. Shields"
+      "name": "Joshua V. Shields",
+      "orcid": "0000-0002-1560-5286",
+      "affiliation": "Michigan State University"
     },
     {
       "name": "Wolfgang Kerzendorf",
@@ -12,28 +14,44 @@
       "affiliation": "Michigan State University"
     },
     {
-      "name": "Isaac G. Smith"
+      "name": "Isaac G. Smith",
+      "orcid": "0000-0003-0440-3918",
+      "affiliation": "Michigan State University"
     },
     {
-      "name": "Tiago M. D. Pereira"
+      "name": "Tiago M. D. Pereira",
+      "orcid": "0000-0003-4747-4329",
+      "affiliation": "University of Oslo"
     },
     {
-      "name": "Christian Vogl"
+      "name": "Christian Vogl",
+      "orcid": "0000-0002-7941-5692",
+      "affiliation": "Max Planck Institute for Astrophysics"
     },
     {
-      "name": "Ryan Groneck"
+      "name": "Ryan Groneck",
+      "orcid": "0009-0000-2548-7896",
+      "affiliation": "Michigan State University"
     },
     {
-      "name": "Andrew Fullard"
+      "name": "Andrew Fullard",
+      "orcid": "0000-0001-7343-1678",
+      "affiliation": "Michigan State University"
     },
     {
-      "name": "Jaladh Singhal"
+      "name": "Jaladh Singhal",
+      "orcid": "0000-0002-8310-0829",
+      "affiliation": "IPAC, California Institute of Technology"
     },
     {
-      "name": "Jing Lu"
+      "name": "Jing Lu",
+      "orcid": "0000-0002-3900-1452",
+      "affiliation": "Michigan State University"
     },
     {
-      "name": "Christopher J. Fontes"
+      "name": "Christopher J. Fontes",
+      "orcid": "0000-0003-1087-2964",
+      "affiliation": "Los Alamos National Laboratory"
     }
   ]
 }
