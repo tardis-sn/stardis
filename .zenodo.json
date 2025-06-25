@@ -1,57 +1,411 @@
 {
   "creators": [
     {
-      "name": "TARDIS Collaboration"
+      "name": "Collaboration, TARDIS"
     },
     {
-      "name": "Joshua V. Shields",
+      "name": "Shields, Joshua V.",
       "orcid": "0000-0002-1560-5286",
       "affiliation": "Michigan State University"
     },
     {
-      "name": "Wolfgang Kerzendorf",
+      "name": "Kerzendorf, Wolfgang",
       "orcid": "0000-0002-0479-7235",
       "affiliation": "Michigan State University"
     },
     {
-      "name": "Isaac G. Smith",
+      "name": "Smith, Isaac G.",
       "orcid": "0000-0003-0440-3918",
-      "affiliation": "Michigan State University"
+      "affiliation": "Weizmann Institute of Science"
     },
     {
-      "name": "Tiago M. D. Pereira",
+      "name": "Pereira, Tiago M. D.",
       "orcid": "0000-0003-4747-4329",
-      "affiliation": "University of Oslo"
+      "affiliation": "Universitetet i Oslo"
     },
     {
-      "name": "Christian Vogl",
+      "name": "Vogl, Christian",
       "orcid": "0000-0002-7941-5692",
-      "affiliation": "Max Planck Institute for Astrophysics"
+      "affiliation": "Max-Planck-Institut f\u00fcr Astrophysik"
     },
     {
-      "name": "Ryan Groneck",
-      "orcid": "0009-0000-2548-7896",
-      "affiliation": "Michigan State University"
+      "name": "Groneck, Ryan",
+      "orcid": "0009-0000-2548-7896"
     },
     {
-      "name": "Andrew Fullard",
+      "name": "Fullard, Andrew",
       "orcid": "0000-0001-7343-1678",
       "affiliation": "Michigan State University"
     },
     {
-      "name": "Jaladh Singhal",
+      "name": "Singhal, Jaladh",
       "orcid": "0000-0002-8310-0829",
-      "affiliation": "IPAC, California Institute of Technology"
+      "affiliation": "Caltech"
     },
     {
-      "name": "Jing Lu",
+      "name": "Lu, Jing",
       "orcid": "0000-0002-3900-1452",
       "affiliation": "Michigan State University"
     },
     {
-      "name": "Christopher J. Fontes",
+      "name": "Fontes, Christopher J.",
       "orcid": "0000-0003-1087-2964",
       "affiliation": "Los Alamos National Laboratory"
+    },
+    {
+      "name": "Sim, Stuart",
+      "orcid": "0000-0002-9774-1192",
+      "affiliation": "Queen's University Belfast"
+    },
+    {
+      "name": "Williamson, Marc",
+      "orcid": "0000-0003-2544-4516",
+      "affiliation": "New York University"
+    },
+    {
+      "name": "P\u00e1ssaro, Ezequiel",
+      "orcid": "0000-0002-3707-1975"
+    },
+    {
+      "name": "Fl\u00f6rs, Andreas",
+      "orcid": "0000-0003-2024-2819",
+      "affiliation": "GSI Helmholtz Centre for Heavy Ion Research"
+    },
+    {
+      "name": "Camacho, Yssa",
+      "orcid": "0000-0002-9830-3880",
+      "affiliation": "Rutgers The State University of New Jersey"
+    },
+    {
+      "name": "Jan\u010dauskas, Vytautas",
+      "orcid": "0000-0002-6051-210X"
+    },
+    {
+      "name": "Harpole, Alice",
+      "orcid": "0000-0002-1530-781X",
+      "affiliation": "Stony Brook University"
+    },
+    {
+      "name": "N\u00f6bauer, Ulrich",
+      "orcid": "0000-0002-2453-853X",
+      "affiliation": "Max-Planck-Institut f\u00fcr Astrophysik"
+    },
+    {
+      "name": "Lietzau, Stefan",
+      "orcid": "0000-0002-7131-3341"
+    },
+    {
+      "name": "Mishin, Mikhail"
+    },
+    {
+      "name": "Tsamis, Fotis",
+      "orcid": "0000-0003-4875-1623",
+      "affiliation": "National Observatory of Athens"
+    },
+    {
+      "name": "Boyle, Aoife"
+    },
+    {
+      "name": "Shingles, Luke"
+    },
+    {
+      "name": "Gupta, Vaibhav"
+    },
+    {
+      "name": "Desai, Karan"
+    },
+    {
+      "name": "Klauser, Michael"
+    },
+    {
+      "name": "Beaujean, Frederik",
+      "orcid": "0000-0001-9901-8785",
+      "affiliation": "Ludwig-Maximilians-Universit\u00e4t M\u00fcnchen Fakult\u00e4t f\u00fcr Physik"
+    },
+    {
+      "name": "Suban-Loewen, Adam"
+    },
+    {
+      "name": "Heringer, Epson",
+      "orcid": "0000-0002-1502-9127",
+      "affiliation": "University of Toronto"
+    },
+    {
+      "name": "Barna, Barnab\u00e1s"
+    },
+    {
+      "name": "Gautam, Gaurav"
+    },
+    {
+      "name": "Arya, Atharva"
+    },
+    {
+      "name": "Smith, Isaac"
+    },
+    {
+      "name": "Cawley, Kevin"
+    },
+    {
+      "name": "Shields, Joshua"
+    },
+    {
+      "name": "O'Brien, Jack"
+    },
+    {
+      "name": "Barbosa, Talytha"
+    },
+    {
+      "name": "Sondhi, Dhruv"
+    },
+    {
+      "name": "Yu, Jenny"
+    },
+    {
+      "name": "Shields, Josh",
+      "orcid": "0000-0002-1560-5286",
+      "affiliation": "Michigan State University"
+    },
+    {
+      "name": "Patel, Maryam"
+    },
+    {
+      "name": "Rathi, Shikha"
+    },
+    {
+      "name": "Varanasi, Kaushik"
+    },
+    {
+      "name": "Chitchyan, Sona"
+    },
+    {
+      "name": "Gillanders, James",
+      "orcid": "0000-0002-8094-6108",
+      "affiliation": "University of Oxford"
+    },
+    {
+      "name": "Singh, Shreyas"
+    },
+    {
+      "name": "Gupta, Sumit"
+    },
+    {
+      "name": "Savel, Arjun"
+    },
+    {
+      "name": "Reinecke, Martin"
+    },
+    {
+      "name": "Eweis, Youssef"
+    },
+    {
+      "name": "Holas, Alexander"
+    },
+    {
+      "name": "Shah, Swayam",
+      "orcid": "0009-0005-8092-547X"
+    },
+    {
+      "name": "Bylund, Tomas"
+    },
+    {
+      "name": "Visser, Erin"
+    },
+    {
+      "name": "Black, William"
+    },
+    {
+      "name": "Bentil, Laud"
+    },
+    {
+      "name": "Kumar, Asish"
+    },
+    {
+      "name": "Dutta, Anirban"
+    },
+    {
+      "name": "Eguren, Jordi",
+      "orcid": "0000-0002-2328-8030"
+    },
+    {
+      "name": "Kumar, Ansh"
+    },
+    {
+      "name": "Bartnik, Matthew"
+    },
+    {
+      "name": "Alam, Arib"
+    },
+    {
+      "name": "Srivastava, Sarthak"
+    },
+    {
+      "name": "Magee, Mark"
+    },
+    {
+      "name": "Varma Buddaraju, Rohith"
+    },
+    {
+      "name": "Livneh, Ran"
+    },
+    {
+      "name": "Daksh, Ayushi"
+    },
+    {
+      "name": "Kambham, Satwik"
+    },
+    {
+      "name": "Bhakar, Jayant"
+    },
+    {
+      "name": "Powers, Cecelia"
+    },
+    {
+      "name": "Roldan, Israel"
+    },
+    {
+      "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Floers, Andreas"
+    },
+    {
+      "name": "Actions, GitHub"
+    },
+    {
+      "name": "Nitish, P"
+    },
+    {
+      "name": "Jain, Rinkle"
+    },
+    {
+      "name": "Reichenbach, John"
+    },
+    {
+      "name": "Singh, Sourav"
+    },
+    {
+      "name": "Chaumal, Aarya"
+    },
+    {
+      "name": "Gupta, Harshul"
+    },
+    {
+      "name": "Brar, Antreev"
+    },
+    {
+      "name": "Selsing, Jonatan"
+    },
+    {
+      "name": "Kumar, Aman"
+    },
+    {
+      "name": "Matsumura, Yuki"
+    },
+    {
+      "name": "Kowalski, Nathan"
+    },
+    {
+      "name": "Sofiatti, Caroline"
+    },
+    {
+      "name": "Patidar, Abhishek"
+    },
+    {
+      "name": "Talegaonkar, Chinmay"
+    },
+    {
+      "name": "Marie Lynn, Haille"
+    },
+    {
+      "name": "Aggarwal, Yash"
+    },
+    {
+      "name": "Buchner, Johannes"
+    },
+    {
+      "name": "Patel, Pratik"
+    },
+    {
+      "name": "Singh Rathore, Parikshit"
+    },
+    {
+      "name": "Chen, Nutan"
+    },
+    {
+      "name": "Yap, Kevin"
+    },
+    {
+      "name": "Vieira, Nicholas"
+    },
+    {
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Martinez, Laureano"
+    },
+    {
+      "name": "Zingale, Michael"
+    },
+    {
+      "name": "Sandler, Morgan"
+    },
+    {
+      "name": "Zaheer, Musabbiha"
+    },
+    {
+      "name": "Sarafina, Nance"
+    },
+    {
+      "name": "Lemoine, Thom"
+    },
+    {
+      "name": "Wahi, Ujjwal"
+    },
+    {
+      "name": "Nayak U, Ashwin"
+    },
+    {
+      "name": "Gupta, Suyash"
+    },
+    {
+      "name": "Prasad, Shilpi"
+    },
+    {
+      "name": "Venkat, Shashank"
+    },
+    {
+      "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Gajanan Nalbalwar, Rudraksh"
+    },
+    {
+      "name": "Prasad, Rohit"
+    },
+    {
+      "name": "Volodin, Dmitry"
+    },
+    {
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "PATIDAR, ABHISHEK"
+    },
+    {
+      "name": "Truong, Le"
+    },
+    {
+      "name": "Kharkar, Atharwa"
+    },
+    {
+      "name": "Kumar, Atul"
+    },
+    {
+      "name": "Kolliboyina, Chaitanya"
     }
   ]
 }
