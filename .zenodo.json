@@ -53,37 +53,36 @@
       "affiliation": "Los Alamos National Laboratory"
     },
     {
-      "name": "Sim, Stuart",
-      "orcid": "0000-0002-9774-1192",
-      "affiliation": "Queen's University Belfast"
+      "name": "O'Brien, Jack"
     },
     {
-      "name": "Williamson, Marc",
-      "orcid": "0000-0003-2544-4516",
-      "affiliation": "New York University"
+      "name": "Dutta, Anirban"
     },
     {
       "name": "P\u00e1ssaro, Ezequiel",
       "orcid": "0000-0002-3707-1975"
     },
     {
-      "name": "Fl\u00f6rs, Andreas",
-      "orcid": "0000-0003-2024-2819",
-      "affiliation": "GSI Helmholtz Centre for Heavy Ion Research"
+      "name": "Floers, Andreas"
     },
     {
-      "name": "Camacho, Yssa",
-      "orcid": "0000-0002-9830-3880",
-      "affiliation": "Rutgers The State University of New Jersey"
+      "name": "Arya, Atharva"
+    },
+    {
+      "name": "Ohri, Abhinav"
+    },
+    {
+      "name": "Black, William"
+    },
+    {
+      "name": "Chaumal, Aarya"
+    },
+    {
+      "name": "Mishin, Mikhail"
     },
     {
       "name": "Jan\u010dauskas, Vytautas",
       "orcid": "0000-0002-6051-210X"
-    },
-    {
-      "name": "Harpole, Alice",
-      "orcid": "0000-0002-1530-781X",
-      "affiliation": "Stony Brook University"
     },
     {
       "name": "N\u00f6bauer, Ulrich",
@@ -95,18 +94,12 @@
       "orcid": "0000-0002-7131-3341"
     },
     {
-      "name": "Mishin, Mikhail"
+      "name": "Boyle, Aoife"
     },
     {
       "name": "Tsamis, Fotis",
       "orcid": "0000-0003-4875-1623",
       "affiliation": "National Observatory of Athens"
-    },
-    {
-      "name": "Boyle, Aoife"
-    },
-    {
-      "name": "Shingles, Luke"
     },
     {
       "name": "Gupta, Vaibhav"
@@ -115,35 +108,26 @@
       "name": "Desai, Karan"
     },
     {
-      "name": "Klauser, Michael"
-    },
-    {
-      "name": "Beaujean, Frederik",
-      "orcid": "0000-0001-9901-8785",
-      "affiliation": "Ludwig-Maximilians-Universit\u00e4t M\u00fcnchen Fakult\u00e4t f\u00fcr Physik"
-    },
-    {
-      "name": "Suban-Loewen, Adam"
-    },
-    {
-      "name": "Heringer, Epson",
-      "orcid": "0000-0002-1502-9127",
-      "affiliation": "University of Toronto"
-    },
-    {
-      "name": "Barna, Barnab\u00e1s"
-    },
-    {
-      "name": "Gautam, Gaurav"
-    },
-    {
-      "name": "Arya, Atharva"
+      "name": "Sim, Stuart",
+      "orcid": "0000-0002-9774-1192",
+      "affiliation": "Queen's University Belfast"
     },
     {
       "name": "Cawley, Kevin"
     },
     {
-      "name": "O'Brien, Jack"
+      "name": "Williamson, Marc",
+      "orcid": "0000-0003-2544-4516",
+      "affiliation": "New York University"
+    },
+    {
+      "name": "Klauser, Michael"
+    },
+    {
+      "name": "Suban-Loewen, Adam"
+    },
+    {
+      "name": "Gautam, Gaurav"
     },
     {
       "name": "Barbosa, Talytha"
@@ -178,6 +162,11 @@
       "name": "Savel, Arjun"
     },
     {
+      "name": "Fl\u00f6rs, Andreas",
+      "orcid": "0000-0003-2024-2819",
+      "affiliation": "GSI Helmholtz Centre for Heavy Ion Research"
+    },
+    {
       "name": "Reinecke, Martin"
     },
     {
@@ -194,19 +183,13 @@
       "name": "Bylund, Tomas"
     },
     {
-      "name": "Visser, Erin"
-    },
-    {
-      "name": "Black, William"
-    },
-    {
       "name": "Bentil, Laud"
     },
     {
-      "name": "Kumar, Asish"
+      "name": "Visser, Erin"
     },
     {
-      "name": "Dutta, Anirban"
+      "name": "Kumar, Asish"
     },
     {
       "name": "Eguren, Jordi",
@@ -214,6 +197,11 @@
     },
     {
       "name": "Bartnik, Matthew"
+    },
+    {
+      "name": "Heringer, Epson",
+      "orcid": "0000-0002-1502-9127",
+      "affiliation": "University of Toronto"
     },
     {
       "name": "Alam, Arib"
@@ -228,16 +216,21 @@
       "name": "Varma Buddaraju, Rohith"
     },
     {
+      "name": "Shingles, Luke"
+    },
+    {
       "name": "Livneh, Ran"
+    },
+    {
+      "name": "Harpole, Alice",
+      "orcid": "0000-0002-1530-781X",
+      "affiliation": "Stony Brook University"
     },
     {
       "name": "Daksh, Ayushi"
     },
     {
       "name": "Kambham, Satwik"
-    },
-    {
-      "name": "Bhakar, Jayant"
     },
     {
       "name": "Powers, Cecelia"
@@ -249,17 +242,14 @@
       "name": "Rajagopalan, Srinath"
     },
     {
+      "name": "Barna, Barnab\u00e1s"
+    },
+    {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
     },
     {
-      "name": "Floers, Andreas"
-    },
-    {
-      "name": "Actions, GitHub"
-    },
-    {
-      "name": "Nitish, P"
+      "name": "Bhakar, Jayant"
     },
     {
       "name": "Jain, Rinkle"
@@ -268,10 +258,18 @@
       "name": "Reichenbach, John"
     },
     {
-      "name": "Chaumal, Aarya"
+      "name": "Nitish, P"
+    },
+    {
+      "name": "Actions, GitHub"
     },
     {
       "name": "Brar, Antreev"
+    },
+    {
+      "name": "Camacho, Yssa",
+      "orcid": "0000-0002-9830-3880",
+      "affiliation": "Rutgers The State University of New Jersey"
     },
     {
       "name": "Selsing, Jonatan"
@@ -286,19 +284,19 @@
       "name": "Sofiatti, Caroline"
     },
     {
-      "name": "Patidar, Abhishek"
-    },
-    {
       "name": "Talegaonkar, Chinmay"
     },
     {
       "name": "Marie Lynn, Haille"
     },
     {
-      "name": "Aggarwal, Yash"
+      "name": "Patidar, Abhishek"
     },
     {
       "name": "Buchner, Johannes"
+    },
+    {
+      "name": "Aggarwal, Yash"
     },
     {
       "name": "Singh Rathore, Parikshit"
@@ -310,13 +308,10 @@
       "name": "Yap, Kevin"
     },
     {
-      "name": "Vieira, Nicholas"
+      "name": "Martinez, Laureano"
     },
     {
       "name": "Patra, Nilesh"
-    },
-    {
-      "name": "Martinez, Laureano"
     },
     {
       "name": "Zingale, Michael"
@@ -337,7 +332,7 @@
       "name": "Wahi, Ujjwal"
     },
     {
-      "name": "Nayak U, Ashwin"
+      "name": "Vieira, Nicholas"
     },
     {
       "name": "Prasad, Shilpi"
@@ -368,6 +363,14 @@
     },
     {
       "name": "Kolliboyina, Chaitanya"
+    },
+    {
+      "name": "Nayak U, Ashwin"
+    },
+    {
+      "name": "Beaujean, Frederik",
+      "orcid": "0000-0001-9901-8785",
+      "affiliation": "Ludwig-Maximilians-Universit\u00e4t M\u00fcnchen Fakult\u00e4t f\u00fcr Physik"
     }
   ]
 }
