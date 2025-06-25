@@ -140,13 +140,7 @@
       "name": "Arya, Atharva"
     },
     {
-      "name": "Smith, Isaac"
-    },
-    {
       "name": "Cawley, Kevin"
-    },
-    {
-      "name": "Shields, Joshua"
     },
     {
       "name": "O'Brien, Jack"
@@ -159,11 +153,6 @@
     },
     {
       "name": "Yu, Jenny"
-    },
-    {
-      "name": "Shields, Josh",
-      "orcid": "0000-0002-1560-5286",
-      "affiliation": "Michigan State University"
     },
     {
       "name": "Patel, Maryam"
@@ -184,9 +173,6 @@
     },
     {
       "name": "Singh, Shreyas"
-    },
-    {
-      "name": "Gupta, Sumit"
     },
     {
       "name": "Savel, Arjun"
@@ -225,9 +211,6 @@
     {
       "name": "Eguren, Jordi",
       "orcid": "0000-0002-2328-8030"
-    },
-    {
-      "name": "Kumar, Ansh"
     },
     {
       "name": "Bartnik, Matthew"
@@ -285,22 +268,13 @@
       "name": "Reichenbach, John"
     },
     {
-      "name": "Singh, Sourav"
-    },
-    {
       "name": "Chaumal, Aarya"
-    },
-    {
-      "name": "Gupta, Harshul"
     },
     {
       "name": "Brar, Antreev"
     },
     {
       "name": "Selsing, Jonatan"
-    },
-    {
-      "name": "Kumar, Aman"
     },
     {
       "name": "Matsumura, Yuki"
@@ -325,9 +299,6 @@
     },
     {
       "name": "Buchner, Johannes"
-    },
-    {
-      "name": "Patel, Pratik"
     },
     {
       "name": "Singh Rathore, Parikshit"
@@ -369,9 +340,6 @@
       "name": "Nayak U, Ashwin"
     },
     {
-      "name": "Gupta, Suyash"
-    },
-    {
       "name": "Prasad, Shilpi"
     },
     {
@@ -382,9 +350,6 @@
     },
     {
       "name": "Gajanan Nalbalwar, Rudraksh"
-    },
-    {
-      "name": "Prasad, Rohit"
     },
     {
       "name": "Volodin, Dmitry"
@@ -400,9 +365,6 @@
     },
     {
       "name": "Kharkar, Atharwa"
-    },
-    {
-      "name": "Kumar, Atul"
     },
     {
       "name": "Kolliboyina, Chaitanya"
