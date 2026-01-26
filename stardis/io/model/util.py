@@ -22,6 +22,7 @@ def create_scaled_solar_profile(
     atom_data,
     helium_mass_frac_Y=ASPLUND_2020_HE_MASS_FRAC_Y,
     heavy_metal_mass_frac_Z=ASPLUND_2020_HEAVY_MASS_FRAC_Z,
+    feh=None,
     final_atomic_number=None,
     composition_source="asplund_2020",
 ):
@@ -34,6 +35,9 @@ def create_scaled_solar_profile(
         atom_data: The atom data used to scale the solar mass fractions.
         helium_mass_frac_Y: The helium abundance. -99 does not rescale.
         heavy_metal_mass_frac_Z: The metallicity. -99 does not rescale.
+        feh: The metallicity [Fe/H]. If specified, heavy_metal_mass_frac_Z is ignored.
+        final_atomic_number: The atomic number of the heaviest element to use.
+        composition_source: The source of the solar composition data.
 
     Returns:
         pandas.DataFrame: The scaled mass fractions.
@@ -51,6 +55,9 @@ def create_scaled_solar_profile(
         raise ValueError(
             f"Unknown composition source: {composition_source}. Use 'asplund_2009' or 'asplund_2020'."
         )
+
+    if feh is not None:
+        heavy_metal_mass_frac_Z = he_z_tot * 10**feh
 
     solar_values = pd.read_csv(path_to_solar_data_table, index_col=0)
 
