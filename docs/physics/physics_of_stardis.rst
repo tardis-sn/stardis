@@ -124,20 +124,40 @@ The line profile centered at the resonant frequency :math:`v_{lu}` is then:
 Transport
 =========
 
-Finally, we use the opacity information to trace beams of light coming from the photosphere at different angles and frequencies to find the final intensity. We use the equation
+Finally, we use the opacity information to trace beams of light coming from the photosphere at different angles and frequencies to find the final intensity. The specific intensity :math:`I_\nu` along a ray satisfies the radiative transfer equation
 
 .. math::
-   I_{N + 1}(v, \theta) = I_N(v, \theta) e^{-\tau} + (1 - e^{- \tau}) B_{N + 1} (v) + (1 - e^{-\tau} - \tau e^{-\tau}) \frac{\Delta B_{N + 1}(v)}{\tau}
+   \frac{dI_\nu}{d\tau_\nu} = I_\nu - S_\nu
 
-where :math:`\tau = \frac{\alpha l}{\cos \theta}` is the *optical depth*, :math:`l` is the depth of each shell, and :math:`B(v)` is the blackbody distribution.
+where :math:`\tau_\nu` is the optical depth and :math:`S_\nu = B_\nu(T)` is the source function, equal to the Planck function under LTE.
+
+We solve this using the second-order short-characteristics method of `van Noort et al. (2002) <https://doi.org/10.1086/338949>`_. The formal solution between two consecutive depth points 1 and 2 is
+
+.. math::
+   I_2 = I_1 e^{-\Delta\tau_{1,2}} + w_0 S_2 + w_1 \left. \frac{\partial S}{\partial \tau} \right|_2 + w_2 \left. \frac{1}{2} \frac{\partial^2 S}{\partial \tau^2} \right|_2
+
+where :math:`\Delta\tau_{1,2}` is the optical depth difference between points 1 and 2, and the integration weights are
+
+.. math::
+   w_0 &= 1 - e^{-\Delta\tau_{1,2}} \\
+   w_1 &= w_0 - \Delta\tau_{1,2} \, e^{-\Delta\tau_{1,2}} \\
+   w_2 &= 2 w_1 - (\Delta\tau_{1,2})^2 \, e^{-\Delta\tau_{1,2}}
+
+The derivatives of the source function are approximated by second-order finite differences using three consecutive depth points (1, 2, 3):
+
+.. math::
+   \left. \frac{\partial S}{\partial \tau} \right|_2 = \frac{(S_2 - S_3)(\Delta\tau_{1,2} / \Delta\tau_{2,3}) - (S_2 - S_1)(\Delta\tau_{2,3} / \Delta\tau_{1,2})}{\Delta\tau_{1,2} + \Delta\tau_{2,3}}
+
+.. math::
+   \left. \frac{1}{2} \frac{\partial^2 S}{\partial \tau^2} \right|_2 = \frac{(S_3 - S_2) / \Delta\tau_{2,3} + (S_1 - S_2) / \Delta\tau_{1,2}}{\Delta\tau_{1,2} + \Delta\tau_{2,3}}
+
+The optical depth between consecutive depth points is :math:`\Delta\tau = \frac{\bar{\alpha} \, l}{\cos \theta}`, where :math:`\bar{\alpha}` is the mean opacity between the two points, :math:`l` is the distance between depth points, and :math:`\theta` is the ray angle.
 
 .. image:: media/transport.png
    :width: 500 px
    :alt: A diagram of how the opacity is a function of the angle and frequency of a location in the photosphere
 
-
 The flux density (the desired spectrum) is then:
 
 .. math::
-   F(v) = 2 \pi \int_0^{\frac{\pi}{2}} I(v, \theta) \sin \theta \cos \theta \, d \theta.
-
+   F(\nu) = 2 \pi \int_0^{\frac{\pi}{2}} I(\nu, \theta) \sin \theta \cos \theta \, d \theta.
