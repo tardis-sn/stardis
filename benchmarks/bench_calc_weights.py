@@ -1,4 +1,3 @@
-# Import necessary code
 import numpy as np
 from stardis.radiation_field.radiation_field_solvers.base import (
     calc_weights,
@@ -25,12 +24,6 @@ class BenchCalcWeightsSmall:
     def time_calc_weights_parallel(self):
         calc_weights_parallel(self.delta_tau)
 
-    def peakmem_calc_weights(self):
-        calc_weights(self.delta_tau)
-
-    def peakmem_calc_weights_parallel(self):
-        calc_weights_parallel(self.delta_tau)
-
 
 class BenchCalcWeightsLarge:
     """
@@ -49,10 +42,4 @@ class BenchCalcWeightsLarge:
         calc_weights(self.delta_tau)
 
     def time_calc_weights_parallel(self):
-        calc_weights_parallel(self.delta_tau)
-
-    def peakmem_calc_weights(self):
-        calc_weights(self.delta_tau)
-
-    def peakmem_calc_weights_parallel(self):
         calc_weights_parallel(self.delta_tau)
