@@ -58,18 +58,18 @@ def example_tracing_nus():
 
 @pytest.fixture(scope="session")
 def example_kurucz_atomic_data():
-    download_atom_data("kurucz_cd23_chianti_H_He")
-    return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
+    download_atom_data("kurucz_cd23_chianti_H_He_latest")
+    return AtomData.from_hdf("kurucz_cd23_chianti_H_He_latest.h5")
 
 
 @pytest.fixture(scope="session")
 def example_kurucz_atomic_data_broadening():
-    return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
+    return AtomData.from_hdf("kurucz_cd23_chianti_H_He_latest.h5")
 
 
 @pytest.fixture(scope="session")
 def example_kurucz_atomic_data_parllel():
-    return AtomData.from_hdf("kurucz_cd23_chianti_H_He.h5")
+    return AtomData.from_hdf("kurucz_cd23_chianti_H_He_latest.h5")
 
 
 @pytest.fixture(scope="session")
@@ -141,7 +141,7 @@ def example_stellar_plasma_parallel(
                     len(
                         example_stellar_model.composition.elemental_mass_fraction.columns.tolist()
                     ),
-                    example_config_parallel.model.final_atomic_number,
+                    example_config_parallel.input_model.final_atomic_number,
                 ]
             )
             + 1,
@@ -171,7 +171,7 @@ def example_stellar_plasma_broadening(
                     len(
                         example_stellar_model.composition.elemental_mass_fraction.columns.tolist()
                     ),
-                    example_config_broadening.model.final_atomic_number,
+                    example_config_broadening.input_model.final_atomic_number,
                 ]
             )
             + 1,

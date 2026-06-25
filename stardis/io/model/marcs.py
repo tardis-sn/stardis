@@ -109,12 +109,12 @@ class MARCSModel(object):
         atomic_mass_fraction["mass_number"] = -1
         atomic_mass_fraction.set_index("mass_number", append=True, inplace=True)
         atomic_mass_fraction.index.name = "atomic_number"
-        return Composition(
-            density,
-            atomic_mass_fraction,
-            raw_isotope_abundance=None,
-            element_masses=atom_data.atom_data.mass.copy(),
+        composition = Composition(density, atomic_mass_fraction)
+        composition.nuclide_masses = atom_data.atom_data.mass.copy()
+        composition.elemental_number_density = (
+            composition.calculate_elemental_number_density(composition.nuclide_masses)
         )
+        return composition
 
     def convert_marcs_raw_abundances_to_mass_fractions(
         self, atom_data, final_atomic_number

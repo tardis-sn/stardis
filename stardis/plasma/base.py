@@ -519,13 +519,15 @@ def create_stellar_plasma(
         tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE
     )
 
-    plasma_modules.remove(TauSobolev)
-    plasma_modules.remove(tardis.plasma.properties.plasma_input.TimeExplosion)
-    plasma_modules.remove(tardis.plasma.properties.plasma_input.DilutionFactor)
-    plasma_modules.remove(tardis.plasma.properties.plasma_input.HeliumTreatment)
-    plasma_modules.remove(
-        tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies
-    )
+    for plasma_module in (
+        TauSobolev,
+        tardis.plasma.properties.plasma_input.TimeExplosion,
+        tardis.plasma.properties.plasma_input.DilutionFactor,
+        tardis.plasma.properties.plasma_input.HeliumTreatment,
+        tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies,
+    ):
+        if plasma_module in plasma_modules:
+            plasma_modules.remove(plasma_module)
     plasma_modules += helium_lte_properties
 
     if hasattr(config.opacity.file, "Hminus_bf"):
