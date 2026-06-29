@@ -13,6 +13,11 @@ on:
         required: false
         default: false
         type: boolean
+      atom-data-sparse:
+        description: "If true, only caches atom_data/kurucz_cd23_chianti_H_He_latest.h5 instead of full regression data"
+        required: false
+        default: false
+        type: boolean
 
 defaults:
   run:
@@ -21,7 +26,7 @@ defaults:
 concurrency:
   # Only one workflow can run at a time
   # the workflow group is a unique identifier and contains the workflow name, pull request number, and regression data repo
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.regression-data-repo }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.regression-data-repo }}-${{ inputs.atom-data-sparse }}
   cancel-in-progress: true
 
 
@@ -30,22 +35,38 @@ jobs:
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout regression data
+        if: ${{ !inputs.atom-data-sparse }}
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: stardis-regression-data
+
+      - name: Checkout atom data
+        if: ${{ inputs.atom-data-sparse }}
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.regression-data-repo }}
+          path: tardis-regression-data
+          sparse-checkout: atom_data/kurucz_cd23_chianti_H_He_latest.h5
     
       - name: Create LFS file list
         run: |
-          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
-        working-directory: stardis-regression-data
+          if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
+            echo "Using atom data sparse checkout"
+            echo "atom_data/kurucz_cd23_chianti_H_He_latest.h5" > .lfs-files-list
+          else
+            echo "Using full repository checkout"
+            git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
+          fi
+        working-directory: ${{ inputs.atom-data-sparse && 'tardis-regression-data' || 'stardis-regression-data' }}
 
       - name: Test cache availability
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: test-lfs-cache-regression-data
         with:
-          path: stardis-regression-data/.git/lfs
-          key: stardis-regression-full-data-${{ hashFiles('stardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+          path: ${{ inputs.atom-data-sparse && 'tardis-regression-data/.git/lfs' || 'stardis-regression-data/.git/lfs' }}
+          key: ${{ inputs.atom-data-sparse && format('tardis-regression-atom-data-sparse-{0}-{1}-v1', hashFiles('tardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) || format('stardis-regression-full-data-{0}-{1}-v1', hashFiles('stardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) }}
           lookup-only: true
   
       - name: Fail if LFS pull is needed but not allowed
@@ -60,16 +81,27 @@ jobs:
         if: |
           steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
           inputs.allow_lfs_pull == true
-        run: git lfs pull
-        working-directory: stardis-regression-data
+        run: |
+          if [ "${{ inputs.atom-data-sparse }}" = "true" ]; then
+            git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He_latest.h5" --exclude=""
+          else
+            git lfs pull
+          fi
+        working-directory: ${{ inputs.atom-data-sparse && 'tardis-regression-data' || 'stardis-regression-data' }}
 
-      - name: Git LFS Checkout
+      - name: Git LFS Checkout (Full)
+        if: inputs.atom-data-sparse != true
         run: git lfs checkout
         working-directory: stardis-regression-data
+
+      - name: Git LFS Checkout (Sparse)
+        if: inputs.atom-data-sparse == true
+        run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He_latest.h5
+        working-directory: tardis-regression-data
   
       - name: Save LFS cache if not found
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' }}
         with:
-          path: stardis-regression-data/.git/lfs
-          key: stardis-regression-full-data-${{ hashFiles('stardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+          path: ${{ inputs.atom-data-sparse && 'tardis-regression-data/.git/lfs' || 'stardis-regression-data/.git/lfs' }}
+          key: ${{ inputs.atom-data-sparse && format('tardis-regression-atom-data-sparse-{0}-{1}-v1', hashFiles('tardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) || format('stardis-regression-full-data-{0}-{1}-v1', hashFiles('stardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) }}

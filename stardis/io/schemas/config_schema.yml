@@ -27,8 +27,8 @@ properties:
         default: {}
         $ref: result_options.yml
         description: Options for what to return from the simulation.
-    required:
-    - stardis_config_version
-    - atom_data
-    - model
-    - opacity
+required:
+- stardis_config_version
+- atom_data
+- input_model
+- opacity

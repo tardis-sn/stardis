@@ -4,7 +4,7 @@ from stardis.radiation_field.opacities import Opacities
 from stardis.radiation_field.opacities.opacities_solvers import calc_alphas
 from stardis.radiation_field.radiation_field_solvers import raytrace
 from stardis.radiation_field.source_functions.blackbody import blackbody_flux_at_nu
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 
 logger = logging.getLogger(__name__)
 

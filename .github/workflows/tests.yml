@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
   workflow_call:
   workflow_dispatch:
 
@@ -26,8 +32,15 @@ jobs:
       regression-data-repo: tardis-sn/stardis-regression-data
       allow_lfs_pull: ${{ github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
+  atom-data-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      atom-data-sparse: true
+      regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: true
+
   build:
-    needs: lfs-cache
+    needs: [lfs-cache, atom-data-cache]
     if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
@@ -56,12 +69,23 @@ jobs:
       - name: Install TARDIS
         id: install-tardis
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@release-2024.08.25
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2026.06.28
           
       - name: Install STARDIS
         id: install-stardis
         run: |
           pip install -e .[test]
+
+      - name: Setup atom data
+        uses: ./.github/actions/setup_lfs
+        with:
+          atom-data-sparse: true
+          regression-data-repo: tardis-sn/tardis-regression-data
+
+      - name: Copy atom data
+        run: |
+          mkdir -p ~/Downloads/tardis-data
+          cp ./tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He_latest.h5 ~/Downloads/tardis-data/
           
       - name: Run tests
         run: pytest ${{ env.PYTEST_FLAGS }}          

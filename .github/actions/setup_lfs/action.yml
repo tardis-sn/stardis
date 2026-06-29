@@ -6,33 +6,72 @@ inputs:
     description: "Repository containing regression data (format: owner/repo)"
     required: false
     default: "tardis-sn/stardis-regression-data"
+  atom-data-sparse:
+    description: "If true, only downloads atom_data/kurucz_cd23_chianti_H_He_latest.h5 instead of full regression data"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
   steps:
-    - name: Clone tardis-sn/stardis-regression-data
-      uses: actions/checkout@v4
+    - name: Configure LFS checkout
+      id: lfs-config
+      run: |
+        if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
+          echo "repo-path=tardis-regression-data" >> "$GITHUB_OUTPUT"
+          echo "cache-prefix=tardis-regression-atom-data-sparse" >> "$GITHUB_OUTPUT"
+          echo "checkout-path=atom_data/kurucz_cd23_chianti_H_He_latest.h5" >> "$GITHUB_OUTPUT"
+        else
+          echo "repo-path=stardis-regression-data" >> "$GITHUB_OUTPUT"
+          echo "cache-prefix=stardis-regression-full-data" >> "$GITHUB_OUTPUT"
+          echo "checkout-path=" >> "$GITHUB_OUTPUT"
+        fi
+      shell: bash
+
+    - name: Clone regression data
+      if: ${{ inputs.atom-data-sparse != 'true' }}
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.regression-data-repo }}
         path: stardis-regression-data
         lfs: false
 
+    - name: Clone atom data
+      if: ${{ inputs.atom-data-sparse == 'true' }}
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ inputs.regression-data-repo }}
+        path: tardis-regression-data
+        sparse-checkout: atom_data/kurucz_cd23_chianti_H_He_latest.h5
+        lfs: false
+
     - name: Create LFS file list
       run: |
-        git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
-      working-directory: stardis-regression-data
+        if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
+          echo "Using atom data sparse checkout"
+          echo "atom_data/kurucz_cd23_chianti_H_He_latest.h5" > .lfs-files-list
+        else
+          echo "Using full repository checkout"
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
+        fi
+      working-directory: ${{ steps.lfs-config.outputs.repo-path }}
       shell: bash
     
     - name: Restore LFS cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       id: lfs-cache-regression-data
       with:
-        path: stardis-regression-data/.git/lfs
-        key: stardis-regression-full-data-${{ hashFiles('stardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+        path: ${{ steps.lfs-config.outputs.repo-path }}/.git/lfs
+        key: ${{ format('{0}-{1}-{2}-v1', steps.lfs-config.outputs.cache-prefix, hashFiles(format('{0}/.lfs-files-list', steps.lfs-config.outputs.repo-path)), inputs.regression-data-repo) }}
         fail-on-cache-miss: true
 
     - name: Git LFS Checkout
       if: steps.lfs-cache-regression-data.outputs.cache-hit == 'true'
-      run: git lfs checkout
-      working-directory: stardis-regression-data
+      run: |
+        if [ -n "${{ steps.lfs-config.outputs.checkout-path }}" ]; then
+          git lfs checkout "${{ steps.lfs-config.outputs.checkout-path }}"
+        else
+          git lfs checkout
+        fi
+      working-directory: ${{ steps.lfs-config.outputs.repo-path }}
       shell: bash

@@ -30,8 +30,6 @@ plasma_properties = [
     "wavelength_cm",
 ]
 
-plasma_properties_complex = []
-
 
 def test_stardis_stellar_model(example_stardis_output, regression_data):
     actual = example_stardis_output.stellar_model
@@ -51,19 +49,21 @@ def test_stardis_stellar_model_geometry(example_stardis_output, regression_data)
 def test_stardis_plasma(example_stardis_output, regression_data):
     expected = regression_data.sync_hdf_store(example_stardis_output.stellar_plasma)
     actual_plasma = example_stardis_output.stellar_plasma
+    plasma_properties_complex = []
     for item in plasma_properties:
         actual_item = getattr(actual_plasma, item)
         expected_item = expected[f"plasma/{item}"]
         if isinstance(actual_item, list):
-            actual_item = np.ndarray(actual_item)
+            pd.testing.assert_frame_equal(pd.DataFrame([actual_item]), expected_item)
+            continue
 
         if any(
             isinstance(actual_item, object_type)
             for object_type in [pd.MultiIndex, pd.Index]
         ):
-            expected_item = expected[f"plasma/{item}"].values.flatten()
-            np.testing.assert_array_equal(actual_item.values, expected_item)
-
+            pd.testing.assert_frame_equal(
+                actual_item.to_frame(index=False), expected_item
+            )
         elif isinstance(actual_item, np.ndarray):
             np.testing.assert_allclose(
                 actual=actual_item,
