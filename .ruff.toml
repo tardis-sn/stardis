@@ -1,0 +1,13 @@
+# Ruff configuration file adapted from TARDIS/Astropy.
+target-version = "py314"
+src = ["stardis"]
+
+[lint]
+select = [
+    "E",
+    "W",
+]
+ignore = [
+    "E501",  # line-too-long
+    "E722",  # bare-except
+]

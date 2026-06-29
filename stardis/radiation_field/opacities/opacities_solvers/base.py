@@ -389,11 +389,8 @@ def calc_alpha_line_at_nu(
             right_on=["atomic_number", "ion_number", "level_number"],
         ).rename(columns={"energy": "level_energy_upper"})
 
-    tracing_nu_min = tracing_nus.min()
-    tracing_nu_max = tracing_nus.max()
-    if hasattr(tracing_nu_min, "to_value"):
-        tracing_nu_min = tracing_nu_min.to_value("Hz")
-        tracing_nu_max = tracing_nu_max.to_value("Hz")
+    tracing_nu_min = tracing_nus.min().to_value("Hz")
+    tracing_nu_max = tracing_nus.max().to_value("Hz")
 
     lines_sorted = lines.sort_values("nu")
     lines_sorted_in_range = lines_sorted[
