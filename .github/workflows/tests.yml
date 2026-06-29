@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
   workflow_call:
   workflow_dispatch:
 
@@ -31,7 +37,7 @@ jobs:
     with:
       atom-data-sparse: true
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+      allow_lfs_pull: true
 
   build:
     needs: [lfs-cache, atom-data-cache]
