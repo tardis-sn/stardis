@@ -8,6 +8,9 @@ select = [
     "W",
 ]
 ignore = [
+    "E402",  # module-import-not-at-top-of-file
     "E501",  # line-too-long
     "E722",  # bare-except
+    "W291",  # trailing-whitespace
+    "W292",  # missing-newline-at-end-of-file
 ]
