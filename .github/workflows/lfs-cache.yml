@@ -14,7 +14,7 @@ on:
         default: false
         type: boolean
       atom-data-sparse:
-        description: "If true, only cache the standard TARDIS atom-data file"
+        description: "If true, only caches atom_data/kurucz_cd23_chianti_H_He_latest.h5 instead of full regression data"
         required: false
         default: false
         type: boolean
@@ -37,14 +37,14 @@ jobs:
     steps:
       - name: Checkout regression data
         if: ${{ !inputs.atom-data-sparse }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: stardis-regression-data
 
       - name: Checkout atom data
         if: ${{ inputs.atom-data-sparse }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: tardis-regression-data
@@ -52,19 +52,21 @@ jobs:
     
       - name: Create LFS file list
         run: |
-          if [ "${{ inputs.atom-data-sparse }}" = "true" ]; then
-            git lfs ls-files -l | grep 'atom_data/kurucz_cd23_chianti_H_He_latest.h5' | cut -d' ' -f1 | sort > .lfs-files-list
+          if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
+            echo "Using atom data sparse checkout"
+            echo "atom_data/kurucz_cd23_chianti_H_He_latest.h5" > .lfs-files-list
           else
+            echo "Using full repository checkout"
             git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
           fi
         working-directory: ${{ inputs.atom-data-sparse && 'tardis-regression-data' || 'stardis-regression-data' }}
 
       - name: Test cache availability
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: test-lfs-cache-regression-data
         with:
           path: ${{ inputs.atom-data-sparse && 'tardis-regression-data/.git/lfs' || 'stardis-regression-data/.git/lfs' }}
-          key: ${{ inputs.atom-data-sparse && format('stardis-regression-atom-data-{0}-{1}-v1', hashFiles('tardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) || format('stardis-regression-full-data-{0}-{1}-v1', hashFiles('stardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) }}
+          key: ${{ inputs.atom-data-sparse && format('tardis-regression-atom-data-sparse-{0}-{1}-v1', hashFiles('tardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) || format('stardis-regression-full-data-{0}-{1}-v1', hashFiles('stardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) }}
           lookup-only: true
   
       - name: Fail if LFS pull is needed but not allowed
@@ -87,13 +89,19 @@ jobs:
           fi
         working-directory: ${{ inputs.atom-data-sparse && 'tardis-regression-data' || 'stardis-regression-data' }}
 
-      - name: Git LFS Checkout
+      - name: Git LFS Checkout (Full)
+        if: inputs.atom-data-sparse != true
         run: git lfs checkout
-        working-directory: ${{ inputs.atom-data-sparse && 'tardis-regression-data' || 'stardis-regression-data' }}
+        working-directory: stardis-regression-data
+
+      - name: Git LFS Checkout (Sparse)
+        if: inputs.atom-data-sparse == true
+        run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He_latest.h5
+        working-directory: tardis-regression-data
   
       - name: Save LFS cache if not found
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' }}
         with:
           path: ${{ inputs.atom-data-sparse && 'tardis-regression-data/.git/lfs' || 'stardis-regression-data/.git/lfs' }}
-          key: ${{ inputs.atom-data-sparse && format('stardis-regression-atom-data-{0}-{1}-v1', hashFiles('tardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) || format('stardis-regression-full-data-{0}-{1}-v1', hashFiles('stardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) }}
+          key: ${{ inputs.atom-data-sparse && format('tardis-regression-atom-data-sparse-{0}-{1}-v1', hashFiles('tardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) || format('stardis-regression-full-data-{0}-{1}-v1', hashFiles('stardis-regression-data/.lfs-files-list'), inputs.regression-data-repo) }}
