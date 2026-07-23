@@ -17,8 +17,6 @@ plasma_properties = [
     "lines_lower_level_index",
     "lines_upper_level_index",
     "metastability",
-    "nlte_excitation_species",
-    "nlte_ionization_species",
     "nu",
     "number_density",
     "partition_function",
