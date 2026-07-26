@@ -69,7 +69,7 @@ jobs:
       - name: Install TARDIS
         id: install-tardis
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@release-2026.07.25
+          pip install git+https://github.com/tardis-sn/tardis.git@release-2026.07.26
           
       - name: Install STARDIS
         id: install-stardis
