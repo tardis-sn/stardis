@@ -566,8 +566,6 @@ def create_stellar_plasma(
         atomic_data=atom_data,
         number_density=stellar_model.composition.elemental_number_density,
         link_t_rad_t_electron=1.0,
-        nlte_ionization_species=[],
-        nlte_excitation_species=[],
         plasma_solver_settings=None,
         j_blues=None,
     )
