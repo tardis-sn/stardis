@@ -27,7 +27,6 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
     "sphinx.ext.inheritance_diagram",
@@ -41,6 +40,8 @@ extensions = [
     "numpydoc",
     "matplotlib.sphinxext.plot_directive",
 ]
+
+autosectionlabel_prefix_document = True
 
 bibtex_bibfiles = ["stardis.bib"]
 
@@ -58,11 +59,6 @@ source_suffix = ".rst"
 
 # The master toctree document.
 master_doc = "index"
-
-# -- Options for intersphinx extension ---------------------------------------
-
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"https://docs.python.org/": None}
 
 # -- Options for HTML output -------------------------------------------------
 

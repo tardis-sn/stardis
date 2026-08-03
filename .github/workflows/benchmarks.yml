@@ -17,7 +17,7 @@ on:
 
 env: 
   DEPLOY_BRANCH: main
-  TARDIS_VER: release-2024.08.25 # master 
+  TARDIS_VER: release-2026.07.05
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -87,7 +87,7 @@ jobs:
           init-shell: >-
             bash
           create-args: >-
-            python
+            python=3.14
             asv=0.6.4
             mamba
             libmambapy<2.0

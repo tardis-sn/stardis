@@ -16,11 +16,13 @@ STARDIS assumes that the stellar atmosphere is spherically symmetric. It solves 
 Opacities
 =========
 
-To determine an output spectrum, we need to understand how photons of light move through the atmosphere and what interactions they experience. Opacity is a measure of how likely it is that light will be scattered or absorbed by some material, like the stellar plasma, per unit distance it travels. This is contributed to by several mechanisms, which are described :ref:`below<Opacity Sources>`.
+To determine an output spectrum, we need to understand how photons of light move through the atmosphere and what interactions they experience. Opacity is a measure of how likely it is that light will be scattered or absorbed by some material, like the stellar plasma, per unit distance it travels. This is contributed to by several mechanisms, which are described :ref:`below<opacity-sources>`.
 
 ---------------
 Opacity Sources
 ---------------
+
+.. _opacity-sources:
 
 The first four of these interactions are called continuum interactions, as they affect light at a large range of frequencies. Line interactions, on the other hand, only occur with light around specific frequencies, corresponding to difference in potential energy of an electron before and after it transitions between states. These are called *resonant frequencies*.
 
@@ -140,4 +142,3 @@ The flux density (the desired spectrum) is then:
 
 .. math::
    F(v) = 2 \pi \int_0^{\frac{\pi}{2}} I(v, \theta) \sin \theta \cos \theta \, d \theta.
-
