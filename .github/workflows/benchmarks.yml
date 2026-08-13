@@ -17,7 +17,7 @@ on:
 
 env: 
   DEPLOY_BRANCH: main
-  TARDIS_VER: release-2026.07.05
+  TARDIS_VER: release-2026.07.26
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
