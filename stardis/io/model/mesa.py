@@ -52,6 +52,7 @@ class MESAModel:
         atom_data,
         helium_mass_frac_Y=ASPLUND_2009_HE_MASS_FRAC_Y,
         heavy_metal_mass_frac_Z=ASPLUND_2009_HEAVY_MASS_FRAC_Z,
+        feh=None,
         final_atomic_number=138,
     ):
         """
@@ -62,6 +63,7 @@ class MESAModel:
             atom_data: The atom data used to create the composition profile.
             helium_mass_frac_Y: The helium abundance.
             heavy_metal_mass_frac_Z: The metallicity.
+            feh: The metallicity [Fe/H].
 
         Returns:
             tuple: A tuple containing the density profile and atomic mass fraction profile.
@@ -76,6 +78,7 @@ class MESAModel:
             atom_data,
             helium_mass_frac_Y,
             heavy_metal_mass_frac_Z,
+            feh=feh,
             final_atomic_number=np.min([final_atomic_number, len(atom_data.atom_data)]),
         )
 
@@ -102,6 +105,7 @@ class MESAModel:
         truncate_to_shell_number=None,
         helium_mass_frac_Y=ASPLUND_2009_HE_MASS_FRAC_Y,
         heavy_metal_mass_frac_Z=ASPLUND_2009_HEAVY_MASS_FRAC_Z,
+        feh=None,
         final_atomic_number=138,
     ):
         """
@@ -112,6 +116,7 @@ class MESAModel:
             truncate_to_shell_number (int, optional): Number of shells to truncate the model to. Defaults to None.
             helium_mass_frac_Y (float, optional): Helium mass fraction. Defaults to 2.492280e-01.
             heavy_metal_mass_frac_Z (float, optional): Heavy metal mass fraction. Defaults to 0.01337.
+            feh (float, optional): Metallicity [Fe/H]. Defaults to None.
 
         Returns:
             StellarModel: StellarModel object representing the MESA model.
@@ -120,12 +125,13 @@ class MESAModel:
             self.truncate_model(truncate_to_shell_number)
         mesa_geometry = self.to_geometry()
         logging.info(
-            f"Creating uniform composition profile from MESA model with helium and metal mass fractions Y = {helium_mass_frac_Y} and Z = {heavy_metal_mass_frac_Z}."
+            f"Creating uniform composition profile from MESA model with helium and metal mass fractions Y = {helium_mass_frac_Y} and Z = {heavy_metal_mass_frac_Z} and [Fe/H] = {feh}."
         )
         mesa_composition = self.to_uniform_composition_from_solar(
             atom_data,
             helium_mass_frac_Y,
             heavy_metal_mass_frac_Z,
+            feh=feh,
             final_atomic_number=final_atomic_number,
         )
         temperatures = np.exp(self.data.lnT.values[::-1]) * u.K

@@ -34,6 +34,10 @@ properties:
         type: number
         default: -99.
         description: The heavy metal mass fraction. Only used if composition is not read from the model file. If not specified will use the default from the composition_source.
+    composition_feh:
+        type: number
+        default: !!null
+        description: The metallicity [Fe/H]. If specified, composition_Z is ignored. Only used if composition is not read from the model file.
     nuclide_rescaling_dict:
         type: object
         default: {}
