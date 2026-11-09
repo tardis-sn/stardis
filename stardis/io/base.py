@@ -128,5 +128,10 @@ def parse_config_to_model(config_fname, add_config_dict=None):
                 list(config.input_model.nuclide_rescaling_dict.values()),
             )
         )
+        stellar_model.composition.elemental_number_density = (
+            stellar_model.composition.calculate_elemental_number_density(
+                stellar_model.composition.nuclide_masses
+            )
+        )
 
     return config, adata, stellar_model
