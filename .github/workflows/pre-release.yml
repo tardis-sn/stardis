@@ -14,7 +14,28 @@ defaults:
     shell: bash -l {0}
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # A tag on HEAD means nothing was committed since the last release
+      - name: Check for commits since the last release
+        id: check
+        run: |
+          if git describe --tags --exact-match --match 'release-*' HEAD; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
   zenodo:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' || needs.check.outputs.changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -51,6 +72,8 @@ jobs:
           include-hidden-files: true
 
   pip_tests:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' || needs.check.outputs.changed == 'true'
     uses: ./.github/workflows/tests.yml
     secrets: inherit
 
