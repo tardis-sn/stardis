@@ -122,3 +122,30 @@ def test_marcs_with_asplund_compositions(
         marcs_test_stellar_model.composition.elemental_mass_fraction.loc[2, 0],
         Y,
     )
+
+
+def test_marcs_with_feh_scaling(marcs_model, example_kurucz_atomic_data, example_config):
+    # Solar composition
+    solar_model = marcs_model.to_stellar_model(
+        example_kurucz_atomic_data,
+        final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source="asplund_2020",
+        feh=0.0,
+    )
+
+    # [Fe/H] = -1.0
+    metal_poor_model = marcs_model.to_stellar_model(
+        example_kurucz_atomic_data,
+        final_atomic_number=example_config.input_model.final_atomic_number,
+        composition_source="asplund_2020",
+        feh=-1.0,
+    )
+
+    solar_Z = solar_model.composition.elemental_mass_fraction.loc[3:].sum(axis=0)[0]
+    metal_poor_Z = (
+        metal_poor_model.composition.elemental_mass_fraction.loc[3:].sum(axis=0)[0]
+    )
+
+    # Approximately 10x smaller, but renormalization affects X and Y slightly
+    # metal_poor_Z / solar_Z should be close to 0.1
+    assert np.allclose(metal_poor_Z / solar_Z, 0.1, rtol=1e-2)

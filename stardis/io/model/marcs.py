@@ -56,6 +56,7 @@ class MARCSModel(object):
         composition_source,
         helium_mass_frac_Y,
         heavy_metal_mass_frac_Z,
+        feh=None,
     ):
         """
         Returns a stardis.model.composition.base.Composition object from the MARCS model.
@@ -72,6 +73,8 @@ class MARCSModel(object):
             Helium mass fraction when not reading composition from model.
         heavy_metal_mass_frac_Z : float, optional
             Heavy element mass fraction when not reading composition from model.
+        feh : float, optional
+            Metallicity [Fe/H] when not reading composition from model.
 
         Returns
         ----------
@@ -91,6 +94,7 @@ class MARCSModel(object):
                 atom_data,
                 helium_mass_frac_Y=helium_mass_frac_Y,
                 heavy_metal_mass_frac_Z=heavy_metal_mass_frac_Z,
+                feh=feh,
                 final_atomic_number=np.min(
                     [final_atomic_number, len(atom_data.atom_data)]
                 ),
@@ -177,6 +181,7 @@ class MARCSModel(object):
         composition_source,
         helium_mass_frac_Y=None,
         heavy_metal_mass_frac_Z=None,
+        feh=None,
     ):
         """
         Produces a stellar model readable by stardis.
@@ -187,6 +192,10 @@ class MARCSModel(object):
         final_atomic_number : int, optional
             Atomic number for the final element included in the model. Default
             is 118, an abitrarily large atomic number so as not to truncate by default.
+        composition_source : str, optional
+        helium_mass_frac_Y : float, optional
+        heavy_metal_mass_frac_Z : float, optional
+        feh : float, optional
 
         Returns
         -------
@@ -199,6 +208,7 @@ class MARCSModel(object):
             composition_source=composition_source,
             helium_mass_frac_Y=helium_mass_frac_Y,
             heavy_metal_mass_frac_Z=heavy_metal_mass_frac_Z,
+            feh=feh,
         )
         temperatures = (
             self.data.t.values[::-1] * u.K

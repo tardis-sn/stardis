@@ -79,6 +79,7 @@ def parse_config_to_model(config_fname, add_config_dict=None):
             composition_source=config.input_model.composition_source,
             helium_mass_frac_Y=config.input_model.composition_Y,
             heavy_metal_mass_frac_Z=config.input_model.composition_Z,
+            feh=config.input_model.composition_feh,
         )
         if config.opacity.line.disable_microturbulence:
             stellar_model.microturbulence = stellar_model.microturbulence * 0.0
@@ -93,7 +94,11 @@ def parse_config_to_model(config_fname, add_config_dict=None):
             )
 
         stellar_model = raw_mesa_model.to_stellar_model(
-            adata, final_atomic_number=config.input_model.final_atomic_number
+            adata,
+            final_atomic_number=config.input_model.final_atomic_number,
+            helium_mass_frac_Y=config.input_model.composition_Y,
+            heavy_metal_mass_frac_Z=config.input_model.composition_Z,
+            feh=config.input_model.composition_feh,
         )
 
     else:
